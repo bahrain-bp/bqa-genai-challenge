@@ -9,10 +9,13 @@ import { HttpOrigin } from "aws-cdk-lib/aws-cloudfront-origins";
 
 import { StaticSite, StackContext, use } from "sst/constructs";
 import { ApiStack } from "./ApiStack";
+import { AuthStack } from "./AuthStack";
 
 export function FrontendStack({ stack }: StackContext) {
 
   const {api, apiCachePolicy} = use(ApiStack);
+ // const {api} = use(AuthStack);
+
   
   // Deploy our React app
   const site = new StaticSite(stack, "ReactSite", {
