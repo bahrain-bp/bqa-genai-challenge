@@ -1,6 +1,6 @@
 import React from "react";
 import { BsFillTrashFill, BsFillPencilFill } from "react-icons/bs";
-import dataJSON from '../../public/data.json';
+//import dataJSON from '../../public/data.json';
 interface TableProps {
   rows: any;  // Ideally, replace 'any' with a more specific type
   deleteRow: (id: string | number) => void;  // Adjust the type according to actual usage
@@ -8,7 +8,7 @@ interface TableProps {
 }
 
 export const Table: React.FC<TableProps> = ({ rows, deleteRow, editRow }) => {
-  const fields=Object.keys(Object.values(dataJSON)[0]).filter((item:any)=>!(item.startsWith("delta_")));
+  //const fields=Object.keys(Object.values(dataJSON)[0]).filter((item:any)=>!(item.startsWith("delta_")));
   
   return (
    

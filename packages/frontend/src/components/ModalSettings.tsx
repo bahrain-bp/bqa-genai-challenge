@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import dataJSON from '../../public/data.json';
+//import dataJSON from '../../public/data.json';
 
 
 interface ModalProps {
