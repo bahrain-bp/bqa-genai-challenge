@@ -13,7 +13,7 @@ import Settings from './pages/Settings';
 import Tables from './pages/Tables';
 import Alerts from './pages/UiElements/Alerts';
 import Buttons from './pages/UiElements/Buttons';
-import PredefinedTemplate from './pages/predefinedTemplate';
+import PredefinedTemplate from './pages/PredefinedTemplate';
 
 function App() {
   const [loading, setLoading] = useState<boolean>(true);
