@@ -28,7 +28,7 @@ const auth = new Cognito(stack, "Auth", {
       },
     },
   });
-
+//helloooo
   const site = new StaticSite(stack, "Site", {
     path: "frontend",
     environment: {
