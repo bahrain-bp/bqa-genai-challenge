@@ -18,6 +18,8 @@ export function ApiStack({ stack }: StackContext) {
         routes: {
             // Sample TypeScript lambda function
             "POST /": "packages/functions/src/lambda.main",
+            "POST /uploadS3": "packages/functions/src/s3Upload.uploadToS3",
+
             // Sample Pyhton lambda function
             "GET /": {
                 function: {

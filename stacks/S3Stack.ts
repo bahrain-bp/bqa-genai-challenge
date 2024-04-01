@@ -26,6 +26,6 @@ export function S3Stack({ stack, app }: StackContext) {
   }
 
   async function configureBucketPolicy(stack: any, bucketName: string, cognitoPoolId: string): Promise<void> {
-    // Your bucket policy configuration logic here
+    // Your bucket policy configuration logic here, to only allow cognito users to upload into the bucket
   }
 }
