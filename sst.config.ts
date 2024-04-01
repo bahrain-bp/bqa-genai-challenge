@@ -5,6 +5,8 @@ import { ApiStack } from "./stacks/ApiStack";
 import { ImageBuilderForCodeCatalyst } from "./stacks/devops/ImageBuilderForCodeCatalyst";
 import { OIDCForGitHubCI } from "./stacks/devops/OIDCForGitHubCI";
 import { AuthStack } from "./stacks/AuthStack";
+import { S3Stack } from "./stacks/S3Stack"
+import { S3 } from "aws-cdk-lib/aws-ses-actions";
 
 export default {
   config(_input) {
@@ -29,7 +31,8 @@ export default {
       app.stack(DBStack)
       .stack(ApiStack)
       .stack(FrontendStack)
-      .stack(AuthStack);
+      .stack(AuthStack)
+      .stack(S3Stack);
     }
   }
 } satisfies SSTConfig;
