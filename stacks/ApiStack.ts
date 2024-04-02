@@ -19,6 +19,12 @@ export function ApiStack({ stack }: StackContext) {
             // Sample TypeScript lambda function
             "POST /": "packages/functions/src/lambda.main",
             "POST /uploadS3": "packages/functions/src/s3Upload.uploadToS3",
+            "GET /detectFileType": {
+                function: {
+                    handler: "packages/functions/detectFileType.detect",
+                    permissions: ["s3"],
+                }
+            },
 
             // Sample Pyhton lambda function
             "GET /": {
@@ -28,8 +34,11 @@ export function ApiStack({ stack }: StackContext) {
                     timeout: "60 seconds",
                 }
             },
+            
         }
+        
     });
+    
 
     // cache policy to use with cloudfront as reverse proxy to avoid cors
     // https://dev.to/larswww/real-world-serverless-part-3-cloudfront-reverse-proxy-no-cors-cgj

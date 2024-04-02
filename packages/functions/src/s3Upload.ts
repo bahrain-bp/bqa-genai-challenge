@@ -8,6 +8,7 @@ export async function uploadToS3(event: any) {
     const { fileData, fileName } = JSON.parse(event.body);
 
     // Define S3 upload parameters
+    //change the bucketname from predefined to be passed in the event body
     const params = {
       Bucket: 'uni-artifacts',
       Key: fileName,
