@@ -1,4 +1,4 @@
-import React from 'react';
+//import React from 'react';
 import Breadcrumb from '../components/Breadcrumbs/Breadcrumb';
 import DefaultLayout from '../layout/DefaultLayout';
 import './BqaDash1.css'; // Custom CSS file for progress bars

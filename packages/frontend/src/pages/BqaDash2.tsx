@@ -6,7 +6,7 @@ import DefaultLayout from '../layout/DefaultLayout';
 //import CardDataStats from '../components/CardDataStats';
 //import { Package } from '../types/package';
 import './BqaDash1.css'; // Custom CSS file for progress bars
-import React from 'react';
+//import React from 'react';
 
 interface Package {
   name: string;
