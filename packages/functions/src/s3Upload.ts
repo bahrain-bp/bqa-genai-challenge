@@ -4,11 +4,14 @@ const s3 = new AWS.S3();
 
 export async function uploadToS3(event: any) {
   try {
-    // Extract the file data from the event
-    const { fileData, fileName } = JSON.parse(event.body);
+    const fileData = event.body; // Binary file data directly available in the event body
+    const fileName = event.headers['file-name']; // Extract file name from headers
+
+    if (!fileName) {
+      throw new Error('File name not provided');
+    }
 
     // Define S3 upload parameters
-    //change the bucketname from predefined to be passed in the event body
     const params = {
       Bucket: 'uni-artifacts',
       Key: fileName,

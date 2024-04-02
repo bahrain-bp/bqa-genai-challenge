@@ -18,7 +18,12 @@ export function ApiStack({ stack }: StackContext) {
         routes: {
             // Sample TypeScript lambda function
             "POST /": "packages/functions/src/lambda.main",
-            "POST /uploadS3": "packages/functions/src/s3Upload.uploadToS3",
+            "POST /uploadS3": {
+                function: {
+                    handler: "packages/functions/src/s3Upload.uploadToS3",
+                    permissions: ["s3"]
+                }
+            },
             "GET /detectFileType": {
                 function: {
                     handler: "packages/functions/detectFileType.detect",
