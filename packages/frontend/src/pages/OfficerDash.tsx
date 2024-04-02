@@ -1,51 +1,75 @@
-import { Package } from '../../types/package';
+import Breadcrumb from '../components/Breadcrumbs/Breadcrumb';
+import DefaultLayout from '../layout/DefaultLayout';
+//import CoverOne from '../images/cover/cover-01.png';
+//import userSix from '../images/user/user-06.png';
+//import { Link } from 'react-router-dom';
+//import CardDataStats from '../components/CardDataStats';
+import { Package } from '../types/package';
+import ChartThree from '../components/Charts/ChartThree';
+import ChartTwo from '../components/Charts/ChartTwo';
+
+
+
 
 const packageData: Package[] = [
-  {
-    name: 'Free package',
-    price: 0.0,
-    invoiceDate: `Jan 13,2023`,
-    size:'',
-    status: 'Paid',
-  },
-  {
-    name: 'Standard Package',
-    price: 59.0,
-    invoiceDate: `Jan 13,2023`,
-    size:'',
+    {
+      name: 'File 1.ppt',
+      price: 0.0,
+      invoiceDate: `Jan 13,2023`,
+      size:'56 MB',
+      status: 'Paid',
+    },
+    {
+      name: 'File 2.png',
+      price: 59.0,
+      invoiceDate: `Jan 13,2023`,
+      size:'45 MB' ,
 
-    status: 'Paid',
-  },
-  {
-    name: 'Business Package',
-    price: 99.0,
-    invoiceDate: `Jan 13,2023`,
-    size:'',
+      status: 'Paid',
+    },
+    {
+      name: 'File 3.tsx',
+      price: 99.0,
+      invoiceDate: `Jan 13,2023`,
+      size:'4 MB',
+      status: 'Unpaid',
+    },
+    {
+      name: 'File 4.pdf',
+      price: 59.0,
+      invoiceDate: `Jan 13,2023`,
+      size:'77 MB' ,
+      status: 'Pending',
+    },
+  ];
 
-    status: 'Unpaid',
-  },
-  {
-    name: 'Standard Package',
-    price: 59.0,
-    invoiceDate: `Jan 13,2023`,
-    size:'',
 
-    status: 'Pending',
-  },
-];
-
-const TableThree = () => {
+const OfficerDash = () => {
   return (
-    <div className="rounded-sm border border-stroke bg-white px-5 pt-6 pb-2.5 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:pb-1">
+    <DefaultLayout>
+      <Breadcrumb pageName="University Officer Dashboard" />
+
+
+      <div className="grid grid-cols-9 gap-4 md:gap-6 2xl:gap-7.5 sm:px-7.5 xl:pb-1">
+        <ChartTwo />
+        <ChartThree />
+        </div>
+
+
+    <div className="rounded-sm border border-stroke bg-white px-5 pt-6 pb-2.5 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 x1:pb-1">
       <div className="max-w-full overflow-x-auto">
         <table className="w-full table-auto">
           <thead>
             <tr className="bg-gray-2 text-left dark:bg-meta-4">
               <th className="min-w-[220px] py-4 px-4 font-medium text-black dark:text-white xl:pl-11">
-                Package
+                File Name
               </th>
               <th className="min-w-[150px] py-4 px-4 font-medium text-black dark:text-white">
-                Invoice date
+                date
+              </th>
+              
+              <th className="py-4 px-4 font-medium text-black dark:text-white">
+                size
               </th>
               <th className="min-w-[120px] py-4 px-4 font-medium text-black dark:text-white">
                 Status
@@ -69,6 +93,11 @@ const TableThree = () => {
                     {packageItem.invoiceDate}
                   </p>
                 </td>
+                <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
+                  <p className="text-black dark:text-white">
+                    {packageItem.size}
+                  </p>
+                  </td>
                 <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
                   <p
                     className={`inline-flex rounded-full bg-opacity-10 py-1 px-3 text-sm font-medium ${
@@ -157,7 +186,10 @@ const TableThree = () => {
         </table>
       </div>
     </div>
+
+
+    </DefaultLayout>
   );
 };
 
-export default TableThree;
+export default OfficerDash;
