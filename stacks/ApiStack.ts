@@ -6,7 +6,7 @@ import { Duration } from "aws-cdk-lib/core";
 export function ApiStack({ stack }: StackContext) {
 
     const {table} = use(DBStack);
-    
+   
     // Create the HTTP API
     const api = new Api(stack, "Api", {
         defaults: {
