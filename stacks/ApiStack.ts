@@ -2,22 +2,33 @@ import { Api, StackContext, use } from "sst/constructs";
 import { DBStack } from "./DBStack";
 import { CacheHeaderBehavior, CachePolicy } from "aws-cdk-lib/aws-cloudfront";
 import { Duration } from "aws-cdk-lib/core";
+import { AuthStack } from "./AuthStack";
 
 export function ApiStack({ stack }: StackContext) {
-
+    const { auth }=use(AuthStack);
     const {table} = use(DBStack);
-    
-    // Create the HTTP API
-    const api = new Api(stack, "Api", {
+    const api = new Api(stack, "signinAPI", {
+        authorizers: {
+          jwt: {
+            type: "user_pool",
+            userPool: {
+              id: auth.userPoolId,
+              clientIds: [auth.userPoolClientId],
+            },
+          },
+        },
         defaults: {
             function: {
                 // Bind the table name to our API
                 bind: [table],
             },
+
+          authorizer: "jwt",
         },
         routes: {
-            // Sample TypeScript lambda function
-            "POST /": "packages/functions/src/lambda.main",
+          "GET /private": "packages/functions/src/private.main",
+          // Sample TypeScript lambda function
+          "POST /": "packages/functions/src/lambda.main",
             // Sample Pyhton lambda function
             "GET /": {
                 function: {
@@ -26,9 +37,13 @@ export function ApiStack({ stack }: StackContext) {
                     timeout: "60 seconds",
                 }
             },
-        }
-    });
 
+
+         
+        },
+      });
+    
+ 
     // cache policy to use with cloudfront as reverse proxy to avoid cors
     // https://dev.to/larswww/real-world-serverless-part-3-cloudfront-reverse-proxy-no-cors-cgj
     const apiCachePolicy = new CachePolicy(stack, "CachePolicy", {
