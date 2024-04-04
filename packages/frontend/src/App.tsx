@@ -39,7 +39,7 @@ function App() {
     const { username, userId: id } = await getCurrentUser();
 
     const attributes = fetchUserAttributes();
-
+    console.log((await attributes).email);
     return {
       id,
       username,
@@ -88,9 +88,8 @@ function App() {
           }
         />
 
-<Route
+        <Route
           path="/OfficerDash"
-          
           element={
             <>
               <PageTitle title="Officer Dashboard | EduScribe" />
@@ -108,7 +107,7 @@ function App() {
             </>
           }
         />
- <Route
+        <Route
           path="/UploadEvidence"
           element={
             <>
@@ -118,28 +117,25 @@ function App() {
           }
         />
 
-<Route
+        <Route
           path="/BqaDash1"
           element={
             <>
-            
               <PageTitle title="Bqa Reviewer Dashboard | EduScribe" />
               <BqaDash1 />
             </>
           }
         />
 
-<Route
+        <Route
           path="/BqaDash2"
           element={
             <>
-            
               <PageTitle title="Bqa Reviewer Dashboard (University Details)| EduScribe" />
               <BqaDash2 />
             </>
           }
         />
-
 
         <Route
           path="/forms/form-elements"

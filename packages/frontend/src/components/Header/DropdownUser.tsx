@@ -4,11 +4,14 @@ import { signOut } from 'aws-amplify/auth';
 import UserOne from '../../images/user/UOB-Logo-Transparant.png';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
+import { getCurrentUser, fetchUserAttributes } from 'aws-amplify/auth';
+
 
 const DropdownUser = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const trigger = useRef<any>(null);
   const dropdown = useRef<any>(null);
+  const [currentEmail, setCurrentEmail] = useState('');
 
   const navigate = useNavigate();
 
@@ -50,6 +53,22 @@ const DropdownUser = () => {
     return () => document.removeEventListener('keydown', keyHandler);
   });
 
+  useEffect(() => {
+    const fetchCurrentUserInfo = async () => {
+      try {
+        const { userId: id } = await getCurrentUser();
+        const attributes = await fetchUserAttributes();
+        const email:any = attributes.email;
+        setCurrentEmail(email);
+      } catch (error) {
+        console.error('Error fetching current user info:', error);
+      }
+    };
+
+    fetchCurrentUserInfo();
+  }, []);
+
+
   return (
     <div className="relative">
       <Link
@@ -61,6 +80,7 @@ const DropdownUser = () => {
         <span className="hidden text-right lg:block">
           <span className="block text-sm font-medium text-black dark:text-white">
             University of Bahrain
+            {currentEmail && ` - ${currentEmail}`}
           </span>
           <span className="block text-xs">Officer</span>
         </span>
