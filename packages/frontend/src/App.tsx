@@ -7,7 +7,7 @@ import { signIn, signOut } from 'aws-amplify/auth';
 import { Navigate } from 'react-router-dom';
 //import SignUp from './pages/Authentication/SignUp';
 import Chart from './pages/Chart';
-import ECommerce from './pages/Dashboard/ECommerce';
+//import ECommerce from './pages/Dashboard/ECommerce';
 import FormElements from './pages/Form/FormElements';
 import FormLayout from './pages/Form/FormLayout';
 import Settings from './pages/Settings';
@@ -15,6 +15,10 @@ import Tables from './pages/Tables';
 import Alerts from './pages/UiElements/Alerts';
 import Buttons from './pages/UiElements/Buttons';
 import PredefinedTemplate from './pages/PredefinedTemplate';
+import UploadEvidence from './pages/UploadEvidence';
+import OfficerDash from './pages/OfficerDash';
+import BqaDash1 from './pages/BqaDash1';
+import BqaDash2 from './pages/BqaDash2';
 //import UploadEvidence from './pages/UploadEvidence';
 import { getCurrentUser, fetchUserAttributes } from 'aws-amplify/auth';
 
@@ -79,7 +83,18 @@ function App() {
           element={
             <>
               <PageTitle title="eCommerce Dashboard | EduScribe" />
-              <ECommerce />
+              <OfficerDash />
+            </>
+          }
+        />
+
+<Route
+          path="/OfficerDash"
+          
+          element={
+            <>
+              <PageTitle title="Officer Dashboard | EduScribe" />
+              <OfficerDash />
             </>
           }
         />
@@ -93,6 +108,38 @@ function App() {
             </>
           }
         />
+ <Route
+          path="/UploadEvidence"
+          element={
+            <>
+              <PageTitle title="Upload Evidence | EduScribe" />
+              <UploadEvidence />
+            </>
+          }
+        />
+
+<Route
+          path="/BqaDash1"
+          element={
+            <>
+            
+              <PageTitle title="Bqa Reviewer Dashboard | EduScribe" />
+              <BqaDash1 />
+            </>
+          }
+        />
+
+<Route
+          path="/BqaDash2"
+          element={
+            <>
+            
+              <PageTitle title="Bqa Reviewer Dashboard (University Details)| EduScribe" />
+              <BqaDash2 />
+            </>
+          }
+        />
+
 
         <Route
           path="/forms/form-elements"
