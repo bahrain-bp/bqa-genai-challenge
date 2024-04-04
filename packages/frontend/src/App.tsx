@@ -2,8 +2,10 @@ import { useEffect, useState } from 'react';
 import { Route, Routes, useLocation } from 'react-router-dom';
 import Loader from './common/Loader';
 import PageTitle from './components/PageTitle';
-import SignIn from './pages/Authentication/SignIn';
-import SignUp from './pages/Authentication/SignUp';
+import SignInPage from './pages/Auth/SigninPage';
+import { Navigate } from 'react-router-dom';
+
+//import SignUp from './pages/Authentication/SignUp';
 import Chart from './pages/Chart';
 //import ECommerce from './pages/Dashboard/ECommerce';
 import FormElements from './pages/Form/FormElements';
@@ -17,11 +19,41 @@ import UploadEvidence from './pages/UploadEvidence';
 import OfficerDash from './pages/OfficerDash';
 import BqaDash1 from './pages/BqaDash1';
 import BqaDash2 from './pages/BqaDash2';
-//
+//import UploadEvidence from './pages/UploadEvidence';
+import { getCurrentUser, fetchUserAttributes } from 'aws-amplify/auth';
+import { ToastContainer } from 'react-toastify';
 
 function App() {
+  const [user, setUser] = useState<any | null>(null);
+
   const [loading, setLoading] = useState<boolean>(true);
   const { pathname } = useLocation();
+
+  // Get the current logged in user info this is not working
+  const getUser = async () => {
+    const user = await getCurrentUserInfo();
+    if (user) setUser(user);
+    setLoading(false);
+  };
+
+  const getCurrentUserInfo = async () => {
+    const { username, userId: id } = await getCurrentUser();
+
+    const attributes = fetchUserAttributes();
+    console.log((await attributes).email);
+    return {
+      id,
+      username,
+      attributes,
+    };
+  };
+
+ 
+
+  // Check if there's any user on mount
+  useEffect(() => {
+    getUser();
+  }, []);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -35,9 +67,17 @@ function App() {
     <Loader />
   ) : (
     <>
+      <ToastContainer position="top-right" />
       <Routes>
+        {/* Route to SignInPage */}
+        <Route path="/" element={<Navigate to="/Auth/SignInPage" />} />
         <Route
-          index
+          path="/Auth/SignInPage"
+          element={<SignInPage setUser={setUser} user={user} />}
+        />
+
+        <Route
+          path="/Dashboard"
           element={
             <>
               <PageTitle title="eCommerce Dashboard | EduScribe" />
@@ -46,9 +86,8 @@ function App() {
           }
         />
 
-<Route
+        <Route
           path="/OfficerDash"
-          
           element={
             <>
               <PageTitle title="Officer Dashboard | EduScribe" />
@@ -56,7 +95,7 @@ function App() {
             </>
           }
         />
-        
+
         <Route
           path="/PredefinedTemplate"
           element={
@@ -66,7 +105,7 @@ function App() {
             </>
           }
         />
- <Route
+        <Route
           path="/UploadEvidence"
           element={
             <>
@@ -76,22 +115,20 @@ function App() {
           }
         />
 
-<Route
+        <Route
           path="/BqaDash1"
           element={
             <>
-            
               <PageTitle title="Bqa Reviewer Dashboard | EduScribe" />
               <BqaDash1 />
             </>
           }
         />
 
-<Route
+        <Route
           path="/BqaDash2"
           element={
             <>
-            
               <PageTitle title="Bqa Reviewer Dashboard (University Details)| EduScribe" />
               <BqaDash2 />
             </>
@@ -158,24 +195,6 @@ function App() {
             <>
               <PageTitle title="Buttons | EduScribe" />
               <Buttons />
-            </>
-          }
-        />
-        <Route
-          path="/auth/signin"
-          element={
-            <>
-              <PageTitle title="Signin | EduScribe" />
-              <SignIn />
-            </>
-          }
-        />
-        <Route
-          path="/auth/signup"
-          element={
-            <>
-              <PageTitle title="Signup | EduScribe" />
-              <SignUp />
             </>
           }
         />

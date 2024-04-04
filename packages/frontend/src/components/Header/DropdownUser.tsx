@@ -1,13 +1,31 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-
+import { signOut } from 'aws-amplify/auth';
 import UserOne from '../../images/user/UOB-Logo-Transparant.png';
+import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
+import {fetchUserAttributes } from 'aws-amplify/auth';
+
 
 const DropdownUser = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
-
   const trigger = useRef<any>(null);
   const dropdown = useRef<any>(null);
+  const [currentEmail, setCurrentEmail] = useState('');
+
+  const navigate = useNavigate();
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      // Navigate to the SignInPage after signing out
+      navigate('/Auth/SignInPage');
+      toast.success('Logged out successfully', { position: 'top-left' });
+    } catch (error) {
+      console.error('Error signing out', error);
+      toast.error('Error during logout', { position: 'top-left' });
+    }
+  };
 
   // close on click outside
   useEffect(() => {
@@ -35,6 +53,21 @@ const DropdownUser = () => {
     return () => document.removeEventListener('keydown', keyHandler);
   });
 
+  useEffect(() => {
+    const fetchCurrentUserInfo = async () => {
+      try {
+        const attributes = await fetchUserAttributes();
+        const email:any = attributes.email;
+        setCurrentEmail(email);
+      } catch (error) {
+        console.error('Error fetching current user info:', error);
+      }
+    };
+
+    fetchCurrentUserInfo();
+  }, []);
+
+
   return (
     <div className="relative">
       <Link
@@ -46,6 +79,7 @@ const DropdownUser = () => {
         <span className="hidden text-right lg:block">
           <span className="block text-sm font-medium text-black dark:text-white">
             University of Bahrain
+            {currentEmail && ` - ${currentEmail}`}
           </span>
           <span className="block text-xs">Officer</span>
         </span>
@@ -234,7 +268,10 @@ const DropdownUser = () => {
             </Link>
           </li>
         </ul>
-        <button className="flex items-center gap-3.5 px-6 py-4 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base">
+        <button
+          className="flex items-center gap-3.5 px-6 py-4 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base"
+          onClick={handleSignOut}
+        >
           <svg
             className="fill-current"
             width="22"

@@ -1,10 +1,11 @@
 import { SSTConfig } from "sst";
+import { AuthStack } from "./stacks/AuthStack";
+import { ApiStack } from "./stacks/ApiStack";
+import {  } from "./stacks/AuthStack";
 import { FrontendStack } from "./stacks/FrontendStack";
 import { DBStack } from "./stacks/DBStack";
-import { ApiStack } from "./stacks/ApiStack";
 import { ImageBuilderForCodeCatalyst } from "./stacks/devops/ImageBuilderForCodeCatalyst";
 import { OIDCForGitHubCI } from "./stacks/devops/OIDCForGitHubCI";
-import { AuthStack } from "./stacks/AuthStack";
 
 export default {
   config(_input) {
@@ -27,9 +28,10 @@ export default {
     }
     else {
       app.stack(DBStack)
+      .stack(AuthStack)
       .stack(ApiStack)
-      .stack(FrontendStack)
-      .stack(AuthStack);
+      .stack(FrontendStack);
+      
     }
   }
 } satisfies SSTConfig;
