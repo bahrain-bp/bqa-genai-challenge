@@ -27,7 +27,7 @@ const SignInPage = ({
     } catch (error) {
       console.error('Error signing in', error);
       toast.error('Error signing in', { position: 'top-right' });
-      //alert(error);
+      
     }
   };
 

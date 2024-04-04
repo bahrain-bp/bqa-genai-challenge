@@ -20,10 +20,10 @@ const DropdownUser = () => {
       await signOut();
       // Navigate to the SignInPage after signing out
       navigate('/Auth/SignInPage');
-      toast.success('Logged out successfully', { position: 'top-center' });
+      toast.success('Logged out successfully', { position: 'top-left' });
     } catch (error) {
       console.error('Error signing out', error);
-      toast.error('Error during logout', { position: 'top-center' });
+      toast.error('Error during logout', { position: 'top-left' });
     }
   };
 
