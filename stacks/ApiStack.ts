@@ -47,7 +47,7 @@ export function ApiStack({ stack }: StackContext) {
                 function: {
                     handler: "packages/functions/src/sample-python-lambda/lambda.main",
                     runtime: "python3.11",
-                    timeout: Duration.seconds(60),
+                     timeout: "60 seconds",
                 }
             },
         },
