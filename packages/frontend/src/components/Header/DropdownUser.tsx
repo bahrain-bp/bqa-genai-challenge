@@ -4,7 +4,7 @@ import { signOut } from 'aws-amplify/auth';
 import UserOne from '../../images/user/UOB-Logo-Transparant.png';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
-import { getCurrentUser, fetchUserAttributes } from 'aws-amplify/auth';
+import {fetchUserAttributes } from 'aws-amplify/auth';
 
 
 const DropdownUser = () => {
@@ -56,7 +56,6 @@ const DropdownUser = () => {
   useEffect(() => {
     const fetchCurrentUserInfo = async () => {
       try {
-        const { userId: id } = await getCurrentUser();
         const attributes = await fetchUserAttributes();
         const email:any = attributes.email;
         setCurrentEmail(email);

@@ -1,15 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { signIn, signOut, getCurrentUser } from 'aws-amplify/auth';
+import { signIn, getCurrentUser } from 'aws-amplify/auth';
 import { useNavigate } from 'react-router-dom';
-import { ToastContainer, toast } from 'react-toastify';
+import {  toast } from 'react-toastify';
+import Logo from '../../images/logo/Eduscribe_dark.svg';
 import 'react-toastify/dist/ReactToastify.css';
-import Logo from '../../images/logo/logo.svg';
 
 type SetStateType<T> = React.Dispatch<React.SetStateAction<T>>;
 
 const SignInPage = ({
   setUser,
-  user,
 }: {
   setUser: SetStateType<any>;
   user: any;
@@ -19,27 +18,16 @@ const SignInPage = ({
   const navigate = useNavigate();
 
   const handleSignIn = async (email: string, password: string) => {
-    toast.info('Logging in...', { position: 'top-center' });
+    toast.info('Logging in...', { position: 'top-right' });
     try {
       const user = await signIn({ username: email, password });
       setUser(user);
-      toast.success('Welcome!', { position: 'top-center' });
+      toast.success('Welcome!', { position: 'top-right' });
       navigate('/Dashboard'); // Redirect to dashboard after successful sign-in
     } catch (error) {
       console.error('Error signing in', error);
-      toast.error('Error signing in', { position: 'top-center' });
-      alert(error);
-    }
-  };
-
-  const handleSignOut = async () => {
-    try {
-      await signOut();
-      setUser(null); // Update state to reflect sign-out
-      toast.success('Logged out successfully', { position: 'top-center' });
-    } catch (error) {
-      console.error('Error signing out', error);
-      toast.error('Error during logout', { position: 'top-center' });
+      toast.error('Error signing in', { position: 'top-right' });
+      //alert(error);
     }
   };
 
@@ -60,8 +48,12 @@ const SignInPage = ({
       <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark w-full max-w-screen-lg">
         <div className="flex flex-wrap items-center">
           <div className="hidden w-full xl:block xl:w-1/2">
-            <div className="py-70 px-120 text-center">
-              <img className="hidden dark:block" src={Logo} alt="Logo" />
+            <div className="py-30 px-120 text-center">
+              <img
+                src={Logo}
+                alt="Logo"
+                style={{ maxWidth: '100%', height: 'auto' }}
+              />
               <span className="mt-15 inline-block"></span>
             </div>
           </div>

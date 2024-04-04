@@ -3,8 +3,8 @@ import { Route, Routes, useLocation } from 'react-router-dom';
 import Loader from './common/Loader';
 import PageTitle from './components/PageTitle';
 import SignInPage from './pages/Auth/SigninPage';
-import { signIn, signOut } from 'aws-amplify/auth';
 import { Navigate } from 'react-router-dom';
+
 //import SignUp from './pages/Authentication/SignUp';
 import Chart from './pages/Chart';
 //import ECommerce from './pages/Dashboard/ECommerce';
@@ -21,6 +21,7 @@ import BqaDash1 from './pages/BqaDash1';
 import BqaDash2 from './pages/BqaDash2';
 //import UploadEvidence from './pages/UploadEvidence';
 import { getCurrentUser, fetchUserAttributes } from 'aws-amplify/auth';
+import { ToastContainer } from 'react-toastify';
 
 function App() {
   const [user, setUser] = useState<any | null>(null);
@@ -47,11 +48,7 @@ function App() {
     };
   };
 
-  // Logout the authenticated user
-  const signout = async () => {
-    await signOut();
-    setUser(null);
-  };
+ 
 
   // Check if there's any user on mount
   useEffect(() => {
@@ -70,6 +67,7 @@ function App() {
     <Loader />
   ) : (
     <>
+      <ToastContainer position="top-right" />
       <Routes>
         {/* Route to SignInPage */}
         <Route path="/" element={<Navigate to="/Auth/SignInPage" />} />
