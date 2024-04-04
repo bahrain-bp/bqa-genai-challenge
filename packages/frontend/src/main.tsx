@@ -16,7 +16,7 @@ Amplify.configure({
     userPoolClientId: "27k6s7bn2jtbb8724kgbrord3h"
  }
   },
- /* API: {
+ API: {
     endpoints: [
       {
         name: "api",
@@ -25,9 +25,8 @@ Amplify.configure({
       },
     ],
   },
-  */
 
-});
+} as any);
 
 
  

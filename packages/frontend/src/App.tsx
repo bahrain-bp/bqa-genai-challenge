@@ -16,73 +16,66 @@ import Alerts from './pages/UiElements/Alerts';
 import Buttons from './pages/UiElements/Buttons';
 import PredefinedTemplate from './pages/PredefinedTemplate';
 //import UploadEvidence from './pages/UploadEvidence';
-import { 
-  getCurrentUser, 
-  fetchUserAttributes 
-} from 'aws-amplify/auth';
- 
-function App() {
+import { getCurrentUser, fetchUserAttributes } from 'aws-amplify/auth';
 
+function App() {
   const [user, setUser] = useState<any | null>(null);
 
-   const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(true);
   const { pathname } = useLocation();
 
- // Get the current logged in user info this is not working 
- const getUser = async () => {
-  const user = await getCurrentUserInfo();
-  if (user) setUser(user);
-  setLoading(false);
-};
+  // Get the current logged in user info this is not working
+  const getUser = async () => {
+    const user = await getCurrentUserInfo();
+    if (user) setUser(user);
+    setLoading(false);
+  };
 
-const getCurrentUserInfo = async () => {
-        const {
-            username,
-          userId: id
-            } = await getCurrentUser();
+  const getCurrentUserInfo = async () => {
+    const { username, userId: id } = await getCurrentUser();
 
-        const attributes = fetchUserAttributes();
+    const attributes = fetchUserAttributes();
 
-        return {
-          id,
-          username,
-          attributes
-        };
-}
+    return {
+      id,
+      username,
+      attributes,
+    };
+  };
 
-// Logout the authenticated user
-const signout = async () => {
-  await signOut();
-  setUser(null);
-};
+  // Logout the authenticated user
+  const signout = async () => {
+    await signOut();
+    setUser(null);
+  };
 
   // Check if there's any user on mount
   useEffect(() => {
     getUser();
   }, []);
 
-
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [pathname]);
- 
+
   useEffect(() => {
     setTimeout(() => setLoading(false), 1000);
   }, []);
- 
+
   return loading ? (
     <Loader />
   ) : (
     <>
-    
       <Routes>
-           
-   {/* Route to SignInPage */}
-   <Route path="/" element={<Navigate to="/Auth/SignInPage" />} />
-        <Route path="/Auth/SignInPage" element={<SignInPage setUser={setUser} user={user} />} />
-       
+        {/* Route to SignInPage */}
+        <Route path="/" element={<Navigate to="/Auth/SignInPage" />} />
         <Route
-        path="/Dashboard"
+          path="/Auth/SignInPage"
+          element={<SignInPage setUser={setUser} user={user} />}
+        />
+
+        <Route
+          path="/Dashboard"
           element={
             <>
               <PageTitle title="eCommerce Dashboard | EduScribe" />
@@ -90,7 +83,7 @@ const signout = async () => {
             </>
           }
         />
-       
+
         <Route
           path="/PredefinedTemplate"
           element={
@@ -101,7 +94,6 @@ const signout = async () => {
           }
         />
 
- 
         <Route
           path="/forms/form-elements"
           element={
@@ -165,11 +157,9 @@ const signout = async () => {
             </>
           }
         />
-  
       </Routes>
     </>
   );
 }
- 
+
 export default App;
- 
