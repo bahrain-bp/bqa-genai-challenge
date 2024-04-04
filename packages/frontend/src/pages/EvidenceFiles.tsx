@@ -6,8 +6,8 @@ import './PredefinedTemplate.css'; // Importing CSS file
 const PredefinedTemplate: React.FC = () => {
   return (
     <DefaultLayout>
-      <h2 style={{ marginBottom: '20px', marginLeft: '40px', marginTop: '30px' }}>Predefined Templates</h2>
-      <h6 style={{ marginBottom: '20px', marginLeft: '40px', marginTop: '10px', fontWeight: 'normal' }}>In hear you can find predefined templates, that should help guide you to the required documents</h6>
+      <h2 className="predefined-title">Predefined Templates</h2>
+      <h6 className="predefined-subtitle">In hear you can find predefined templates, that should help guide you to the required documents</h6>
       <div className="container">
         <div className="row">
           <div className="col-md-4 col-xl-3">
