@@ -1,12 +1,15 @@
 import { SSTConfig } from "sst";
+import { AuthStack } from "./stacks/AuthStack";
+import { ApiStack } from "./stacks/ApiStack";
+import {  } from "./stacks/AuthStack";
 import { FrontendStack } from "./stacks/FrontendStack";
 import { DBStack } from "./stacks/DBStack";
-import { ApiStack } from "./stacks/ApiStack";
 import { ImageBuilderForCodeCatalyst } from "./stacks/devops/ImageBuilderForCodeCatalyst";
 import { OIDCForGitHubCI } from "./stacks/devops/OIDCForGitHubCI";
-import { AuthStack } from "./stacks/AuthStack";
+
 import { S3Stack } from "./stacks/S3Stack"
 import { S3 } from "aws-cdk-lib/aws-ses-actions";
+
 
 export default {
   config(_input) {
@@ -28,11 +31,11 @@ export default {
       app.stack(OIDCForGitHubCI)
     }
     else {
-      app.stack(DBStack)
-      .stack(ApiStack)
-      .stack(FrontendStack)
-      .stack(AuthStack)
-      .stack(S3Stack);
+     app.stack(DBStack)
+   .stack(AuthStack)
+   .stack(ApiStack)
+   .stack(FrontendStack)
+   .stack(S3Stack); 
     }
   }
 } satisfies SSTConfig;
