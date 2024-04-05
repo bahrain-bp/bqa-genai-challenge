@@ -33,6 +33,10 @@ export function S3Stack({ stack, app }: StackContext) {
     runtime: "python3.11",
     permissions: "*",
   });
+  // Attach AmazonS3FullAccess managed policy to the role associated with the Lambda function
+  bedrock_lambda.role?.addManagedPolicy(
+    iam.ManagedPolicy.fromAwsManagedPolicyName("AmazonS3FullAccess")
+  );
 
   const documentsQueue = new Queue(stack, "Document-Queue", {
     consumer: {
