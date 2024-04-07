@@ -1,6 +1,5 @@
 import React from 'react';
 import DefaultLayout from '../layout/DefaultLayout';
-import CardDataStats from '../components/CardDataStats';
 import './PredefinedTemplate.css'; // Importing CSS file
 
 const PredefinedTemplate: React.FC = () => {
