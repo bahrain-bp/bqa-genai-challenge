@@ -13,7 +13,7 @@ export function DBStack({ stack, app }: StackContext) {
     // Create an S3 bucket
     const bucket = new Bucket(stack, "bqa-standards-evidence-bucket");
 
-    const myBucket = new s3.Bucket(stack, 'bqa-standards-evidence-bucket');
+    const myBucket = new s3.Bucket(stack, 'bqa-standards-evidence-bucket-updated');
     new cloudfront.Distribution(stack, 'standards-dis', {
       defaultBehavior: { origin: new origins.S3Origin(myBucket) },
     });
