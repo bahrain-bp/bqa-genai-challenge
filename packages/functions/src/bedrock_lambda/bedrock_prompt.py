@@ -55,6 +55,20 @@ def get_s3_object_content(bucket_name, key):
     response = s3.get_object(Bucket=bucket_name, Key=key)
     return response['Body'].read().decode('utf-8')
 
+def truncate_text(text, max_length):
+    """
+    Truncate text to a maximum length.
+    Args:
+        text (str): The text to truncate.
+        max_length (int): The maximum length allowed.
+    Returns:
+        str: Truncated text.
+    """
+    if len(text) <= max_length:
+        return text
+    else:
+        return text[:max_length]
+
 def handler(event, context):
     """
     Entrypoint for Amazon &titan-text-express; example.
@@ -71,14 +85,16 @@ def handler(event, context):
         bucket_name = 'uni-artifacts'
         key = parsed_s3_uri.path.lstrip('/')
         document_content = get_s3_object_content(bucket_name, key)
-        print(document_content,'content')
+
+        # Truncate document content to a maximum length
+        max_input_length = 40000  # Adjust according to your service's maximum limit
+        truncated_content = truncate_text(document_content, max_input_length)
 
         prompt = f'Please provide a summary about the document at path: {s3_uri}'
         logger.info(prompt)
-        print(prompt, 'prompt')
 
         body = json.dumps({
-            "inputText": document_content,
+            "inputText": truncated_content,
             "textGenerationConfig": {
                 "maxTokenCount": 4096,
                 "stopSequences": [],
@@ -90,6 +106,7 @@ def handler(event, context):
         response_body = generate_text(model_id, body)
 
         response = {"prompt": prompt, "results": response_body['results']}
+        print(response)
         logger.info(response)
 
         return response  # Return the response JSON
