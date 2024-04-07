@@ -11,9 +11,9 @@ import * as origins from 'aws-cdk-lib/aws-cloudfront-origins';
 export function DBStack({ stack, app }: StackContext) {
     
     // Create an S3 bucket
-    const bucket = new Bucket(stack, "bqa-standards-bucket1");
+    const bucket = new Bucket(stack, "bqa-standards-evidence-bucket");
 
-    const myBucket = new s3.Bucket(stack, 'bqa-standards-bucket1');
+    const myBucket = new s3.Bucket(stack, 'bqa-standards-evidence-bucket');
     new cloudfront.Distribution(stack, 'standards-dis', {
       defaultBehavior: { origin: new origins.S3Origin(myBucket) },
     });
