@@ -14,6 +14,7 @@ import Tables from './pages/Tables';
 import Alerts from './pages/UiElements/Alerts';
 import Buttons from './pages/UiElements/Buttons';
 import PredefinedTemplate from './pages/PredefinedTemplate';
+import EvidenceFiles from './pages/EvidenceFiles';
 //
 
 function App() {
@@ -49,6 +50,15 @@ function App() {
             <>
               <PageTitle title="Predefined Template | EduScribe" />
               <PredefinedTemplate />
+            </>
+          }
+        />
+        <Route
+          path="/EvidenceFiles"
+          element={
+            <>
+              <PageTitle title="Evidence Files | EduScribe" />
+              <EvidenceFiles />
             </>
           }
         />

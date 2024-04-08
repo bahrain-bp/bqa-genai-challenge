@@ -39,7 +39,7 @@ const PredefinedTemplate: React.FC = () => {
           <div className="col-md-4 col-xl-3">
             <div className="scard bg-c-blue order-scard">
               <div className="scard-block">
-                <a href="evidenceFiles.html" className="link-unstyled">
+                <a href="EvidenceFiles" className="link-unstyled">
                   <h6 className="m-b-10">Standard 4: </h6>
                   <p className="m-b-0" style={{ fontWeight: 'normal' }}>Infrastructure, ICT & Learning Resources</p>
                   <h2 className="text-right"><i className="fas fa-chart-line f-left"></i><span>3</span></h2>
