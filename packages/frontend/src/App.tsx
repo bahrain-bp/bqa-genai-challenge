@@ -15,17 +15,13 @@ import Tables from './pages/Tables';
 import Alerts from './pages/UiElements/Alerts';
 import Buttons from './pages/UiElements/Buttons';
 import PredefinedTemplate from './pages/PredefinedTemplate';
-
-import EvidenceFiles from './pages/EvidenceFiles';
-
 import UploadEvidence from './pages/UploadEvidence';
 import OfficerDash from './pages/OfficerDash';
 import BqaDash1 from './pages/BqaDash1';
 import BqaDash2 from './pages/BqaDash2';
-
+//import UploadEvidence from './pages/UploadEvidence';
 import { getCurrentUser, fetchUserAttributes } from 'aws-amplify/auth';
 import { ToastContainer } from 'react-toastify';
-
 
 function App() {
   const [user, setUser] = useState<any | null>(null);
@@ -110,16 +106,6 @@ function App() {
           }
         />
         <Route
-
-          path="/EvidenceFiles"
-          element={
-            <>
-              <PageTitle title="Evidence Files | EduScribe" />
-              <EvidenceFiles />
-            </>
-          }
-        />
-
           path="/UploadEvidence"
           element={
             <>
@@ -127,7 +113,7 @@ function App() {
               <UploadEvidence />
             </>
           }
-        
+        />
 
         <Route
           path="/BqaDash1"
@@ -148,7 +134,6 @@ function App() {
             </>
           }
         />
-
 
         <Route
           path="/forms/form-elements"

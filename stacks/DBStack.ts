@@ -1,23 +1,12 @@
-import { Bucket,Table, StackContext, RDS } from "sst/constructs";
+import { Table, StackContext, RDS } from "sst/constructs";
+
 import * as rds from "aws-cdk-lib/aws-rds";
 import * as secretsManager from "aws-cdk-lib/aws-secretsmanager";
 import * as path from 'path';
 import { Fn } from "aws-cdk-lib";
-import * as cdk from 'aws-cdk-lib';
-import * as s3 from 'aws-cdk-lib/aws-s3';
-import * as cloudfront from 'aws-cdk-lib/aws-cloudfront';
-import * as origins from 'aws-cdk-lib/aws-cloudfront-origins';
 
 export function DBStack({ stack, app }: StackContext) {
     
-    // Create an S3 bucket
-    const bucket = new Bucket(stack, "bqa-standards-evidence-bucket");
-
-    const myBucket = new s3.Bucket(stack, 'bqa-standards-evidence-bucket-updated');
-    new cloudfront.Distribution(stack, 'standards-dis', {
-      defaultBehavior: { origin: new origins.S3Origin(myBucket) },
-    });
-
     // Create a DynamoDB table
     const table = new Table(stack, "Counter", {
         fields: {
@@ -71,8 +60,5 @@ export function DBStack({ stack, app }: StackContext) {
     //     });
     // }
 
-    return {
-        bucket,
-        table
-    };
+    return {table};
 }

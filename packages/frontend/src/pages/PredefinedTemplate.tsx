@@ -1,63 +1,36 @@
-import React from 'react';
+import Breadcrumb from '../components/Breadcrumbs/Breadcrumb';
 import DefaultLayout from '../layout/DefaultLayout';
-import './PredefinedTemplate.css'; // Importing CSS file
+//import CoverOne from '../images/cover/cover-01.png';
+//import userSix from '../images/user/user-06.png';
+//import { Link } from 'react-router-dom';
+import CardDataStats from '../components/CardDataStats';
 
-const PredefinedTemplate: React.FC = () => {
+const PredefinedTemplate = () => {
   return (
     <DefaultLayout>
-      <h2 style={{ marginBottom: '20px', marginLeft: '40px', marginTop: '30px' }}>Predefined Templates</h2>
-      <h6 style={{ marginBottom: '20px', marginLeft: '40px', marginTop: '10px', fontWeight: 'normal' }}>In hear you can find predefined templates, that should help guide you to the required documents</h6>
-      <div className="container">
-        <div className="row">
-          <div className="col-md-4 col-xl-3">
-            <div className="scard bg-c-blue order-scard">
-              <div className="scard-block">
-                <h6 className="m-b-20">Standard 1: </h6>
-                <p className="m-b-0">Governance and Management</p>
-                <h2 className="text-right"><i className="fas fa-chart-line f-left"></i><span>5</span></h2>
-              </div>
-            </div>
-          </div>
-          <div className="col-md-4 col-xl-3">
-            <div className="scard bg-c-green order-scard">
-              <div className="scard-block">
-                <h6 className="m-b-20">Standard 2: </h6>
-                <p className="m-b-0">Human Resources Management</p>
-                <h2 className="text-right"><i className="fas fa-chart-line f-left"></i><span>2</span></h2>
-              </div>
-            </div>
-          </div>
-          <div className="col-md-4 col-xl-3">
-            <div className="scard bg-c-yellow order-scard">
-              <div className="scard-block">
-                <h6 className="m-b-20">Standard 3: </h6>
-                <p className="m-b-0">Quality Assurance and Enhancement</p>
-                <h2 className="text-right"><i className="fas fa-chart-line f-left"></i><span>2</span></h2>
-              </div>
-            </div>
-          </div>
-          <div className="col-md-4 col-xl-3">
-            <div className="scard bg-c-blue order-scard">
-              <div className="scard-block">
-                <a href="EvidenceFiles" className="link-unstyled">
-                  <h6 className="m-b-10">Standard 4: </h6>
-                  <p className="m-b-0" style={{ fontWeight: 'normal' }}>Infrastructure, ICT & Learning Resources</p>
-                  <h2 className="text-right"><i className="fas fa-chart-line f-left"></i><span>3</span></h2>
-                </a>
-              </div>
-            </div>
-          </div>
-          <div className="col-md-4 col-xl-3">
-            <div className="scard bg-c-pink order-scard">
-              <div className="scard-block">
-                <h6 className="m-b-20">Standard 5: </h6>
-                <p className="m-b-0">Management of Academic Affairs</p>
-                <h2 className="text-right"><i className="fas fa-chart-line f-left"></i><span>4</span></h2>
-              </div>
-            </div>
-          </div>
+      <Breadcrumb pageName="Predefined Template" />
+
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-4 2xl:gap-7.5">
+        <CardDataStats title="Governence and Management" total="Standard 1" rate="0.43%" levelUp>
+          <svg
+            className="fill-primary dark:fill-white"
+            width="22"
+            height="16"
+            viewBox="0 0 22 16"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M11 15.1156C4.19376 15.1156 0.825012 8.61876 0.687512 8.34376C0.584387 8.13751 0.584387 7.86251 0.687512 7.65626C0.825012 7.38126 4.19376 0.918762 11 0.918762C17.8063 0.918762 21.175 7.38126 21.3125 7.65626C21.4156 7.86251 21.4156 8.13751 21.3125 8.34376C21.175 8.61876 17.8063 15.1156 11 15.1156ZM2.26876 8.00001C3.02501 9.27189 5.98126 13.5688 11 13.5688C16.0188 13.5688 18.975 9.27189 19.7313 8.00001C18.975 6.72814 16.0188 2.43126 11 2.43126C5.98126 2.43126 3.02501 6.72814 2.26876 8.00001Z"
+              fill=""
+            />
+            <path
+              d="M11 10.9219C9.38438 10.9219 8.07812 9.61562 8.07812 8C8.07812 6.38438 9.38438 5.07812 11 5.07812C12.6156 5.07812 13.9219 6.38438 13.9219 8C13.9219 9.61562 12.6156 10.9219 11 10.9219ZM11 6.625C10.2437 6.625 9.625 7.24375 9.625 8C9.625 8.75625 10.2437 9.375 11 9.375C11.7563 9.375 12.375 8.75625 12.375 8C12.375 7.24375 11.7563 6.625 11 6.625Z"
+              fill=""
+            />
+          </svg>
+        </CardDataStats>
         </div>
-      </div>
     </DefaultLayout>
   );
 };
