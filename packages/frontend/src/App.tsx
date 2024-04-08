@@ -120,13 +120,14 @@ function App() {
           }
         />
 
+          <Route
           path="/UploadEvidence"
           element={
             <>
               <PageTitle title="Upload Evidence | EduScribe" />
               <UploadEvidence />
             </>
-          }
+          }/>
         
 
         <Route
