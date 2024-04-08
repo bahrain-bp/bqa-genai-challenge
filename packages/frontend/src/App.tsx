@@ -127,7 +127,7 @@ function App() {
               <UploadEvidence />
             </>
           }
-        />
+        
 
         <Route
           path="/BqaDash1"
