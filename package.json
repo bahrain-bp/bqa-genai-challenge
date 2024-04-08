@@ -29,6 +29,7 @@
     "@coreui/icons": "^3.0.1",
     "@coreui/icons-react": "^2.2.1",
     "aws-amplify": "^6.0.26",
+    "bootstrap": "^5.3.3",
     "bootstrap-icons": "^1.11.3",
     "immer": "^9.0.21",
     "react-toastify": "^10.0.5"
