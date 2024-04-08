@@ -26,7 +26,6 @@
   ],
   "dependencies": {
 
-    "immer": "^9.0.21",
     "react": "^18.2.0",
 
     "@aws-amplify/auth": "^6.0.25",
