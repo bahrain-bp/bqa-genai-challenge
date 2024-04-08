@@ -9,7 +9,7 @@ import './BqaDash1.css'; // Custom CSS file for progress bars
 //import React from 'react';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { ToastContainer } from 'react-toastify';
 //import { uploadToS3 } from './functions/src/s3Upload.ts'; // Import the uploadToS3 function
 
@@ -39,7 +39,7 @@ const packageData: Package[] = [
 
 const BqaDash2 = () => {
   const [isDownloading, setIsDownloading] = useState(false);
-  const [selectedFile, setSelectedFile] = useState(null);
+  //const [selectedFile, setSelectedFile] = useState(null);
 
   const handleButtonClick = () => {
     setIsDownloading(true);

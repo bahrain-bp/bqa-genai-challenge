@@ -1,7 +1,9 @@
 import Breadcrumb from '../components/Breadcrumbs/Breadcrumb';
 import DefaultLayout from '../layout/DefaultLayout';
 import React, { useState } from 'react';
-import { ToastContainer, toast } from 'react-toastify';
+import { toast } from 'react-toastify';
+//import { ToastContainer } from 'react-toastify';
+
 import 'react-toastify/dist/ReactToastify.css';
 
 interface StepContentProps {
@@ -75,17 +77,18 @@ const StepContent: React.FC<StepContentProps> = ({ stepNumber,  standardName, in
 );
 
 const UploadEvidence = () => {
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  //const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [fileName, setFileName] = useState<string>('');
   const [savedSteps, setSavedSteps] = useState<number[]>([]);
-  const [saveClicked, setSaveClicked] = useState<boolean>(false);
+  //const [saveClicked, setSaveClicked] = useState<boolean>(false);
   const [currentStep, setCurrentStep] = useState<number>(1);
 
   const handleSaveClick = () => {
-    setSaveClicked(true);
+    //setSaveClicked(true);
     setSavedSteps([...savedSteps, currentStep]);
     toast.success('File saved successfully!');
     moveToNextStep();
+    
   };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
