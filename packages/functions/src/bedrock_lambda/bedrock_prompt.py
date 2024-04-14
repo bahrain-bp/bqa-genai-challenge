@@ -1,6 +1,8 @@
 import json
 import logging
 import boto3
+import base64
+import PyPDF2
 from botocore.exceptions import ClientError
 from urllib.parse import urlparse
 
@@ -49,11 +51,41 @@ def get_s3_object_content(bucket_name, key):
         bucket_name (str): The name of the S3 bucket.
         key (str): The key of the object.
     Returns:
-        str: The content of the S3 object.
+        str: The decoded content of the S3 object.
     """
     s3 = boto3.client('s3')
     response = s3.get_object(Bucket=bucket_name, Key=key)
-    return response['Body'].read().decode('utf-8')
+    
+    # Read the content of the S3 object
+    content_bytes = response['Body'].read()
+    
+    # Try decoding the content with UTF-8
+    try:
+        content_str = content_bytes.decode('utf-8')
+    except UnicodeDecodeError:
+        # If UTF-8 decoding fails, try other common encodings
+        encodings = ['utf-8', 'latin-1', 'iso-8859-1']
+        for encoding in encodings:
+            try:
+                content_str = content_bytes.decode(encoding)
+                break
+            except UnicodeDecodeError:
+                continue
+        else:
+            # If all decoding attempts fail, raise an error
+            raise UnicodeDecodeError("Failed to decode content with any encoding")
+    
+    # Find the start and end boundaries
+    start_boundary = content_str.find('\n\r\n')
+    end_boundary = content_str.find('\n--', start_boundary)
+    
+    # Extract the content between boundaries
+    content = content_str[start_boundary + 3:end_boundary].strip()
+    
+    # Decode the extracted content if it appears to be encoded
+    decoded_content = base64.b64decode(content)  # Example: If the content is Base64 encoded
+    
+    return decoded_content.decode('utf-8')  # Decode the content to UTF-8
 
 def truncate_text(text, max_length):
     """
@@ -87,10 +119,12 @@ def handler(event, context):
         document_content = get_s3_object_content(bucket_name, key)
 
         # Truncate document content to a maximum length
-        max_input_length = 40000  # Adjust according to your service's maximum limit
+        max_input_length = 80000  # Adjust according to your service's maximum limit
         truncated_content = truncate_text(document_content, max_input_length)
+        print(document_content,"document_content")
 
-        prompt = f'Please provide a summary about the document at path: {s3_uri}'
+        #prompt = f'Please provide a summary about the document at path: {s3_uri}'
+        prompt = f'provide a summary about this content {document_content}'
         logger.info(prompt)
 
         body = json.dumps({
