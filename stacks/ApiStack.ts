@@ -31,14 +31,14 @@ export function ApiStack({ stack }: StackContext) {
       "POST /uploadS3": {
         function: {
           handler: "packages/functions/src/s3Upload.uploadToS3",
-          permissions: ["s3"],
-        },
+          permissions: ["s3"]
+        }
       },
       "GET /detectFileType": {
         function: {
           handler: "packages/functions/detectFileType.detect",
           permissions: ["s3"],
-        },
+        }
       },
       "GET /private": "packages/functions/src/private.main",
       // Another sample TypeScript lambda function
@@ -49,7 +49,7 @@ export function ApiStack({ stack }: StackContext) {
           handler: "packages/functions/src/sample-python-lambda/lambda.main",
           runtime: "python3.11",
           timeout: "60 seconds",
-        },
+        }
       },
       // Add the new route for retrieving files
       "GET /files": {

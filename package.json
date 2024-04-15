@@ -31,9 +31,10 @@
     "@coreui/icons-react": "^2.2.1",
     "@esbuild/darwin-x64": "^0.20.2",
     "aws-amplify": "^6.0.26",
+    "bootstrap": "^5.3.3",
     "bootstrap-icons": "^1.11.3",
     "immer": "^9.0.21",
-    "react": "^18.2.0",
+    "react": "^18.2.74",  // Use this version consistently
     "react-toastify": "^10.0.5"
   }
 }

@@ -1,4 +1,4 @@
-import { Bucket,Table, StackContext, RDS } from "sst/constructs";
+import { Bucket, Table, StackContext, RDS } from "sst/constructs";
 import * as rds from "aws-cdk-lib/aws-rds";
 import * as secretsManager from "aws-cdk-lib/aws-secretsmanager";
 import * as path from 'path';
@@ -9,21 +9,35 @@ import * as cloudfront from 'aws-cdk-lib/aws-cloudfront';
 import * as origins from 'aws-cdk-lib/aws-cloudfront-origins';
 
 export function DBStack({ stack, app }: StackContext) {
-    
+
     // Create an S3 bucket
     const bucket = new Bucket(stack, "bqa-standards-evidence-bucket");
 
     const myBucket = new s3.Bucket(stack, 'bqa-standards-evidence-bucket-updated');
     new cloudfront.Distribution(stack, 'standards-dis', {
-      defaultBehavior: { origin: new origins.S3Origin(myBucket) },
+        defaultBehavior: { origin: new origins.S3Origin(myBucket) },
     });
 
-    // Create a DynamoDB table
-    const table = new Table(stack, "Counter", {
+    // // Create a DynamoDB table
+    // const table = new Table(stack, "Counter", {
+    //     fields: {
+    //     counter: "string",
+    //     },
+    //     primaryIndex: { partitionKey: "counter" },
+    // });
+
+    // Create the DynamoDB table
+    const table = new Table(stack, "BQA", {
         fields: {
-        counter: "string",
+            entityType: "string",
+            entityId: "string",
+            standardName: "string",   // Attribute for standards
+            indicators: "number set",      // Attribute for indicators (a list of objects)
+            status: "string",        // Attribute for status
+            description: "string",
+            documentURL: "string"
         },
-        primaryIndex: { partitionKey: "counter" },
+        primaryIndex: { partitionKey: "entityType", sortKey: "entityId" },
     });
 
     // Create an RDS database
@@ -32,7 +46,7 @@ export function DBStack({ stack, app }: StackContext) {
     const dbSecretArnOutputName = "DBSecretArn";
     const dbClusterIdentifierOutputName = "DBClusterIdentifier";
     // create db variable that will hold the RDS db construct
-    var db:RDS
+    var db: RDS
 
     // if (app.stage == "prod") {
     //     db = new RDS(stack, mainDBLogicalName, {

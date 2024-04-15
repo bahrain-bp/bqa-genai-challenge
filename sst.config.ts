@@ -1,9 +1,11 @@
 import { SSTConfig } from "sst";
 import { AuthStack } from "./stacks/AuthStack";
 import { ApiStack } from "./stacks/ApiStack";
-import {  } from "./stacks/AuthStack";
+import { } from "./stacks/AuthStack";
 import { FrontendStack } from "./stacks/FrontendStack";
 import { DBStack } from "./stacks/DBStack";
+import { StandardAPIStack } from "./stacks/StandardAPIStack";
+
 import { ImageBuilderForCodeCatalyst } from "./stacks/devops/ImageBuilderForCodeCatalyst";
 import { OIDCForGitHubCI } from "./stacks/devops/OIDCForGitHubCI";
 
@@ -23,7 +25,7 @@ export default {
     if (app.stage !== "prod") {
       app.setDefaultRemovalPolicy("destroy");
     }
-    
+
     if (app.stage == 'devops-coca') {
       app.stack(ImageBuilderForCodeCatalyst)
     }
@@ -31,11 +33,12 @@ export default {
       app.stack(OIDCForGitHubCI)
     }
     else {
-     app.stack(DBStack)
-   .stack(AuthStack)
-   .stack(ApiStack)
-   .stack(FrontendStack)
-   .stack(S3Stack); 
+      app.stack(DBStack)
+        .stack(AuthStack)
+        .stack(ApiStack)
+        .stack(FrontendStack)
+        .stack(S3Stack)
+        .stack(StandardAPIStack);
     }
   }
 } satisfies SSTConfig;
