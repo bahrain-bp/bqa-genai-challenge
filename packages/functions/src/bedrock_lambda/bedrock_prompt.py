@@ -59,21 +59,11 @@ def get_s3_object_content(bucket_name, key):
     # Read the content of the S3 object
     content_bytes = response['Body'].read()
     
-    # Try decoding the content with UTF-8
-    try:
-        content_str = content_bytes.decode('utf-8')
-    except UnicodeDecodeError:
-        # If UTF-8 decoding fails, try other common encodings
-        encodings = ['utf-8', 'latin-1', 'iso-8859-1']
-        for encoding in encodings:
-            try:
-                content_str = content_bytes.decode(encoding)
-                break
-            except UnicodeDecodeError:
-                continue
-        else:
-            # If all decoding attempts fail, raise an error
-            raise UnicodeDecodeError("Failed to decode content with any encoding")
+    # Decode the content from base64
+    decoded_content = base64.b64decode(content_bytes)
+    
+    # Convert the decoded content to a string
+    content_str = decoded_content.decode('utf-8')
     
     # Find the start and end boundaries
     start_boundary = content_str.find('\n\r\n')
@@ -82,10 +72,7 @@ def get_s3_object_content(bucket_name, key):
     # Extract the content between boundaries
     content = content_str[start_boundary + 3:end_boundary].strip()
     
-    # Decode the extracted content if it appears to be encoded
-    decoded_content = base64.b64decode(content)  # Example: If the content is Base64 encoded
-    
-    return decoded_content.decode('utf-8')  # Decode the content to UTF-8
+    return content
 
 def truncate_text(text, max_length):
     """
@@ -121,10 +108,16 @@ def handler(event, context):
         # Truncate document content to a maximum length
         max_input_length = 80000  # Adjust according to your service's maximum limit
         truncated_content = truncate_text(document_content, max_input_length)
-        print(document_content,"document_content")
+        #print(document_content,"document_content")
+        
 
         #prompt = f'Please provide a summary about the document at path: {s3_uri}'
-        prompt = f'provide a summary about this content {document_content}'
+        prompt = f"""The content I will provide is about a Standard and its indicators. 
+
+{document_content}
+
+Now, please provide a brief overview of this standard and its corresponding indicators in 5 bullet points ."""
+
         logger.info(prompt)
 
         body = json.dumps({
