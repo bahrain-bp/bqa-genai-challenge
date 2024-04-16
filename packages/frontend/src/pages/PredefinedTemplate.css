@@ -226,3 +226,79 @@
   .f-right {
     float: right;
   }
+
+  .scard-block {
+  
+}
+
+.scard-block h6 {
+  margin-bottom: 10px;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.scard-block p {
+  margin-bottom: 5px;
+  font-size: 18px;
+}
+
+.scard-block h2 {
+  margin-top: 10px;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.scard-block span {
+  margin-left: 5px;
+  vertical-align: middle;
+}
+
+.predefined-header {
+  margin: 30px 40px;
+}
+
+.predefined-header h2 {
+  margin-bottom: 10px;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.predefined-header h6 {
+  margin-bottom: 0;
+  font-size: 16px;
+  font-weight: normal;
+}
+
+.circle-background {
+  width: 50px;
+  height: 50px;
+  background-color: #e0e0e0;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px;
+
+}
+
+
+.download-header {
+  font-weight: bold;
+  font-size: 20px;
+  margin: 20px 30px;
+
+
+}
+
+
+.download-header h2 {
+  margin-bottom: 10px;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.download-header h6 {
+  margin-bottom: 0;
+  font-size: 16px;
+  font-weight: normal;
+}
