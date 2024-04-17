@@ -7,7 +7,7 @@ const dynamoDb = new DynamoDB.DocumentClient();
 
 export const main: APIGatewayProxyHandlerV2 = async (event) => {
     // Parse request body
-    const data = JSON.parse(event.body);
+    const data = JSON.parse(event.body!);
 
     // Define DynamoDB parameters
     const params = {

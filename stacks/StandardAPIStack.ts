@@ -15,7 +15,12 @@ export function StandardAPIStack({ stack }: StackContext) {
             "POST /standards": "packages/functions/src/standards/create.main",
             "GET /standards/{id}": "packages/functions/src/standards/get.main",
             "GET /standards": "packages/functions/src/standards/list.main",
-            "PUT /standards/{id}": "packages/functions/src/standards/update.main",
+            "GET /calcIndicators": {
+                function: {
+                  handler: "packages/functions/src/standards/calcIndicators.main",
+                  permissions: ["dynamodb"],
+                }
+              },            "PUT /standards/{id}": "packages/functions/src/standards/update.main",
             "DELETE /standards/{id}": "packages/functions/src/standards/delete.main",
         },
     });
