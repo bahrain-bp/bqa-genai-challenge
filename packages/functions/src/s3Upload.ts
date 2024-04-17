@@ -1,29 +1,30 @@
 import * as AWS from 'aws-sdk';
-import { getCurrentUser } from 'aws-amplify/auth';
+import { Buffer } from 'buffer'; 
 const s3 = new AWS.S3();
-
 export async function uploadToS3(event: any) {
   try {
-    const fileData = event.body; // Binary file data
-    const fileName = event.headers['file-name']; // Get file name
+    const fileData = event.body; 
+    const fileName = event.headers['file-name'];
+
+    // Check file size before upload (optional)
+    const fileSize = Buffer.byteLength(fileData);
+    console.log("File size:", fileSize);
 
     if (!fileName) {
       throw new Error('File name not provided');
     }
 
-  
-// Get current user session
-const currentUser = await getCurrentUser();
-if(currentUser){
-console.log(currentUser.username);
-}
+    const standardNum = event.headers['standard']; 
+    const indicatorNum = event.headers['indicator']; 
+    const standard = String(standardNum);
+    const indicator = String(indicatorNum);
 
     // Define metadata for the object
     const metadata = {
-      "createdBy": currentUser.username || "anonymous",
+      "createdBy": "Amjad",
       "creationDate": new Date().toISOString(),
-      "standard": "1",
-      "indicator": "2"
+      "standard": standard,
+      "indicator": indicator
     };
 
     // Define S3 upload parameters, including metadata
