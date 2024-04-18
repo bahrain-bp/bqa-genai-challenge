@@ -15,10 +15,12 @@ export const main: APIGatewayProxyHandlerV2 = async (event) => {
         Item: {
             entityType: "Standard",
             entityId: uuid.v1(),
+            standardId: data.standardId,
             standardName: data.standardName || null,
-            indicators: data.indicators, // Include indicators from the request body
+            // indicators: data.indicators, // Include indicators from the request body
             description: data.description || null,
             status: data.status,
+            documentName: data.documentName,
             documentURL: data.documentURL
         },
     };
