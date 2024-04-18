@@ -3,6 +3,7 @@ import { Route, Routes, useLocation } from 'react-router-dom';
 import Loader from './common/Loader';
 import PageTitle from './components/PageTitle';
 import SignInPage from './pages/Auth/SigninPage';
+
 import { Navigate } from 'react-router-dom';
 
 //import SignUp from './pages/Authentication/SignUp';
@@ -22,9 +23,12 @@ import UploadEvidence from './pages/UploadEvidence';
 import OfficerDash from './pages/OfficerDash';
 import BqaDash1 from './pages/BqaDash1';
 import BqaDash2 from './pages/BqaDash2';
+import AddUni from './pages/AddUni';
+import ChangePassword from './pages/Auth/ChangePassword';
 
 import { getCurrentUser, fetchUserAttributes } from 'aws-amplify/auth';
 import { ToastContainer } from 'react-toastify';
+import NewUser from './pages/Auth/NewUser';
 
 
 function App() {
@@ -78,6 +82,15 @@ function App() {
         <Route
           path="/Auth/SignInPage"
           element={<SignInPage setUser={setUser} user={user} />}
+        />
+        <Route
+          path="/ChangePassword"
+          element={
+            <>
+              <PageTitle title="Change Password | EduScribe" />
+              <ChangePassword />
+            </>
+          }
         />
 
         <Route
@@ -139,6 +152,35 @@ function App() {
             </>
           }
         />
+
+<Route
+          path="/AddUni"
+          element={
+            <>
+              <PageTitle title="Bqa Reviewer Add University | EduScribe" />
+              <AddUni />
+            </>
+          }
+        />
+        <Route
+          path="/ChangePassword"
+          element={
+            <>
+              <PageTitle title="Change Password | EduScribe" />
+              <ChangePassword />
+            </>
+          }
+        />
+          <Route
+          path="/NewUser"
+          element={
+            <>
+              <PageTitle title="New User | EduScribe" />
+              <NewUser />
+            </>
+          }
+        />
+        
 
         <Route
           path="/BqaDash2"
