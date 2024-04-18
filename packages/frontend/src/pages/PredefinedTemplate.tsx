@@ -3,10 +3,14 @@ import DefaultLayout from '../layout/DefaultLayout';
 import './PredefinedTemplate.css'; // Importing CSS file
 import AWS from 'aws-sdk';
 
+//INDICATORS FILE **
+
+
 const PredefinedTemplate: React.FC = () => {
   const [recordData, setRecordData] = useState({
     entityType: '',
     entityId: '',
+    standardId: '',
     standardName: '',
     description: '',
     documentName: '',
@@ -27,30 +31,6 @@ const PredefinedTemplate: React.FC = () => {
   
 
 
-  const getStandardDisplayName = (standardName: string): string => {
-    switch (standardName.toLowerCase()) {
-      case 'standard1':
-        return 'Standard 1: Governance and Management';
-      case 'standard2':
-        return 'Standard 2: Human Resources Management';
-      case 'standard3':
-        return 'Standard 3: Quality Assurance and Enhancement';
-      case 'standard4':
-        return 'Standard 4: Infrastructure, Information and Communications Technology (ICT) and Learning Resources';
-      case 'standard5':
-        return 'Standard 5: Management of Academic Affairs';
-      case 'standard6':
-        return 'Standard 6: Teaching, Learning and Assessment';
-      case 'standard7':
-        return 'Standard 7: Research and Postgraduate Studies';
-      case 'standard8':
-        return 'Standard 8: Community Engagement';
-      case 'standard9':
-        return 'Standard 9: Student Support Services';
-      default:
-        return '';
-    }
-  };
 
   const createRecord = async () => {
     try {
@@ -61,7 +41,7 @@ const PredefinedTemplate: React.FC = () => {
       const file = fileInput.files[0];
 
       // Handle file upload
-      const selectedStandard = recordData.standardName; // Get the selected standard value
+      const selectedStandard = `Standard 1/${recordData.standardName}`; // Get the selected standard value
       await handleFileSelect(file, selectedStandard);
 
       // Create record in DynamoDB
@@ -83,10 +63,12 @@ const PredefinedTemplate: React.FC = () => {
       }
       const data = await response.json();
       console.log('New record created:', data);
-      fetchRecords();
+      const standardName = window.location.pathname.split('/').pop();
+      fetchRecords(standardName); // Fetch records for the extracted standard name
       setRecordData({
         entityType: '',
         entityId: '',
+        standardId: '',
         standardName: '',
         description: '',
         documentName: '',
@@ -102,35 +84,40 @@ const PredefinedTemplate: React.FC = () => {
   };
   
 
-  const fetchRecords = async () => {
+  const fetchRecords = async (standardName: string | undefined) => {
     try {
-      const response = await fetch('https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards');
+      const response = await fetch(`https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards?standard=${standardName}`);
       if (!response.ok) {
         throw new Error('Failed to fetch records');
       }
       const data: any[] = await response.json(); // Assuming your records have type any
       
       // Sort records based on the numeric value in the standardName
-      const sortedRecords = data
-        .filter((record: any) => record.documentURL && record.status !== 'archived') // Filter based on documentURL and status
-        .sort((a: any, b: any) => {
-          const standardNameA = parseInt(a.standardName.replace('Standard', ''));
-          const standardNameB = parseInt(b.standardName.replace('Standard', ''));
-          return standardNameA - standardNameB;
-        });
+      // const sortedRecords = data
+      //   .filter((record: any) => record.documentURL && record.status !== 'archived') // Filter based on documentURL and status
+      //   .sort((a: any, b: any) => {
+      //     const standardNameA = parseInt(a.standardName.replace('Standard', ''));
+      //     const standardNameB = parseInt(b.standardName.replace('Standard', ''));
+      //     return standardNameA - standardNameB;
+      //   });
+      
+      // setRecords(sortedRecords); // Update state with sorted records
+     
+
+      // Filter records based on standardName
+      const filteredRecords = data.filter((record: { standardName: string | undefined }) => record.standardName === standardName);
+
+      setRecords(filteredRecords);
   
-      setRecords(sortedRecords); // Update state with sorted records
     } catch (error) {
       console.error('Error fetching records:', error);
     }
   };
   
-  
-
   useEffect(() => {
-    
-
-    fetchRecords(); // Fetch records when the component mounts
+  
+    const standardName = window.location.pathname.split('/').pop();
+    fetchRecords(standardName); // Fetch records for the extracted standard name // Fetch records when the component mounts
   }, []);
 
   async function uploadToS3Evidence(fileData: Blob | File, fileName: string, folderName: string) {
@@ -192,31 +179,27 @@ const PredefinedTemplate: React.FC = () => {
         <h6 className="m-b-20">Create New Standard</h6>
        
         <div className="form-group">
-          <label>Choose Standard :</label>
+          <label>Choose Indicator :</label>
          <select name="standardName" value={recordData.standardName} onChange={handleChange}>
-          <option value="">Select a Standard</option>
-          <option value="Standard1">Standard 1: Governance and Management</option>
-          <option value="Standard2">Standard 2: Human Resources Management</option>
-          <option value="Standard3">Standard 3: Quality Assurance and Enhancement</option>
-          <option value="Standard4">Standard 4: Infrastructure, Information and Communications Technology (ICT) and Learning Resources</option>
-          <option value="Standard5">Standard 5: Management of Academic Affairs</option>
-          <option value="Standard6">Standard 6: Teaching, Learning and Assessment</option>
-          <option value="Standard7">Standard 7: Research and Postgraduate Studies</option>
-          <option value="Standard8">Standard 8: Community Engagement</option>
-          <option value="Standard9">Standard 9: Student Support Services</option>
-          <option value="Other">Other</option>
+          <option value="">Select an Indicator</option>
+          <option value="Indicator1">Indicator 1: Vision, Mission and Values </option>
+          <option value="Indicator2">Indicator 2: Strategic and Operational Planning </option>
+          <option value="Indicator3">Indicator 3: Quality Assurance and Enhancement</option>
+          <option value="Indicator4">Indicator 4: Infrastructure, Information and Communications Technology (ICT) and Learning Resources</option>
+        
         </select>
-        {recordData.standardName === 'Other' && (
-          <input
-            type="text"
-            name="standardName"
-            placeholder="Enter Standard Name"
-            value={recordData.standardName} // Ensure input value reflects state value
-           
-            onChange={handleChange}
-          />
-        )}
+
         </div>
+ <div className="form-group">
+          <label>Indicator Id:</label>
+          <input type="text" name="standardName"  value={recordData.standardName} onChange={handleChange}/>
+        </div>
+<div className="form-group">
+          <label>Indicator Name:</label>
+          <input type="text" name="standardId"  value={recordData.standardId} onChange={handleChange}/>
+        </div>
+       
+
         <div className="form-group">
           <label>Upload Document:</label>
           <input type="file" name="documentName" value={recordData.documentName} onChange={handleChange}/>
@@ -271,12 +254,11 @@ const PredefinedTemplate: React.FC = () => {
             </svg>
             </div>
 
-            <a href={`EvidenceFiles/${record.standardName}`} className="link-unstyled">
-   
-    <h6 className="m-b-20">{getStandardDisplayName(standardName)}</h6></a>
+            <a href={`/EvidenceFiles/${record.standardName}`} className="link-unstyled">
+
+    <h6 className="m-b-20">{record.standardName + ' ' + record.standardId}</h6></a>
       </div>
         </div>
-
 
           </div>
         ))}

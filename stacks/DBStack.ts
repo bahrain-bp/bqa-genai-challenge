@@ -33,7 +33,8 @@ export function DBStack({ stack, app }: StackContext) {
             entityId: "string",
             standardId: "string",
             standardName: "string",   // Attribute for standards
-            // indicators: "number set",      // Attribute for indicators (a list of objects)
+            indicatorId: "string", 
+            indicatorName: "string", 
             status: "string",        // Attribute for status
             description: "string",
             documentName: "string",
