@@ -3,7 +3,7 @@ import DefaultLayout from '../layout/DefaultLayout';
 import './PredefinedTemplate.css';
 import '@fortawesome/fontawesome-free/css/all.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faDownload, faTrash, faArchive } from '@fortawesome/free-solid-svg-icons';
+import { faTrash, faArchive } from '@fortawesome/free-solid-svg-icons';
 
 const EvidenceFiles: React.FC = () => {
   const [records, setRecords] = useState<any[]>([]);
