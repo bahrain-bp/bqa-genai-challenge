@@ -3,12 +3,20 @@ import Breadcrumb from '../components/Breadcrumbs/Breadcrumb';
 import DefaultLayout from '../layout/DefaultLayout';
 import './PredefinedTemplate.css'; // Importing CSS file
 import { signUp, confirmSignUp } from 'aws-amplify/auth';
+import { CognitoIdentityProviderClient, AdminCreateUserCommand } from "@aws-sdk/client-cognito-identity-provider"; // ES Modules import
+import * as AWS from "aws-sdk";
 
+
+import { env } from 'process';
 // Add authenticator so only admin can create an email and 
 // password 
 //import { Authenticator } from '@aws-amplify/ui-react';
 import { toast } from 'react-toastify'; // Import toast from react-toastify
 import 'react-toastify/dist/ReactToastify.css'; // Import the CSS for react-toastify
+// Set the AWS Region
+AWS.config.update({
+    region: "us-east-1", // make sure this is the region your Cognito service is hosted in
+  });
 
 const generateTemporaryPassword = () => {
     const numbers = '0123456789';
@@ -37,25 +45,46 @@ const generateTemporaryPassword = () => {
 
 
 const AddUni = () => {
-
+const cognitoPoolId="us-east-1_PraHctOMo";
+const CognitoIdentityServiceProvider= new AWS.CognitoIdentityServiceProvider();
 
     const [email, setEmail] = useState('');
 
     async function handleAddEmail() {
-        try {
-            const tempPassword = generateTemporaryPassword(); // Generate a compliant temporary password
-            const response = await signUp({
-                username: email,
-                password: tempPassword, // Use the generated temporary password
-                
-            });
-            console.log("Sign up successful", response);
-            alert("Verification email sent to " + email);
-        } catch (error) {
-            console.error("Error signing up:", error);
-            alert("Failed to sign up: " );
+        if (!email) {
+            toast.error("Please enter an email address.");
+            return;
         }
+     const tempPassword = generateTemporaryPassword(); // Generate a compliant temporary password
+     const params:AWS.CognitoIdentityServiceProvider.AdminCreateUserRequest = {
+        UserPoolId: cognitoPoolId, // Replace with your User Pool ID
+        
+        Username: email,
+        TemporaryPassword: tempPassword,
+        UserAttributes: [
+            {
+                Name: 'email',
+                Value: email
+            },
+            {
+                Name: 'email_verified',
+                Value: 'true'
+            }
+        ],
+        // MessageAction: 'RESEND', // Optionally, uncomment this line if needed
+        DesiredDeliveryMediums: ["EMAIL"]
+    };
+    
+    try {
+        const response = await CognitoIdentityServiceProvider.adminCreateUser(params).promise();
+        console.log("Admin create user successful", response);
+        toast.success("Verification email sent to " + email);
+    } catch (error) {
+        console.error("Error creating user:", error);
+        toast.error("Failed to create user: " );
     }
+}
+    
     
     
 
@@ -79,6 +108,3 @@ const AddUni = () => {
 };
 
 export default AddUni;
-
-
-
