@@ -54,8 +54,8 @@ const BqaDash2 = () => {
     <DefaultLayout>
       <Breadcrumb pageName="University Details" />
 
-        <div className="row">
-          <div className="col-md-1 col-sm-6">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-4 2xl:gap-7.5">
+
             <div className="rounded-xl border border-stroke bg-white py-6 px-7.5 shadow-default dark:border-strokedark" style={{ marginBottom: '20px' }}>
               <h3 style={{ marginBottom: '10px' }}>Standard 1</h3>
               <div className="progress blue">
@@ -68,8 +68,53 @@ const BqaDash2 = () => {
                 <div className="progress-value">90%</div>
               </div>
             </div>
-          </div>
-        </div>
+          
+
+        
+            <div className="rounded-xl border border-stroke bg-white py-6 px-7.5 shadow-default dark:border-strokedark" style={{ marginBottom: '20px' }}>
+              <h3 style={{ marginBottom: '10px' }}>Standard 2</h3>
+              <div className="progress yellow">
+                <span className="progress-left">
+                  <span className="progress-bar"></span>
+                </span>
+                <span className="progress-right">
+                  <span className="progress-bar"></span>
+                </span>
+                <div className="progress-value">65%</div>
+              </div>
+            </div>
+
+
+            <div className="rounded-xl border border-stroke bg-white py-6 px-7.5 shadow-default dark:border-strokedark" style={{ marginBottom: '20px' }}>
+              <h3 style={{ marginBottom: '10px' }}>Standard 3</h3>
+              <div className="progress green">
+                <span className="progress-left">
+                  <span className="progress-bar"></span>
+                </span>
+                <span className="progress-right">
+                  <span className="progress-bar"></span>
+                </span>
+                <div className="progress-value">80%</div>
+              </div>
+            </div>
+
+
+            <div className="rounded-xl border border-stroke bg-white py-6 px-7.5 shadow-default dark:border-strokedark" style={{ marginBottom: '20px' }}>
+              <h3 style={{ marginBottom: '10px' }}>Standard 4</h3>
+              <div className="progress danger">
+                <span className="progress-left">
+                  <span className="progress-bar"></span>
+                </span>
+                <span className="progress-right">
+                  <span className="progress-bar"></span>
+                </span>
+                <div className="progress-value">50%</div>
+              </div>
+            </div>
+
+      </div>
+         
+
 
       <div className="rounded-sm border border-stroke bg-white px-5 pt-6 pb-2.5 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 x1:pb-1">
         <div className="max-w-full overflow-x-auto">

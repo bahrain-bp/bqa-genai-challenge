@@ -14,32 +14,28 @@ import ChartTwo from '../components/Charts/ChartTwo';
 const packageData: Package[] = [
     {
       name: 'File 1.ppt',
-      price: 0.0,
       invoiceDate: `Jan 13,2023`,
       size:'56 MB',
-      status: 'Paid',
+      status: 'Completed',
     },
     {
       name: 'File 2.png',
-      price: 59.0,
       invoiceDate: `Jan 13,2023`,
       size:'45 MB' ,
 
-      status: 'Paid',
+      status: 'In Progress',
     },
     {
       name: 'File 3.tsx',
-      price: 99.0,
       invoiceDate: `Jan 13,2023`,
       size:'4 MB',
-      status: 'Unpaid',
+      status: 'Completed',
     },
     {
       name: 'File 4.pdf',
-      price: 59.0,
       invoiceDate: `Jan 13,2023`,
       size:'77 MB' ,
-      status: 'Pending',
+      status: 'In Progress',
     },
   ];
 
@@ -86,7 +82,6 @@ const OfficerDash = () => {
                   <h5 className="font-medium text-black dark:text-white">
                     {packageItem.name}
                   </h5>
-                  <p className="text-sm">${packageItem.price}</p>
                 </td>
                 <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
                   <p className="text-black dark:text-white">
@@ -101,10 +96,10 @@ const OfficerDash = () => {
                 <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
                   <p
                     className={`inline-flex rounded-full bg-opacity-10 py-1 px-3 text-sm font-medium ${
-                      packageItem.status === 'Paid'
+                      packageItem.status === 'Completed'
                         ? 'bg-success text-success'
-                        : packageItem.status === 'Unpaid'
-                        ? 'bg-danger text-danger'
+                        : packageItem.status === 'In Progress'
+                        ? 'bg-danger text-warning'
                         : 'bg-warning text-warning'
                     }`}
                   >

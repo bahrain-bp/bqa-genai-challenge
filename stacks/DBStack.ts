@@ -31,10 +31,12 @@ export function DBStack({ stack, app }: StackContext) {
         fields: {
             entityType: "string",
             entityId: "string",
+            standardId: "string",
             standardName: "string",   // Attribute for standards
-            indicators: "number set",      // Attribute for indicators (a list of objects)
+            // indicators: "number set",      // Attribute for indicators (a list of objects)
             status: "string",        // Attribute for status
             description: "string",
+            documentName: "string",
             documentURL: "string"
         },
         primaryIndex: { partitionKey: "entityType", sortKey: "entityId" },

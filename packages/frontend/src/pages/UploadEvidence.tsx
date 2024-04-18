@@ -3,7 +3,8 @@ import DefaultLayout from '../layout/DefaultLayout';
 import React, { useState } from 'react';
 import { toast } from 'react-toastify';
 //import { ToastContainer } from 'react-toastify';
-
+//import { ProgressBar, step } from 'react-step-ProgressBar';
+//import styled from 'styled-components';
 import 'react-toastify/dist/ReactToastify.css';
 
 interface StepContentProps {

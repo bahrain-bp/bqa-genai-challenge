@@ -124,13 +124,14 @@ function App() {
         />
         <Route
 
-          path="/EvidenceFiles"
+          path="/EvidenceFiles/:standardName"
           element={
-            <>
-              <PageTitle title="Evidence Files | EduScribe" />
-              <EvidenceFiles />
+           <>
+  
+             <PageTitle title="Evidence Files | EduScribe" />
+             <EvidenceFiles />
             </>
-          }
+        }
         />
 
           <Route

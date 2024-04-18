@@ -3,14 +3,12 @@ import { Package } from '../../types/package';
 const packageData: Package[] = [
   {
     name: 'Free package',
-    price: 0.0,
     invoiceDate: `Jan 13,2023`,
     size:'',
     status: 'Paid',
   },
   {
     name: 'Standard Package',
-    price: 59.0,
     invoiceDate: `Jan 13,2023`,
     size:'',
 
@@ -18,7 +16,6 @@ const packageData: Package[] = [
   },
   {
     name: 'Business Package',
-    price: 99.0,
     invoiceDate: `Jan 13,2023`,
     size:'',
 
@@ -26,7 +23,6 @@ const packageData: Package[] = [
   },
   {
     name: 'Standard Package',
-    price: 59.0,
     invoiceDate: `Jan 13,2023`,
     size:'',
 
@@ -62,7 +58,6 @@ const TableThree = () => {
                   <h5 className="font-medium text-black dark:text-white">
                     {packageItem.name}
                   </h5>
-                  <p className="text-sm">${packageItem.price}</p>
                 </td>
                 <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
                   <p className="text-black dark:text-white">
