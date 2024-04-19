@@ -2,107 +2,140 @@ import React, { useState } from 'react';
 import Breadcrumb from '../components/Breadcrumbs/Breadcrumb';
 import DefaultLayout from '../layout/DefaultLayout';
 import './PredefinedTemplate.css'; // Importing CSS file
-import { signUp, confirmSignUp } from 'aws-amplify/auth';
-import { CognitoIdentityProviderClient, AdminCreateUserCommand } from "@aws-sdk/client-cognito-identity-provider"; // ES Modules import
-import * as AWS from "aws-sdk";
-
-
+import { aws_cognito as cognito } from 'aws-cdk-lib';
 import { env } from 'process';
-// Add authenticator so only admin can create an email and 
-// password 
+//import { signUp, confirmSignUp } from 'aws-amplify/auth';
+//import { CognitoIdentityProviderClient, AdminCreateUserCommand } from "@aws-sdk/client-cognito-identity-provider"; // ES Modules import
+import * as AWS from 'aws-sdk';
+import {
+  CognitoIdentityProviderClient,
+  AdminCreateUserCommand,
+} from '@aws-sdk/client-cognito-identity-provider';
+
+// Add authenticator so only admin can create an email and
+// password
 //import { Authenticator } from '@aws-amplify/ui-react';
 import { toast } from 'react-toastify'; // Import toast from react-toastify
 import 'react-toastify/dist/ReactToastify.css'; // Import the CSS for react-toastify
 // Set the AWS Region
-AWS.config.update({
-    region: "us-east-1", // make sure this is the region your Cognito service is hosted in
-  });
 
 const generateTemporaryPassword = () => {
-    const numbers = '0123456789';
-    const lowerCaseLetters = 'abcdefghijklmnopqrstuvwxyz';
-    const upperCaseLetters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    const specialCharacters = '!@#$%^&*()_+';
-    const base = lowerCaseLetters + upperCaseLetters + numbers + specialCharacters;
+  const numbers = '0123456789';
+  const lowerCaseLetters = 'abcdefghijklmnopqrstuvwxyz';
+  const upperCaseLetters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const specialCharacters = '!@#$%^&*()_+';
+  const base =
+    lowerCaseLetters + upperCaseLetters + numbers + specialCharacters;
 
-    let password = "";
-    // Ensure at least one character from each set
-    password += numbers[Math.floor(Math.random() * numbers.length)];
-    password += lowerCaseLetters[Math.floor(Math.random() * lowerCaseLetters.length)];
-    password += upperCaseLetters[Math.floor(Math.random() * upperCaseLetters.length)];
-    password += specialCharacters[Math.floor(Math.random() * specialCharacters.length)];
+  let password = '';
+  // Ensure at least one character from each set
+  password += numbers[Math.floor(Math.random() * numbers.length)];
+  password +=
+    lowerCaseLetters[Math.floor(Math.random() * lowerCaseLetters.length)];
+  password +=
+    upperCaseLetters[Math.floor(Math.random() * upperCaseLetters.length)];
+  password +=
+    specialCharacters[Math.floor(Math.random() * specialCharacters.length)];
 
-    // Fill the rest of the password length to meet the minimum required (e.g., 8 characters)
-    for (let i = password.length; i < 12; i++) {
-        password += base[Math.floor(Math.random() * base.length)];
-    }
+  // Fill the rest of the password length to meet the minimum required (e.g., 8 characters)
+  for (let i = password.length; i < 12; i++) {
+    password += base[Math.floor(Math.random() * base.length)];
+  }
 
-    // Shuffle the password to ensure randomness (Optional)
-    password = password.split('').sort(() => 0.5 - Math.random()).join('');
+  // Shuffle the password to ensure randomness (Optional)
+  password = password
+    .split('')
+    .sort(() => 0.5 - Math.random())
+    .join('');
 
-    return password;
-}
-
+  return password;
+};
 
 const AddUni = () => {
-const cognitoPoolId="us-east-1_PraHctOMo";
-const CognitoIdentityServiceProvider= new AWS.CognitoIdentityServiceProvider();
+  const cognitoPoolId = 'us-east-1_PraHctOMo';
+  const cognitoClient = new CognitoIdentityProviderClient({
+    region: 'us-east-1',
+  });
 
-    const [email, setEmail] = useState('');
+  const [email, setEmail] = useState('');
 
-    async function handleAddEmail() {
-        if (!email) {
-            toast.error("Please enter an email address.");
-            return;
-        }
-     const tempPassword = generateTemporaryPassword(); // Generate a compliant temporary password
-     const params:AWS.CognitoIdentityServiceProvider.AdminCreateUserRequest = {
-        UserPoolId: cognitoPoolId, // Replace with your User Pool ID
-        
-        Username: email,
-        TemporaryPassword: tempPassword,
-        UserAttributes: [
-            {
-                Name: 'email',
-                Value: email
-            },
-            {
-                Name: 'email_verified',
-                Value: 'true'
-            }
-        ],
-        // MessageAction: 'RESEND', // Optionally, uncomment this line if needed
-        DesiredDeliveryMediums: ["EMAIL"]
-    };
-    
-    try {
-        const response = await CognitoIdentityServiceProvider.adminCreateUser(params).promise();
-        console.log("Admin create user successful", response);
-        toast.success("Verification email sent to " + email);
-    } catch (error) {
-        console.error("Error creating user:", error);
-        toast.error("Failed to create user: " );
+  async function handleAddEmail() {
+    if (!email) {
+      toast.error('Please enter an email address.');
+      return;
     }
-}
-    
-    
-    
+    const tempPassword = generateTemporaryPassword(); // Generate a compliant temporary password
+    // const params: AWS.CognitoIdentityServiceProvider.AdminCreateUserRequest = {
+    //   UserPoolId: cognitoPoolId, // Replace with your User Pool ID
 
-    return (
-        <DefaultLayout>
-        <Breadcrumb pageName="Add University" />
-        <div className="container mx-auto px-4 py-8">
-            <h1>Add University Email</h1>
-            <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Email"
-            />
-           
-            <button onClick={handleAddEmail}>Add Email</button>
-        </div>
+    //   Username: email,
+    //   TemporaryPassword: tempPassword,
+    //   UserAttributes: [
+    //     {
+    //       Name: 'email',
+    //       Value: email,
+    //     },
+    //     {
+    //       Name: 'email_verified',
+    //       Value: 'true',
+    //     },
+    //   ],
+    //   // MessageAction: 'RESEND', // Optionally, uncomment this line if needed
+    //   DesiredDeliveryMediums: ['EMAIL'],
+    // };
+    const createUser = async (email: string, tempPassword: string) => {
+      const url =
+        'https://s4vlc5ppv3.execute-api.us-east-1.amazonaws.com/createUser'; // Replace with your API Gateway endpoint URL
+      const requestOptions: RequestInit = {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, tempPassword }),
+      };
 
+      try {
+        const response = await fetch(url, requestOptions);
+        if (response.ok) {
+          const data = await response.json();
+          console.log('User created successfully:', data);
+          // Handle success (e.g., display success message to the user)
+        } else {
+          const errorData = await response.json();
+          console.error('Failed to create user:', errorData);
+          // Handle failure (e.g., display error message to the user)
+        }
+      } catch (error) {
+        console.error('Error creating user:', error);
+        // Handle error (e.g., display error message to the user)
+      }
+    };
+
+    try {
+      createUser(email, tempPassword);
+
+      console.log('Admin create user successful');
+      toast.success('Verification email sent to ' + email);
+    } catch (error) {
+      console.error('Error creating user:', error);
+      toast.error('Failed to create user: ');
+    }
+  }
+
+  return (
+    <DefaultLayout>
+      <Breadcrumb pageName="Add University" />
+      <div className="container mx-auto px-4 py-8">
+        <h1>Add University Email</h1>
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="Email"
+        />
+
+        <button onClick={handleAddEmail}>Add Email</button>
+      </div>
     </DefaultLayout>
   );
 };
