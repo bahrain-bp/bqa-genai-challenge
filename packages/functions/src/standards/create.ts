@@ -17,7 +17,8 @@ export const main: APIGatewayProxyHandlerV2 = async (event) => {
             entityId: uuid.v1(),
             standardId: data.standardId,
             standardName: data.standardName || null,
-            // indicators: data.indicators, // Include indicators from the request body
+            indicatorId: data.indicatorId,
+            indicatorName: data.indicatorName || null,
             description: data.description || null,
             status: data.status,
             documentName: data.documentName,

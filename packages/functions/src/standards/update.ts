@@ -14,16 +14,20 @@ export const main: APIGatewayProxyHandlerV2 = async (event) => {
             entityType: "Standard",
             entityId: standardId,
         },
-        UpdateExpression: "SET #standardName = :standardName, #description = :description, #status = :status",
+        UpdateExpression: "SET #standardName = :standardName, #description = :description, #status = :status, #standardId = :standardId, #indicatorId = :indicatorId, #indicatorName = :indicatorName",
         ExpressionAttributeNames: {
             "#standardName": "standardName",
             "#description": "description",
             "#status": "status",
+            "#indicatorId": "indicatorId",
+            "#indicatorName": "indicatorName",
         },
         ExpressionAttributeValues: {
             ":standardName": data.standardName || null,
             ":description": data.description || null,
             ":status":  data.status || null,
+            ":indicatorId":  data.indicatorId || null,
+            ":indicatorName":  data.indicatorName || null,
         },
         ReturnValues: "ALL_NEW",
     };
