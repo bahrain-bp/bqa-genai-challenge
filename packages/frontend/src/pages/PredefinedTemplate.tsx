@@ -256,7 +256,7 @@ const PredefinedTemplate: React.FC = () => {
 
             <a href={`/EvidenceFiles/${record.standardName}`} className="link-unstyled">
 
-    <h6 className="m-b-20">{record.standardName + ' ' + record.standardId}</h6></a>
+    <h6 className="m-b-20">{standardName + ' ' + record.standardId}</h6></a>
       </div>
         </div>
 
