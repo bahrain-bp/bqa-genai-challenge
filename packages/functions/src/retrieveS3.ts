@@ -1,12 +1,18 @@
-import { GetObjectOutput } from "aws-sdk/clients/s3";
+import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import * as AWS from 'aws-sdk';
+
 interface S3ObjectMetadata {
   createdBy?: string; // Optional createdBy property
   creationDate?: string; // Optional creationDate property
 }
-export async function main(): Promise<any> {
+
+export async function main(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
   const s3 = new AWS.S3();
-  
+
+  // Parse the username parameter from the request URL
+  const username = event.queryStringParameters?.username;
+  console.log("Retrieved Username: " + username);
+
   const params = {
     Bucket: 'uni-artifacts', 
   };
@@ -33,50 +39,50 @@ export async function main(): Promise<any> {
         };
       } catch (error) {
         console.error("Error getting metadata for", obj.Key, error);
-        return { Key: obj.Key }; // Example handling, adjust based on needs
+        return { Key: obj.Key }; 
       }
     });
 
-    // Wait for all promises to settle (including potential rejections)
     const resolvedFiles = await Promise.allSettled(files);
 
     const successfulFiles = resolvedFiles.filter((result) => result.status === "fulfilled")
-    .map((result) => {
-      // Check if the result is fulfilled and has a value (optional Key and Metadata)
-      if (result.status === "fulfilled" && result.value) {
-        const { Key, Metadata } = result.value; // Destructure if value exists
-        return {
-          Key,
-          // Include all metadata properties from Metadata object
-          Metadata
-        };
-      } else {
-        // Handle unsuccessful results or cases where value is missing
-        console.error("Unexpected result:", result); // Log for debugging
-        return { Key: undefined, Metadata: {} }; // Example empty object for consistency
-      }
-    });
-  
-
-
-
-    const failedFiles = resolvedFiles.filter((result) => result.status === "rejected")
       .map((result) => {
-        // Handle potential undefined data.Contents
-        if (data?.Contents) {
-          const failedFile = data.Contents.find(obj => obj.Key === (result as PromiseRejectedResult).reason?.Key); // Type cast to access reason on rejected result
-          return failedFile ? { Key: failedFile.Key, Error: (result as PromiseRejectedResult).reason?.message } : undefined;
+        // Check if the result is fulfilled and has a value
+        if (result.status === "fulfilled" && result.value) {
+          const { Key, Metadata } = result.value; // Destructure if value exists
+            //extract createdBy from metadata
+          const createdBy = Metadata && typeof Metadata === 'object' && 'createdby' in Metadata ? Metadata.createdby : undefined;
+          
+          return {
+            Key,
+            Metadata: {
+              createdBy, 
+            }
+          };
         } else {
-          // Handle case where data.Contents is undefined (e.g., error during listObjectsV2)
-          return { Error: "Error listing objects in bucket" }; // Example error message, adjust as needed
+          // Handle unsuccessful results or cases where value is missing
+          console.error("Unexpected result:", result); 
+          return { Key: undefined, Metadata: {} }; //  empty object 
         }
       });
+
+    // Filter files based on createdBy metadata matching the username
+    const filteredFiles = username ?
+      successfulFiles.filter(file => {
+        const createdBy = file.Metadata?.createdBy || '';
+        console.log(`Comparing username '${username}' with createdBy '${createdBy}'`);
+        const isMatch = createdBy === username;
+        console.log(`Comparison result: ${isMatch}`);
+        return isMatch;
+      }) :
+      successfulFiles;
+
+    console.log("Filtered files:", filteredFiles); 
 
     const responseBody = {
       statusCode: 200,
       body: JSON.stringify({
-        successfulFiles,
-        failedFiles: failedFiles.filter(file => file), // Filter out undefined entries in failedFiles
+        files: filteredFiles,
       }),
     };
 
@@ -92,7 +98,7 @@ export async function main(): Promise<any> {
 
 function getMetadata(s3: AWS.S3, key: string): Promise<S3ObjectMetadata | undefined> {
   const params = {
-    Bucket: 'uni-artifacts', // Replace with your bucket name
+    Bucket: 'uni-artifacts', 
     Key: key,
   };
 
@@ -103,11 +109,9 @@ function getMetadata(s3: AWS.S3, key: string): Promise<S3ObjectMetadata | undefi
         reject(err);
       } else {
         const metadata = data.Metadata;
-        // Ensure createdBy exists before returning
-        console.log("Retrieved metadata: for "+ key, metadata);
-resolve(metadata);
+        console.log("Retrieved metadata for " + key, metadata);
+        resolve(metadata);
       }
     });
   });
 }
-

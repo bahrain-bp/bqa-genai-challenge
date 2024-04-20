@@ -15,6 +15,7 @@ export function StandardAPIStack({ stack }: StackContext) {
             "POST /standards": "packages/functions/src/standards/create.main",
             "GET /standards/{id}": "packages/functions/src/standards/get.main",
             "GET /standards": "packages/functions/src/standards/list.main",
+            "GET /calcCompletion": "packages/functions/src/standards/calcCompletion.main",
             "GET /calcIndicators": {
                 function: {
                   handler: "packages/functions/src/standards/calcIndicators.main",
