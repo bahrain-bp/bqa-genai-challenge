@@ -15,8 +15,8 @@ import Settings from './pages/Settings';
 import Tables from './pages/Tables';
 import Alerts from './pages/UiElements/Alerts';
 import Buttons from './pages/UiElements/Buttons';
+import Standards from './pages/Standards';
 import PredefinedTemplate from './pages/PredefinedTemplate';
-
 import EvidenceFiles from './pages/EvidenceFiles';
 
 import UploadEvidence from './pages/UploadEvidence';
@@ -112,9 +112,17 @@ function App() {
             </>
           }
         />
-
+         <Route
+          path="/Standards"
+          element={
+            <>
+              <PageTitle title="Standards | EduScribe" />
+              <Standards />
+            </>
+          }
+        />
         <Route
-          path="/PredefinedTemplate"
+          path="/PredefinedTemplate/:standardName"
           element={
             <>
               <PageTitle title="Predefined Template | EduScribe" />
@@ -122,9 +130,9 @@ function App() {
             </>
           }
         />
+       
         <Route
-
-          path="/EvidenceFiles/:standardName"
+          path="EvidenceFiles/:indicatorName"
           element={
            <>
   
