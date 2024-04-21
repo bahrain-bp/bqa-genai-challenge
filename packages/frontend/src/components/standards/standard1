@@ -1,0 +1,38 @@
+const standard1 = () => {
+    return (
+      <>
+        <div id="file5">
+          <h3 className="font-medium text-black dark:text-white">Standard 1: Governance and Management – 5 Indicators</h3>
+          <h3 className="font-medium text-black dark:text-white">Indicator 1: Vision, Mission and Values</h3>
+          {/* File upload container */}
+          {/* ... */}
+        </div>
+  
+        <div id="file4">
+          <h3 className="font-medium text-black dark:text-white">Indicator 2: Strategic and Operational Planning</h3>
+          {/* File upload container */}
+          {/* ... */}
+        </div>
+  
+        <div id="file3">
+          <h3 className="font-medium text-black dark:text-white">Indicator 3: Governance and Management Practices</h3>
+          {/* File upload container */}
+          {/* ... */}
+        </div>
+  
+        <div id="file2">
+          <h3 className="font-medium text-black dark:text-white">Indicator 4: Organisational Structure</h3>
+          {/* File upload container */}
+          {/* ... */}
+        </div>
+  
+        <div id="file1">
+          <h3 className="font-medium text-black dark:text-white">Indicator 5: Partnerships, Memoranda with other Institutions (where applicable)</h3>
+          {/* File upload container */}
+          {/* ... */}
+        </div>
+      </>
+    );
+  };
+  
+  export default standard1;

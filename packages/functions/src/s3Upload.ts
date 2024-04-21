@@ -1,7 +1,7 @@
 import * as AWS from 'aws-sdk';
 const s3 = new AWS.S3();
 
-export async function uploadToS3(event: any) {
+export async function uploadToS3(fileData: any, fileName: string) {
   try {
     const fileData = event.body; // Binary file data
     const fileName = event.headers['file-name']; // Get file name
