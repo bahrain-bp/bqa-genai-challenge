@@ -5,13 +5,27 @@ import AWS from 'aws-sdk';
 
 //INDICATORS FILE **
 
-
 const PredefinedTemplate: React.FC = () => {
+ // Get the standardId from the URL
+const standardId = window.location.pathname.split('/').pop();
+
+// Set the value of the input field if it exists
+const inputElement = document.querySelector<HTMLInputElement>('input[name="standardId"]');
+if (inputElement) {
+    inputElement.value = standardId ?? '';
+}
+
+const [showForm, setShowForm] = useState(false); // State variable to toggle form visibility
+const [standardName, setStandardName] = useState('');
+
+const [indicators, setIndicators] = useState<any[]>([]); // State variable to store indicators
+ 
   const [recordData, setRecordData] = useState({
     entityType: '',
     entityId: '',
-    standardId: '',
     standardName: '',
+    indicatorId: '',
+    indicatorName: '',
     description: '',
     documentName: '',
     documentURL: '', // Initialize documentURL state
@@ -20,17 +34,41 @@ const PredefinedTemplate: React.FC = () => {
   });
   const [records, setRecords] = useState<any[]>([]); // Initialize state to store fetched records
 
+
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
     const { name, value } = event.target;
-    setRecordData(prevState => ({
-      ...prevState,
-      [name]: value,
-    }));
-  };
- 
   
+    if (event.target instanceof HTMLSelectElement) { // Check if the event target is a HTMLSelectElement
+      // Find the selected indicator by its ID
+      const selectedIndicator = indicators.find((indicator) => indicator.indicatorId === value);
+      // If the indicator is found, update the recordData with its name
+      if (selectedIndicator) {
+        setRecordData(prevState => ({
+          ...prevState,
+          [name]: value,
+          indicatorName: selectedIndicator.indicatorName // Set the indicatorName
+        }));
+      }
+    } else {
+      
+      // For other fields, update the recordData
+      setRecordData(prevState => ({
+        ...prevState,
+        [name]: value
+      }));
+    }
+  };
+  
+  
+ 
+  const toggleForm = () => {
+    setShowForm(!showForm);
+  };
 
-
+  const handleCancel = () => {
+    setShowForm(false);
+    // Reset recordData if needed
+  };
 
   const createRecord = async () => {
     try {
@@ -39,17 +77,22 @@ const PredefinedTemplate: React.FC = () => {
         throw new Error('Please select a file.');
       }
       const file = fileInput.files[0];
-
+  
+      // Get the standardId from the URL
+      const standardId = window.location.pathname.split('/').pop();
+  
       // Handle file upload
-      const selectedStandard = `Standard 1/${recordData.standardName}`; // Get the selected standard value
+      const selectedStandard = `${standardId}/${recordData.indicatorId}`;// Get the selected standard value
       await handleFileSelect(file, selectedStandard);
-
+  
       // Create record in DynamoDB
       const documentURL = `https://d2qvr68pyo44tt.cloudfront.net/${selectedStandard}/${file.name}`;
       const newRecordData = {
         ...recordData,
         documentName: file.name,
         documentURL,
+        standardId: standardId, // Ensure standardId is included in the record data
+        standardName: standardName // Include standardName in recordData
       };
       const response = await fetch('https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards', {
         method: 'POST',
@@ -63,13 +106,14 @@ const PredefinedTemplate: React.FC = () => {
       }
       const data = await response.json();
       console.log('New record created:', data);
-      const standardName = window.location.pathname.split('/').pop();
-      fetchRecords(standardName); // Fetch records for the extracted standard name
+      setShowForm(false);
+      fetchRecords(standardId); // Fetch records for the extracted standard name
       setRecordData({
         entityType: '',
         entityId: '',
-        standardId: '',
         standardName: '',
+        indicatorId: '',
+        indicatorName: '',
         description: '',
         documentName: '',
         documentURL: '',
@@ -82,30 +126,42 @@ const PredefinedTemplate: React.FC = () => {
       alert('Failed to create record');
     }
   };
-  
 
-  const fetchRecords = async (standardName: string | undefined) => {
+  const fetchIndicators = async (standardId: string | undefined) => {
     try {
-      const response = await fetch(`https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards?standard=${standardName}`);
+      const response = await fetch(`https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards?standardId=${standardId}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch indicators');
+      }
+      const data = await response.json();
+      // Filter indicators to include only those with matching standardId
+      const filteredIndicators = data.filter((indicator: any) => indicator.standardId === standardId);
+      setIndicators(filteredIndicators); // Update state with filtered indicators
+    } catch (error) {
+      console.error('Error fetching indicators:', error);
+    }
+  };
+
+  const fetchRecords = async (standardId: string | undefined) => {
+    try {
+      const response = await fetch(`https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards?standard=${standardId}`);
       if (!response.ok) {
         throw new Error('Failed to fetch records');
       }
       const data: any[] = await response.json(); // Assuming your records have type any
       
-      // Sort records based on the numeric value in the standardName
-      // const sortedRecords = data
-      //   .filter((record: any) => record.documentURL && record.status !== 'archived') // Filter based on documentURL and status
-      //   .sort((a: any, b: any) => {
-      //     const standardNameA = parseInt(a.standardName.replace('Standard', ''));
-      //     const standardNameB = parseInt(b.standardName.replace('Standard', ''));
-      //     return standardNameA - standardNameB;
-      //   });
+      // Sort records based on the numeric value in the standardId
+      const sortedRecords = data
+        .filter((record: any) => record.documentURL && record.status !== 'archived') // Filter based on documentURL and status
+        .sort((a: any, b: any) => {
+          const indicatorIdA = parseInt(a.indicatorId.replace('Indicator', ''));
+          const indicatorIdB = parseInt(b.indicatorId.replace('Indicator', ''));
+          return indicatorIdA - indicatorIdB;
+        });
       
-      // setRecords(sortedRecords); // Update state with sorted records
-     
 
-      // Filter records based on standardName
-      const filteredRecords = data.filter((record: { standardName: string | undefined }) => record.standardName === standardName);
+      // Filter records based on standardId
+      const filteredRecords = sortedRecords.filter((record: { standardId: string | undefined }) => record.standardId === standardId);
 
       setRecords(filteredRecords);
   
@@ -115,9 +171,13 @@ const PredefinedTemplate: React.FC = () => {
   };
   
   useEffect(() => {
-  
-    const standardName = window.location.pathname.split('/').pop();
-    fetchRecords(standardName); // Fetch records for the extracted standard name // Fetch records when the component mounts
+    
+    const standardId = window.location.pathname.split('/').pop();
+    
+ // Fetch indicators based on the standardId
+ fetchStandardName(standardId);
+ fetchIndicators(standardId);
+    fetchRecords(standardId); 
   }, []);
 
   async function uploadToS3Evidence(fileData: Blob | File, fileName: string, folderName: string) {
@@ -168,70 +228,117 @@ const PredefinedTemplate: React.FC = () => {
     fileReader.readAsBinaryString(file);
   }
 
+const fetchStandardName = async (standardId: string | undefined) => {
+  try {
+    // Make API call to fetch standard name based on standardId
+    const response = await fetch(`https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards?standardId=${standardId}`);
+    if (!response.ok) {
+      throw new Error('Failed to fetch standards');
+    }
+    const data = await response.json();
+// Filter standards to include only those with matching standardId
+const filteredStandards = data.filter((standard: any) => standard.standardId === standardId);
 
+// Assuming data is an array of records, select the first one
+const standardName = filteredStandards.length > 0 ? filteredStandards[0].standardName : '';
 
-  
-  
+// Update state with the fetched standard name
+setStandardName(standardName);
 
+  } catch (error) {
+    console.error('Error fetching standards:', error);
+  }
+};
+    
   return (
     <DefaultLayout>
-      <div>
-        <h6 className="m-b-20">Create New Standard</h6>
-       
-        <div className="form-group">
-          <label>Choose Indicator :</label>
-         <select name="standardName" value={recordData.standardName} onChange={handleChange}>
-          <option value="">Select an Indicator</option>
-          <option value="Indicator1">Indicator 1: Vision, Mission and Values </option>
-          <option value="Indicator2">Indicator 2: Strategic and Operational Planning </option>
-          <option value="Indicator3">Indicator 3: Quality Assurance and Enhancement</option>
-          <option value="Indicator4">Indicator 4: Infrastructure, Information and Communications Technology (ICT) and Learning Resources</option>
-        
-        </select>
+     
 
-        </div>
- <div className="form-group">
-          <label>Indicator Id:</label>
-          <input type="text" name="standardName"  value={recordData.standardName} onChange={handleChange}/>
-        </div>
-<div className="form-group">
-          <label>Indicator Name:</label>
-          <input type="text" name="standardId"  value={recordData.standardId} onChange={handleChange}/>
-        </div>
-       
-
-        <div className="form-group">
-          <label>Upload Document:</label>
-          <input type="file" name="documentName" value={recordData.documentName} onChange={handleChange}/>
-        </div>
-        <div className="form-group">
-          <label>Document Description:</label>
-          <input type="text" name="description" value={recordData.description} onChange={handleChange} />
-        </div>
-        <div className="form-group">
-  <label>Status:</label>
-  <input type="text" name="status" value={recordData.status} onChange={handleChange} readOnly />
-</div>
-
-        <button onClick={createRecord}>Save</button>
+<div>
+  
+<div className="button-container">
+<button
+        className={`flex justify-center rounded bg-primary py-2 px-6 font-medium text-gray hover:bg-opacity-90 mr-4`}
+        type="button" // Change type to "button"
+        onClick={toggleForm} // Add onClick handler
+      >
+       Upload Evidence
+      </button>
       </div>
-
+      {showForm && (
+        
+          <div className="modal-overlay">
+            <div className="modal-content">
+            <div className="form-group">
+              <label>Choose Indicator :</label>
+              <select name="indicatorId" value={recordData.indicatorId} onChange={handleChange}>
+                <option value="">Select an Indicator</option>
+                {indicators.map((indicator: any) => (
+                  <option key={indicator.indicatorId} value={indicator.indicatorId}>
+                    {`${indicator.indicatorId}: ${indicator.indicatorName}`}
+                  </option>
+                ))}
+              </select>
+            </div><br />
+            <div className="form-group">
+  <label>Standard Name:</label>
+  <input type="text" name="standardName" value={standardName} onChange={handleChange} />
+</div>
+            <div className="form-group">
+              <label>Indicator Name:</label>
+              <input type="text" name="indicatorName" value={recordData.indicatorName} onChange={handleChange} />
+            </div><br />
+            <div className="form-group">
+              <label>Indicator Id:</label>
+              <input type="text" name="indicatorId" value={recordData.indicatorId} onChange={handleChange} />
+            </div><br />
+            <div className="form-group">
+              <label>Upload Document:</label>
+              <input type="file" name="documentName" value={recordData.documentName} onChange={handleChange} />
+            </div><br />
+            <div className="form-group">
+              <label>Document Description:</label>
+              <input type="text" name="description" value={recordData.description} onChange={handleChange} />
+            </div><br />
+            <div className="form-group">
+              <label>Status:</label>
+              <input type="text" name="status" value={recordData.status} onChange={handleChange} readOnly />
+            </div><br />
+            <div className="form-buttons">
+            <button
+        className="flex rounded border border-stroke py-2 px-6 font-medium text-black hover:shadow-1 dark:border-strokedark dark:text-white mr-4"
+        type="button"
+        onClick={handleCancel}
+      >
+        Cancel
+      </button>
+      <button
+        className={`flex rounded bg-primary py-2 px-6 font-medium text-gray hover:bg-opacity-90 mr-4`}
+        type="button" // Change type to "button"
+        onClick={createRecord} // Add onClick handler
+      >
+        Save
+      </button>
+      </div>
+      </div>
+          </div>
+          
+        )}
+</div>
       <div>
       <div className="predefined-header">
-        <h2>Predefined Templates</h2>
-        <h6>In here, you can find predefined templates that can help guide you to the required documents.</h6>
+        <h2>Indicators</h2>
+        <h6>In here, you can find templates for each indicator that can help guide you to the required documents.</h6>
       </div>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-4 2xl:gap-7.5">
        
         {[...new Map(
           records
             .filter(record => record.documentURL && record.status !== 'archived') // Filter based on documentURL and status
-            .map(record => [record.standardName, record]) // Map each record to its standardName and the record itself
-        )].map(([standardName, record], index) => (
+            .map(record => [record.indicatorId, record]) // Map each record to its standardName and the record itself
+        )].map(([indicatorId, record], index) => (
           <div key={index} className="record">
            
-
-
             <div className="rounded-xl border border-stroke bg-white py-6 px-7.5 shadow-default dark:border-strokedark dark:bg-boxdark">
           <div className="scard-block">
           <div className="circle-background">
@@ -254,9 +361,10 @@ const PredefinedTemplate: React.FC = () => {
             </svg>
             </div>
 
-            <a href={`/EvidenceFiles/${record.standardName}`} className="link-unstyled">
+            <a href={`/EvidenceFiles/${record.indicatorId}`} className="link-unstyled">
 
-    <h6 className="m-b-20">{standardName + ' ' + record.standardId}</h6></a>
+    <h6 className="m-b-20">{indicatorId}</h6>
+    <h5>{record.indicatorName}</h5></a>
       </div>
         </div>
 
