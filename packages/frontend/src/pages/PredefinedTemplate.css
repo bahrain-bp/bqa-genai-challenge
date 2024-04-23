@@ -226,3 +226,118 @@
   .f-right {
     float: right;
   }
+
+  .scard-block {
+  
+}
+
+.scard-block h6 {
+  margin-bottom: 10px;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.scard-block p {
+  margin-bottom: 5px;
+  font-size: 18px;
+}
+
+.scard-block h2 {
+  margin-top: 10px;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.scard-block span {
+  margin-left: 5px;
+  vertical-align: middle;
+}
+
+.predefined-header {
+  margin: 30px 40px;
+}
+
+.predefined-header h2 {
+  margin-bottom: 10px;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.predefined-header h6 {
+  margin-bottom: 0;
+  font-size: 16px;
+  font-weight: normal;
+}
+
+.circle-background {
+  width: 50px;
+  height: 50px;
+  background-color: #e0e0e0;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px;
+
+}
+
+
+.download-header {
+  font-weight: bold;
+  font-size: 20px;
+  margin: 20px 30px;
+
+
+}
+
+
+.download-header h2 {
+  margin-bottom: 10px;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.download-header h6 {
+  margin-bottom: 0;
+  font-size: 16px;
+  font-weight: normal;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(244, 242, 242, 0.5); /* Semi-transparent black overlay */
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background-color:#ededed;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+}
+.form-buttons {
+  display: flex;
+  justify-content: flex-end; /* Align buttons to the right */
+  margin-top: 20px; /* Add some margin from the form elements */
+}
+
+.button-container {
+  display: flex;
+  justify-content: flex-end; /* Align button to the right */
+}
+
+.hidden {
+  display: none;
+}
+
+.white-background {
+  background-color: white;
+}
+
