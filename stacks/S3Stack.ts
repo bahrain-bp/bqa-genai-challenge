@@ -1,12 +1,13 @@
-import { StackContext } from 'sst/constructs';
-import * as AWS from 'aws-sdk';
+import { aws_iam as iam, aws_lambda as lambda } from "aws-cdk-lib";
+import { StackContext, Queue, Function } from "sst/constructs";
+import * as AWS from "aws-sdk";
 
 export function S3Stack({ stack, app }: StackContext) {
   // Create the S3 bucket if it doesn't exist
-  const bucketName = 'uni-artifacts';
+  const bucketName = "uni-artifacts";
   createS3Bucket(stack, bucketName)
-    .then(() => configureBucketPolicy(stack, bucketName, 'us-east-1_QmBzINJmW'))
-    .catch(error => console.error('Error:', error));
+    .then(() => configureBucketPolicy(stack, bucketName, "us-east-1_QmBzINJmW"))
+    .catch((error) => console.error("Error:", error));
 
   async function createS3Bucket(stack: any, bucketName: string): Promise<void> {
     const s3 = new AWS.S3();
@@ -20,12 +21,44 @@ export function S3Stack({ stack, app }: StackContext) {
         await s3.createBucket({ Bucket: bucketName }).promise();
         console.log(`Bucket "${bucketName}" created successfully.`);
       } catch (error) {
-        console.error('Error creating bucket: ', error);
+        console.error("Error creating bucket: ", error);
       }
     }
   }
 
-  async function configureBucketPolicy(stack: any, bucketName: string, cognitoPoolId: string): Promise<void> {
+  const handler =
+    "packages/functions/src/bedrock_lambda/bedrock_prompt.handler";
+  const bedrock_lambda = new Function(stack, "bedrock_lambda", {
+    handler: handler,
+    runtime: "python3.11",
+    permissions: "*",
+  });
+  // Attach AmazonS3FullAccess managed policy to the role associated with the Lambda function
+  bedrock_lambda.role?.addManagedPolicy(
+    iam.ManagedPolicy.fromAwsManagedPolicyName("AmazonS3FullAccess")
+  );
+
+  const documentsQueue = new Queue(stack, "Document-Queue", {
+    consumer: {
+      function: bedrock_lambda,
+    },
+    cdk: {
+      queue: {
+        fifo: true,
+        // contentBasedDeduplication: true,
+        queueName: stack.stage + "-documents-queue.fifo",
+        contentBasedDeduplication: true,
+      },
+    },
+  });
+  documentsQueue.attachPermissions("*");
+
+  async function configureBucketPolicy(
+    stack: any,
+    bucketName: string,
+    cognitoPoolId: string
+  ): Promise<void> {
     // Your bucket policy configuration logic here, to only allow cognito users to upload into the bucket
   }
+  return { documentsQueue };
 }
