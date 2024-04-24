@@ -14,6 +14,7 @@ interface StepContainerProps {
   width: string;
 }
 
+
 const MainContainer = styled.div`
   width: 100%;
   max-width: 900px;
@@ -116,37 +117,6 @@ const CheckMark = styled.div`
 `;
 
 
-const UploadContainer = styled.div`
-  p {
-    margin: 0;
-  }
-`;
-
-const UploadFile = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 10px;
-`;
-
-const UploadButton = styled.label`
-  cursor: pointer;
-  display: inline-block;
-  padding: 8px 12px;
-  border: 1px solid #2ECC71;
-  border-radius: 4px;
-  color: #2ECC71;
-`;
-
-const FileName = styled.span`
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-`;
-
-const HiddenInput = styled.input`
-  display: none;
-`;
 
 
 
@@ -306,21 +276,35 @@ const steps: Step[] = [
 
 
 const UploadEvidence = () => {
+
+  
+
+
   const [activeStep, setActiveStep] = useState(1);
 
-  const [selectedFiles, setSelectedFiles] = useState<Array<Array<File | null>>>(
-    steps.map(step => step.indicators.map(() => null))
-  );
+
+  const initialSelectedFiles = steps.map(step => step.indicators.map(() => null));
+  const [selectedFiles, setSelectedFiles] = useState(initialSelectedFiles);
+
+  //const [selectedFiles, setSelectedFiles] = useState<Array<Array<File | null>>>(
+    //steps.map(step => step.indicators.map(() => null)));
+  
   
 
  // Function to handle file selection
 // Function to handle file selection and upload
-const handleFileChange = async (file: File, stepIndex: number, sectionIndex: number) => {
+const handleFileChange = async (file: any, stepIndex: number, sectionIndex: number) => {
+  const updatedFiles = selectedFiles.map(step => [...step]);
+  updatedFiles[stepIndex][sectionIndex]= file;
+  setSelectedFiles(updatedFiles);
+
   const formData = new FormData();
   formData.append('file', file);
 
+
+
   try {
-    const response = await fetch(' https://l1ca6m1ik7.execute-api.us-east-1.amazonaws.com', {
+    const response = await fetch('https://l1ca6m1ik7.execute-api.us-east-1.amazonaws.com/uploadS3', {
       method: 'POST',
       body: formData,
       headers: {
@@ -343,7 +327,6 @@ const handleFileChange = async (file: File, stepIndex: number, sectionIndex: num
 };
 
 
-
 // Function to handle save button click
 const handleSaveClick = async () => {
   // Iterate through selected files and trigger upload for each
@@ -362,8 +345,6 @@ const handleSaveClick = async () => {
 const handleCancelClick = () => {
   // Add any necessary logic for cancel action
 };
-
-
 
   const nextStep = () => {
     setActiveStep(activeStep + 1);
@@ -404,35 +385,41 @@ const handleCancelClick = () => {
             Next
           </ButtonStyle>
         </ButtonsContainer>
+        
+
+
       
         {activeStep && (
-  <div>
-    <h2>{steps[activeStep - 1].label}</h2>
-    {steps[activeStep - 1].indicators.map((indicator, index) => (
-      <div key={index}>
-        <h3>{indicator.label}</h3>
-        {indicator.uploadSections.map((uploadSection, sectionIndex) => (
-          <div key={sectionIndex}>
-            <h4>{uploadSection.title}</h4>
-            <p>{uploadSection.description}</p>
-            {/* File upload container */}
-            <div className="p-4">
-              <div
-                id={`FileUpload-${sectionIndex}`}
-                className="relative mb-5.5 block w-full cursor-pointer appearance-none rounded border border-dashed border-primary bg-gray py-4 px-4 dark:bg-meta-4 sm:py-7.5"
-              >
-                {/* File input */}
-                <input
-                  type="file"
-                  accept="*"
-                  className="absolute inset-0 z-50 m-0 h-full w-full cursor-pointer p-0 opacity-0 outline-none"
-                  onChange={(e) => {
-                    const files = e.target.files;
-                    if (files && files.length > 0) {
-                      handleFileChange(files[0], activeStep - 1, sectionIndex); // Call handleFileChange on file selection
-                    }
-                  }}
+          <div>
+            <h2>{steps[activeStep - 1].label}</h2>
+            {steps[activeStep - 1].indicators.map((indicator, index) => (
+              <div key={index}>
+                <h3>{indicator.label}</h3>
+                {indicator.uploadSections.map((uploadSection, sectionIndex) => (
+                  <div key={sectionIndex}>
+                    <h4>{uploadSection.title}</h4>
+                    <p>{uploadSection.description}</p>
+
+                    {/* File upload container */}
+                  
+                    <div className="p-4">
+                      <div
+                        id={`FileUpload-${sectionIndex}`}
+                        className="relative mb-5.5 block w-full cursor-pointer appearance-none rounded border border-dashed border-primary bg-gray py-4 px-4 dark:bg-meta-4 sm:py-7.5"
+                      >
+                        {/* File input */}
+                        <input
+                          type="file"
+                          accept="*"
+                          className="absolute inset-0 z-50 m-0 h-full w-full cursor-pointer p-0 opacity-0 outline-none"
+                          onChange={(e) => {
+                            const files = e.target.files;
+                            if (files && files.length > 0) {
+                              handleFileChange(files[0], activeStep - 1, sectionIndex); // Pass both activeStep - 1 and sectionIndex
+                            }
+                          }}
                 />
+
                 <div className="flex flex-col items-center justify-center space-y-3">
                   <span className="flex h-10 w-10 items-center justify-center rounded-full border border-stroke bg-white dark:border-strokedark dark:bg-boxdark">
                     <svg
@@ -450,13 +437,18 @@ const handleCancelClick = () => {
                   </p>
                   <p className="mt-1.5">SVG, PNG, JPG or GIF</p>
                   <p>(max, 800 X 800px)</p>
-                 {/* Display filename here */}
-        {selectedFiles[activeStep - 1][sectionIndex] && (
-          <FileName>{selectedFiles[activeStep - 1][sectionIndex]?.name}</FileName>
-        )}
+
+                 {/* Display filename here 
+                  {selectedFiles[activeStep - 1][sectionIndex]?.name && (
+                    <div className="file-item">
+                      <span className="file-name">{selectedFiles[activeStep - 1][sectionIndex]?.name}</span>
+                    </div>
+                  )}
+                */}
                 </div>
               </div>
             </div>
+
             {/* Save and cancel buttons */}
             <div className="flex justify-end gap- mb-5">
               <button
@@ -480,8 +472,6 @@ const handleCancelClick = () => {
     ))}
   </div>
 )}
-
-        
       </MainContainer>
     </DefaultLayout>
   );
