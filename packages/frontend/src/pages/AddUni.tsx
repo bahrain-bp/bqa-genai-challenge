@@ -134,7 +134,7 @@ const AddUni = () => {
     // trying the upload logo
     const uploadLogo = async ( logo:File ) => {
       const url =
-        'https://66xzg471hh.execute-api.us-east-1.amazonaws.com/uploadLogo'; // This will be replaced with the main api
+        'https://66xzg471hh.execute-api.us-east-1.amazonaws.com/uploadS3'; // This will be replaced with the main api
       /////
        const formData = new FormData();
           formData.append('logo', logo, logo.name); // Append the file to FormData
@@ -144,7 +144,9 @@ const AddUni = () => {
         method: 'POST',
         body:formData,
         headers: {
-          'file-name': logo.name,
+          'file-name': 'logo',
+          'bucket-name':'uni-artifacts',
+          'folder-name':'bahrainPolytechnic'
         },
        // body: JSON.stringify({ logo }),
       };
