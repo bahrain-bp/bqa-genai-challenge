@@ -18,7 +18,7 @@ import Buttons from './pages/UiElements/Buttons';
 import Standards from './pages/Standards';
 import PredefinedTemplate from './pages/PredefinedTemplate';
 import EvidenceFiles from './pages/EvidenceFiles';
-
+import Archived from './pages/Archived';
 import UploadEvidence from './pages/UploadEvidence';
 import OfficerDash from './pages/OfficerDash';
 import BqaDash1 from './pages/BqaDash1';
@@ -121,6 +121,17 @@ function App() {
             </>
           }
         />
+
+        <Route
+          path="/Archived"
+          element={
+            <>
+              <PageTitle title="Archived | EduScribe" />
+              <Archived />
+            </>
+          }
+        />
+
         <Route
           path="/PredefinedTemplate/:standardName"
           element={

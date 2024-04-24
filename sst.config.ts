@@ -9,10 +9,9 @@ import { StandardAPIStack } from "./stacks/StandardAPIStack";
 import { ImageBuilderForCodeCatalyst } from "./stacks/devops/ImageBuilderForCodeCatalyst";
 import { OIDCForGitHubCI } from "./stacks/devops/OIDCForGitHubCI";
 
-import { S3Stack } from "./stacks/S3Stack"
+import { S3Stack } from "./stacks/S3Stack";
 import { S3 } from "aws-cdk-lib/aws-ses-actions";
 import { S3uploadStack } from "./stacks/S3uploadStack"
-
 
 
 export default {
