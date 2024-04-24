@@ -25,7 +25,7 @@ import BqaDash1 from './pages/BqaDash1';
 import BqaDash2 from './pages/BqaDash2';
 import AddUni from './pages/AddUni';
 import ChangePassword from './pages/Auth/ChangePassword';
-
+import ForgotPassword from './pages/Auth/ForgotPassword';
 import { getCurrentUser, fetchUserAttributes } from 'aws-amplify/auth';
 import { ToastContainer } from 'react-toastify';
 import NewUser from './pages/Auth/NewUser';
@@ -186,6 +186,15 @@ function App() {
             <>
               <PageTitle title="New User | EduScribe" />
               <NewUser />
+            </>
+          }
+        />
+         <Route
+          path="/ForgotPassword"
+          element={
+            <>
+              <PageTitle title="Reset your password | EduScribe" />
+              <ForgotPassword />
             </>
           }
         />

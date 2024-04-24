@@ -63,8 +63,21 @@ export function ApiStack({ stack }: StackContext) {
         function: {
           handler: "packages/functions/createUser.createUserInCognito",
           permissions: "*",
+          //permissions wil be changed
         },
       },
+
+     
+      //Uploading logo to S3
+      
+      "POST /uploadLogo": {
+        function: {
+          handler: "packages/functions/uploadLogo.uploadLogo",
+          permissions: "*"
+        }
+      },
+      
+      
     },
   });
   const get_users_function = api.getFunction("POST /createUser");

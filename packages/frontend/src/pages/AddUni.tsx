@@ -10,6 +10,7 @@ import * as AWS from 'aws-sdk';
 import {
   CognitoIdentityProviderClient,
   AdminCreateUserCommand,
+  AdminAddUserToGroupCommand
 } from '@aws-sdk/client-cognito-identity-provider';
 
 // Add authenticator so only admin can create an email and
@@ -58,10 +59,18 @@ const AddUni = () => {
   });
 
   const [email, setEmail] = useState('');
+  const [name, setName] = useState('');
+  const [logo, setLogo] = useState<File | null>(null);
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files ? event.target.files[0] : null;
+    setLogo(file);
+  };
+
 
   async function handleAddEmail() {
-    if (!email) {
-      toast.error('Please enter an email address.');
+    if (!email || !name || !logo) {
+      toast.error('Please fill all the fields.');
       return;
     }
     const tempPassword = generateTemporaryPassword(); // Generate a compliant temporary password
@@ -83,15 +92,15 @@ const AddUni = () => {
     //   // MessageAction: 'RESEND', // Optionally, uncomment this line if needed
     //   DesiredDeliveryMediums: ['EMAIL'],
     // };
-    const createUser = async (email: string, tempPassword: string) => {
+    const createUser = async (email: string, tempPassword: string, name: string) => {
       const url =
-        'https://s4vlc5ppv3.execute-api.us-east-1.amazonaws.com/createUser'; // Replace with your API Gateway endpoint URL
+        'https://66xzg471hh.execute-api.us-east-1.amazonaws.com/createUser'; // This will be replaced with the main api
       const requestOptions: RequestInit = {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, tempPassword }),
+        body: JSON.stringify({ email, tempPassword , name}),
       };
 
       try {
@@ -112,7 +121,7 @@ const AddUni = () => {
     };
 
     try {
-      createUser(email, tempPassword);
+      createUser(email, tempPassword,name);
 
       console.log('Admin create user successful');
       toast.success('Verification email sent to ' + email);
@@ -120,24 +129,97 @@ const AddUni = () => {
       console.error('Error creating user:', error);
       toast.error('Failed to create user: ');
     }
-  }
+
+
+    // trying the upload logo
+    const uploadLogo = async ( logo:File ) => {
+      const url =
+        'https://66xzg471hh.execute-api.us-east-1.amazonaws.com/uploadLogo'; // This will be replaced with the main api
+      /////
+       const formData = new FormData();
+          formData.append('logo', logo, logo.name); // Append the file to FormData
+          //formData.append('name', name); // Optionally send email or other fields
+      
+        const requestOptions: RequestInit = {
+        method: 'POST',
+        body:formData,
+        headers: {
+          'file-name': logo.name,
+        },
+       // body: JSON.stringify({ logo }),
+      };
+
+      try {
+        const response = await fetch(url, requestOptions);
+        if (response.ok) {
+          const data = await response.json();
+          console.log('Logo uploaded successfully', data);
+          // Handle success (e.g., display success message to the user)
+        } else {
+          const errorData = await response.json();
+          console.error('Failed to upload logo:', errorData);
+          // Handle failure (e.g., display error message to the user)
+        }
+      } catch (error) {
+        console.error('Error Uploading Logo:', error);
+        // Handle error (e.g., display error message to the user)
+      }
+    }; //end of upload
+
+
+    
+    try {
+      await uploadLogo(logo);
+      toast.success('Logo uploaded successfully!');
+    } catch (error) {
+      console.error('Upload failed:', error);
+      toast.error('Upload failed, please try again.');
+    }
+  };
+
+
+  
 
   return (
     <DefaultLayout>
       <Breadcrumb pageName="Add University" />
       <div className="container mx-auto px-4 py-8">
-        <h1>Add University Email</h1>
-        <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="Email"
-        />
+      <h1>Add University Details</h1>
+
+      <div>
+          <label htmlFor="email">University Email:</label>
+          <input
+            id="email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Email"
+          />
+        </div>
+
+         <div>
+          <label htmlFor="universityName">University Name:</label>
+          <input
+            id="universityName"
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="University Name"
+          />
+        </div>
+        <div>
+          <label htmlFor="logo">University Logo:</label>
+          <input 
+          id="logo" type="file" 
+          onChange={handleFileChange} />
+        </div>
 
         <button onClick={handleAddEmail}>Add Email</button>
       </div>
     </DefaultLayout>
   );
+
+
 };
 
 export default AddUni;

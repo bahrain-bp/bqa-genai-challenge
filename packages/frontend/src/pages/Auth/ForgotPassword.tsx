@@ -1,167 +1,167 @@
-import React, { useState } from 'react';
-import { resetPassword, ResetPasswordOutput } from 'aws-amplify/auth';
-import {
-    confirmResetPassword,
-    type ConfirmResetPasswordInput
-  } from 'aws-amplify/auth';
- 
-  import { BsCheck } from 'react-icons/bs';
-  import { Link } from 'react-router-dom';
+import React, { useState, ChangeEvent, FormEvent } from "react";
+import { Link } from "react-router-dom";
+import { resetPassword, confirmResetPassword,
+   type ResetPasswordOutput, type ConfirmResetPasswordInput } from 'aws-amplify/auth';
 
-const ForgotPassword = () => {
-   
-    const [email, setEmail] = useState('');
-  const [code, setCode] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+type Fields = {
+  email: string;
+  code: string;
+  password: string;
+  confirmPassword: string;
+};
+
+export default function ForgotPassword() {
+  const [fields, setFields] = useState<Fields>({
+    code: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
   const [codeSent, setCodeSent] = useState(false);
   const [confirmed, setConfirmed] = useState(false);
   const [isConfirming, setIsConfirming] = useState(false);
   const [isSendingCode, setIsSendingCode] = useState(false);
 
-      
-/*
-      async function handleSendCodeClick(event:any) {
-        event.preventDefault();
-    
-        setIsSendingCode(true);
-    
-        try {
-          await resetPassword(username);
-          setCodeSent(true);
-        } catch (error) {
-            console.log(error);
-          setIsSendingCode(false);
-        }
-      }
+  const handleFieldChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setFields({
+      ...fields,
+      [e.target.id]: e.target.value
+    });
+  };
 
+  function validateCodeForm() {
+    return fields.email.length > 0;
+  }
 
+  function validateResetForm() {
+    return (
+      fields.code.length > 0 &&
+      fields.password.length > 0 &&
+      fields.password === fields.confirmPassword
+    );
+  }
 
-      async function handleConfirmClick(event:any) {
-        event.preventDefault();
-        setIsConfirming(true);
-    
-        try {
-          await confirmResetPassword(
-            fields.email,
-            fields.code,
-            fields.password
-          );
-          setConfirmed(true);
-        } catch (error) {
-            console.log(error);
-          setIsConfirming(false);
-        }
-      }
+  async function handleSendCodeClick(event:any) {
+    event.preventDefault();
+    setIsSendingCode(true);
 
-   
+    try {
+      const output = await resetPassword({ username: fields.email });
+      setCodeSent(true);
+      handleResetPasswordNextSteps(output);
+    } 
+    catch (error) {
+      console.error(error);
+      setIsSendingCode(false);
+    }
+  }
 
-      function renderRequestCodeForm() {
-        return (
-          <form onSubmit={handleSendCodeClick}>
-            <FormGroup bsSize="large" controlId="email">
-              <FormLabel>Email</FormLabel>
-              <FormControl
-                autoFocus
-                type="email"
-                value={fields.email}
-                onChange={handleFieldChange}
-              />
-            </FormGroup>
-            <LoaderButton
-              block
-              type="submit"
-              bsSize="large"
-              isLoading={isSendingCode}
-              disabled={!validateCodeForm()}
-            >
-              Send Confirmation
-            </LoaderButton>
-          </form>
+  function handleResetPasswordNextSteps(output: ResetPasswordOutput) {
+    const { nextStep } = output;
+    switch (nextStep.resetPasswordStep) {
+      case 'CONFIRM_RESET_PASSWORD_WITH_CODE':
+        const codeDeliveryDetails = nextStep.codeDeliveryDetails;
+
+        console.log(
+          `Confirmation code was sent to ${codeDeliveryDetails?.deliveryMedium}`
         );
-      }
-      function renderConfirmationForm() {
-        return (
-          <form onSubmit={handleConfirmClick}>
-            <FormGroup bsSize="large" controlId="code">
-              <FormLabel>Confirmation Code</FormLabel>
-              <FormControl
-                autoFocus
-                type="tel"
-                value={fields.code}
-                onChange={handleFieldChange}
-              />
-              <FormText>
-                Please check your email ({fields.email}) for the confirmation code.
-              </FormText>
-            </FormGroup>
-            <hr />
-            <FormGroup bsSize="large" controlId="password">
-              <FormLabel>New Password</FormLabel>
-              <FormControl
-                type="password"
-                value={fields.password}
-                onChange={handleFieldChange}
-              />
-            </FormGroup>
-            <FormGroup bsSize="large" controlId="confirmPassword">
-              <FormLabel>Confirm Password</FormLabel>
-              <FormControl
-                type="password"
-                value={fields.confirmPassword}
-                onChange={handleFieldChange}
-              />
-            </FormGroup>
-            <LoaderButton
-              block
-              type="submit"
-              bsSize="large"
-              isLoading={isConfirming}
-              disabled={!validateResetForm()}
-            >
-              Confirm
-            </LoaderButton>
-          </form>
-        );
-      }
+        break;
+      case 'DONE':
+        console.log('Successfully reset password.');
+        break;
+    }
+  }
 
-      function renderSuccessMessage() {
-        return (
-          <div className="success">
-            <p><BsCheck size={16} /> Your password has been reset.</p>
-            <p>
-              <Link to="/login">
-                Click here to login with your new credentials.
-              </Link>
-            </p>
-          </div>
-        );
-      }
+  async function handleConfirmClick(event:any) {
+    event.preventDefault();
+    setIsConfirming(true);
 
+    const input: ConfirmResetPasswordInput = {
+      username: fields.email,
+      confirmationCode: fields.code,
+      newPassword: fields.password
+    };
 
+    try {
+      await confirmResetPassword(input);
+      setConfirmed(true);
+    } catch (error) {
+      console.error(error);
+      setIsConfirming(false);
+    }
+  }
 
-      return (
-        <div className="ResetPassword">
-          {!codeSent
-            ? renderRequestCodeForm()
-            : !confirmed
-            ? renderConfirmationForm()
-            : renderSuccessMessage()}
-        </div>
-      );
+  function renderRequestCodeForm() {
+    return (
+      <form onSubmit={handleSendCodeClick}>
+        <label>Email</label>
+        <input
+          autoFocus
+          type="email"
+          id="email"
+          value={fields.email}
+          onChange={handleFieldChange}
+        />
+        <button
+          type="submit"
+          disabled={!validateCodeForm()}
+        >
+          Send Confirmation
+        </button>
+      </form>
+    );
+  }
 
+  function renderConfirmationForm() {
+    return (
+      <form onSubmit={handleConfirmClick}>
+        <label>Confirmation Code</label>
+        <input
+          autoFocus
+          type="tel"
+          id="code"
+          value={fields.code}
+          onChange={handleFieldChange}
+        />
+        <label>New Password</label>
+        <input
+          type="password"
+          id="password"
+          value={fields.password}
+          onChange={handleFieldChange}
+        />
+        <label>Confirm Password</label>
+        <input
+          type="password"
+          id="confirmPassword"
+          value={fields.confirmPassword}
+          onChange={handleFieldChange}
+        />
+        <button
+          type="submit"
+          disabled={!validateResetForm()}
+        >
+          Confirm
+        </button>
+      </form>
+    );
+  }
 
+  function renderSuccessMessage() {
+    return (
+      <div className="success">
+        <p>Your password has been reset. Click <Link to="/login">here</Link> to login with your new credentials.</p>
+      </div>
+    );
+  }
 
-
-
-
-*/
-
-};
-
-export default ForgotPassword;
-
-function useFormFields(arg0: { code: string; email: string; password: string; confirmPassword: string; }): [any, any] {
-    throw new Error('Function not implemented.');
+  return (
+    <div className="ResetPassword">
+      {!codeSent
+        ? renderRequestCodeForm()
+        : !confirmed
+        ? renderConfirmationForm()
+        : renderSuccessMessage()}
+    </div>
+  );
 }
-

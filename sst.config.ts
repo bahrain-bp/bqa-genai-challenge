@@ -11,6 +11,8 @@ import { OIDCForGitHubCI } from "./stacks/devops/OIDCForGitHubCI";
 
 import { S3Stack } from "./stacks/S3Stack"
 import { S3 } from "aws-cdk-lib/aws-ses-actions";
+import { S3uploadStack } from "./stacks/S3uploadStack"
+
 
 
 export default {
@@ -38,7 +40,9 @@ export default {
         .stack(ApiStack)
         .stack(FrontendStack)
         .stack(S3Stack)
-        .stack(StandardAPIStack);
+        .stack(StandardAPIStack)
+        .stack(S3uploadStack)
+        ;
     }
   }
 } satisfies SSTConfig;

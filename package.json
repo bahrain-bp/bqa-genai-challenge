@@ -33,7 +33,7 @@
     "@fortawesome/free-solid-svg-icons": "^6.5.2",
     "@fortawesome/react-fontawesome": "^0.2.0",
     "aws-amplify": "^6.0.26",
-    "aws-sdk": "^2.1601.0",
+    "aws-sdk": "^2.1604.0",
     "bootstrap": "^5.3.3",
     "bootstrap-icons": "^1.11.3",
     "immer": "^9.0.21",
