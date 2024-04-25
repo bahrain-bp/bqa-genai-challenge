@@ -79,8 +79,7 @@ export async function uploadToS3(event: any) {
     await sqs
       .sendMessage({
         // Get the queue url from the environment variable
-        QueueUrl:
-          "https://sqs.us-east-1.amazonaws.com/211125580170/maryamtaraif-documents-queue.fifo",
+        QueueUrl: Queue["Document-Queue"].queueUrl,
         MessageBody: uploadResult.Location,
         MessageGroupId: "file", // Use fileName as MessageGroupId
         MessageDeduplicationId: `${fileName}-${Date.now()}`,
