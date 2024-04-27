@@ -59,6 +59,15 @@ export function ApiStack({ stack }: StackContext) {
           permissions: ["s3"], // Grant necessary S3 permissions
         },
       },
+      //Fetching all users in cognito
+      "GET /getUsers": {
+        function: {
+          handler: "packages/functions/src/fetchUsers.getUsers", // Replace with your location
+          permissions: [
+            "cognito-idp:ListUsers" // Add any additional permissions if required
+          ]
+        },
+      },
     },
   });
 

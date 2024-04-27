@@ -22,6 +22,8 @@ import UploadEvidence from './pages/UploadEvidence';
 import OfficerDash from './pages/OfficerDash';
 import BqaDash1 from './pages/BqaDash1';
 import BqaDash2 from './pages/BqaDash2';
+import BqaRequestPage from './pages/BqaRequestPage';
+
 
 import { getCurrentUser, fetchUserAttributes } from 'aws-amplify/auth';
 import { ToastContainer } from 'react-toastify';
@@ -156,6 +158,15 @@ function App() {
             <>
               <PageTitle title="Bqa Reviewer Dashboard | EduScribe" />
               <BqaDash1 />
+            </>
+          }
+        />
+        <Route
+          path="/BqaRequestPage"
+          element={
+            <>
+              <PageTitle title="Bqa Reviewer Request Additional Documents Page | EduScribe" />
+              <BqaRequestPage />
             </>
           }
         />
