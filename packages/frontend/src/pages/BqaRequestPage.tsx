@@ -50,8 +50,8 @@ const BqaRequestPage: React.FC = () => {
       <Breadcrumb pageName="Bqa Reviewer Request Additional Documents" />
       
       <div
-className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark
-border-b border-stroke py-4 px-7 dark:border-strokedark"       >
+    className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark
+                border-b border-stroke py-4 px-7 dark:border-strokedark" >
         
         <div className="dropdown-section "> 
         <label htmlFor="user"  className="block text-lg font-medium text-gray-700 dark:text-gray-300">Choose a user or a university:</label>

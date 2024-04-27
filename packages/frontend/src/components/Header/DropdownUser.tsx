@@ -12,6 +12,10 @@ const DropdownUser = () => {
   const trigger = useRef<any>(null);
   const dropdown = useRef<any>(null);
   const [currentEmail, setCurrentEmail] = useState('');
+  const [currentName, setCurrentName] = useState('');
+
+  //const [users, setUsers] = useState<{ Username: string; Attributes: { Name: string; Value: string }[] }[]>([]);
+
 
   const navigate = useNavigate();
 
@@ -58,7 +62,10 @@ const DropdownUser = () => {
       try {
         const attributes = await fetchUserAttributes();
         const email:any = attributes.email;
+        const name:any= attributes.name;
         setCurrentEmail(email);
+        setCurrentName(name);
+
       } catch (error) {
         console.error('Error fetching current user info:', error);
       }
@@ -66,6 +73,11 @@ const DropdownUser = () => {
 
     fetchCurrentUserInfo();
   }, []);
+
+
+  
+    
+   
 
 
   return (
@@ -78,10 +90,11 @@ const DropdownUser = () => {
       >
         <span className="hidden text-right lg:block">
           <span className="block text-sm font-medium text-black dark:text-white">
-            University of Bahrain
+             {currentName && `  ${currentName}`}
             {currentEmail && ` - ${currentEmail}`}
+           
+
           </span>
-          <span className="block text-xs">Officer</span>
         </span>
 
         <span className="h-12 w-12 rounded-full">
