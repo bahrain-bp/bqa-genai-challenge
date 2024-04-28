@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import DefaultLayout from '../layout/DefaultLayout';
 import './PredefinedTemplate.css'; // Importing CSS file
-import AWS from 'aws-sdk';
+// import AWS from 'aws-sdk';
 import '@fortawesome/fontawesome-free/css/all.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash, faArchive } from '@fortawesome/free-solid-svg-icons';
@@ -19,49 +19,49 @@ if (inputElement) {
     inputElement.value = standardId ?? '';
 }
 
-const [showForm, setShowForm] = useState(false); // State variable to toggle form visibility
-const [standardName, setStandardName] = useState('');
+// const [showForm, setShowForm] = useState(false); // State variable to toggle form visibility
+// const [standardName, setStandardName] = useState('');
 
-const [indicators, setIndicators] = useState<any[]>([]); // State variable to store indicators
+// const [indicators, setIndicators] = useState<any[]>([]); // State variable to store indicators
  
-  const [recordData, setRecordData] = useState({
-    entityType: '',
-    entityId: '',
-    standardName: '',
-    indicatorId: '',
-    indicatorName: '',
-    description: '',
-    documentName: '',
-    documentURL: '', // Initialize documentURL state
-    dateCreated: '',
-    status: 'unarchived',
-  });
+  // const [recordData, setRecordData] = useState({
+  //   entityType: '',
+  //   entityId: '',
+  //   standardName: '',
+  //   indicatorId: '',
+  //   indicatorName: '',
+  //   description: '',
+  //   documentName: '',
+  //   documentURL: '', // Initialize documentURL state
+  //   dateCreated: '',
+  //   status: 'unarchived',
+  // });
   const [records, setRecords] = useState<any[]>([]); // Initialize state to store fetched records
 
 
-  const handleChange = (event: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
-    const { name, value } = event.target;
+  // const handleChange = (event: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
+  //   const { name, value } = event.target;
   
-    if (event.target instanceof HTMLSelectElement) { // Check if the event target is a HTMLSelectElement
-      // Find the selected indicator by its ID
-      const selectedIndicator = indicators.find((indicator) => indicator.indicatorId === value);
-      // If the indicator is found, update the recordData with its name
-      if (selectedIndicator) {
-        setRecordData(prevState => ({
-          ...prevState,
-          [name]: value,
-          indicatorName: selectedIndicator.indicatorName // Set the indicatorName
-        }));
-      }
-    } else {
+  //   if (event.target instanceof HTMLSelectElement) { // Check if the event target is a HTMLSelectElement
+  //     // Find the selected indicator by its ID
+  //     const selectedIndicator = indicators.find((indicator) => indicator.indicatorId === value);
+  //     // If the indicator is found, update the recordData with its name
+  //     if (selectedIndicator) {
+  //       setRecordData(prevState => ({
+  //         ...prevState,
+  //         [name]: value,
+  //         indicatorName: selectedIndicator.indicatorName // Set the indicatorName
+  //       }));
+  //     }
+  //   } else {
       
-      // For other fields, update the recordData
-      setRecordData(prevState => ({
-        ...prevState,
-        [name]: value
-      }));
-    }
-  };
+  //     // For other fields, update the recordData
+  //     setRecordData(prevState => ({
+  //       ...prevState,
+  //       [name]: value
+  //     }));
+  //   }
+  // };
   
   const handleDelete = async (indicatorId: string) => {
     try {
@@ -124,71 +124,71 @@ const [indicators, setIndicators] = useState<any[]>([]); // State variable to st
   
   
  
-  const toggleForm = () => {
-    setShowForm(!showForm);
-  };
+  // const toggleForm = () => {
+  //   setShowForm(!showForm);
+  // };
 
-  const handleCancel = () => {
-    setShowForm(false);
-    // Reset recordData if needed
-  };
+  // const handleCancel = () => {
+  //   setShowForm(false);
+  //   // Reset recordData if needed
+  // };
 
-  const createRecord = async () => {
-    try {
-      const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
-      if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
-        throw new Error('Please select a file.');
-      }
-      const file = fileInput.files[0];
+  // const createRecord = async () => {
+  //   try {
+  //     const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+  //     if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
+  //       throw new Error('Please select a file.');
+  //     }
+  //     const file = fileInput.files[0];
   
-      // Get the standardId from the URL
-      const standardId = window.location.pathname.split('/').pop();
+  //     // Get the standardId from the URL
+  //     const standardId = window.location.pathname.split('/').pop();
   
-      // Handle file upload
-      const selectedStandard = `${standardId}/${recordData.indicatorId}`;// Get the selected standard value
-      await handleFileSelect(file, selectedStandard);
+  //     // Handle file upload
+  //     const selectedStandard = `${standardId}/${recordData.indicatorId}`;// Get the selected standard value
+  //     await handleFileSelect(file, selectedStandard);
   
-      // Create record in DynamoDB
-      const documentURL = `https://d2qvr68pyo44tt.cloudfront.net/${selectedStandard}/${file.name}`;
-      const newRecordData = {
-        ...recordData,
-        documentName: file.name,
-        documentURL,
-        standardId: standardId, // Ensure standardId is included in the record data
-        standardName: standardName // Include standardName in recordData
-      };
-      const response = await fetch('https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(newRecordData),
-      });
-      if (!response.ok) {
-        throw new Error('Failed to create record');
-      }
-      const data = await response.json();
-      console.log('New record created:', data);
-      setShowForm(false);
-      fetchRecords(standardId); // Fetch records for the extracted standard name
-      setRecordData({
-        entityType: '',
-        entityId: '',
-        standardName: '',
-        indicatorId: '',
-        indicatorName: '',
-        description: '',
-        documentName: '',
-        documentURL: '',
-        dateCreated: '',
-        status: 'unarchived',
-      });
-      alert('Record created successfully!');
-    } catch (error) {
-      console.error('Error creating record:', error);
-      alert('Failed to create record');
-    }
-  };
+  //     // Create record in DynamoDB
+  //     const documentURL = `https://d2qvr68pyo44tt.cloudfront.net/${selectedStandard}/${file.name}`;
+  //     const newRecordData = {
+  //       ...recordData,
+  //       documentName: file.name,
+  //       documentURL,
+  //       standardId: standardId, // Ensure standardId is included in the record data
+  //       standardName: standardName // Include standardName in recordData
+  //     };
+  //     const response = await fetch('https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards', {
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: JSON.stringify(newRecordData),
+  //     });
+  //     if (!response.ok) {
+  //       throw new Error('Failed to create record');
+  //     }
+  //     const data = await response.json();
+  //     console.log('New record created:', data);
+  //     setShowForm(false);
+  //     fetchRecords(standardId); // Fetch records for the extracted standard name
+  //     setRecordData({
+  //       entityType: '',
+  //       entityId: '',
+  //       standardName: '',
+  //       indicatorId: '',
+  //       indicatorName: '',
+  //       description: '',
+  //       documentName: '',
+  //       documentURL: '',
+  //       dateCreated: '',
+  //       status: 'unarchived',
+  //     });
+  //     alert('Record created successfully!');
+  //   } catch (error) {
+  //     console.error('Error creating record:', error);
+  //     alert('Failed to create record');
+  //   }
+  // };
 
   const fetchIndicators = async (standardId: string | undefined) => {
     try {
@@ -241,53 +241,54 @@ const [indicators, setIndicators] = useState<any[]>([]); // State variable to st
  fetchIndicators(standardId);
     fetchRecords(standardId); 
   }, []);
-  async function uploadToS3Evidence(fileData: Blob | File, fileName: string, folderName: string) {
-    try {
-      const s3 = new AWS.S3();
-
-      const params = {
-        Bucket: 'bqa-standards-upload',
-        Key: folderName + '/' + fileName,
-        Body: fileData
-      };
-
-      const uploadResult = await s3.upload(params).promise();
-
-      return { message: 'File uploaded successfully', location: uploadResult.Location };
-    } catch (error) {
-      console.error('Error uploading file:', error);
-      throw new Error('Failed to upload file');
-    }
-  }
-
-  async function handleFileSelect(file: File, selectedFolder: string) {
-    const fileReader = new FileReader();
-    fileReader.onload = function (e) {
-      if (e.target) {
-        const fileContent = e.target.result as string;
   
-        const uploadParams = {
-          body: new Blob([fileContent], { type: file.type }),
-          headers: {
-            'Content-Type': file.type,
-            'file-name': file.name
-          }
-        };
+  // async function uploadToS3Evidence(fileData: Blob | File, fileName: string, folderName: string) {
+  //   try {
+  //     const s3 = new AWS.S3();
+
+  //     const params = {
+  //       Bucket: 'bqa-standards-upload',
+  //       Key: folderName + '/' + fileName,
+  //       Body: fileData
+  //     };
+
+  //     const uploadResult = await s3.upload(params).promise();
+
+  //     return { message: 'File uploaded successfully', location: uploadResult.Location };
+  //   } catch (error) {
+  //     console.error('Error uploading file:', error);
+  //     throw new Error('Failed to upload file');
+  //   }
+  // }
+
+  // async function handleFileSelect(file: File, selectedFolder: string) {
+  //   const fileReader = new FileReader();
+  //   fileReader.onload = function (e) {
+  //     if (e.target) {
+  //       const fileContent = e.target.result as string;
   
-        uploadToS3Evidence(uploadParams.body, uploadParams.headers['file-name'], selectedFolder)
-          .then(response => {
-            console.log(response);
-            alert('File uploaded successfully!');
-          })
-          .catch(error => {
-            console.error('Error uploading file:', error);
-            alert('Failed to upload file');
-          });
-      }
-    };
+  //       const uploadParams = {
+  //         body: new Blob([fileContent], { type: file.type }),
+  //         headers: {
+  //           'Content-Type': file.type,
+  //           'file-name': file.name
+  //         }
+  //       };
   
-    fileReader.readAsBinaryString(file);
-  }
+  //       uploadToS3Evidence(uploadParams.body, uploadParams.headers['file-name'], selectedFolder)
+  //         .then(response => {
+  //           console.log(response);
+  //           alert('File uploaded successfully!');
+  //         })
+  //         .catch(error => {
+  //           console.error('Error uploading file:', error);
+  //           alert('Failed to upload file');
+  //         });
+  //     }
+  //   };
+  
+  //   fileReader.readAsBinaryString(file);
+  // }
 
 const fetchStandardName = async (standardId: string | undefined) => {
   try {
@@ -315,18 +316,18 @@ setStandardName(standardName);
     <DefaultLayout>
      
 
-<div>
+{/* <div> */}
   
-<div className="button-container">
-<button
+{/* <div className="button-container"> */}
+{/* <button
         className={`flex justify-center rounded bg-primary py-2 px-6 font-medium text-gray hover:bg-opacity-90 mr-4`}
         type="button" // Change type to "button"
         onClick={toggleForm} // Add onClick handler
       >
        Upload Evidencee
-      </button>
-      </div>
-      {showForm && (
+      </button> */}
+      {/* </div> */}
+      {/* {showForm && (
         
           <div className="modal-overlay">
             <div className="modal-content">
@@ -341,10 +342,7 @@ setStandardName(standardName);
                 ))}
               </select>
             </div><br />
-            {/* <div className="form-group">
-  <label>Standard Name:</label>
-  <input type="text" name="standardName" value={standardName} onChange={handleChange} className="white-background" />
-</div> */}
+          
             <div className="form-group">
               <label>Indicator Name:</label>
               <input type="text" name="indicatorName" value={recordData.indicatorName} onChange={handleChange} className="white-background" />
@@ -384,8 +382,10 @@ setStandardName(standardName);
       </div>
           </div>
           
-        )}
-</div>
+        )} */}
+{/* </div> */}
+
+
       <div>
       <div className="predefined-header">
         <h2>Indicators</h2>
