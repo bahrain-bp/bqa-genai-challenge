@@ -15,9 +15,9 @@ import Tables from './pages/Tables';
 import Alerts from './pages/UiElements/Alerts';
 import Buttons from './pages/UiElements/Buttons';
 import Standards from './pages/Standards';
-import PredefinedTemplate from './pages/PredefinedTemplate';
+// import PredefinedTemplate from './pages/PredefinedTemplate';
 // import EvidenceFiles from './pages/EvidenceFiles';
-// import Archived from './pages/Archived';
+import Archived from './pages/Archived';
 import UploadEvidence from './pages/UploadEvidence';
 import OfficerDash from './pages/OfficerDash';
 import BqaDash1 from './pages/BqaDash1';
@@ -108,7 +108,7 @@ function App() {
             </>
           }
         />
-         {/* <Route
+         <Route
           path="/Archived"
           element={
             <>
@@ -116,8 +116,8 @@ function App() {
               <Archived />
             </>
           }
-        /> */}
-        <Route
+        />
+        {/* <Route
           path="/PredefinedTemplate/:standardName"
           element={
             <>
@@ -125,7 +125,7 @@ function App() {
               <PredefinedTemplate />
             </>
           }
-        />
+        /> */}
        
         {/* <Route
           path="EvidenceFiles/:indicatorName"
