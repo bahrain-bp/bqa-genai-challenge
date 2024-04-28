@@ -35,6 +35,13 @@ export function ApiStack({ stack }: StackContext) {
           permissions: ["s3"]
         }
       },
+      
+      "POST /comprehend": {
+        function: {
+          handler: "packages/functions/src/comprehend.comprehendText",
+          permissions: ["comprehend"]
+        }
+      },
       "GET /detectFileType": {
         function: {
           handler: "packages/functions/detectFileType.detect",
