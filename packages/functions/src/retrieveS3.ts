@@ -1,60 +1,60 @@
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
+import { GetObjectOutput } from "aws-sdk/clients/s3";
 import * as AWS from 'aws-sdk';
 
-const s3 = new AWS.S3();
+export async function main(): Promise<any> {
+  const s3 = new AWS.S3();
 
-export async function main(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
+  const params = {
+    Bucket: 'uni-artifacts', // Replace with your bucket name
+  };
+
   try {
-    const bucketName = event.headers['bucket-name'];
-    const folderName = event.headers['folder-name'];
-    const subfolderName = event.headers['subfolder-name'];
-
-    if (!bucketName || !folderName) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({ message: "Bucket name and folder name are required" }),
-      };
-    }
-
-    // Combine folder and subfolder name if subfolder is provided
-    const folderPath = subfolderName ? `${folderName}/${subfolderName}/` : `${folderName}/`;
-
-    // Get list of objects in the specified folder
-    const params = {
-      Bucket: bucketName,
-      Prefix: folderPath,
-    };
-
     const data = await s3.listObjectsV2(params).promise();
 
     if (!data.Contents) {
       return {
         statusCode: 200,
-        body: JSON.stringify({ message: "No files found in the specified folder" }),
+        body: JSON.stringify({ message: "No files found in the bucket" }),
       };
     }
 
-    const files = data.Contents
-      .filter(obj => obj.Key && !obj.Key.endsWith("/")) // Filter out directory (prefix) objects
-      .map((obj) => {
-        return {
-          Key: obj.Key!,
-        };
-      });
+    const files = data.Contents.map(async (obj: any) => {
+      return {
+        Key: obj.Key, // Include the filename (Key property)
+        Metadata: await getMetadata(s3, obj.Key!),
+      };
+    });
 
-    const responseBody = {
+    // Wait for all metadata retrieval promises to resolve
+    const resolvedFiles = await Promise.all(files);
+
+    return {
       statusCode: 200,
-      body: JSON.stringify({
-        files,
-      }),
+      body: JSON.stringify({ files: resolvedFiles }),
     };
-
-    return responseBody;
   } catch (error) {
-    console.error("Error retrieving files:", error);
+    console.error(error);
     return {
       statusCode: 500,
       body: JSON.stringify({ message: "Error retrieving files" }),
     };
   }
+}
+
+function getMetadata(s3: AWS.S3, key: string): Promise<GetObjectOutput["Metadata"] | undefined> {
+  const params = {
+    Bucket: 'uni-artifacts', // Replace with your bucket name
+    Key: key,
+  };
+
+  return new Promise((resolve, reject) => {
+    s3.headObject(params, (err, data) => {
+      if (err) {
+        console.error("Error getting metadata for", key, err);
+        reject(err);
+      } else {
+        resolve(data.Metadata);
+      }
+    });
+  });
 }
