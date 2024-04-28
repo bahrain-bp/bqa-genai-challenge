@@ -14,9 +14,9 @@ import Settings from './pages/Settings';
 import Tables from './pages/Tables';
 import Alerts from './pages/UiElements/Alerts';
 import Buttons from './pages/UiElements/Buttons';
-import Standards from './pages/Standards';
-import PredefinedTemplate from './pages/PredefinedTemplate';
-import EvidenceFiles from './pages/EvidenceFiles';
+//import Standards from './pages/Standards';
+//import PredefinedTemplate from './pages/PredefinedTemplate';
+//import EvidenceFiles from './pages/EvidenceFiles';
 
 import UploadEvidence from './pages/UploadEvidence';
 import OfficerDash from './pages/OfficerDash';
@@ -99,7 +99,7 @@ function App() {
             </>
           }
         />
-         <Route
+         {/* <Route
           path="/Standards"
           element={
             <>
@@ -107,8 +107,8 @@ function App() {
               <Standards />
             </>
           }
-        />
-        <Route
+        /> */}
+        {/* <Route
           path="/PredefinedTemplate/:standardName"
           element={
             <>
@@ -116,9 +116,9 @@ function App() {
               <PredefinedTemplate />
             </>
           }
-        />
+        /> */}
        
-        <Route
+        {/* <Route
           path="EvidenceFiles/:indicatorName"
           element={
            <>
@@ -127,7 +127,7 @@ function App() {
              <EvidenceFiles />
             </>
         }
-        />
+        /> */}
 
           <Route
           path="/UploadEvidence"
