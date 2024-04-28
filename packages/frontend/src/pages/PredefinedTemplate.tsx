@@ -20,9 +20,9 @@ if (inputElement) {
 }
 
 // const [showForm, setShowForm] = useState(false); // State variable to toggle form visibility
-// const [standardName, setStandardName] = useState('');
+const [standardName, setStandardName] = useState('');
 
-// const [indicators, setIndicators] = useState<any[]>([]); // State variable to store indicators
+const [indicators, setIndicators] = useState<any[]>([]); // State variable to store indicators
  
   // const [recordData, setRecordData] = useState({
   //   entityType: '',
