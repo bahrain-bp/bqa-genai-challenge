@@ -34,6 +34,7 @@ export function ApiStack({ stack }: StackContext) {
         function: {
           handler: "packages/functions/src/s3Upload.uploadToS3",
           permissions: ["s3"],
+          timeout: "60 seconds", 
         },
       },
       "GET /detectFileType": {
