@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import DefaultLayout from '../layout/DefaultLayout';
 import './PredefinedTemplate.css'; // Importing CSS file
 // import * as AWS from 'aws-sdk';
-import * as AWS from 'aws-sdk';
 import '@fortawesome/fontawesome-free/css/all.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash, faArchive } from '@fortawesome/free-solid-svg-icons';
@@ -246,7 +245,7 @@ const [indicators, setIndicators] = useState<any[]>([]); // State variable to st
   
   async function uploadToS3Evidence(fileData: Blob | File, fileName: string, folderName: string) {
     try {
-      const s3 = new AWS.S3();
+      // const s3 = new AWS.S3();
 
       const params = {
         Bucket: 'bqa-standards-upload',
@@ -254,9 +253,9 @@ const [indicators, setIndicators] = useState<any[]>([]); // State variable to st
         Body: fileData
       };
 
-      const uploadResult = await s3.upload(params).promise();
+      // const uploadResult = await s3.upload(params).promise();
 
-      return { message: 'File uploaded successfully', uploadResult };
+      return { message: 'File uploaded successfully', params };
     } catch (error) {
       console.error('Error uploading file:', error);
       throw new Error('Failed to upload file');
