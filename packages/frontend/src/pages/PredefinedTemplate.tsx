@@ -32,14 +32,14 @@
   
   
  
-  const toggleForm = () => {
-    setShowForm(!showForm);
-  };
+//  const toggleForm = () => {
+  //  setShowForm(!showForm);
+ // };
 
-  const handleCancel = () => {
-    setShowForm(false);
+  //const handleCancel = () => {
+    //setShowForm(false);
     // Reset recordData if needed
-  };
+ // };
 
 //   const createRecord = async () => {
 //     try {
@@ -179,22 +179,22 @@
 //     fileReader.readAsBinaryString(file);
 //   }
 
-const fetchStandardName = async (standardId: string | undefined) => {
-  try {
+//const fetchStandardName = async (standardId: string | undefined) => {
+  //try {
     // Make API call to fetch standard name based on standardId
-    const response = await fetch(`https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards?standardId=${standardId}`);
-    if (!response.ok) {
-      throw new Error('Failed to fetch standards');
-    }
-    const data = await response.json();
+   // const response = await fetch(`https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards?standardId=${standardId}`);
+   // if (!response.ok) {
+     // throw new Error('Failed to fetch standards');
+   // }
+  //  const data = await response.json();
 // Filter standards to include only those with matching standardId
-const filteredStandards = data.filter((standard: any) => standard.standardId === standardId);
+//const filteredStandards = data.filter((standard: any) => standard.standardId === standardId);
 
 // Assuming data is an array of records, select the first one
-const standardName = filteredStandards.length > 0 ? filteredStandards[0].standardName : '';
+//const standardName = filteredStandards.length > 0 ? filteredStandards[0].standardName : '';
 
 // Update state with the fetched standard name
-setStandardName(standardName);
+//setStandardName(standardName);
 
 //   return (
 //     <DefaultLayout>
