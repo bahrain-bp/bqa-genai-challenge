@@ -334,8 +334,8 @@ setStandardName(standardName);
             <div className="modal-content">
             <div className="form-group">
               <label>Choose Indicator :</label>
-              {/* <select name="indicatorId" value={recordData.indicatorId} onChange={handleChange} className="white-background" > */}
-              <select name="indicatorId" value="blah" className="white-background" >
+              <select name="indicatorId" value={recordData.indicatorId} onChange={handleChange} className="white-background" >
+              {/* <select name="indicatorId" value="blah" className="white-background" > */}
              
                 <option value="">Select an Indicator</option>
                 {indicators.map((indicator: any) => (
