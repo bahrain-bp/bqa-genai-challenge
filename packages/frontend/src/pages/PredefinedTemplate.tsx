@@ -19,9 +19,10 @@ if (inputElement) {
     inputElement.value = standardId ?? '';
 }
 
-// const [showForm, setShowForm] = useState(false); // State variable to toggle form visibility
-const [standardName, setStandardName] = useState('');
-
+const [showForm, setShowForm] = useState(false); // State variable to toggle form visibility
+// const [standardName, setStandardName] = useState('');
+const [standardName, setStandardName] = useState<any[]>([]); // State variable to store indicators
+ 
 const [indicators, setIndicators] = useState<any[]>([]); // State variable to store indicators
  
   // const [recordData, setRecordData] = useState({
@@ -124,9 +125,9 @@ const [indicators, setIndicators] = useState<any[]>([]); // State variable to st
   
   
  
-  // const toggleForm = () => {
-  //   setShowForm(!showForm);
-  // };
+  const toggleForm = () => {
+    setShowForm(!showForm);
+  };
 
   // const handleCancel = () => {
   //   setShowForm(false);
@@ -316,24 +317,26 @@ setStandardName(standardName);
     <DefaultLayout>
      
 
-{/* <div> */}
+<div>
   
-{/* <div className="button-container"> */}
-{/* <button
+<div className="button-container">
+<button
         className={`flex justify-center rounded bg-primary py-2 px-6 font-medium text-gray hover:bg-opacity-90 mr-4`}
         type="button" // Change type to "button"
         onClick={toggleForm} // Add onClick handler
       >
        Upload Evidencee
-      </button> */}
-      {/* </div> */}
-      {/* {showForm && (
+      </button>
+      </div>
+      {showForm && (
         
           <div className="modal-overlay">
             <div className="modal-content">
             <div className="form-group">
               <label>Choose Indicator :</label>
-              <select name="indicatorId" value={recordData.indicatorId} onChange={handleChange} className="white-background" >
+              {/* <select name="indicatorId" value={recordData.indicatorId} onChange={handleChange} className="white-background" > */}
+              <select name="indicatorId" value="blah" className="white-background" >
+             
                 <option value="">Select an Indicator</option>
                 {indicators.map((indicator: any) => (
                   <option key={indicator.indicatorId} value={indicator.indicatorId}>
@@ -342,7 +345,22 @@ setStandardName(standardName);
                 ))}
               </select>
             </div><br />
-          
+
+            <div className="form-group">
+              <label>Choose Standard :</label>
+              {/* <select name="indicatorId" value={recordData.indicatorId} onChange={handleChange} className="white-background" > */}
+              <select name="standardId" value="blah" className="white-background" >
+             
+                <option value="">Select an Indicator</option>
+                {standardName.map((standard: any) => (
+                  <option key={standard.indicatorId} value={standard.indicatorId}>
+                    {`${standard.indicatorId}: ${standard.indicatorName}`}
+                  </option>
+                ))}
+              </select>
+            </div><br />
+
+{/*           
             <div className="form-group">
               <label>Indicator Name:</label>
               <input type="text" name="indicatorName" value={recordData.indicatorName} onChange={handleChange} className="white-background" />
@@ -378,12 +396,12 @@ setStandardName(standardName);
       >
         Save
       </button>
-      </div>
+      </div> */}
       </div>
           </div>
           
-        )} */}
-{/* </div> */}
+        )}
+</div>
 
 
       <div>
