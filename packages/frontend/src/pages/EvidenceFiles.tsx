@@ -8,18 +8,18 @@ import { faTrash, faArchive } from '@fortawesome/free-solid-svg-icons';
 const EvidenceFiles: React.FC = () => {
   const [records, setRecords] = useState<any[]>([]);
 
-  const fetchRecords = async (standardName: string | undefined) => {
+  const fetchRecords = async (indicatorId: string | undefined) => {
     try {
       // Constructing URL with standard name
-      const apiUrl = `https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards?standard=${standardName}`;
+      const apiUrl = `https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards?standard=${indicatorId}`;
 
       const response = await fetch(apiUrl);
       if (!response.ok) {
         throw new Error('Failed to fetch records');
       }
       const data = await response.json();
-      // Filter records based on standardName
-      const filteredRecords = data.filter((record: { standardName: string | undefined }) => record.standardName === standardName);
+      // Filter records based on indicatorId
+      const filteredRecords = data.filter((record: { indicatorId: string | undefined }) => record.indicatorId === indicatorId);
 
       setRecords(filteredRecords); // Update state with fetched records
     } catch (error) {
@@ -75,7 +75,7 @@ const EvidenceFiles: React.FC = () => {
       }
   
       // Fetch records again to reflect the changes
-      fetchRecords(recordToArchive.standardName);
+      fetchRecords(recordToArchive.indicatorId);
       console.log('Record archived successfully');
       console.log('Record to be archived:', recordToArchive);
 
@@ -87,8 +87,8 @@ const EvidenceFiles: React.FC = () => {
 
   useEffect(() => {
     // Extracting standard name from the URL
-    const standardName = window.location.pathname.split('/').pop();
-    fetchRecords(standardName); // Fetch records for the extracted standard name
+    const indicatorId = window.location.pathname.split('/').pop();
+    fetchRecords(indicatorId); // Fetch records for the extracted standard name
   }, []);
 
   return (
