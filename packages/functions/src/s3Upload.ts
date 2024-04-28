@@ -35,10 +35,10 @@ async function createFolder(bucketName: string, folderPath: string) {
 export async function uploadToS3(event: any) {
   try {
     const fileData = event.body; 
-    const fileName = event.headers['file-name'];
-    const bucketName = event.headers['bucket-name'];
-    const folderName = event.headers['folder-name'];
-    const subfolderName = event.headers['subfolder-name'];
+    const fileName = event.headers['file-name']; //standard 1
+    const bucketName = event.headers['bucket-name']; //uni-artifacts
+    const folderName = event.headers['folder-name']; //polytechnic 
+    const subfolderName = event.headers['subfolder-name']; //standard 1 for example
 
     // Check file size before upload (optional)
     const fileSize = Buffer.byteLength(fileData);

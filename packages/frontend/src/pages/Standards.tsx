@@ -272,9 +272,26 @@ const PredefinedTemplate: React.FC = () => {
            </div>
 
            <a href={`PredefinedTemplate/${record.standardId}`} className="link-unstyled">
+      
+      
+      
+      
+      
+      
+      
+      
+      {/* This is what i neeeedddddddddddddddd this is what i needdddddddddddddd*/}
 
    <h6 className="m-b-20">{standardId}</h6>
    <h5>{record.standardName}</h5></a>
+
+
+
+
+
+
+
+   
 
       {/* Delete icon */}
       <FontAwesomeIcon icon={faTrash} className="delete-icon" onClick={() => handleDelete(record.standardId)} />

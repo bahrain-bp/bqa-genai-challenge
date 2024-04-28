@@ -1,19 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import DefaultLayout from '../layout/DefaultLayout';
 import Breadcrumb from '../components/Breadcrumbs/Breadcrumb';
 import styled from 'styled-components';
-//import './uploadEv.css'; // Importing CSS file
 import { toast } from 'react-toastify';
+import { FileUpload } from 'primereact/fileupload';
 
+interface ProgressLineProps {
+  activeStep: number;
+  totalSteps: number;
+}
 
 interface StepStyleProps {
-  step: 'completed' | 'incomplete';
+  completed: boolean;
 }
-
-interface StepContainerProps {
-  width: string;
-}
-
 
 const MainContainer = styled.div`
   width: 100%;
@@ -22,456 +21,255 @@ const MainContainer = styled.div`
   padding: 0 16px;
 `;
 
-const StepContainer = styled.div<StepContainerProps>`
+const StepContainer = styled.div`
   display: flex;
   justify-content: space-between;
   margin-top: 50px;
   position: relative;
-  :before {
-    content: '';
-    position: absolute;
-    background: #2ECC71;
-    height: 4px;
-    width:;
-    top: 50%;
-    transition: 0.4s ease;
-    transform: translateY(-50%);
-    left: 0;
-    z-index: -1; /* Updated z-index to ensure the progress line is behind the circles */
-  }
 `;
 
 const StepWrapper = styled.div`
+  flex: ;
   position: relative;
-  z-index: 1;
+  display: flex;
+  justify-content: ; // Center the circle within each segment
 `;
 
-const StepStyle = styled.div<StepStyleProps>`
+const ProgressLine = styled.div`
+  height: 9px;
+  background: #2ECC71;
+  width: ${props => `calc(${props.activeStep / (props.totalSteps - 1) * 100}% - 10px)`};
+  position: absolute;
+  top: 16px; // Adjust this value to align with the center of your StepStyle circles
+  left: -4 px; // Half the size of the StepStyle to start the line right after the first circle
+  z-index: -8;
+`;
+
+
+const StepStyle = styled.div`
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background-color: #ffffff;
-  border: 3px solid ${({ step }) => (step === 'completed' ? '#2ECC71' : '#F3E7F3')};
-  transition: 0.4s ease;
+  background-color: ${({ completed }) => completed ? '#2ECC71' : '#FFFFFF'};
+  border: 3px solid ${({ completed }) => completed ? '#2ECC71' : '#F3E7F3'};
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 2; /* Added z-index to ensure the circles are above the progress line */
+  position: relative; // Ensures correct positioning within StepWrapper
+  z-index: 1; // Makes sure it appears above the progress line
 `;
 
 const StepCount = styled.span`
   font-size: 19px;
-  color: #f3e7f3;
-  @media (max-width: 600px) {
-    font-size: 16px;
-  }
+  color: #2ECC71;
 `;
 
 const StepsLabelContainer = styled.div`
   position: absolute;
   top: 66px;
   left: 50%;
-  transform: translate(-50%, -50%);
+  transform: translateX(-50%);
 `;
 
 const StepLabel = styled.span`
   font-size: 19px;
   color: #2ECC71;
-  @media (max-width: 600px) {
-    font-size: 16px;
-  }
 `;
 
 const ButtonsContainer = styled.div`
   display: flex;
   justify-content: space-between;
-  margin: 0 -25px;
-  margin-top: 10px;
 `;
 
 const ButtonStyle = styled.button`
+  padding: 8px;
+  width: 90px;
   border-radius: 4px;
   border: 0;
   background: none;
-  color:#2ECC71;
+  color: #2ECC71;
   cursor: pointer;
-  padding: 8px;
-  width: 90px;
-  :active {
-    transform: scale(0.98);
-  }
   :disabled {
-    background: #f3e7f3;
-    color: #000000;
+    color: #B1B1B1;
     cursor: not-allowed;
   }
 `;
 
-const CheckMark = styled.div`
-  font-size: 26px;
-  font-weight: 600;
-  color: #2ECC71;
-  -ms-transform: scaleX(-1) rotate(-46deg); /* IE 9 */
-  -webkit-transform: scaleX(-1) rotate(-46deg); /* Chrome, Safari, Opera */
-  transform: scaleX(-1) rotate(-46deg);
-`;
-
-
-
-
-
-interface UploadSection {
-  title: string;
-  description: string;
-}
-
-interface Indicator {
-  label: string;
-  uploadSections: UploadSection[];
-}
-
-interface Step {
-  label: string;
-  step: number;
-  indicators: Indicator[];
-}
-
-const steps: Step[] = [
-  {
-    label: '',
-    step: 1,
-    indicators: [
-      {
-        label: 'Indicator 1: Vision, Mission and Values',
-        uploadSections: [
-          {
-            title: 'Upload Section for Vision, Mission and Values',
-            description: '',
-          },
-        ],
-      },
-      {
-        label: 'Indicator 2: Strategic and Operational Planning',
-        uploadSections: [
-          {
-            title: 'Upload Section for Strategic and Operational Planning',
-            description: 'Description for Upload Section 2',
-          },
-        ],
-      },
-      {
-        label: 'Indicator 3: Governance and Management Practices',
-        uploadSections: [
-          {
-            title: 'Upload Section for Governance and Management Practices',
-            description: '',
-          },
-        ],
-      },
-      {
-        label: 'Indicator 4: Organisational Structure',
-        uploadSections: [
-          {
-            title: 'Upload Section for Organisational Structure',
-            description: '',
-          },
-        ],
-      },
-      {
-        label: 'Indicator 5: Partnerships, Memoranda with other Institutions',
-        uploadSections: [
-          {
-            title: 'Upload Section for Partnerships and Memoranda',
-            description: '',
-          },
-        ],
-      },
-    ],
-  },
-  {
-    label: '',
-    step: 2,
-    indicators: [
-      {
-        label: 'Indicator 6: Human Resources',
-        uploadSections: [
-          {
-            title: 'Upload Section for Human Resources',
-            description: '',
-          },
-        ],
-      },
-      {
-        label: 'Indicator 7: Staff Development',
-        uploadSections: [
-          {
-            title: 'Upload Section for Staff Development',
-            description: '',
-          },
-        ],
-      },
-    ],
-  },
-  {
-    label: '',
-    step: 3,
-    indicators: [
-      {
-        label: 'Indicator 8: Quality Assurance System',
-        uploadSections: [
-          {
-            title: 'Upload Section for Quality Assurance System',
-            description: '',
-          },
-        ],
-      },
-      {
-        label: 'Indicator 9: Quality Enhancement',
-        uploadSections: [
-          {
-            title: 'Upload Section for Quality Enhancement',
-            description: '',
-          },
-        ],
-      },
-    ],
-  },
-
-
-  {
-    label: '',
-    step: 4,
-    indicators: [
-      {
-        label: 'Indicator 10: Infrastructure',
-        uploadSections: [
-          {
-            title: 'Upload Section for  Infrastructure',
-            description: '',
-          },
-        ],
-      },
-      {
-        label: 'Indicator 11: Information and Communications Technology',
-        uploadSections: [
-          {
-            title: 'Upload Section for Information and Communications Technology',
-            description: '',
-          },
-        ],
-      },
-      {
-        label: 'Indicator 12: Learning Resources',
-        uploadSections: [
-          {
-            title: 'Upload Section for Learning Resources',
-            description: '',
-          },
-        ],
-      },
-    ],
-  },
-  
-];
-
-
 const UploadEvidence = () => {
-
+  const [standards, setStandards] = useState([]);
+  //const [uploadFiles, setUploadFiles] = useState({});
+  const [activeStep, setActiveStep] = useState(0);
+  const [uploadDrafts, setUploadDrafts] = useState({});
   
 
-
-  const [activeStep, setActiveStep] = useState(1);
-
-
-  const initialSelectedFiles = steps.map(step => step.indicators.map(() => null));
-  const [selectedFiles, setSelectedFiles] = useState(initialSelectedFiles);
-
-  //const [selectedFiles, setSelectedFiles] = useState<Array<Array<File | null>>>(
-    //steps.map(step => step.indicators.map(() => null)));
-  
-  
-
- // Function to handle file selection
-// Function to handle file selection and upload
-const handleFileChange = async (file: any, stepIndex: number, sectionIndex: number) => {
-  const updatedFiles = selectedFiles.map(step => [...step]);
-  updatedFiles[stepIndex][sectionIndex]= file;
-  setSelectedFiles(updatedFiles);
-
-  const formData = new FormData();
-  formData.append('file', file);
-
-
-
-  try {
-    const response = await fetch('https://l1ca6m1ik7.execute-api.us-east-1.amazonaws.com/uploadS3', {
-      method: 'POST',
-      body: formData,
-      headers: {
-        'file-name': file.name,
-        // Add any other headers if required by your backend
-      },
-    });
-
-    if (response.ok) {
-      // File uploaded successfully, do something if needed
-      console.log('File uploaded successfully');
-    } else {
-      // Handle error response from the backend
-      console.error('Failed to upload file');
-    }
-  } catch (error) {
-    // Handle network errors
-    console.error('Network error:', error);
-  }
-};
-
-
-// Function to handle save button click
-const handleSaveClick = async () => {
-  // Iterate through selected files and trigger upload for each
-  for (let stepIndex = 0; stepIndex < selectedFiles.length; stepIndex++) {
-    for (let sectionIndex = 0; sectionIndex < selectedFiles[stepIndex].length; sectionIndex++) {
-      const file = selectedFiles[stepIndex][sectionIndex];
-      if (file) {
-        await handleFileChange(file, stepIndex, sectionIndex);
-        toast.success('File saved successfully!');
+  useEffect(() => {
+    const fetchStandards = async () => {
+      try {
+        const response = await fetch(`https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards`);
+        if (!response.ok) {
+          throw new Error(`HTTP status ${response.status}`);
+        }
+        const rawData = await response.json();
+        const standardsMap = new Map();
+        rawData.forEach(item => {
+          if (!standardsMap.has(item.standardId)) {
+            standardsMap.set(item.standardId, { ...item, indicators: [] });
+          }
+          standardsMap.get(item.standardId).indicators.push({
+            label: item.indicatorName,
+            uploadSection: item.uploadSection
+          });
+        });
+        setStandards(Array.from(standardsMap.values()));
+      } catch (error) {
+        console.error('Error fetching standards:', error);
+        toast.error(`Error fetching standards: ${error.message}`);
       }
+    };
+  
+    fetchStandards();
+  }, []);
+  
+
+  useEffect(() => {
+    console.log("Component mounted, loading drafts from local storage");
+    const loadedDrafts = loadFromLocalStorage('uploadDrafts');
+    if (loadedDrafts) {
+      console.log("Drafts loaded successfully:", loadedDrafts);
+      setUploadDrafts(loadedDrafts);
+    } else {
+      console.log("No drafts found in local storage.");
     }
-  }
+  }, []);
+
+  const handleFileSelect = (e, indicatorIndex) => {
+    const selectedFiles = e.files ? e.files.map(file => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file); // Converts the file to a data URL
+        return new Promise(resolve => {
+            reader.onload = () => resolve({
+                name: file.name,
+                size: file.size,
+                type: file.type,
+                dataUrl: reader.result // This is the data URL
+            });
+        });
+    }) : [];
+
+    Promise.all(selectedFiles).then(filesWithPreview => {
+        setUploadFiles(prevUploads => {
+            const updatedUploads = { ...prevUploads };
+            if (!updatedUploads[activeStep]) updatedUploads[activeStep] = {};
+            updatedUploads[activeStep][indicatorIndex] = filesWithPreview;
+            return updatedUploads;
+        });
+
+        saveDrafts(activeStep, indicatorIndex, filesWithPreview);
+    });
 };
 
-// Function to handle cancel button click
-const handleCancelClick = () => {
-  // Add any necessary logic for cancel action
-};
+
+  const saveDrafts = (step, index, files) => {
+    const newDrafts = { ...uploadDrafts };
+    if (!newDrafts[step]) newDrafts[step] = {};
+    newDrafts[step][index] = files;
+    console.log('Saving drafts:', newDrafts);
+    setUploadDrafts(newDrafts);
+    saveToLocalStorage('uploadDrafts', newDrafts);
+  };
+
+  const saveToLocalStorage = (key, value) => {
+    localStorage.setItem(key, JSON.stringify(value));
+  };
+
+  const loadFromLocalStorage = key => {
+    const data = localStorage.getItem(key);
+    return data ? JSON.parse(data) : null;
+  };
 
   const nextStep = () => {
-    setActiveStep(activeStep + 1);
+    setActiveStep(prevStep => prevStep + 1);
   };
 
   const prevStep = () => {
-    setActiveStep(activeStep - 1);
+    setActiveStep(prevStep => prevStep - 1);
   };
 
-  const totalSteps = steps.length;
-  const width = `${(100 / (totalSteps - 1)) * (activeStep - 1)}%`;
+  const deleteFile = (step, index, fileIndex) => {
+    setUploadFiles(currentFiles => {
+      const updatedFiles = { ...currentFiles };
+      if (updatedFiles[step] && updatedFiles[step][index]) {
+        // Remove the file from the list
+        updatedFiles[step][index].splice(fileIndex, 1);
+        // Optionally, check if the list is empty and handle accordingly
+        if (updatedFiles[step][index].length === 0) {
+          delete updatedFiles[step][index];
+        }
+      }
+      return updatedFiles;
+    });
+  
+    setUploadDrafts(currentDrafts => {
+      const updatedDrafts = { ...currentDrafts };
+      if (updatedDrafts[step] && updatedDrafts[step][index]) {
+        updatedDrafts[step][index].splice(fileIndex, 1);
+        if (updatedDrafts[step][index].length === 0) {
+          delete updatedDrafts[step][index];
+        }
+      }
+      saveToLocalStorage('uploadDrafts', updatedDrafts);
+      return updatedDrafts;
+    });
+  };
+  
 
   return (
     <DefaultLayout>
       <Breadcrumb pageName="Upload Evidence" />
       <MainContainer>
-        <StepContainer width={width}>
-          {steps.map(({ step, label }) => (
-            <StepWrapper key={step}>
-              <StepStyle step={activeStep >= step ? 'completed' : 'incomplete'}>
-                {activeStep > step ? (
-                  <CheckMark>L</CheckMark>
-                ) : (
-                  <StepCount>{step}</StepCount>
-                )}
+        <StepContainer>
+          {standards.map((standard, index) => (
+            <StepWrapper key={index}>
+              <StepStyle completed={activeStep >= index}>
+                <StepCount>{index + 1}</StepCount>
               </StepStyle>
               <StepsLabelContainer>
-                <StepLabel>{label}</StepLabel>
+                <StepLabel>{standard.standardName}</StepLabel>
               </StepsLabelContainer>
             </StepWrapper>
           ))}
+          <ProgressLine activeStep={activeStep} totalSteps={standards.length} />
         </StepContainer>
         <ButtonsContainer>
-          <ButtonStyle onClick={prevStep} disabled={activeStep === 1}>
-            Previous
-          </ButtonStyle>
-          <ButtonStyle onClick={nextStep} disabled={activeStep === totalSteps}>
-            Next
-          </ButtonStyle>
+          <ButtonStyle onClick={prevStep} disabled={activeStep === 0}>Previous</ButtonStyle>
+          <ButtonStyle onClick={nextStep} disabled={activeStep === standards.length - 1}>Next</ButtonStyle>
         </ButtonsContainer>
-        
-
-
-      
-        {activeStep && (
-          <div>
-            <h2>{steps[activeStep - 1].label}</h2>
-            {steps[activeStep - 1].indicators.map((indicator, index) => (
-              <div key={index}>
-                <h3>{indicator.label}</h3>
-                {indicator.uploadSections.map((uploadSection, sectionIndex) => (
-                  <div key={sectionIndex}>
-                    <h4>{uploadSection.title}</h4>
-                    <p>{uploadSection.description}</p>
-
-                    {/* File upload container */}
-                  
-                    <div className="p-4">
-                      <div
-                        id={`FileUpload-${sectionIndex}`}
-                        className="relative mb-5.5 block w-full cursor-pointer appearance-none rounded border border-dashed border-primary bg-gray py-4 px-4 dark:bg-meta-4 sm:py-7.5"
-                      >
-                        {/* File input */}
-                        <input
-                          type="file"
-                          accept="*"
-                          className="absolute inset-0 z-50 m-0 h-full w-full cursor-pointer p-0 opacity-0 outline-none"
-                          onChange={(e) => {
-                            const files = e.target.files;
-                            if (files && files.length > 0) {
-                              handleFileChange(files[0], activeStep - 1, sectionIndex); // Pass both activeStep - 1 and sectionIndex
-                            }
-                          }}
-                />
-
-                <div className="flex flex-col items-center justify-center space-y-3">
-                  <span className="flex h-10 w-10 items-center justify-center rounded-full border border-stroke bg-white dark:border-strokedark dark:bg-boxdark">
-                    <svg
-                      width="16"
-                      height="16"
-                      viewBox="0 0 16 16"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      {/* SVG paths */}
-                    </svg>
-                  </span>
-                  <p>
-                    <span className="text-primary">Click to upload</span> or drag and drop
-                  </p>
-                  <p className="mt-1.5">SVG, PNG, JPG or GIF</p>
-                  <p>(max, 800 X 800px)</p>
-
-                 {/* Display filename here 
-                  {selectedFiles[activeStep - 1][sectionIndex]?.name && (
-                    <div className="file-item">
-                      <span className="file-name">{selectedFiles[activeStep - 1][sectionIndex]?.name}</span>
-                    </div>
-                  )}
-                */}
-                </div>
-              </div>
-            </div>
-
-            {/* Save and cancel buttons */}
-            <div className="flex justify-end gap- mb-5">
-              <button
-                className="flex justify-center rounded border border-stroke py-2 px-6 font-medium text-black hover:shadow-1 dark:border-strokedark dark:text-white mr-4"
-                type="button" // Change type to "button"
-                 onClick={handleSaveClick} // Add onClick handler
-              >
-                Save
-              </button>
-              <button
-                className={`flex justify-center rounded bg-primary py-2 px-6 font-medium text-gray hover:bg-opacity-90 mr-4`}
-                type="button" // Change type to "button"
-                onClick={handleCancelClick} // Add onClick handler
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
+        <br /><br /><br /><br /><br />
+        {standards[activeStep]?.indicators.map((indicator, index) => (
+  <div key={`${activeStep}-${index}`} className="card">
+    <h4>{indicator.label}</h4>
+    <FileUpload 
+      name={`upload-${activeStep}-${index}`}
+      multiple 
+      accept="*"
+      maxFileSize={10000000}
+      customUpload={true}
+      onSelect={(e) => handleFileSelect(e, index)}
+      emptyTemplate={<p>Drag and drop files here to upload</p>}
+    />
+    {uploadDrafts[activeStep] && uploadDrafts[activeStep][index] && (
+      <ul>
+        {uploadDrafts[activeStep][index].map((file, fileIdx) => (
+          <li key={fileIdx}>
+            {file.name} - {file.size} bytes
+            <button onClick={() => deleteFile(activeStep, index, fileIdx)}>Delete</button>
+          </li>
         ))}
-      </div>
-    ))}
+      </ul>
+    )}
   </div>
-)}
+))}
+
       </MainContainer>
     </DefaultLayout>
   );

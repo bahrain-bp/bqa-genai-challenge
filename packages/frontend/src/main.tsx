@@ -7,6 +7,11 @@ import './css/satoshi.css';
 import 'jsvectormap/dist/css/jsvectormap.css';
 import 'flatpickr/dist/flatpickr.min.css';
 import { Amplify } from "aws-amplify";
+import 'primereact/resources/themes/saga-blue/theme.css';  //theme
+import 'primereact/resources/primereact.min.css';          //core css
+import 'primeicons/primeicons.css';                         //icons
+
+
 
 Amplify.configure({
   Auth: {
