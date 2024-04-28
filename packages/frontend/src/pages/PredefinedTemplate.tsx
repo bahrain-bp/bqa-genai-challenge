@@ -245,23 +245,23 @@ const [indicators, setIndicators] = useState<any[]>([]); // State variable to st
   }, []);
   
   async function uploadToS3Evidence(fileData: Blob | File, fileName: string, folderName: string) {
-    // try {
-    //   const s3 = new AWS.S3();
+    try {
+      // const s3 = new AWS.S3();
 
-    //   const params = {
-    //     Bucket: 'bqa-standards-upload',
-    //     Key: folderName + '/' + fileName,
-    //     Body: fileData
-    //   };
+      const params = {
+        Bucket: 'bqa-standards-upload',
+        Key: folderName + '/' + fileName,
+        Body: fileData
+      };
 
-    //   const uploadResult = await s3.upload(params).promise();
+      // const uploadResult = await s3.upload(params).promise();
 
-    //   return { message: 'File uploaded successfully', location: uploadResult.Location };
-    // } catch (error) {
-    //   console.error('Error uploading file:', error);
-    //   throw new Error('Failed to upload file');
-    // }
-    console.log(' uploading file:', fileData,fileName,folderName);
+      return { message: 'File uploaded successfully', params };
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      throw new Error('Failed to upload file');
+    }
+    // console.log(' uploading file:', fileData,fileName,folderName);
   }
 
   async function handleFileSelect(file: File, selectedFolder: string) {
