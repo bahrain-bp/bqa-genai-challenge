@@ -21,6 +21,7 @@
 //       // Filter records based on standardName
 //       const filteredRecords = data.filter((record: { standardName: string | undefined }) => record.standardName === standardName);
 
+
 //       setRecords(filteredRecords); // Update state with fetched records
 //     } catch (error) {
 //       console.error('Error fetching records:', error);
@@ -79,6 +80,7 @@
 //       console.log('Record archived successfully');
 //       console.log('Record to be archived:', recordToArchive);
 
+
 //     } catch (error) {
 //       console.error('Error archiving record:', error);
 //     }
@@ -90,6 +92,7 @@
 //     const standardName = window.location.pathname.split('/').pop();
 //     fetchRecords(standardName); // Fetch records for the extracted standard name
 //   }, []);
+
 
 //   return (
 //     <DefaultLayout>

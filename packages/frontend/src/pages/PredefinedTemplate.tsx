@@ -28,9 +28,18 @@
 //     }));
 //   };
  
+
   
+  
+ 
+  const toggleForm = () => {
+    setShowForm(!showForm);
+  };
 
-
+  const handleCancel = () => {
+    setShowForm(false);
+    // Reset recordData if needed
+  };
 
 //   const createRecord = async () => {
 //     try {
@@ -107,6 +116,7 @@
 //       // Filter records based on standardName
 //       const filteredRecords = data.filter((record: { standardName: string | undefined }) => record.standardName === standardName);
 
+
 //       setRecords(filteredRecords);
   
 //     } catch (error) {
@@ -119,6 +129,7 @@
 //     const standardName = window.location.pathname.split('/').pop();
 //     fetchRecords(standardName); // Fetch records for the extracted standard name // Fetch records when the component mounts
 //   }, []);
+
 
 //   async function uploadToS3Evidence(fileData: Blob | File, fileName: string, folderName: string) {
 //     try {
@@ -168,10 +179,22 @@
 //     fileReader.readAsBinaryString(file);
 //   }
 
+const fetchStandardName = async (standardId: string | undefined) => {
+  try {
+    // Make API call to fetch standard name based on standardId
+    const response = await fetch(`https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards?standardId=${standardId}`);
+    if (!response.ok) {
+      throw new Error('Failed to fetch standards');
+    }
+    const data = await response.json();
+// Filter standards to include only those with matching standardId
+const filteredStandards = data.filter((standard: any) => standard.standardId === standardId);
 
+// Assuming data is an array of records, select the first one
+const standardName = filteredStandards.length > 0 ? filteredStandards[0].standardName : '';
 
-  
-  
+// Update state with the fetched standard name
+setStandardName(standardName);
 
 //   return (
 //     <DefaultLayout>
@@ -259,6 +282,7 @@
 //     <h6 className="m-b-20">{standardName + ' ' + record.standardId}</h6></a>
 //       </div>
 //         </div>
+
 
 //           </div>
 //         ))}
