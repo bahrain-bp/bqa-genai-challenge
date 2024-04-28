@@ -1,62 +1,87 @@
-import * as AWS from "aws-sdk";
-import { Queue } from "sst/constructs";
+import * as AWS from 'aws-sdk';
+import { Buffer } from 'buffer'; 
+
 const s3 = new AWS.S3();
-const sqs = new AWS.SQS();
+
+async function createFolder(bucketName: string, folderPath: string) {
+  try {
+    // Check if the folder exists
+    const params = {
+      Bucket: bucketName,
+      Prefix: folderPath,
+      Delimiter: '/'
+    };
+    const data = await s3.listObjectsV2(params).promise();
+
+    // If the folder doesn't exist, create it
+    if (!data.CommonPrefixes?.length) {
+      const folders = folderPath.split('/');
+      let folderKey = '';
+      for (const folder of folders) {
+        folderKey += folder + '/';
+        await s3.putObject({
+          Bucket: bucketName,
+          Key: folderKey,
+          Body: ''
+        }).promise();
+      }
+    }
+  } catch (error) {
+    console.error('Error creating folder:', error);
+    throw new Error('Failed to create folder');
+  }
+}
 
 export async function uploadToS3(event: any) {
   try {
-    const fileData = event.body; // Binary file data
-    const fileName = event.headers["file-name"]; // Get file name
+    const fileData = event.body; 
+    const fileName = event.headers['file-name'];
+    const bucketName = event.headers['bucket-name'];
+    const folderName = event.headers['folder-name'];
+    const subfolderName = event.headers['subfolder-name'];
+
+    // Check file size before upload (optional)
+    const fileSize = Buffer.byteLength(fileData);
+    console.log("File size:", fileSize);
 
     if (!fileName) {
-      throw new Error("File name not provided");
+      throw new Error('File name not provided');
     }
 
-    // Get current user session
-    // Define metadata for the object
-    const metadata = {
-      createdBy: "Amjad",
-      creationDate: new Date().toISOString(),
-    };
+    if (!bucketName) {
+      throw new Error('Bucket name not provided');
+    }
 
-    // Define S3 upload parameters, including metadata
+    if (!folderName) {
+      throw new Error('Folder name not provided');
+    }
+
+    // Combine folder and subfolder name if subfolder is provided
+    const folderPath = subfolderName ? `${folderName}/${subfolderName}` : folderName;
+
+    // Create folder if it doesn't exist
+    await createFolder(bucketName, folderPath);
+
+    // Define S3 upload parameters
     const params = {
-      Bucket: "uni-artifacts",
-      Key: fileName,
+      Bucket: bucketName,
+      Key: `${folderPath}/${fileName}`, // Combine folder path and file name for Key
       Body: fileData,
-      ObjectMetadata: metadata,
     };
 
-    // Upload the file with metadata
+    // Upload the file
     const uploadResult = await s3.upload(params).promise();
-
-    //send the file to the queue
-    // Send a message to queue
-    await sqs
-      .sendMessage({
-        // Get the queue url from the environment variable
-        QueueUrl: Queue["Document-Queue"].queueUrl,
-        MessageBody: uploadResult.Location,
-        MessageGroupId: "file", // Use fileName as MessageGroupId
-        MessageDeduplicationId: `${fileName}-${Date.now()}`,
-      })
-      .promise();
-
-    console.log("Message queued!");
 
     return {
       statusCode: 200,
-      body: JSON.stringify({
-        message: "File uploaded successfully",
-        location: uploadResult.Location,
-        metadata: metadata,
-      }),
+      body: JSON.stringify({ message: 'File uploaded successfully', location: uploadResult.Location }),
     };
   } catch (error) {
-    console.error("Error uploading file:", error);
+    console.error('Error uploading file:', error);
     return {
       statusCode: 500,
-      body: JSON.stringify({ message: "Failed to upload file" }),
+      body: JSON.stringify({ message: 'Failed to upload file' }),
     };
   }
 }
+
