@@ -201,11 +201,11 @@ const PredefinedTemplate: React.FC = () => {
            
             <div className="form-group">
               <label>Standard Id:</label>
-              <input type="text"  name="standardId" value={recordData.standardId} onChange={handleChange} className="white-background" />
+              <input type="text"  name="standardId" value={recordData.standardId} onChange={handleChange} />
             </div><br />
             <div className="form-group">
               <label>Standard Name:</label>
-              <input type="text" name="standardName" value={recordData.standardName} onChange={handleChange} className="white-background" />
+              <input type="text" name="standardName" value={recordData.standardName} onChange={handleChange} />
             </div><br />
             
             

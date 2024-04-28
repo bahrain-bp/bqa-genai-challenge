@@ -2,10 +2,6 @@ import React, { useState, useEffect } from 'react';
 import DefaultLayout from '../layout/DefaultLayout';
 import './PredefinedTemplate.css'; // Importing CSS file
 import AWS from 'aws-sdk';
-import '@fortawesome/fontawesome-free/css/all.css';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTrash, faArchive } from '@fortawesome/free-solid-svg-icons';
-
 
 //INDICATORS FILE **
 
@@ -60,65 +56,6 @@ const [indicators, setIndicators] = useState<any[]>([]); // State variable to st
         ...prevState,
         [name]: value
       }));
-    }
-  };
-  
-  const handleDelete = async (indicatorId: string) => {
-    try {
-      // Fetch records with the matching standardId
-      const recordsToDelete = records.filter(record => record.indicatorId === indicatorId);
-      if (recordsToDelete.length === 0) {
-        throw new Error('No records found for the given standardId');
-      }
-  
-      // Delete each record
-      await Promise.all(recordsToDelete.map(async record => {
-        const apiUrl = `https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards/${record.entityId}`;
-        const response = await fetch(apiUrl, {
-          method: 'DELETE',
-        });
-        if (!response.ok) {
-          throw new Error(`Failed to delete record with entityId: ${record.entityId}`);
-        }
-      }));
-  
-      // Remove the deleted records from the state
-      setRecords(records.filter(record => !recordsToDelete.includes(record)));
-      console.log('Records deleted successfully');
-    } catch (error) {
-      console.error('Error deleting records:', error);
-    }
-  };
-  
-
-  const handleArchive = async (indicatorId: string) => {
-    try {
-      // Fetch records with the matching standardId
-      const recordsToArchive = records.filter(record => record.indicatorId === indicatorId);
-      if (recordsToArchive.length === 0) {
-        throw new Error('No records found for the given standardId');
-      }
-  
-      // Update status to 'archived' for each record
-      await Promise.all(recordsToArchive.map(async record => {
-        const apiUrl = `https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards/${record.entityId}`;
-        const response = await fetch(apiUrl, {
-          method: 'PUT', // Use PUT method to update the record
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ ...record, status: 'archived' }), // Update the status field to 'archived'
-        });
-        if (!response.ok) {
-          throw new Error(`Failed to archive record with entityId: ${record.entityId}`);
-        }
-      }));
-  
-      // Fetch records again to reflect the changes
-      fetchRecords(standardId);
-      console.log('Records archived successfully');
-    } catch (error) {
-      console.error('Error archiving records:', error);
     }
   };
   
@@ -234,6 +171,7 @@ const [indicators, setIndicators] = useState<any[]>([]); // State variable to st
   };
   
   useEffect(() => {
+    
     const standardId = window.location.pathname.split('/').pop();
     
  // Fetch indicators based on the standardId
@@ -241,6 +179,7 @@ const [indicators, setIndicators] = useState<any[]>([]); // State variable to st
  fetchIndicators(standardId);
     fetchRecords(standardId); 
   }, []);
+
   async function uploadToS3Evidence(fileData: Blob | File, fileName: string, folderName: string) {
     try {
       const s3 = new AWS.S3();
@@ -332,7 +271,7 @@ setStandardName(standardName);
             <div className="modal-content">
             <div className="form-group">
               <label>Choose Indicator :</label>
-              <select name="indicatorId" value={recordData.indicatorId} onChange={handleChange} className="white-background" >
+              <select name="indicatorId" value={recordData.indicatorId} onChange={handleChange}>
                 <option value="">Select an Indicator</option>
                 {indicators.map((indicator: any) => (
                   <option key={indicator.indicatorId} value={indicator.indicatorId}>
@@ -341,29 +280,29 @@ setStandardName(standardName);
                 ))}
               </select>
             </div><br />
-            {/* <div className="form-group">
+            <div className="form-group">
   <label>Standard Name:</label>
-  <input type="text" name="standardName" value={standardName} onChange={handleChange} className="white-background" />
-</div> */}
+  <input type="text" name="standardName" value={standardName} onChange={handleChange} />
+</div>
             <div className="form-group">
               <label>Indicator Name:</label>
-              <input type="text" name="indicatorName" value={recordData.indicatorName} onChange={handleChange} className="white-background" />
+              <input type="text" name="indicatorName" value={recordData.indicatorName} onChange={handleChange} />
             </div><br />
             <div className="form-group">
               <label>Indicator Id:</label>
-              <input type="text" name="indicatorId" value={recordData.indicatorId} onChange={handleChange} className="white-background" />
+              <input type="text" name="indicatorId" value={recordData.indicatorId} onChange={handleChange} />
             </div><br />
             <div className="form-group">
               <label>Upload Document:</label>
-              <input type="file" name="documentName" value={recordData.documentName} onChange={handleChange} className="white-background" />
+              <input type="file" name="documentName" value={recordData.documentName} onChange={handleChange} />
             </div><br />
             <div className="form-group">
               <label>Document Description:</label>
-              <input type="text" name="description" value={recordData.description} onChange={handleChange} className="white-background" />
+              <input type="text" name="description" value={recordData.description} onChange={handleChange} />
             </div><br />
             <div className="form-group">
               <label>Status:</label>
-              <input type="text" name="status" value={recordData.status} onChange={handleChange} className="white-background" readOnly />
+              <input type="text" name="status" value={recordData.status} onChange={handleChange} readOnly />
             </div><br />
             <div className="form-buttons">
             <button
@@ -426,12 +365,6 @@ setStandardName(standardName);
 
     <h6 className="m-b-20">{indicatorId}</h6>
     <h5>{record.indicatorName}</h5></a>
-
-       {/* Delete icon */}
-       <FontAwesomeIcon icon={faTrash} className="delete-icon" onClick={() => handleDelete(record.indicatorId)} />
-                        {/* Archive icon */}
-                        <FontAwesomeIcon icon={faArchive} className="archive-icon" onClick={() => handleArchive(record.indicatorId)} />
-                 
       </div>
         </div>
 
