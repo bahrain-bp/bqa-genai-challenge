@@ -16,7 +16,7 @@ import Alerts from './pages/UiElements/Alerts';
 import Buttons from './pages/UiElements/Buttons';
 import Standards from './pages/Standards';
 // import PredefinedTemplate from './pages/PredefinedTemplate';
-// import EvidenceFiles from './pages/EvidenceFiles';
+import EvidenceFiles from './pages/EvidenceFiles';
 import Archived from './pages/Archived';
 import UploadEvidence from './pages/UploadEvidence';
 import OfficerDash from './pages/OfficerDash';
@@ -127,7 +127,7 @@ function App() {
           }
         /> */}
        
-        {/* <Route
+        <Route
           path="EvidenceFiles/:indicatorName"
           element={
            <>
@@ -136,7 +136,7 @@ function App() {
              <EvidenceFiles />
             </>
         }
-        /> */}
+        />
 
           <Route
           path="/UploadEvidence"
