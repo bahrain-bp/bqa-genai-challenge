@@ -1,4 +1,4 @@
-:root {
+/* :root {
     font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
     line-height: 1.5;
     font-weight: 400;
@@ -301,39 +301,5 @@
   margin-bottom: 0;
   font-size: 16px;
   font-weight: normal;
-}
-
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black overlay */
-  z-index: 1000;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.modal-content {
-  background-color:#ededed;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-}
-.form-buttons {
-  display: flex;
-  justify-content: flex-end; /* Align buttons to the right */
-  margin-top: 20px; /* Add some margin from the form elements */
-}
-
-.button-container {
-  display: flex;
-  justify-content: flex-end; /* Align button to the right */
-}
-
-.hidden {
-  display: none;
-}
+} */
 
