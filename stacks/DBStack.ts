@@ -18,14 +18,6 @@ export function DBStack({ stack, app }: StackContext) {
         defaultBehavior: { origin: new origins.S3Origin(myBucket) },
     });
 
-    // // Create a DynamoDB table
-    // const table = new Table(stack, "Counter", {
-    //     fields: {
-    //     counter: "string",
-    //     },
-    //     primaryIndex: { partitionKey: "counter" },
-    // });
-
     // Create the DynamoDB table
     const table = new Table(stack, "BQA", {
         fields: {

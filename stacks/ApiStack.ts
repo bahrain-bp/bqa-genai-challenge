@@ -3,6 +3,7 @@ import { DBStack } from "./DBStack";
 import { CacheHeaderBehavior, CachePolicy } from "aws-cdk-lib/aws-cloudfront";
 import { Duration } from "aws-cdk-lib/core";
 import { AuthStack } from "./AuthStack";
+import { S3Stack } from "./S3Stack";
 
 export function ApiStack({ stack }: StackContext) {
   const { auth } = use(AuthStack);
