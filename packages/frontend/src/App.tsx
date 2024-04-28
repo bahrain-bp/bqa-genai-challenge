@@ -15,7 +15,7 @@ import Tables from './pages/Tables';
 import Alerts from './pages/UiElements/Alerts';
 import Buttons from './pages/UiElements/Buttons';
 import Standards from './pages/Standards';
-// import PredefinedTemplate from './pages/PredefinedTemplate';
+import PredefinedTemplate from './pages/PredefinedTemplate';
 import EvidenceFiles from './pages/EvidenceFiles';
 import Archived from './pages/Archived';
 import UploadEvidence from './pages/UploadEvidence';
@@ -117,7 +117,7 @@ function App() {
             </>
           }
         />
-        {/* <Route
+        <Route
           path="/PredefinedTemplate/:standardName"
           element={
             <>
@@ -125,7 +125,7 @@ function App() {
               <PredefinedTemplate />
             </>
           }
-        /> */}
+        />
        
         <Route
           path="EvidenceFiles/:indicatorName"
