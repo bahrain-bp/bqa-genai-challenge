@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import DefaultLayout from '../layout/DefaultLayout';
 import './PredefinedTemplate.css'; // Importing CSS file
 // import * as AWS from 'aws-sdk';
+import { S3 } from 'aws-sdk';
 import '@fortawesome/fontawesome-free/css/all.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash, faArchive } from '@fortawesome/free-solid-svg-icons';
@@ -147,7 +148,7 @@ const [indicators, setIndicators] = useState<any[]>([]); // State variable to st
   
       // Handle file upload
       const selectedStandard = `${standardId}/${recordData.indicatorId}`;// Get the selected standard value
-      // await handleFileSelect(file, selectedStandard);
+      await handleFileSelect(file, selectedStandard);
   
       // Create record in DynamoDB
       const documentURL = `https://d2qvr68pyo44tt.cloudfront.net/${selectedStandard}/${file.name}`;
@@ -243,53 +244,54 @@ const [indicators, setIndicators] = useState<any[]>([]); // State variable to st
     fetchRecords(standardId); 
   }, []);
   
-  // async function uploadToS3Evidence(fileData: Blob | File, fileName: string, folderName: string) {
-  //   try {
-  //     const s3 = new AWS.S3();
+  async function uploadToS3Evidence(fileData: Blob | File, fileName: string, folderName: string) {
+    try {
+      // const s3 = new AWS.S3();
+      const s3 = new S3();
 
-  //     const params = {
-  //       Bucket: 'bqa-standards-upload',
-  //       Key: folderName + '/' + fileName,
-  //       Body: fileData
-  //     };
+      const params = {
+        Bucket: 'bqa-standards-upload',
+        Key: folderName + '/' + fileName,
+        Body: fileData
+      };
 
-  //     const uploadResult = await s3.upload(params).promise();
+      const uploadResult = await s3.upload(params).promise();
 
-  //     return { message: 'File uploaded successfully', location: uploadResult.Location };
-  //   } catch (error) {
-  //     console.error('Error uploading file:', error);
-  //     throw new Error('Failed to upload file');
-  //   }
-  // }
+      return { message: 'File uploaded successfully', location: uploadResult.Location };
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      throw new Error('Failed to upload file');
+    }
+  }
 
-  // async function handleFileSelect(file: File, selectedFolder: string) {
-  //   const fileReader = new FileReader();
-  //   fileReader.onload = function (e) {
-  //     if (e.target) {
-  //       const fileContent = e.target.result as string;
+  async function handleFileSelect(file: File, selectedFolder: string) {
+    const fileReader = new FileReader();
+    fileReader.onload = function (e) {
+      if (e.target) {
+        const fileContent = e.target.result as string;
   
-  //       const uploadParams = {
-  //         body: new Blob([fileContent], { type: file.type }),
-  //         headers: {
-  //           'Content-Type': file.type,
-  //           'file-name': file.name
-  //         }
-  //       };
+        const uploadParams = {
+          body: new Blob([fileContent], { type: file.type }),
+          headers: {
+            'Content-Type': file.type,
+            'file-name': file.name
+          }
+        };
   
-  //       uploadToS3Evidence(uploadParams.body, uploadParams.headers['file-name'], selectedFolder)
-  //         .then(response => {
-  //           console.log(response);
-  //           alert('File uploaded successfully!');
-  //         })
-  //         .catch(error => {
-  //           console.error('Error uploading file:', error);
-  //           alert('Failed to upload file');
-  //         });
-  //     }
-  //   };
+        uploadToS3Evidence(uploadParams.body, uploadParams.headers['file-name'], selectedFolder)
+          .then(response => {
+            console.log(response);
+            alert('File uploaded successfully!');
+          })
+          .catch(error => {
+            console.error('Error uploading file:', error);
+            alert('Failed to upload file');
+          });
+      }
+    };
   
-  //   fileReader.readAsBinaryString(file);
-  // }
+    fileReader.readAsBinaryString(file);
+  }
 
 const fetchStandardName = async (standardId: string | undefined) => {
   try {
@@ -334,8 +336,8 @@ setStandardName(standardName);
             <div className="modal-content">
             <div className="form-group">
               <label>Choose Indicator :</label>
-              {/* <select name="indicatorId" value={recordData.indicatorId} onChange={handleChange} className="white-background" > */}
-              <select name="indicatorId" value="blah" className="white-background" >
+              <select name="indicatorId" value={recordData.indicatorId} onChange={handleChange} className="white-background" >
+              {/* <select name="indicatorId" value="blah" className="white-background" > */}
              
                 <option value="">Select an Indicator</option>
                 {indicators.map((indicator: any) => (
