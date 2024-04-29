@@ -35,6 +35,14 @@ export function ApiStack({ stack }: StackContext) {
           permissions: ["s3"]
         }
       },
+      // Ses Lambda function
+      "GET /": "packages/functions/src/SesHandler.handler",
+      "POST /SendEmail": {
+        function: {
+          handler: "packages/functions/src/SesHandler.handler",
+          permissions: ["SES"]
+        }
+      },
       "GET /detectFileType": {
         function: {
           handler: "packages/functions/detectFileType.detect",

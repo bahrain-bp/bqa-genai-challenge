@@ -22,6 +22,7 @@ import UploadEvidence from './pages/UploadEvidence';
 import OfficerDash from './pages/OfficerDash';
 import BqaDash1 from './pages/BqaDash1';
 import BqaDash2 from './pages/BqaDash2';
+import SesNotification from './pages/SesNotification';
 
 import { getCurrentUser, fetchUserAttributes } from 'aws-amplify/auth';
 import { ToastContainer } from 'react-toastify';
@@ -170,6 +171,15 @@ function App() {
           }
         />
 
+        <Route
+          path="/sesNotification"
+          element={
+            <>
+              <PageTitle title="Send Email Notification | EduScribe" />
+              <SesNotification />
+            </>
+          }
+        />
 
         <Route
           path="/forms/form-elements"
