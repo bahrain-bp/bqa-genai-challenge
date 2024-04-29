@@ -19,8 +19,8 @@ export default function ForgotPassword() {
   });
   const [codeSent, setCodeSent] = useState(false);
   const [confirmed, setConfirmed] = useState(false);
-  const [isConfirming, setIsConfirming] = useState(false);
-  const [isSendingCode, setIsSendingCode] = useState(false);
+  const [/*isConfirming*/, setIsConfirming] = useState(false);
+  const [/*isSendingCode*/, setIsSendingCode] = useState(false);
 
   const handleFieldChange = (e: ChangeEvent<HTMLInputElement>) => {
     setFields({
@@ -93,64 +93,104 @@ export default function ForgotPassword() {
 
   function renderRequestCodeForm() {
     return (
-      <form onSubmit={handleSendCodeClick}>
-        <label>Email</label>
+      <div className="container mx-auto px-4 py-8 flex justify-center items-center h-screen">
+         <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
+         <h1 className="text-2xl font-semibold mb-4">Enter Your Email</h1>
+
+      <form onSubmit={handleSendCodeClick} className="max-w-md mx-auto">
         <input
           autoFocus
           type="email"
           id="email"
           value={fields.email}
+          required
+          placeholder="univerisityEmail@gmail.com"
+
           onChange={handleFieldChange}
+          className="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+
         />
+       <div className="mb-4 mt-4">
+
         <button
           type="submit"
           disabled={!validateCodeForm()}
-        >
+          className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition duration-300">
+
           Send Confirmation
         </button>
+        </div>
+
       </form>
+      </div>
+      </div>
     );
   }
 
   function renderConfirmationForm() {
     return (
-      <form onSubmit={handleConfirmClick}>
-        <label>Confirmation Code</label>
+      <div className="container mx-auto px-4 py-8 flex justify-center items-center h-screen">
+         <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
+
+      <form onSubmit={handleConfirmClick} className="max-w-md mx-auto">
+      <div className="mb-4">
+
+        <label htmlFor="code" className="block text-sm font-medium text-gray-700">Confirmation Code</label>
         <input
           autoFocus
           type="tel"
           id="code"
           value={fields.code}
           onChange={handleFieldChange}
+          className="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+
         />
-        <label>New Password</label>
+        </div>
+        <div className="mb-4">
+
+        <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700">New Password</label>
         <input
           type="password"
           id="password"
           value={fields.password}
           onChange={handleFieldChange}
+          className="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+
         />
-        <label>Confirm Password</label>
+        </div>
+        <div className="mb-4">
+
+        <label htmlFor="confirmNewPassword" className="block text-sm font-medium text-gray-700">Confirm Password</label>
         <input
           type="password"
           id="confirmPassword"
           value={fields.confirmPassword}
           onChange={handleFieldChange}
+          className="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+
         />
+        </div>
+        <div className="mb-4">
+
         <button
           type="submit"
           disabled={!validateResetForm()}
-        >
+          className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition duration-300">
           Confirm
         </button>
+        </div>
       </form>
+      </div>
+      </div>
     );
   }
 
   function renderSuccessMessage() {
     return (
-      <div className="success">
-        <p>Your password has been reset. Click <Link to="/login">here</Link> to login with your new credentials.</p>
+<div className="container mx-auto px-4 py-8 flex justify-center items-center h-screen">
+         <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
+                  <p className="block text-lg font-medium text-gray-700">Your password has been reset. Click <Link to="/Auth/SignInPage" className="font-bold text-black-700 underline">here</Link> to login with your new credentials.</p>
+     </div>
       </div>
     );
   }

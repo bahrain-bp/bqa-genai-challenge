@@ -27,11 +27,8 @@ import AddUni from './pages/AddUni';
 import ChangePassword from './pages/Auth/ChangePassword';
 import ForgotPassword from './pages/Auth/ForgotPassword';
 import BqaRequestPage from './pages/BqaRequestPage';
-
-
 import { getCurrentUser, fetchUserAttributes } from 'aws-amplify/auth';
 import { ToastContainer } from 'react-toastify';
-import NewUser from './pages/Auth/NewUser';
 
 
 function App() {
@@ -193,15 +190,7 @@ function App() {
             </>
           }
         />
-          <Route
-          path="/NewUser"
-          element={
-            <>
-              <PageTitle title="New User | EduScribe" />
-              <NewUser />
-            </>
-          }
-        />
+       
          <Route
           path="/ForgotPassword"
           element={

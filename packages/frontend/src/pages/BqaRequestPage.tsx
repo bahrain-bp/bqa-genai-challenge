@@ -25,33 +25,34 @@ const BqaRequestPage: React.FC = () => {
     const email = query.get('email');
     setSelectedEmail(email ?? '');
 
-    const fetchCognitoUsers = async () => {
-      try {
-        const response = await fetch('https://66xzg471hh.execute-api.us-east-1.amazonaws.com/getUsers');
-        const data = await response.json();
-        if (response.ok) {
-                  // Filter out users where the 'name' attribute is 'BQA reviewer'
-        const filteredUsers = data.filter((user: { Attributes: { Name: string; Value: string; }[]; }) => {
-          const nameValue = getAttributeValue(user.Attributes, 'name');
-          return nameValue !== 'BQA Reviewer';
-        });
-          console.log(data); // Users data
-          setUsers(filteredUsers); // Update the users state with the fetched data
-        } else {
-          console.error('Error fetching users:', data.error);
-        }
-      } catch (error) {
-        console.error('Error fetching users:', error);
-      }
-    };
+    // const fetchCognitoUsers = async () => {
+    //   try {
+    //     const response = await fetch('https://u1oaj2omi2.execute-api.us-east-1.amazonaws.com/getUsers');
+    //     const data = await response.json();
+    //     if (response.ok) {
+    //               // Filter out users where the 'name' attribute is 'BQA reviewer'
+    //     const filteredUsers = data.filter((user: { Attributes: { Name: string; Value: string; }[]; }) => {
+    //       const nameValue = getAttributeValue(user.Attributes, 'name');
+    //       return nameValue !== 'BQA Reviewer';
+    //     });
+    //       console.log(data); // Users data
+    //       setUsers(filteredUsers); // Update the users state with the fetched data
+    //     } else {
+    //       console.error('Error fetching users:', data.error);
+    //     }
+    //   } catch (error) {
+    //     console.error('Error fetching users:', error);
+    //   }
+    // };
 
-    fetchCognitoUsers(); // Call the fetchCognitoUsers function
-  }, []);
+  //   fetchCognitoUsers(); // Call the fetchCognitoUsers function
+}, 
+  []);
     // Function to find attribute value by name
-    const getAttributeValue = (attributes: { Name: string; Value: string }[], attributeName: string): string => {
-      const attribute = attributes.find(attr => attr.Name === attributeName);
-      return attribute ? attribute.Value : 'N/A'; // Returns 'N/A' if attribute not found
-    };
+    // const getAttributeValue = (attributes: { Name: string; Value: string }[], attributeName: string): string => {
+    //   const attribute = attributes.find(attr => attr.Name === attributeName);
+    //   return attribute ? attribute.Value : 'N/A'; // Returns 'N/A' if attribute not found
+    // };
     
       const handleSubmit = () => {
     // Example of what you might do, customize as needed:

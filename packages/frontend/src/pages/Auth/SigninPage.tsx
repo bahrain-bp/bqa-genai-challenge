@@ -154,10 +154,11 @@ const SignInPage = ({
                   <Link to="/ForgotPassword">Forgot Password ?</Link>
               </div>
 
-              <div>
-                  {/* Your sign-in form */}
+              {/* <div>
                   <Link to="/NewUser">New User?</Link>
-              </div>
+              </div> */}
+
+              
               </form>
             </div>
           </div>

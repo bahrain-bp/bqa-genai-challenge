@@ -1,7 +1,6 @@
 import {
   CognitoIdentityProviderClient,
   AdminCreateUserCommand,
-  AdminAddUserToGroupCommand,
   AdminSetUserPasswordCommand
 } from "@aws-sdk/client-cognito-identity-provider";
 import { APIGatewayProxyHandlerV2 } from "aws-lambda";
@@ -59,13 +58,13 @@ export const createUserInCognito: APIGatewayProxyHandlerV2 = async (
 
     return {
       statusCode: 200,
-      body: JSON.stringify({ message: "User created and added to group successfully" }),
+      body: JSON.stringify({ message: "User created successfully" }),
     };
   } catch (error) {
-    console.error("Error creating user or adding to group:", error);
+    console.error("Error creating user", error);
     return {
       statusCode: 500,
-      body: JSON.stringify({ message: "Error creating user or adding to group" }),
+      body: JSON.stringify({ message: "Error creating user" }),
     };
   }
 };

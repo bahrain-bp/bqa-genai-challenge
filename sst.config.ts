@@ -39,7 +39,6 @@ export default {
         .stack(EmailAPIStack)
         .stack(FrontendStack)
         .stack(S3Stack)
-        .stack(StandardAPIStack);
     }
   },
 } satisfies SSTConfig;

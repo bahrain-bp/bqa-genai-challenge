@@ -2,16 +2,14 @@ import React, { useState } from 'react';
 import Breadcrumb from '../components/Breadcrumbs/Breadcrumb';
 import DefaultLayout from '../layout/DefaultLayout';
 import './PredefinedTemplate.css'; // Importing CSS file
-import { aws_cognito as cognito } from 'aws-cdk-lib';
-import { env } from 'process';
+//import { aws_cognito as cognito } from 'aws-cdk-lib';
+//import { env } from 'process';
 //import { signUp, confirmSignUp } from 'aws-amplify/auth';
 //import { CognitoIdentityProviderClient, AdminCreateUserCommand } from "@aws-sdk/client-cognito-identity-provider"; // ES Modules import
-import * as AWS from 'aws-sdk';
-import {
-  CognitoIdentityProviderClient,
-  AdminCreateUserCommand,
-  AdminAddUserToGroupCommand
-} from '@aws-sdk/client-cognito-identity-provider';
+// import * as AWS from 'aws-sdk';
+// import {
+//   CognitoIdentityProviderClient,
+// } from '@aws-sdk/client-cognito-identity-provider';
 
 
 // Add authenticator so only admin can create an email and
@@ -54,10 +52,11 @@ const generateTemporaryPassword = () => {
 };
 
 const AddUni = () => {
-  const cognitoPoolId = 'us-east-1_PraHctOMo';
-  const cognitoClient = new CognitoIdentityProviderClient({
-    region: 'us-east-1',
-  });
+  
+  // const cognitoPoolId = 'us-east-1_PraHctOMo';
+  // const cognitoClient = new CognitoIdentityProviderClient({
+  //   region: 'us-east-1',
+  // });
 
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
@@ -95,7 +94,8 @@ const AddUni = () => {
     // };
     const createUser = async (email: string, tempPassword: string, name: string) => {
       const url =
-        'https://66xzg471hh.execute-api.us-east-1.amazonaws.com/createUser'; // This will be replaced with the main api
+        'https://u1oaj2omi2.execute-api.us-east-1.amazonaws.com/createUser'; // This will be replaced with the main api
+        //66xzg471hh mine ----- prod u1oaj2omi2
       const requestOptions: RequestInit = {
         method: 'POST',
         headers: {
@@ -133,91 +133,109 @@ const AddUni = () => {
 
 
     // trying the upload logo
-    const uploadLogo = async ( logo:File ) => {
-      const url =
-        'https://66xzg471hh.execute-api.us-east-1.amazonaws.com/uploadS3'; // This will be replaced with the main api
-      /////
-       const formData = new FormData();
-          formData.append('logo', logo, logo.name); // Append the file to FormData
-          //formData.append('name', name); // Optionally send email or other fields
+  //   const uploadLogo = async ( logo:File ) => {
+  //     const url =
+  //       'https://u1oaj2omi2.execute-api.us-east-1.amazonaws.com/uploadS3'; // This will be replaced with the main api
+  //     /////
+  //      const formData = new FormData();
+  //         formData.append('logo', logo, logo.name); // Append the file to FormData
+  //         //formData.append('name', name); // Optionally send email or other fields
       
-        const requestOptions: RequestInit = {
-        method: 'POST',
-        body:formData,
-        headers: {
-          'file-name': 'logo',
-          'bucket-name':'uni-artifacts',
-          'folder-name':'bahrainPolytechnic'
-        },
-       // body: JSON.stringify({ logo }),
-      };
+  //       const requestOptions: RequestInit = {
+  //       method: 'POST',
+  //       body:formData,
+  //       headers: {
+  //         'file-name': 'logo',
+  //         'bucket-name':'uni-artifacts',
+  //         'folder-name':'bahrainPolytechnic'
+  //       },
+  //      // body: JSON.stringify({ logo }),
+  //     };
 
-      try {
-        const response = await fetch(url, requestOptions);
-        if (response.ok) {
-          const data = await response.json();
-          console.log('Logo uploaded successfully', data);
-          // Handle success (e.g., display success message to the user)
-        } else {
-          const errorData = await response.json();
-          console.error('Failed to upload logo:', errorData);
-          // Handle failure (e.g., display error message to the user)
-        }
-      } catch (error) {
-        console.error('Error Uploading Logo:', error);
-        // Handle error (e.g., display error message to the user)
-      }
-    }; //end of upload
+  //     try {
+  //       const response = await fetch(url, requestOptions);
+  //       if (response.ok) {
+  //         const data = await response.json();
+  //         console.log('Logo uploaded successfully', data);
+  //         // Handle success (e.g., display success message to the user)
+  //       } else {
+  //         const errorData = await response.json();
+  //         console.error('Failed to upload logo:', errorData);
+  //         // Handle failure (e.g., display error message to the user)
+  //       }
+  //     } catch (error) {
+  //       console.error('Error Uploading Logo:', error);
+  //       // Handle error (e.g., display error message to the user)
+  //     }
+  //   }; //end of upload
 
 
     
-    try {
-      await uploadLogo(logo);
-      toast.success('Logo uploaded successfully!');
-    } catch (error) {
-      console.error('Upload failed:', error);
-      toast.error('Upload failed, please try again.');
-    }
-  };
+  //   try {
+  //     await uploadLogo(logo);
+  //     toast.success('Logo uploaded successfully!');
+  //   } catch (error) {
+  //     console.error('Upload failed:', error);
+  //     toast.error('Upload failed, please try again.');
+  //   }
+  
+};
 
 
   
 
   return (
     <DefaultLayout>
-      <Breadcrumb pageName="Add University" />
+      <Breadcrumb pageName="Add University Details" />
       <div className="container mx-auto px-4 py-8">
-      <h1>Add University Details</h1>
+      <div className="max-w-md mx-auto">
 
-      <div>
-          <label htmlFor="email">University Email:</label>
+      <div className="mb-4">
+
+    
+      <label htmlFor="universityEmail" className="block text-m font-medium text-gray-700">University Email:</label>
           <input
             id="email"
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Email"
+            className="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+
           />
         </div>
 
-         <div>
-          <label htmlFor="universityName">University Name:</label>
+        <div className="mb-4">
+          <label htmlFor="universityName" className="block text-m font-medium text-gray-700">University Name:</label>
           <input
             id="universityName"
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="University Name"
+            className="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+
           />
         </div>
-        <div>
-          <label htmlFor="logo">University Logo:</label>
+        <div className="mb-4">
+          <label htmlFor="logo" className="block text-m font-medium text-gray-700">University Logo:</label>
           <input 
           id="logo" type="file" 
-          onChange={handleFileChange} />
+          onChange={handleFileChange} 
+          className="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+
+          />
         </div>
 
-        <button onClick={handleAddEmail}>Add Email</button>
+        <div className="mb-4">
+
+        <button onClick={handleAddEmail}
+        className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition duration-300">
+
+          Add Email</button>
+     </div>
+     
+     </div>
       </div>
     </DefaultLayout>
   );

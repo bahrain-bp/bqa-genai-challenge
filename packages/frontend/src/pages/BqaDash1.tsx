@@ -3,6 +3,8 @@ import DefaultLayout from '../layout/DefaultLayout';
 import './BqaDash1.css'; // Custom CSS file for progress bars
 import  { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+
 
 
 
@@ -28,7 +30,7 @@ const BqaDash1 = () => {
   useEffect(() => {
     const fetchCognitoUsers = async () => {
       try {
-        const response = await fetch('https://66xzg471hh.execute-api.us-east-1.amazonaws.com/getUsers');
+        const response = await fetch('https://u1oaj2omi2.execute-api.us-east-1.amazonaws.com/getUsers');
         const data = await response.json();
         if (response.ok) {
                   // Filter out users where the 'name' attribute is 'BQA reviewer'
@@ -72,6 +74,17 @@ const BqaDash1 = () => {
     <DefaultLayout>
     <Breadcrumb pageName="Bqa Reviewer Dashboard" />
     <div className="container">
+    <div className="flex justify-end py-4">
+
+{/* Add university */}
+        <button   
+            className="px-5 py-2 bg-primary text-white rounded-md shadow-sm hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary-dark focus:ring-opacity-50"
+        > 
+              <Link to={`/AddUni`}>
+                Add University
+              </Link>
+      </button>
+      </div>
       <div className="row">
         {users.map(user => (
           <div key={user.Username} className="col-md-4 col-sm-6" style={{ cursor: 'pointer' }}
