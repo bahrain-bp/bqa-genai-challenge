@@ -1,37 +1,49 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 const aws = require('aws-sdk');
- 
+
 export const sendEmail = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-  const { userEmail, body, subject } = JSON.parse(event.body || '{}');
+  let { userEmail, body, subject } = {};
+  try {
+    const requestBody = JSON.parse(event.body || '{}');
+    userEmail = requestBody.userEmail;
+    body = requestBody.body;
+    subject = requestBody.subject;
+  } catch (error) {
+    console.error('Invalid JSON payload:', event.body);
+    return {
+      statusCode: 400,
+      body: JSON.stringify({ error: 'Invalid JSON payload' }),
+    };
+  }
+
   const source = "ayshacheema469@gmail.com";
   console.log('source email:', source);
-console.log("userEmail:", userEmail);
+  console.log("userEmail:", userEmail);
+  
   let data = {
     result: 'ERROR',
   };
- 
+
   try {
     const ses = new aws.SES();
- 
-    const arrayEmail = [userEmail]; // Simplifying the array creation
- 
+
     await ses.sendEmail({
       Destination: {
-        ToAddresses: arrayEmail,
+        ToAddresses: [userEmail],
       },
       Source: source,
       Message: {
         Subject: {
-          Data: subject || '', // Ensuring that subject and body are non-null
+          Data: subject || '',
         },
         Body: {
           Html: {
-            Data: body || '', // Ensuring that subject and body are non-null
+            Data: body || '',
           },
         },
       },
     }).promise();
- 
+
     data.result = 'OK';
   } catch (error) {
     console.error(error);
@@ -40,7 +52,7 @@ console.log("userEmail:", userEmail);
       body: JSON.stringify({ error: 'Internal server error' }),
     };
   }
- 
+
   return {
     statusCode: 200,
     body: JSON.stringify(data),
