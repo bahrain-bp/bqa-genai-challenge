@@ -4,7 +4,7 @@ export function EmailAPIStack({ stack }: StackContext) {
     // Create the API
     const api = new Api(stack, "EmailsApi", {
         routes: {
-            "POST /sendemail": "packages/functions/src/email.main",
+            "POST /send-email": "packages/functions/src/send-email.sendEmail",
         },
     });
 
