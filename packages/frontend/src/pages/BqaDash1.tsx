@@ -18,10 +18,10 @@ const BqaDash1 = () => {
  
 
 
- const [selectedEmail, /*setSelectedEmail*/] = useState<string>('');
+ //const [selectedEmail, /*setSelectedEmail*/] = useState<string>('');
   
-  const [subject, /*setSubject*/] = useState<string>('');
-  const [message, /*setMessage*/] = useState<string>('');
+ // const [subject, /*setSubject*/] = useState<string>('');
+  //const [message, /*setMessage*/] = useState<string>('');
 
   
 
