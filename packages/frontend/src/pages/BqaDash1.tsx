@@ -54,11 +54,11 @@ const BqaDash1 = () => {
       return attribute ? attribute.Value : 'N/A'; // Returns 'N/A' if attribute not found
     };
     
-      const handleSubmit = () => {
-    // Example of what you might do, customize as needed:
-    console.log(`Email: ${selectedEmail}, Subject: ${subject}, Message: ${message}`);
-    // Here you would typically send this data to a backend API
-  };
+  //     const handleSubmit = () => {
+  //   // Example of what you might do, customize as needed:
+  //   console.log(`Email: ${selectedEmail}, Subject: ${subject}, Message: ${message}`);
+  //   // Here you would typically send this data to a backend API
+  // };
 
 
 
