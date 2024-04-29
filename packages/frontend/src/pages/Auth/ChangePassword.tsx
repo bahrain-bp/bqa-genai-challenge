@@ -35,7 +35,7 @@ const ChangePassword = () => {
             // Add code to notify user or redirect them to a success page
         } catch (err) {
             console.log('Error updating password:', err);
-            toast.error('Error updating password');
+            toast.error(`Password should be +6 characters, 1 Capital letter, 1 Symbol, and 1 Number`);
 
             // Add code to handle error, e.g., display error message to the user
         }
@@ -72,7 +72,7 @@ const ChangePassword = () => {
                         id="newPassword"
                         value={newPassword}
                         onChange={(e) => setNewPassword(e.target.value)}
-                        placeholder="Enter new password"
+                        placeholder="6+ Characters, 1 Capital letter, 1 Number, 1 Symbol"
                         required
                         className="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
 

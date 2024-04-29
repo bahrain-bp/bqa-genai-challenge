@@ -1,5 +1,7 @@
 import { useState, ChangeEvent } from "react";
 import { Link } from "react-router-dom";
+import { toast } from 'react-toastify'; // Import toast from react-toastify
+import 'react-toastify/dist/ReactToastify.css'; // Import the CSS for react-toastify
 import { resetPassword, confirmResetPassword,
    type ResetPasswordOutput, type ConfirmResetPasswordInput } from 'aws-amplify/auth';
 
@@ -87,6 +89,7 @@ export default function ForgotPassword() {
       setConfirmed(true);
     } catch (error) {
       console.error(error);
+      toast.error(`Password should be +6 characters, 1 Capital letter, 1 Symbol, and 1 Number`);
       setIsConfirming(false);
     }
   }
@@ -154,6 +157,7 @@ export default function ForgotPassword() {
           id="password"
           value={fields.password}
           onChange={handleFieldChange}
+          placeholder="6+ Characters, 1 Capital letter, 1 Number, 1 Symbol"
           className="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
 
         />
