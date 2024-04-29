@@ -13,7 +13,6 @@ import { OIDCForGitHubCI } from "./stacks/devops/OIDCForGitHubCI";
 import { S3Stack } from "./stacks/S3Stack"
 import { S3 } from "aws-cdk-lib/aws-ses-actions";
 
-
 export default {
   config(_input) {
     return {
@@ -39,7 +38,7 @@ export default {
         .stack(StandardAPIStack)
         .stack(EmailAPIStack)
         .stack(FrontendStack)
-        .stack(S3Stack);
+        .stack(S3Stack)
     }
   },
 } satisfies SSTConfig;

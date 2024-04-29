@@ -3,6 +3,9 @@ import { DBStack } from "./DBStack";
 import { CacheHeaderBehavior, CachePolicy } from "aws-cdk-lib/aws-cloudfront";
 import { Duration } from "aws-cdk-lib/core";
 import { AuthStack } from "./AuthStack";
+import * as iam from '@aws-cdk/aws-iam';
+
+
 
 export function ApiStack({ stack }: StackContext) {
   const { auth } = use(AuthStack);
@@ -31,14 +34,14 @@ export function ApiStack({ stack }: StackContext) {
       "POST /uploadS3": {
         function: {
           handler: "packages/functions/src/s3Upload.uploadToS3",
-          permissions: ["s3"]
-        }
+          permissions: ["s3"],
+        },
       },
       "GET /detectFileType": {
         function: {
           handler: "packages/functions/detectFileType.detect",
           permissions: ["s3"],
-        }
+        },
       },
       "GET /private": "packages/functions/src/private.main",
       // Another sample TypeScript lambda function
@@ -49,7 +52,7 @@ export function ApiStack({ stack }: StackContext) {
           handler: "packages/functions/src/sample-python-lambda/lambda.main",
           runtime: "python3.11",
           timeout: "60 seconds",
-        }
+        },
       },
       // Add the new route for retrieving files
       "GET /files": {
@@ -58,6 +61,28 @@ export function ApiStack({ stack }: StackContext) {
           permissions: ["s3"], // Grant necessary S3 permissions
         },
       },
+
+      "POST /createUser": {
+        function: {
+          handler: "packages/functions/createUser.createUserInCognito",
+          permissions: "*",
+          //permissions wil be changed
+        },
+      },
+
+     
+      //Uploading logo to S3
+      /*
+      "POST /uploadLogo": {
+        function: {
+          handler: "packages/functions/uploadLogo.uploadLogo",
+          permissions: "*"
+        }
+      },
+      */
+      
+      
+
       //Fetching all users in cognito
       "GET /getUsers": {
         function: {
@@ -67,8 +92,13 @@ export function ApiStack({ stack }: StackContext) {
           ]
         },
       },
+
     },
   });
+  const get_users_function = api.getFunction("POST /createUser");
+  get_users_function?.role?.addManagedPolicy(
+    iam.ManagedPolicy.fromAwsManagedPolicyName("AmazonCognitoPowerUser")
+  );
 
   // Define cache policy for the API
   const apiCachePolicy = new CachePolicy(stack, "CachePolicy", {
