@@ -161,6 +161,8 @@ function App() {
             </>
           }
         />
+         
+
         <Route
           path="/BqaRequestPage"
           element={
@@ -171,8 +173,9 @@ function App() {
           }
         />
 
+
         <Route
-          path="/BqaDash2"
+          path="/BqaDash2/:email"
           element={
             <>
               <PageTitle title="Bqa Reviewer Dashboard (University Details)| EduScribe" />
@@ -180,7 +183,7 @@ function App() {
             </>
           }
         />
-
+    
 
         <Route
           path="/forms/form-elements"

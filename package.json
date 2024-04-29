@@ -42,6 +42,7 @@
     "immer": "^9.0.21",
     "proxy-agent": "^6.4.0",
     "react": "^18.2.0",
+    "react-router-dom": "^6.23.0",
     "react-toastify": "^10.0.5"
   }
 }
