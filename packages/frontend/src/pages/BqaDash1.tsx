@@ -27,8 +27,9 @@ const BqaDash1 = () => {
 
   useEffect(() => {
     const fetchCognitoUsers = async () => {
-      try {
-        const response = await fetch('https://66xzg471hh.execute-api.us-east-1.amazonaws.com/getUsers');
+      try { // prod api u1oaj2omi2
+        //my api 66xzg471hh
+        const response = await fetch('https://u1oaj2omi2.execute-api.us-east-1.amazonaws.com/getUsers');
         const data = await response.json();
         if (response.ok) {
                   // Filter out users where the 'name' attribute is 'BQA reviewer'
