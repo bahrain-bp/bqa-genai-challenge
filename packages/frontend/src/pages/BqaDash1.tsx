@@ -1,7 +1,7 @@
 import Breadcrumb from '../components/Breadcrumbs/Breadcrumb';
 import DefaultLayout from '../layout/DefaultLayout';
 import './BqaDash1.css'; // Custom CSS file for progress bars
-import React, { useEffect, useState } from 'react';
+import  { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 
@@ -11,17 +11,17 @@ const BqaDash1 = () => {
 
   const navigate = useNavigate();
 
-  const handleUniversitySelect = (email:any) => {
+  /*const handleUniversitySelect = (email:any) => {
     navigate(`/BqaDash2/${email}`);
-  };
+  };*/
   const [users, setUsers] = useState<{ Username: string; Attributes: { Name: string; Value: string }[] }[]>([]);
  
 
 
- const [selectedEmail, setSelectedEmail] = useState<string>('');
+ const [selectedEmail, /*setSelectedEmail*/] = useState<string>('');
   
-  const [subject, setSubject] = useState<string>('');
-  const [message, setMessage] = useState<string>('');
+  const [subject, /*setSubject*/] = useState<string>('');
+  const [message, /*setMessage*/] = useState<string>('');
 
   
 

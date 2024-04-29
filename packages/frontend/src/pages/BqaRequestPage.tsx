@@ -9,7 +9,7 @@ function useQuery() {
   return new URLSearchParams(useLocation().search);
 }
 const BqaRequestPage: React.FC = () => {
-  const [users, setUsers] = useState<{ Username: string; Attributes: { Name: string; Value: string }[] }[]>([]);
+  const [/*users*/, setUsers] = useState<{ Username: string; Attributes: { Name: string; Value: string }[] }[]>([]);
  
 
 
