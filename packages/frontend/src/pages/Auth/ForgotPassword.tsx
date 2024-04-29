@@ -1,4 +1,4 @@
-import React, { useState, ChangeEvent, FormEvent } from "react";
+import { useState, ChangeEvent } from "react";
 import { Link } from "react-router-dom";
 import { resetPassword, confirmResetPassword,
    type ResetPasswordOutput, type ConfirmResetPasswordInput } from 'aws-amplify/auth';
