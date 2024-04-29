@@ -42,6 +42,13 @@ export function ApiStack({ stack }: StackContext) {
           permissions: ["comprehend"]
         }
       },
+      "POST /textract": {
+        function: {
+          handler: "packages/functions/src/textractPdf.extractTextFromPDF",
+          permissions: ["textract", "s3"],
+          timeout:"200 seconds",
+        }
+      },
       "GET /detectFileType": {
         function: {
           handler: "packages/functions/detectFileType.detect",
