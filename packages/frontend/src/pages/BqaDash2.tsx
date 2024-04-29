@@ -9,9 +9,10 @@ import './BqaDash1.css'; // Custom CSS file for progress bars
 //import React from 'react';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { useState } from 'react';
+import { useState,useEffect  } from 'react';
 import { ToastContainer } from 'react-toastify';
 //import { uploadToS3 } from './functions/src/s3Upload.ts'; // Import the uploadToS3 function
+import { useParams, Link } from 'react-router-dom';
 
 interface Package {
   name: string;
@@ -40,6 +41,7 @@ const packageData: Package[] = [
 const BqaDash2 = () => {
   const [isDownloading, setIsDownloading] = useState(false);
   //const [selectedFile, setSelectedFile] = useState(null);
+  const { email } = useParams();
 
   const handleButtonClick = () => {
     setIsDownloading(true);
@@ -49,13 +51,30 @@ const BqaDash2 = () => {
       setIsDownloading(false);
     }, 2000);
   };
+  //////////////////////////
+  useEffect(() => {
+    console.log("University email received:", email);
+    // Fetch more data if needed using the university email
+  }, [email]);
   
   return (
     <DefaultLayout>
       <Breadcrumb pageName="University Details" />
+      <div className="flex justify-end py-4">
 
+      {/* Request Document Button */}
+              <button   
+                  className="px-5 py-2 bg-primary text-white rounded-md shadow-sm hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary-dark focus:ring-opacity-50"
+                 // className={`flex justify-center rounded bg-primary py-2 px-6 font-medium text-gray hover:bg-opacity-90 mr-4`
+              > 
+                    <Link to={`/BqaRequestPage?email=${email}`}>
+                      Request Documents
+                    </Link>
+            </button>
+            </div>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-4 2xl:gap-7.5">
-
+ 
+ 
             <div className="rounded-xl border border-stroke bg-white py-6 px-7.5 shadow-default dark:border-strokedark" style={{ marginBottom: '20px' }}>
               <h3 style={{ marginBottom: '10px' }}>Standard 1</h3>
               <div className="progress blue">
@@ -235,6 +254,7 @@ const BqaDash2 = () => {
           </table>
         </div>
       </div>
+
     </DefaultLayout>
   );
 };

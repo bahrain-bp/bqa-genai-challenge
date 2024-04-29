@@ -1,18 +1,17 @@
 import { SSTConfig } from "sst";
 import { AuthStack } from "./stacks/AuthStack";
 import { ApiStack } from "./stacks/ApiStack";
-import { } from "./stacks/AuthStack";
+import {} from "./stacks/AuthStack";
 import { FrontendStack } from "./stacks/FrontendStack";
 import { DBStack } from "./stacks/DBStack";
 import { StandardAPIStack } from "./stacks/StandardAPIStack";
+import { EmailAPIStack } from "./stacks/EmailAPIStack";
 
 import { ImageBuilderForCodeCatalyst } from "./stacks/devops/ImageBuilderForCodeCatalyst";
 import { OIDCForGitHubCI } from "./stacks/devops/OIDCForGitHubCI";
 
-import { S3Stack } from "./stacks/S3Stack";
+import { S3Stack } from "./stacks/S3Stack"
 import { S3 } from "aws-cdk-lib/aws-ses-actions";
-
-
 
 export default {
   config(_input) {
@@ -27,21 +26,20 @@ export default {
       app.setDefaultRemovalPolicy("destroy");
     }
 
-    if (app.stage == 'devops-coca') {
-      app.stack(ImageBuilderForCodeCatalyst)
-    }
-    else if (app.stage == 'devops-gh') {
-      app.stack(OIDCForGitHubCI)
-    }
-    else {
-      app.stack(DBStack)
+    if (app.stage == "devops-coca") {
+      app.stack(ImageBuilderForCodeCatalyst);
+    } else if (app.stage == "devops-gh") {
+      app.stack(OIDCForGitHubCI);
+    } else {
+      app
+        .stack(DBStack)
         .stack(AuthStack)
         .stack(ApiStack)
+        .stack(StandardAPIStack)
+        .stack(EmailAPIStack)
         .stack(FrontendStack)
         .stack(S3Stack)
-        .stack(StandardAPIStack)
-        
-        ;
+        .stack(StandardAPIStack);
     }
-  }
+  },
 } satisfies SSTConfig;

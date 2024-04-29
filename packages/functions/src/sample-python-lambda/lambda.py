@@ -1,4 +1,3 @@
 
-
 def main(event, context):
-    return {main}
+    return "Hello from Lambda"

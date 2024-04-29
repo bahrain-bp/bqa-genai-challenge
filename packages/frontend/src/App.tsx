@@ -26,6 +26,9 @@ import BqaDash2 from './pages/BqaDash2';
 import AddUni from './pages/AddUni';
 import ChangePassword from './pages/Auth/ChangePassword';
 import ForgotPassword from './pages/Auth/ForgotPassword';
+import BqaRequestPage from './pages/BqaRequestPage';
+
+
 import { getCurrentUser, fetchUserAttributes } from 'aws-amplify/auth';
 import { ToastContainer } from 'react-toastify';
 import NewUser from './pages/Auth/NewUser';
@@ -121,8 +124,7 @@ function App() {
             </>
           }
         />
-
-        <Route
+         <Route
           path="/Archived"
           element={
             <>
@@ -131,7 +133,6 @@ function App() {
             </>
           }
         />
-
         <Route
           path="/PredefinedTemplate/:standardName"
           element={
@@ -172,6 +173,7 @@ function App() {
             </>
           }
         />
+         
 
 <Route
           path="/AddUni"
@@ -212,7 +214,18 @@ function App() {
         
 
         <Route
-          path="/BqaDash2"
+          path="/BqaRequestPage"
+          element={
+            <>
+              <PageTitle title="Bqa Reviewer Request Additional Documents Page | EduScribe" />
+              <BqaRequestPage />
+            </>
+          }
+        />
+
+
+        <Route
+          path="/BqaDash2/:email"
           element={
             <>
               <PageTitle title="Bqa Reviewer Dashboard (University Details)| EduScribe" />
@@ -220,7 +233,7 @@ function App() {
             </>
           }
         />
-
+    
 
         <Route
           path="/forms/form-elements"

@@ -6,6 +6,7 @@ import { AuthStack } from "./AuthStack";
 import * as iam from '@aws-cdk/aws-iam';
 
 
+
 export function ApiStack({ stack }: StackContext) {
   const { auth } = use(AuthStack);
   const { table } = use(DBStack);
@@ -60,6 +61,7 @@ export function ApiStack({ stack }: StackContext) {
           permissions: ["s3"], // Grant necessary S3 permissions
         },
       },
+
       "POST /createUser": {
         function: {
           handler: "packages/functions/createUser.createUserInCognito",
@@ -80,6 +82,17 @@ export function ApiStack({ stack }: StackContext) {
       */
       
       
+
+      //Fetching all users in cognito
+      "GET /getUsers": {
+        function: {
+          handler: "packages/functions/src/fetchUsers.getUsers", // Replace with your location
+          permissions: [
+            "cognito-idp:ListUsers" // Add any additional permissions if required
+          ]
+        },
+      },
+
     },
   });
   const get_users_function = api.getFunction("POST /createUser");
