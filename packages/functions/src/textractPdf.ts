@@ -26,7 +26,7 @@ export const extractTextFromPDF = async (event: APIGatewayEvent, context: Contex
     const requestBody: TextractRequest = JSON.parse(event.body || '{}');
     console.log('Request Body:', requestBody);
 
-    // Validate required parameter (fileName)
+    // Validate parameters
     if (!requestBody.fileName) {
       return {
         statusCode: 400,
@@ -60,7 +60,7 @@ export const extractTextFromPDF = async (event: APIGatewayEvent, context: Contex
           Name: objectKey,
         },
       },
-      FeatureTypes: ['TABLES', 'FORMS'], // Specify desired features (adjust if needed)
+      FeatureTypes: ['TABLES', 'FORMS'],
     });
     console.log('Start Document Analysis Command:', startDocumentAnalysisCommand);
 
@@ -79,13 +79,12 @@ export const extractTextFromPDF = async (event: APIGatewayEvent, context: Contex
     const analysisResult = await waitForAnalysisCompletion(getDocumentAnalysisCommand);
     console.log('Analysis Result:', analysisResult);
 
-    // Extract text from analysis result (modify based on your needs)
+    // Extract text from analysis result
     let extractedText = '';
     if (analysisResult.Blocks) {
       extractedText = analysisResult.Blocks
-        .filter((block: Block) => block.BlockType === 'LINE') // Explicitly define the type of block
-        .map((block: Block) => block.Text?.trim() || '') // Explicitly define the type of block
-        .join('\n');
+        .filter((block: Block) => block.BlockType === 'LINE')
+        .map((block: Block) => block.Text?.trim() || '') 
     }
     console.log('Extracted Text:', extractedText);
 
@@ -116,7 +115,7 @@ async function streamToBuffer(stream: NodeJS.ReadableStream): Promise<Buffer> {
 
 // Function to wait for document analysis job completion
 async function waitForAnalysisCompletion(command: GetDocumentAnalysisCommand): Promise<any> {
-  const maxRetries = 30; // Adjust as needed
+  const maxRetries = 30; 
   let retries = 0;
   while (retries < maxRetries) {
     const response = await textractClient.send(command);
