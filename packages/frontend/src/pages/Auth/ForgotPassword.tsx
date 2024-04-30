@@ -36,11 +36,18 @@ export default function ForgotPassword() {
   }
 
   function validateResetForm() {
+
     return (
       fields.code.length > 0 &&
       fields.password.length > 0 &&
       fields.password === fields.confirmPassword
     );
+
+    // if (fields.password !== fields.confirmPassword) {
+    //   console.log('New password and confirm password do not match');
+    //   toast.error('New password and confirm password do not match');
+    //   return;
+    // }
   }
 
   async function handleSendCodeClick(event:any) {
@@ -56,6 +63,8 @@ export default function ForgotPassword() {
       console.error(error);
       setIsSendingCode(false);
     }
+
+
   }
 
   function handleResetPasswordNextSteps(output: ResetPasswordOutput) {
@@ -75,8 +84,15 @@ export default function ForgotPassword() {
   }
 
   async function handleConfirmClick(event:any) {
+  
     event.preventDefault();
     setIsConfirming(true);
+
+     // if (fields.password !== fields.confirmPassword) {
+    //   console.log('New password and confirm password do not match');
+    //   toast.error('New password and confirm password do not match');
+    //   return;
+    // }
 
     const input: ConfirmResetPasswordInput = {
       username: fields.email,
@@ -84,6 +100,7 @@ export default function ForgotPassword() {
       newPassword: fields.password
     };
 
+ 
     try {
       await confirmResetPassword(input);
       setConfirmed(true);
