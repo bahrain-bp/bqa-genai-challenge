@@ -218,7 +218,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
   <path d="M13 3V12H21"></path>
   <path d="M3 12V21H8"></path>
                   </svg>
-                  Send Email Notification
+                  Bqa Reviewer Dashboard
                 </NavLink>
               </li>
               {/* <!-- Menu Item Profile --> */}
@@ -236,7 +236,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
   <path d="M13 3V12H21"></path>
   <path d="M3 12V21H8"></path>
                   </svg>
-                  Bqa Reviewer Dashboard
+                  Send Email Notification
                 </NavLink>
               </li>
 
