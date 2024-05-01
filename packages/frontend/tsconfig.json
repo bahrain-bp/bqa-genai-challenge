@@ -4,6 +4,7 @@
     "lib": ["DOM", "DOM.Iterable", "ESNext"],
     "module": "ESNext",
     "skipLibCheck": true,
+    "types": ["node", "aws-lambda"], // fix error(Cannot find type definition file for 'node' or 'aws-lambda').
 
     /* Bundler mode */
     "moduleResolution": "bundler",
