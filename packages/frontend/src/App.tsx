@@ -22,7 +22,7 @@ import UploadEvidence from './pages/UploadEvidence';
 import OfficerDash from './pages/OfficerDash';
 import BqaDash1 from './pages/BqaDash1';
 import BqaDash2 from './pages/BqaDash2';
-import SesNotification from './pages/SesNotification';
+import RequestAdditional from './pages/RequestAdditional';
 
 import { getCurrentUser, fetchUserAttributes } from 'aws-amplify/auth';
 import { ToastContainer } from 'react-toastify';
@@ -172,11 +172,11 @@ function App() {
         />
 
         <Route
-          path="/sesNotification"
+          path="/RequestAdditional"
           element={
             <>
-              <PageTitle title="Send Email Notification | EduScribe" />
-              <SesNotification />
+              <PageTitle title="Request Additional | EduScribe" />
+              <RequestAdditional />
             </>
           }
         />

@@ -17,7 +17,7 @@ export const sendEmail = async (event: APIGatewayProxyEvent): Promise<APIGateway
     };
   }
 
-  const source = "ayshacheema469@gmail.com"; // sender email
+  const source = "maryamkameshki02@gmail.com"; // sender email
   console.log('source email:', source);
   console.log("userEmail:", userEmail);
   
