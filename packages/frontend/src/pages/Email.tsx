@@ -13,6 +13,7 @@ const Email: React.FC = () => {
     setFormData({ ...formData, [name]: value });
   };
 
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
