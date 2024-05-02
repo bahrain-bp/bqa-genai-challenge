@@ -1,6 +1,8 @@
-import React, { useState} from 'react';
+import React, { useState, ChangeEvent } from 'react'; // imported ChangeEvent from react
 
 const Email: React.FC = () => {
+  // if you recieve an error run: npm install @types/react
+
   const [formData, setFormData] = useState({
     userEmail: '',
     subject: '',
@@ -8,7 +10,8 @@ const Email: React.FC = () => {
   });
   const [result, setResult] = useState('');
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+
+  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
