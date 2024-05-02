@@ -4,7 +4,7 @@ export function EmailAPIStack({ stack }: StackContext) {
     // Create the API
     const api = new Api(stack, "EmailsApi", {
         routes: {
-            "POST /send-email": "packages/functions/src/send-email.sendEmail",
+            "POST /sesLambda": "packages/functions/src/sesLambda.sendEmail",
         },
     });
 
