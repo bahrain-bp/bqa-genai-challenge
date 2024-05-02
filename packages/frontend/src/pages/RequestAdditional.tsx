@@ -73,7 +73,7 @@ const Email: React.FC = () => {
 
   const sendEmail = async () => {
     const emailData = {
-      userEmail: 'rodivam550@lewenbo.com', // temporary email address
+      userEmail: 'maryamkameshki02@gmail.com', // temporary email address
       subject: 'Test Email',
       body: emailBody
     };
