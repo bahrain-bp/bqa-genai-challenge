@@ -16,8 +16,8 @@
     "@types/react": "^18.2.0",
     "@vitejs/plugin-react": "^4.2.1",
     "aws-cdk-lib": "^2.132.0",
-    "constructs": "10.3.0",
-    "sst": "2.40.3",
+    "constructs": "^10.3.0",
+    "sst": "^2.40.3",
     "typescript": "^5.2.2",
     "vite": "^4.4.0"
   },
