@@ -1,59 +1,92 @@
-import Breadcrumb from '../components/Breadcrumbs/Breadcrumb';
+import React, { useState } from 'react'; 
+
+// Import Node.js file system module to use my own html template
+// import fs from 'fs';
+
 import DefaultLayout from '../layout/DefaultLayout';
-import React, { useState } from 'react';
-// import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import Breadcrumb from '../components/Breadcrumbs/Breadcrumb';
 
-const SendEmail = () => {
+const SendEmail: React.FC = () => { // if you recieve an error run: npm install @types/react
+
   // State to store the selected file
-    const [fileName, setFileName] = useState<File | null>(null);
+    const [fileData, setFileData] = useState({    
+      userEmail: '',
+      subject: '',
+      body: '',
+      attachments: null,
+    });
+    
+  // State to store the result of sending the email
+    const [result, setResult] = useState('');
+    
+  // Template for the email body
+    // const htmlTemplate = fs.readFileSync('[path]', 'utf8'); // replace [path] with the path to the html template file
+    
+  // Function to send the email 
+    const sendEmail = async (EmailContent : {userEmail: string; subject: string; body: string; attachments: FileList | null;}) =>
+    {
+      const fileData = new FormData();
+      fileData.append('userEmail', EmailContent.userEmail);
+      fileData.append('subject', EmailContent.subject);
+      fileData.append('body', EmailContent.body);
 
-  // on load function
-  const onload = (fileString:any) => {
-    setFileName(fileString);
-  }
-
-  // Function to read the file content
-    const readFileAsText = (file: File) => {
-      let reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => {
-        onload(reader.result)
+      if (EmailContent.attachments) {
+        for (let i = 0; i < EmailContent.attachments.length; i++) {
+          fileData.append('attachments', EmailContent.attachments[i]);
+        }
       }
-    };
+      
+      try
+      {
+        const response = await fetch("", // Add API invoke URL here
+          {
+            method: 'POST',
+            body: fileData,
+          });
+        return await response.json(); 
+      } 
+      catch (error)
+      {
+        console.error('Error sending email:', error);
+        setResult('Error sending email');
+      }
+    }
 
     // Function to handle the send email button
-    const handleSendEmail = (e : any) => 
+    const handleSendEmail = async (e : any) => 
     {
       e.preventDefault();
-      
-      // Call the my API gateway
-      fetch (""), // Add API invocke URL here
+      try 
       {
-        mode: 'no-cors',
-        method: 'POST',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          senderName: 'maryam',
-          senderEmail: 'maryamkameshki02@gmail.com',
-          message: 'Hello from the frontend!',
-          Date: new Date().toISOString(),
-          fileName: "Test_File",
-        }),
-      }   
+        const response = await sendEmail(fileData);
+        if (response && response.result === 'OK') 
+          {
+            setResult('Email sent successfully');
+          } else {
+            setResult('Error sending email');
+          }
+      } 
+      catch (error) 
+      {
+        console.error('Error sending email:', error);
+        setResult('Error sending email');
+      }
     }
 
     // Function to handle file change
-    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-      const files = event.target.files;
-      if (files) {
-        const file = files[0];
-        readFileAsText(file);
+    const handleFileChange = (e : React.ChangeEvent<HTMLInputElement>) => {
+      const { name, value, type } = e.target;
+
+      if (type === 'file') {
+        const files = e.target.files;
+        if (files) {
+          setFileData({ ...fileData, [name]: files });
+        }
+      } else {
+        setFileData({ ...fileData, [name]: value });
       }
-  };
+    }
+
     return (
       <DefaultLayout>
         <Breadcrumb pageName="Upload Dummy File" />
@@ -91,10 +124,10 @@ const SendEmail = () => {
                     <span className="text-primary">Click to upload</span> or drag and drop
                   </p>
                   <p className="mt-1.5">Any file type</p>
-                  {fileName && <p>{fileName.name}</p>}
+                  {/* show file name with extension */}
                 </div>
               </div>
-            </div>
+            </div>  
             <div className="flex justify-end gap- mb-5">
               <button className="flex justify-center align-center rounded bg-success py-2 px-6 font-medium text-gray hover:bg-opacity-90 mr-4"
                 type="button" 
@@ -107,5 +140,4 @@ const SendEmail = () => {
       </DefaultLayout>
     );
 };
-
 export default SendEmail;
