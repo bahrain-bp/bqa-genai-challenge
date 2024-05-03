@@ -70,7 +70,7 @@ export function ApiStack({ stack }: StackContext) {
         },
       },
 
-     
+      "GET /summarization/{id}": "packages/functions/src/retrieveSummarization.main",
       //Uploading logo to S3
       /*
       "POST /uploadLogo": {
@@ -80,8 +80,8 @@ export function ApiStack({ stack }: StackContext) {
         }
       },
       */
-      
-      
+
+
 
       //Fetching all users in cognito
       "GET /getUsers": {
