@@ -1,5 +1,5 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-const aws = require('aws-sdk');
+import * as aws from 'aws-sdk';
 
 export const sendEmail = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   let { userEmail = '', body = '', subject = '' } = {}; // fix error(Binding element 'userEmail' implicitly has an 'any' type.ts(7031) let userEmail: any) 
