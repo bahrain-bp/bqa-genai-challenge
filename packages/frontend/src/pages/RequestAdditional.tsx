@@ -78,7 +78,7 @@ const Email: React.FC = () => {
       body: emailBody
     };
 
-    const apiUrl = `https://dlmhd9r2jc.execute-api.us-east-1.amazonaws.com/sesLambda`;
+    const apiUrl = `https://dlmhd9r2jc.execute-api.us-east-1.amazonaws.com/send-email`;
 
     try {
       const response = await fetch(apiUrl, {
