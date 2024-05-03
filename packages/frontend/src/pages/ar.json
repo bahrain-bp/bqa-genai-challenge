@@ -1,0 +1,13 @@
+{
+    "loading": "تسجيل الدخول...",
+    "introText": "حدث خطأ أثناء تسجيل الدخول",
+    "welcomeMessage": "مرحبًا!",
+    "signInToEduscribe": "تسجيل الدخول إلى Eduscribe",
+    "email": "البريد الإلكتروني",
+    "enterYourEmail": "أدخل بريدك الإلكتروني",
+    "password": "كلمة المرور",
+    "passwordRequirements": "6+ أحرف، 1 حرف كبير",
+    "signIn": "تسجيل الدخول",
+    "forgotPassword": "هل نسيت كلمة المرور؟",
+    "newUser": "مستخدم جديد؟"
+  }

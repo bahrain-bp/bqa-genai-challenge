@@ -1,0 +1,13 @@
+{
+    "loading": "Logging in...",
+    "introText": "Error signing in",
+    "welcomeMessage": "Welcome!",
+    "signInToEduscribe": "Sign In to Eduscribe",
+    "email": "Email",
+    "enterYourEmail": "Enter your email",
+    "password": "Password",
+    "passwordRequirements": "6+ Characters, 1 Capital letter",
+    "signIn": "Sign In",
+    "forgotPassword": "Forgot Password?",
+    "newUser": "New User?"
+  }

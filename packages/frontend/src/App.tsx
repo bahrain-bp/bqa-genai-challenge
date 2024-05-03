@@ -29,7 +29,7 @@ import ForgotPassword from './pages/Auth/ForgotPassword';
 import BqaRequestPage from './pages/BqaRequestPage';
 import { getCurrentUser, fetchUserAttributes } from 'aws-amplify/auth';
 import { ToastContainer } from 'react-toastify';
-
+import Test from './pages/Test';
 
 function App() {
   const [user, setUser] = useState<any | null>(null);
@@ -92,6 +92,7 @@ function App() {
             </>
           }
         />
+        
 
         <Route
           path="/Dashboard"
@@ -118,6 +119,15 @@ function App() {
             <>
               <PageTitle title="Standards | EduScribe" />
               <Standards />
+            </>
+          }
+        />
+         <Route
+          path="/Test"
+          element={
+            <>
+              <PageTitle title="Test | EduScribe" />
+              <Test />
             </>
           }
         />
