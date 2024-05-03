@@ -30,7 +30,6 @@ export function S3Stack({ stack, app }: StackContext) {
     "packages/functions/src/bedrock_lambda/bedrock_prompt.handler";
   const bedrock_lambda = new Function(stack, "bedrock_lambda", {
     handler: handler,
-    runtime: "python3.11",
     permissions: "*",
   });
   // Attach AmazonS3FullAccess managed policy to the role associated with the Lambda function
@@ -52,6 +51,21 @@ export function S3Stack({ stack, app }: StackContext) {
     },
   });
   documentsQueue.attachPermissions("*");
+
+  const textractQueue = new Queue(stack, "textract-Queue", {
+    consumer: {
+      function: bedrock_lambda,
+    },
+    cdk: {
+      queue: {
+        fifo: true,
+        // contentBasedDeduplication: true,
+        queueName: stack.stage + "-textract-queue.fifo",
+        contentBasedDeduplication: true,
+      },
+    },
+  });
+  textractQueue.attachPermissions("*");
 
   async function configureBucketPolicy(
     stack: any,

@@ -32,9 +32,9 @@ export default {
     } else {
       app
         .stack(DBStack)
+        .stack(S3Stack)
         .stack(AuthStack)
         .stack(ApiStack)
-        .stack(S3Stack)
         .stack(StandardAPIStack)
         .stack(FrontendStack)
         

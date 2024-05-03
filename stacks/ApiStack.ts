@@ -8,6 +8,7 @@ import { S3Stack } from "./S3Stack";
 export function ApiStack({ stack }: StackContext) {
   const { auth } = use(AuthStack);
   const { table } = use(DBStack);
+  const {documentsQueue} = use(S3Stack)
 
   const api = new Api(stack, "signinAPI", {
     // Commented out the authorizers section
@@ -32,7 +33,8 @@ export function ApiStack({ stack }: StackContext) {
       "POST /uploadS3": {
         function: {
           handler: "packages/functions/src/s3Upload.uploadToS3",
-          permissions: ["s3"]
+          permissions: ("*"),
+          bind:[documentsQueue]
         }
       },
       
