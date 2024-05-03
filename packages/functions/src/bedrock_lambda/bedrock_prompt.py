@@ -1,75 +1,48 @@
-import logging
+import json
 import boto3
-from botocore.exceptions import ClientError
-from urllib.parse import urlparse
+import requests
 
-logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO)
+# Initialize SageMaker runtime client
+runtime = boto3.client('sagemaker-runtime')
 
-class TextractWrapper:
-    """Encapsulates Textract functions."""
-
-    def __init__(self, textract_client):
-        """
-        :param textract_client: A Boto3 Textract client.
-        """
-        self.textract_client = textract_client
-
-    def analyze_document(self, bucket_name, key):
-        """
-        Analyzes a document stored in an S3 bucket using Textract.
-
-        :param bucket_name: The name of the S3 bucket where the document is stored.
-        :param key: The key of the document in the S3 bucket.
-        :return: The analysis results from Textract.
-        """
-        try:
-            response = self.textract_client.analyze_document(
-                Document={
-                    'S3Object': {
-                        'Bucket': bucket_name,
-                        'Name': key
-                    }
-                },
-                FeatureTypes=['TABLES', 'FORMS']
-            )
-            logger.info("Textract analysis successful.")
-            return response
-        except ClientError as e:
-            logger.error("Textract analysis failed: %s", e)
-            raise
-
-def handler(event, context):
-    """
-    Entrypoint for the function.
-    """
+def main(event, context):
     try:
-        logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
-        
-        s3_uri = event['Records'][0]['body']
-        parsed_s3_uri = urlparse(s3_uri)
-        if not parsed_s3_uri.scheme or not parsed_s3_uri.netloc:
-            raise ValueError("Invalid S3 URI format")
-
-        bucket_name = parsed_s3_uri.netloc
-        key = parsed_s3_uri.path.lstrip('/')
-        
-        # Create a Textract client
-        textract_client = boto3.client('textract')
-        
-        # Create an instance of TextractWrapper
-        textract_wrapper = TextractWrapper(textract_client)
-        
-        # Analyze the document using Textract
-        analysis_results = textract_wrapper.analyze_document(bucket_name, key)
-        
-        return analysis_results
-
-    except ClientError as err:
-        message = err.response["Error"]["Message"]
-        logger.error("A client error occurred: %s", message)
-        return {"error": message}  # Return error message in case of ClientError
-
+        # Extract message from SQS event
+        sqs_records = event['Records']
+        for record in sqs_records:
+            # Extract message body
+            message_body = json.loads(record['body'])
+            # Extract payload from message body
+            payload = message_body['payload']
+            
+            # Make prediction using SageMaker endpoint
+            response = runtime.invoke_endpoint(
+                EndpointName='meta-textgeneration-llama-2-7b-f-2024-04-22-15-17-49-877',
+                Body=json.dumps(payload),
+                ContentType='application/json'
+            )
+            
+            # Parse the response
+            response_body = response['Body'].read().decode()
+            response_json = json.loads(response_body)
+            generated_text = response_json[0]['generated_text']
+            
+            # You can define print_dialog function as per your requirement
+            # print_dialog(payload, response_json)
+            
+            # Print generated text
+            print("Generated text:", generated_text)
+            
+            # Post the generated text to the provided endpoint
+            post_data = {
+                'summary': generated_text
+            }
+            post_response = requests.post('https://d55gtzdu04.execute-api.us-east-1.amazonaws.com/dev-demo/sageMakerInvoke', json=post_data)
+            print("POST Response:", post_response.text)
     except Exception as e:
-        logger.error("An unexpected error occurred: %s", str(e))
-        return {"error": "An unexpected error occurred"}  # Return generic error message for other exceptions
+        # Log error and return response
+        print("Error:", str(e))
+        return {
+            'statusCode': 500,
+            'body': json.dumps({'error': str(e)})
+        }

@@ -34,9 +34,10 @@ export default {
         .stack(DBStack)
         .stack(AuthStack)
         .stack(ApiStack)
+        .stack(S3Stack)
         .stack(StandardAPIStack)
         .stack(FrontendStack)
-        .stack(S3Stack);
+        
     }
   },
 } satisfies SSTConfig;
