@@ -78,7 +78,7 @@ const Email: React.FC = () => {
       body: emailBody
     };
 
-    const apiUrl = `https://dlmhd9r2jc.execute-api.us-east-1.amazonaws.com/send-email`;
+    const apiUrl = `https://6fy734lqlc.execute-api.us-east-1.amazonaws.com/send-email`; // changed to my stage URL
 
     try {
       const response = await fetch(apiUrl, {
