@@ -5,7 +5,11 @@ import '@fortawesome/fontawesome-free/css/all.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash, faArchive } from '@fortawesome/free-solid-svg-icons';
 
-const PredefinedTemplate: React.FC = () => {
+
+
+const Standards: React.FC = () => {
+
+
   const [showForm, setShowForm] = useState(false); // State variable to toggle form visibility
 
   const handleDelete = async (standardId: string) => {
@@ -318,4 +322,4 @@ const PredefinedTemplate: React.FC = () => {
   );
 };
 
-export default PredefinedTemplate;
+export default Standards;

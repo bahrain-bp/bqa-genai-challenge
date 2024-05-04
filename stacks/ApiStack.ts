@@ -3,7 +3,9 @@ import { DBStack } from "./DBStack";
 import { CacheHeaderBehavior, CachePolicy } from "aws-cdk-lib/aws-cloudfront";
 import { Duration } from "aws-cdk-lib/core";
 import { AuthStack } from "./AuthStack";
-import { S3Stack } from "./S3Stack";
+import * as iam from '@aws-cdk/aws-iam';
+
+
 
 export function ApiStack({ stack }: StackContext) {
   const { auth } = use(AuthStack);
@@ -33,6 +35,7 @@ export function ApiStack({ stack }: StackContext) {
       "POST /uploadS3": {
         function: {
           handler: "packages/functions/src/s3Upload.uploadToS3",
+
           permissions: "*",
           bind: [documentsQueue],
         },
@@ -50,6 +53,8 @@ export function ApiStack({ stack }: StackContext) {
           permissions: ["textract", "s3"],
           timeout: "200 seconds",
           bind: [documentsQueue],
+          permissions: ["s3"],
+
         },
       },
       "GET /detectFileType": {
@@ -76,8 +81,44 @@ export function ApiStack({ stack }: StackContext) {
           permissions: ["s3"], // Grant necessary S3 permissions
         },
       },
+
+      "POST /createUser": {
+        function: {
+          handler: "packages/functions/createUser.createUserInCognito",
+          permissions: "*",
+          //permissions wil be changed
+        },
+      },
+
+     
+      //Uploading logo to S3
+      /*
+      "POST /uploadLogo": {
+        function: {
+          handler: "packages/functions/uploadLogo.uploadLogo",
+          permissions: "*"
+        }
+      },
+      */
+      
+      
+
+      //Fetching all users in cognito
+      "GET /getUsers": {
+        function: {
+          handler: "packages/functions/src/fetchUsers.getUsers", // Replace with your location
+          permissions: [
+            "cognito-idp:ListUsers" // Add any additional permissions if required
+          ]
+        },
+      },
+
     },
   });
+  const get_users_function = api.getFunction("POST /createUser");
+  get_users_function?.role?.addManagedPolicy(
+    iam.ManagedPolicy.fromAwsManagedPolicyName("AmazonCognitoPowerUser")
+  );
 
   // Define cache policy for the API
   const apiCachePolicy = new CachePolicy(stack, "CachePolicy", {

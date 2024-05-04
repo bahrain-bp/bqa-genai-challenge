@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import {  toast } from 'react-toastify';
 import Logo from '../../images/logo/Eduscribe_dark.svg';
 import 'react-toastify/dist/ReactToastify.css';
+import { Link } from 'react-router-dom';
+
 
 type SetStateType<T> = React.Dispatch<React.SetStateAction<T>>;
 
@@ -145,6 +147,18 @@ const SignInPage = ({
                     className="w-full cursor-pointer rounded-lg border border-primary bg-primary p-4 text-white transition hover:bg-opacity-90"
                   />
                 </div>
+
+                
+                <div>
+                  {/* Your sign-in form */}
+                  <Link to="/ForgotPassword">Forgot Password ?</Link>
+              </div>
+
+              {/* <div>
+                  <Link to="/NewUser">New User?</Link>
+              </div> */}
+
+              
               </form>
             </div>
           </div>

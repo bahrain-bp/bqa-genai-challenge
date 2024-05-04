@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import DefaultLayout from '../layout/DefaultLayout';
 import './PredefinedTemplate.css'; // Importing CSS file
-import AWS from 'aws-sdk';
+// import * as AWS from 'aws-sdk';
 import '@fortawesome/fontawesome-free/css/all.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash, faArchive } from '@fortawesome/free-solid-svg-icons';
@@ -21,7 +21,8 @@ if (inputElement) {
 
 const [showForm, setShowForm] = useState(false); // State variable to toggle form visibility
 const [standardName, setStandardName] = useState('');
-
+// const [standardName, setStandardName] = useState<any[]>([]); // State variable to store indicators
+ 
 const [indicators, setIndicators] = useState<any[]>([]); // State variable to store indicators
  
   const [recordData, setRecordData] = useState({
@@ -241,9 +242,10 @@ const [indicators, setIndicators] = useState<any[]>([]); // State variable to st
  fetchIndicators(standardId);
     fetchRecords(standardId); 
   }, []);
+  
   async function uploadToS3Evidence(fileData: Blob | File, fileName: string, folderName: string) {
     try {
-      const s3 = new AWS.S3();
+      // const s3 = new AWS.S3();
 
       const params = {
         Bucket: 'bqa-standards-upload',
@@ -251,13 +253,14 @@ const [indicators, setIndicators] = useState<any[]>([]); // State variable to st
         Body: fileData
       };
 
-      const uploadResult = await s3.upload(params).promise();
+      // const uploadResult = await s3.upload(params).promise();
 
-      return { message: 'File uploaded successfully', location: uploadResult.Location };
+      return { message: 'File uploaded successfully', params };
     } catch (error) {
       console.error('Error uploading file:', error);
       throw new Error('Failed to upload file');
     }
+    // console.log(' uploading file:', fileData,fileName,folderName);
   }
 
   async function handleFileSelect(file: File, selectedFolder: string) {
@@ -273,7 +276,6 @@ const [indicators, setIndicators] = useState<any[]>([]); // State variable to st
             'file-name': file.name
           }
         };
-  
         uploadToS3Evidence(uploadParams.body, uploadParams.headers['file-name'], selectedFolder)
           .then(response => {
             console.log(response);
@@ -323,7 +325,7 @@ setStandardName(standardName);
         type="button" // Change type to "button"
         onClick={toggleForm} // Add onClick handler
       >
-       Upload Evidence
+       Upload Evidencee
       </button>
       </div>
       {showForm && (
@@ -333,6 +335,8 @@ setStandardName(standardName);
             <div className="form-group">
               <label>Choose Indicator :</label>
               <select name="indicatorId" value={recordData.indicatorId} onChange={handleChange} className="white-background" >
+              {/* <select name="indicatorId" value="blah" className="white-background" > */}
+             
                 <option value="">Select an Indicator</option>
                 {indicators.map((indicator: any) => (
                   <option key={indicator.indicatorId} value={indicator.indicatorId}>
@@ -341,10 +345,9 @@ setStandardName(standardName);
                 ))}
               </select>
             </div><br />
-            {/* <div className="form-group">
-  <label>Standard Name:</label>
-  <input type="text" name="standardName" value={standardName} onChange={handleChange} className="white-background" />
-</div> */}
+
+
+          
             <div className="form-group">
               <label>Indicator Name:</label>
               <input type="text" name="indicatorName" value={recordData.indicatorName} onChange={handleChange} className="white-background" />
@@ -386,6 +389,8 @@ setStandardName(standardName);
           
         )}
 </div>
+
+
       <div>
       <div className="predefined-header">
         <h2>Indicators</h2>
