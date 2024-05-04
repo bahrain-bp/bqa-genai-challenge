@@ -1,77 +1,46 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 
 const Email: React.FC = () => {
   const [result, setResult] = useState('');
+  const [universityEmail, setUniversityEmail] = useState('');
+  const [body, setBody] = useState('');
 
-  const emailBody = `
-  <!DOCTYPE html>
-  <html>
-  <head>
-      <meta charset="UTF-8">
-      <title>SES Missing/Incorrect Evidence Content</title>
-      <style>
-          body {
-              margin: 0;
-              padding: 0;
-              font-family: Arial, sans-serif;
-              background-color: #f4f4f4;
-          }
-          .container {
-              max-width: 600px;
-              margin: 0 auto;
-              padding: 20px;
-              background-color: #ffffff;
-              border-radius: 10px;
-              box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-          }
-          .heading {
-              font-size: 32px;
-              font-weight: bold;
-              color: #434343;
-              margin-bottom: 20px;
-          }
-          .content {
-              font-size: 18px;
-              color: #9b9b9b;
-              line-height: 1.5;
-          }
-          .signature {
-              display: flex;
-              align-items: center;
-              margin-top: 20px;
-          }
-          .signature img {
-              width: 40px;
-              height: 40px;
-              margin-right: 10px;
-          }
-          .signature-name {
-              font-size: 16px;
-              font-weight: bold;
-              color: #434343;
-          }
-      </style>
-  </head>
-  <body>
-      <div class="container">
-          <div class="heading">Important Notice</div>
-          <div class="content">
-              <p>Dear recipient,</p>
-              <p>We would like to inform you that your file "[file-name]" has been uploaded, but it appears to be incorrect as it does not contain the required keyword.</p>
-              <p>Please take the necessary action to address this issue.</p>
-              <p>Thank you for your attention.</p>
-              <p>Sincerely,</p>
-          </div>
-          <div class="signature">
-              <img src="images/image-1713611001551.png" alt="">
-              <div class="signature-name">Maryam Kamashki | EduScribe</div>
-          </div>
-      </div>
-  </body>
-  </html>
-  `;
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    if (name === 'universityEmail') {
+      setUniversityEmail(value);
+    } else if (name === 'body') {
+      setBody(value);
+    }
+  };
 
   const sendEmail = async () => {
+    const emailBody = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+          <meta charset="UTF-8">
+          <title>Additional Document Required</title>
+          <style>
+              /* Your CSS styles */
+          </style>
+      </head>
+      <body>
+          <div class="container">
+              <div class="heading">Important Notice</div>
+              <div class="content">
+                  <p>Dear ${universityEmail},</p>
+                  <p>${body}</p>
+                  <p>Sincerely,</p>
+              </div>
+              <div class="signature">
+                  <div class="signature-name">BQA Reviewer</div>
+              </div>
+          </div>
+      </body>
+      </html>
+    `;
+
     const emailData = {
       userEmail: 'maryamkameshki02@gmail.com', // temporary email address
       subject: 'Test Email',
@@ -103,10 +72,80 @@ const Email: React.FC = () => {
 
   return (
     <div>
-      <h1>Email Template</h1>
-      <button onClick={sendEmail}>Send Email</button>
-      {result && <p>{result}</p>}
+    <style>
+      {`
+        .container {
+          max-width: 600px;
+          margin: 20px auto;
+          padding: 20px;
+          background-color: #fff;
+          border-radius: 10px;
+          box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        label {
+          font-weight: bold;
+        }
+        input[type="email"],
+        textarea {
+          width: 100%;
+          padding: 10px;
+          margin-bottom: 20px;
+          border: 1px solid #ccc;
+          border-radius: 5px;
+          box-sizing: border-box;
+        }
+        button {
+          background-color: #4caf50;
+          color: white;
+          padding: 10px 20px;
+          border: none;
+          border-radius: 5px;
+          cursor: pointer;
+        }
+        button:hover {
+          background-color: #45a049;
+        }
+        p {
+          margin-top: 10px;
+        }
+        .result {
+          text-align: center;
+        }
+        .title{
+          text-align: center;
+          text-transform: uppercase;
+          font-size: 16pt;
+        }
+      `}
+    </style>
+    <div className="container">
+      <h1 className='title'>Email Request Form</h1>
+      <div>
+        <label htmlFor="universityEmail">University Email:</label><br />
+        <input
+          type="email"
+          id="universityEmail"
+          name="universityEmail"
+          value={universityEmail}
+          onChange={handleChange}
+          required
+        />
+      </div>
+      <div>
+        <label htmlFor="body">What additional document do you want to request?</label><br />
+        <textarea
+          id="body"
+          name="body"
+          value={body}
+          onChange={handleChange}
+          rows={5}
+          required
+        ></textarea>
+      </div>
+      <button onClick={sendEmail}>Send Request</button>
+      <p className='result'>{result}</p>
     </div>
+  </div>  
   );
 };
 
