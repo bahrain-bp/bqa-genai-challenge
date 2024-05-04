@@ -32,14 +32,8 @@ export async function handler(event: SQSEvent, app: any) {
       console.log("File Name:", fileName);
 
       let endpointUrl: string;
-
-      if (app.stage === "prod") {
-        endpointUrl =
-          "https://u1oaj2omi2.execute-api.us-east-1.amazonaws.com/textract";
-      } else {
-        endpointUrl =
-          "https://4qzn87j7l2.execute-api.us-east-1.amazonaws.com/textract";
-      }
+      endpointUrl =
+        "https://u1oaj2omi2.execute-api.us-east-1.amazonaws.com/textract";
 
       const postResponse: AxiosResponse = await axios.post(endpointUrl, {
         bucketName,
