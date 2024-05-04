@@ -5,6 +5,9 @@ import './PredefinedTemplate.css'; // Importing CSS file
 import '@fortawesome/fontawesome-free/css/all.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash, faArchive } from '@fortawesome/free-solid-svg-icons';
+import Loader from '../common/Loader';
+import {fetchUserAttributes } from 'aws-amplify/auth';
+
 
 
 //INDICATORS FILE **
@@ -24,7 +27,10 @@ const [standardName, setStandardName] = useState('');
 // const [standardName, setStandardName] = useState<any[]>([]); // State variable to store indicators
  
 const [indicators, setIndicators] = useState<any[]>([]); // State variable to store indicators
- 
+const [isAdmin, setIsAdmin] = useState<boolean>(false);
+const [/*currentName*/, setCurrentName] = useState('');
+
+
   const [recordData, setRecordData] = useState({
     entityType: '',
     entityId: '',
@@ -38,6 +44,7 @@ const [indicators, setIndicators] = useState<any[]>([]); // State variable to st
     status: 'unarchived',
   });
   const [records, setRecords] = useState<any[]>([]); // Initialize state to store fetched records
+  const [loading, setLoading] = useState<boolean>(true);
 
 
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
@@ -242,6 +249,28 @@ const [indicators, setIndicators] = useState<any[]>([]); // State variable to st
  fetchIndicators(standardId);
     fetchRecords(standardId); 
   }, []);
+
+  useEffect(() => {
+    const fetchCurrentUserInfo = async () => {
+      try {
+        const attributes = await fetchUserAttributes();
+        const name:any= attributes.name;
+        setCurrentName(name);
+        setIsAdmin(name.endsWith("BQA Reviewer") || false);
+
+      } catch (error) {
+        console.error('Error fetching current user info:', error);
+      }
+    };
+
+    fetchCurrentUserInfo();
+  }, []);
+
+  useEffect(() => {
+    setTimeout(() => setLoading(false), 1000);
+  }, []);
+
+
   
   async function uploadToS3Evidence(fileData: Blob | File, fileName: string, folderName: string) {
     try {
@@ -313,13 +342,17 @@ setStandardName(standardName);
   }
 };
     
-  return (
+return loading ? (
+  <Loader />
+) : (
     <DefaultLayout>
      
 
 <div>
-  
+{isAdmin?(  
+
 <div className="button-container">
+
 <button
         className={`flex justify-center rounded bg-primary py-2 px-6 font-medium text-gray hover:bg-opacity-90 mr-4`}
         type="button" // Change type to "button"
@@ -327,7 +360,9 @@ setStandardName(standardName);
       >
        Upload Evidencee
       </button>
+      
       </div>
+):null}
       {showForm && (
         
           <div className="modal-overlay">

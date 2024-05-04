@@ -4,6 +4,7 @@ import './BqaDash1.css'; // Custom CSS file for progress bars
 import  { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
+import Loader from '../common/Loader';
 
 
 
@@ -12,6 +13,8 @@ import { Link } from 'react-router-dom';
 const BqaDash1 = () => {
 
   const navigate = useNavigate();
+  const [loading, setLoading] = useState<boolean>(true);
+
 
   /*const handleUniversitySelect = (email:any) => {
     navigate(`/BqaDash2/${email}`);
@@ -30,13 +33,15 @@ const BqaDash1 = () => {
   useEffect(() => {
     const fetchCognitoUsers = async () => {
       try {
-        const response = await fetch('https://u1oaj2omi2.execute-api.us-east-1.amazonaws.com/getUsers');
+        //66xzg471hh
+        //prod u1oaj2omi2
+        const response = await fetch('https://66xzg471hh.execute-api.us-east-1.amazonaws.com/getUsers');
         const data = await response.json();
         if (response.ok) {
-                  // Filter out users where the 'name' attribute is 'BQA reviewer'
+                  
         const filteredUsers = data.filter((user: { Attributes: { Name: string; Value: string; }[]; }) => {
           const nameValue = getAttributeValue(user.Attributes, 'name');
-          return nameValue !== 'BQA Reviewer';
+          return nameValue;
         });
           console.log(data); // Users data
           setUsers(filteredUsers); // Update the users state with the fetched data
@@ -49,6 +54,9 @@ const BqaDash1 = () => {
     };
 
     fetchCognitoUsers(); // Call the fetchCognitoUsers function
+  }, []);
+  useEffect(() => {
+    setTimeout(() => setLoading(false), 1000);
   }, []);
     // Function to find attribute value by name
     const getAttributeValue = (attributes: { Name: string; Value: string }[], attributeName: string): string => {
@@ -70,7 +78,9 @@ const BqaDash1 = () => {
 
 
 
-  return (
+  return loading ? (
+    <Loader />
+  ) : (
     <DefaultLayout>
     <Breadcrumb pageName="Bqa Reviewer Dashboard" />
     <div className="container">
@@ -86,6 +96,7 @@ const BqaDash1 = () => {
       </button>
       </div>
       <div className="row">
+        {/**Add logo for each university */}
         {users.map(user => (
           <div key={user.Username} className="col-md-4 col-sm-6" style={{ cursor: 'pointer' }}
             onClick={() => navigate(`/BqaDash2/${getAttributeValue(user.Attributes, 'email')}`)}>

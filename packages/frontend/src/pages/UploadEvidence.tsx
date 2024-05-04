@@ -1,11 +1,14 @@
 import Breadcrumb from '../components/Breadcrumbs/Breadcrumb';
 import DefaultLayout from '../layout/DefaultLayout';
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import { toast } from 'react-toastify';
 //import { ToastContainer } from 'react-toastify';
 //import { ProgressBar, step } from 'react-step-ProgressBar';
 //import styled from 'styled-components';
 import 'react-toastify/dist/ReactToastify.css';
+import Loader from '../common/Loader';
+
+
 
 interface StepContentProps {
   stepNumber: number;
@@ -102,8 +105,14 @@ const UploadEvidence = () => {
   const moveToNextStep = () => {
     setCurrentStep(currentStep + 1);
   };
+  const [loading, setLoading] = useState<boolean>(true);
+  useEffect(() => {
+    setTimeout(() => setLoading(false), 1000);
+  }, []);
 
-  return (
+  return loading ? (
+    <Loader />
+  ) : (
     <DefaultLayout>
       <Breadcrumb pageName="Upload Evidence" />
       {/* Progress bar */}

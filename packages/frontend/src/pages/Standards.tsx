@@ -4,12 +4,19 @@ import './PredefinedTemplate.css'; // Importing CSS file
 import '@fortawesome/fontawesome-free/css/all.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash, faArchive } from '@fortawesome/free-solid-svg-icons';
+import {fetchUserAttributes } from 'aws-amplify/auth';
+import Loader from '../common/Loader';
+
+
 
 
 const Standards: React.FC = () => {
 
   const [showForm, setShowForm] = useState(false); // State variable to toggle form visibility
- 
+  const [isAdmin, setIsAdmin] = useState<boolean>(false);
+  const [/*currentName*/, setCurrentName] = useState('');
+  const [loading, setLoading] = useState<boolean>(true);
+
   const handleDelete = async (standardId: string) => {
     try {
       // Fetch records with the matching standardId
@@ -75,6 +82,24 @@ const Standards: React.FC = () => {
   useEffect(() => {
    
     fetchRecords(); // Fetch records for the extracted standard name // Fetch records when the component mounts
+  }, []);
+  useEffect(() => {
+    setTimeout(() => setLoading(false), 1000);
+  }, []);
+  useEffect(() => {
+    const fetchCurrentUserInfo = async () => {
+      try {
+        const attributes = await fetchUserAttributes();
+        const name:any= attributes.name;
+        setCurrentName(name);
+        setIsAdmin(name.endsWith("BQA Reviewer") || false);
+
+      } catch (error) {
+        console.error('Error fetching current user info:', error);
+      }
+    };
+
+    fetchCurrentUserInfo();
   }, []);
 
   const [records, setRecords] = useState<any[]>([]); // Initialize state to store fetched records
@@ -181,9 +206,12 @@ const Standards: React.FC = () => {
     setShowForm(false);
     // Reset recordData if needed
   };
-  return (
+  return loading ? (
+    <Loader />
+  ) : (
     <DefaultLayout>
-
+{/*Until here  */}
+{isAdmin?(  
 <div>
 <div className="button-container">
 <button
@@ -230,8 +258,8 @@ const Standards: React.FC = () => {
           
         )}
 </div>
-
-
+):null}
+{/*Until here  */}
 
       <div>
       <div className="predefined-header">
