@@ -3,9 +3,8 @@ import { DBStack } from "./DBStack";
 import { CacheHeaderBehavior, CachePolicy } from "aws-cdk-lib/aws-cloudfront";
 import { Duration } from "aws-cdk-lib/core";
 import { AuthStack } from "./AuthStack";
-import * as iam from '@aws-cdk/aws-iam';
-
-
+import { S3Stack } from "./S3Stack";
+import * as iam from "@aws-cdk/aws-iam";
 
 export function ApiStack({ stack }: StackContext) {
   const { auth } = use(AuthStack);
@@ -53,8 +52,6 @@ export function ApiStack({ stack }: StackContext) {
           permissions: ["textract", "s3"],
           timeout: "200 seconds",
           bind: [documentsQueue],
-          permissions: ["s3"],
-
         },
       },
       "GET /detectFileType": {
@@ -90,7 +87,6 @@ export function ApiStack({ stack }: StackContext) {
         },
       },
 
-     
       //Uploading logo to S3
       /*
       "POST /uploadLogo": {
@@ -100,19 +96,16 @@ export function ApiStack({ stack }: StackContext) {
         }
       },
       */
-      
-      
 
       //Fetching all users in cognito
       "GET /getUsers": {
         function: {
           handler: "packages/functions/src/fetchUsers.getUsers", // Replace with your location
           permissions: [
-            "cognito-idp:ListUsers" // Add any additional permissions if required
-          ]
+            "cognito-idp:ListUsers", // Add any additional permissions if required
+          ],
         },
       },
-
     },
   });
   const get_users_function = api.getFunction("POST /createUser");
