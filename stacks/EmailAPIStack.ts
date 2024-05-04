@@ -4,7 +4,15 @@ export function EmailAPIStack({ stack }: StackContext) {
     // Create the API
     const api = new Api(stack, "EmailsApi", {
         routes: {
-            "POST /send-email": "packages/functions/src/send-email.sendEmail",
+            "POST /send-email": 
+            {
+                function:
+                {
+                    handler: "packages/functions/src/send-email.sendEmail",
+                    permissions: ["SES"]
+                }
+            },
+
         },
     });
 

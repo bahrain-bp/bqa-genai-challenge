@@ -6,7 +6,6 @@ import { AuthStack } from "./AuthStack";
 import * as iam from '@aws-cdk/aws-iam';
 
 
-
 export function ApiStack({ stack }: StackContext) {
   const { auth } = use(AuthStack);
   const { table } = use(DBStack);
@@ -36,14 +35,6 @@ export function ApiStack({ stack }: StackContext) {
           handler: "packages/functions/src/s3Upload.uploadToS3",
           permissions: ["s3"],
         },
-      },
-      // Ses Lambda function
-      "GET /": "packages/functions/src/SesHandler.handler",
-      "POST /SendEmail": {
-        function: {
-          handler: "packages/functions/src/SesHandler.handler",
-          permissions: ["SES"]
-        }
       },
       "GET /detectFileType": {
         function: {
