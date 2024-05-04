@@ -3,6 +3,7 @@ import { Route, Routes, useLocation } from 'react-router-dom';
 import Loader from './common/Loader';
 import PageTitle from './components/PageTitle';
 import SignInPage from './pages/Auth/SigninPage';
+
 import { Navigate } from 'react-router-dom';
 
 //import SignUp from './pages/Authentication/SignUp';
@@ -22,7 +23,10 @@ import UploadEvidence from './pages/UploadEvidence';
 import OfficerDash from './pages/OfficerDash';
 import BqaDash1 from './pages/BqaDash1';
 import BqaDash2 from './pages/BqaDash2';
-
+import AddUni from './pages/AddUni';
+import ChangePassword from './pages/Auth/ChangePassword';
+import ForgotPassword from './pages/Auth/ForgotPassword';
+import BqaRequestPage from './pages/BqaRequestPage';
 import { getCurrentUser, fetchUserAttributes } from 'aws-amplify/auth';
 import { ToastContainer } from 'react-toastify';
 
@@ -79,6 +83,15 @@ function App() {
           path="/Auth/SignInPage"
           element={<SignInPage setUser={setUser} user={user} />}
         />
+        <Route
+          path="/ChangePassword"
+          element={
+            <>
+              <PageTitle title="Change Password | EduScribe" />
+              <ChangePassword />
+            </>
+          }
+        />
 
         <Route
           path="/Dashboard"
@@ -108,8 +121,7 @@ function App() {
             </>
           }
         />
-
-        <Route
+         <Route
           path="/Archived"
           element={
             <>
@@ -118,7 +130,6 @@ function App() {
             </>
           }
         />
-
         <Route
           path="/PredefinedTemplate/:standardName"
           element={
@@ -159,9 +170,51 @@ function App() {
             </>
           }
         />
+         
+
+<Route
+          path="/AddUni"
+          element={
+            <>
+              <PageTitle title="Bqa Reviewer Add University | EduScribe" />
+              <AddUni />
+            </>
+          }
+        />
+        <Route
+          path="/ChangePassword"
+          element={
+            <>
+              <PageTitle title="Change Password | EduScribe" />
+              <ChangePassword />
+            </>
+          }
+        />
+       
+         <Route
+          path="/ForgotPassword"
+          element={
+            <>
+              <PageTitle title="Reset your password | EduScribe" />
+              <ForgotPassword />
+            </>
+          }
+        />
+        
 
         <Route
-          path="/BqaDash2"
+          path="/BqaRequestPage"
+          element={
+            <>
+              <PageTitle title="Bqa Reviewer Request Additional Documents Page | EduScribe" />
+              <BqaRequestPage />
+            </>
+          }
+        />
+
+
+        <Route
+          path="/BqaDash2/:email"
           element={
             <>
               <PageTitle title="Bqa Reviewer Dashboard (University Details)| EduScribe" />
@@ -169,7 +222,7 @@ function App() {
             </>
           }
         />
-
+    
 
         <Route
           path="/forms/form-elements"

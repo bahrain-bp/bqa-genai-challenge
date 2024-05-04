@@ -19,10 +19,10 @@ export const main: APIGatewayProxyHandlerV2 = async (event) => {
     // Call DynamoDB to get the item
     const result = await dynamoDb.get(params).promise();
 
-    // Check if the item exists
-    if (!result.Item) {
-        throw new Error("Standard not found.");
-    }
+    // // Check if the item exists
+    // if (!result.Item) {
+    //     // throw new Error("Standard not found.");
+    // }
 
     // Return the retrieved item
     return {
