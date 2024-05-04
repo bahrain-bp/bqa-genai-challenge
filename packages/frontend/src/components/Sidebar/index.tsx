@@ -202,30 +202,6 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                   Bqa Reviewer Dashboard
                 </NavLink>
               </li>
-              {/* <!-- Menu Item Profile --> */}
-     
-
-              <li>
-                <NavLink
-                  to="/RequestAdditional"
-                  className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${
-                    pathname.includes('profile') && 'bg-graydark dark:bg-meta-4'
-                  }`}
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-  <path d="M3 12H8V21H3V12Z"></path>
-  <path d="M13 3H21V21H13V3Z"></path>
-  <path d="M13 3V12H21"></path>
-  <path d="M3 12V21H8"></path>
-                  </svg>
-                  Send Email Notification
-                </NavLink>
-              </li>
-
-              
-           
-
-             
             </ul>
           </div>
 

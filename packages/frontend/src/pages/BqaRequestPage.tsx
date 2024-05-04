@@ -10,13 +10,11 @@ function useQuery() {
 }
 const BqaRequestPage: React.FC = () => {
  // const [/*users*/, setUsers] = useState<{ Username: string; Attributes: { Name: string; Value: string }[] }[]>([]);
- 
 
 
  const [selectedEmail, setSelectedEmail] = useState<string>('');
-  
-  const [subject, setSubject] = useState<string>('');
-  const [message, setMessage] = useState<string>('');
+ const [message, setMessage] = useState<string>('');
+ const [result, setResult] = useState('');
 
   const query = useQuery();
 
@@ -54,14 +52,115 @@ const BqaRequestPage: React.FC = () => {
     //   return attribute ? attribute.Value : 'N/A'; // Returns 'N/A' if attribute not found
     // };
     
-      const handleSubmit = () => {
+    const handleChange = (e: any) => {
+      const { name, value } = e.target;
+      if (name === 'user') {
+        const email = query.get('email');
+        setSelectedEmail(email ?? '');
+      } else if (name === 'document') {
+        setMessage(value);
+      }
+    };
+
+    // Function to handle form submission
+      const handleSubmit = async () => {
     // Example of what you might do, customize as needed:
-    console.log(`Email: ${selectedEmail}, Subject: ${subject}, Message: ${message}`);
+    console.log(`Email: ${selectedEmail}, Subject: Additional Document Required, Message: ${message}`);
     toast.success(`Request is successfully sent to ${selectedEmail}`, { position: 'top-right' });
     //toast.error('Failed to send the request.', { position: 'top-right' });
 
     // Here you would typically send this data to a backend API 
     //SES part
+
+    const emailBody = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+          <meta charset="UTF-8">
+          <style>
+            body {
+              margin: 0;
+              padding: 0;
+              font-family: Arial, sans-serif;
+              background-color: #f4f4f4;
+            }
+            .container {
+                max-width: 600px;
+                margin: 0 auto;
+                padding: 20px;
+                background-color: #ffffff;
+                border-radius: 10px;
+                box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            }
+            .heading {
+                font-size: 32px;
+                font-weight: bold;
+                color: #434343;
+                margin-bottom: 20px;
+            }
+            .content {
+                font-size: 18px;
+                color: #9b9b9b;
+                line-height: 1.5;
+            }
+            .signature {
+                display: flex;
+                align-items: center;
+                margin-top: 20px;
+            }
+            .signature-name {
+                font-size: 16px;
+                font-weight: bold;
+                color: #434343;
+            }
+          </style>
+      </head>
+      <body>
+          <div class="container">
+              <div class="heading">Important Notice</div>
+              <div class="content">
+                  <p>Dear recipient,</p>
+                  <p>I am writing to request an additional document from you.</p>
+                  <p>Would you be able to provide the following document at your earliest convenience?</p>
+                  <p>${message}</p>
+                  <p>Thank you for your cooperation.</p>
+                  <p>Sincerely,</p>
+              </div>
+              <div class="signature">
+                  <div class="signature-name">BQA Reviewer</div>
+              </div>
+          </div>
+      </body>
+      </html>
+    `;
+
+    const emailData = {
+      userEmail: `${selectedEmail}`,
+      subject: 'Additional Document Required',
+      body: emailBody
+    };
+
+    const apiUrl = `https://6fy734lqlc.execute-api.us-east-1.amazonaws.com/send-email`; // changed to my stage URL
+
+    try {
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(emailData)
+      });
+
+      const responseData = await response.json();
+      if (responseData.result === 'OK') {
+        setResult('Email sent successfully');
+      } else {
+        setResult('Error sending email');
+      }
+    } catch (error) {
+      console.error('Network Error:', error);
+      setResult('Error sending email');
+    }
   };
     
 
@@ -75,7 +174,7 @@ const BqaRequestPage: React.FC = () => {
         
         <div className="dropdown-section "> 
         <label htmlFor="user"  className="block text-lg font-medium text-gray-700 dark:text-gray-300">Choose a user or a university:</label>
-        <select id="user" name="user"
+        <select onChange={handleChange} id="user" name="user" 
         disabled={true}
          
       className="w-full mt-1 px-1.5 py-1.5 rounded-md border border-gray-300 bg-gray focus:ring-primary focus:border-primary dark:border-gray-700 dark:bg-gray-800 dark:focus:border-primary dark:focus:ring-primary dark:text-gray-300"
@@ -84,28 +183,14 @@ const BqaRequestPage: React.FC = () => {
          <option value={selectedEmail}>{selectedEmail}</option>
         </select>
         </div>
-        
-        <div className="subject-section mt-6">
-          <label htmlFor="subject" className="block text-lg font-medium text-gray-700 dark:text-gray-300">Subject:</label>
-          <input
-            type="text"
-            id="subject"
-            name="subject"
-            value={subject}
-            onChange={(e) => setSubject(e.target.value)}
-            className="w-full rounded border border-stroke bg-gray py-3 px-4.5  text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
-            placeholder="Write your subject here"
-          />
-         
-        </div>
 
        <div className="message-section mt-6 " >
-         <label htmlFor="message" className="block text-lg font-medium text-gray-700 dark:text-gray-300">Message:</label>
+         <label htmlFor="message" className="block text-lg font-medium text-gray-700 dark:text-gray-300">What additional document do you want to request?</label>
          <textarea
           id="message"
           name="message"
           value={message}
-          onChange={(e) => setMessage(e.target.value)}
+          onChange={handleChange}
           className="w-full rounded border border-stroke bg-gray py-3 px-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
           placeholder="Write your message here"
          ></textarea>
@@ -119,8 +204,9 @@ const BqaRequestPage: React.FC = () => {
       Send Request
     </button>
   </div>
-      
-      
+  <div className="result">
+    {result && <p>{result}</p>}
+  </div>   
       </div>
     </DefaultLayout>
   );
