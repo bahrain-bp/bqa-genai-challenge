@@ -1,4 +1,4 @@
-import { Bucket, Table, StackContext, RDS } from "sst/constructs";
+import { Bucket, Table, StackContext, RDS, Api } from "sst/constructs";
 import * as rds from "aws-cdk-lib/aws-rds";
 import * as secretsManager from "aws-cdk-lib/aws-secretsmanager";
 import * as path from 'path';
@@ -54,6 +54,20 @@ export function DBStack({ stack, app }: StackContext) {
         },
         });
 
+      // An API to accept an input (path of S3 file that is already uploaded) 
+      // then trigger AI workflow processing Jumpstart and store the summary results in the database.
+
+      const api = new Api(stack, "AItableApi", {
+        defaults: {
+            function: {
+                bind: [AItable], // Bind the table name to our API
+            },
+        },
+        routes: {
+            "POST /": "packages/functions/src/lambda.main", // will be changed later to the lambda for retieving the results
+        },
+      });
+
     // Create an RDS database
     const mainDBLogicalName = "MainDatabase";
     // Define output/export attributes names
@@ -99,7 +113,12 @@ export function DBStack({ stack, app }: StackContext) {
     //     });
     // }
 
+    stack.addOutputs({
+        ApiEndpoint: api.url,
+    });
+
     return {
+        api,
         bucket,
         table
     };

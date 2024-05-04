@@ -6,7 +6,6 @@ import { AuthStack } from "./AuthStack";
 import * as iam from '@aws-cdk/aws-iam';
 
 
-
 export function ApiStack({ stack }: StackContext) {
   const { auth } = use(AuthStack);
   const { table } = use(DBStack);
@@ -111,6 +110,6 @@ export function ApiStack({ stack }: StackContext) {
       "Referer"
     ),
   });
-
+  
   return { api, apiCachePolicy };
 }
