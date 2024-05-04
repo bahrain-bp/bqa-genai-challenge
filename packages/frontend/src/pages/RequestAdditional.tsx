@@ -2,15 +2,15 @@ import React, { useState } from 'react';
 
 const Email: React.FC = () => {
   const [result, setResult] = useState('');
-  const [universityEmail, setUniversityEmail] = useState('');
-  const [body, setBody] = useState('');
+  const [universityName, setUniversityName] = useState('');
+  const [document, setDocument] = useState('');
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    if (name === 'universityEmail') {
-      setUniversityEmail(value);
-    } else if (name === 'body') {
-      setBody(value);
+    if (name === 'universityName') {
+      setUniversityName(value);
+    } else if (name === 'document') {
+      setDocument(value);
     }
   };
 
@@ -20,17 +20,53 @@ const Email: React.FC = () => {
       <html>
       <head>
           <meta charset="UTF-8">
-          <title>Additional Document Required</title>
           <style>
-              /* Your CSS styles */
+            body {
+              margin: 0;
+              padding: 0;
+              font-family: Arial, sans-serif;
+              background-color: #f4f4f4;
+            }
+            .container {
+                max-width: 600px;
+                margin: 0 auto;
+                padding: 20px;
+                background-color: #ffffff;
+                border-radius: 10px;
+                box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            }
+            .heading {
+                font-size: 32px;
+                font-weight: bold;
+                color: #434343;
+                margin-bottom: 20px;
+            }
+            .content {
+                font-size: 18px;
+                color: #9b9b9b;
+                line-height: 1.5;
+            }
+            .signature {
+                display: flex;
+                align-items: center;
+                margin-top: 20px;
+            }
+            .signature-name {
+                font-size: 16px;
+                font-weight: bold;
+                color: #434343;
+            }
           </style>
       </head>
       <body>
           <div class="container">
               <div class="heading">Important Notice</div>
               <div class="content">
-                  <p>Dear ${universityEmail},</p>
-                  <p>${body}</p>
+                  <p>Dear recipient from University of Bahrain,</p> <!-- ${universityName} -->
+                  <p>I am writing to request an additional document from you.</p>
+                  <p>Would you be able to provide the following document at your earliest convenience?</p>
+                  <p>${document}</p>
+                  <p>Thank you for your cooperation.</p>
                   <p>Sincerely,</p>
               </div>
               <div class="signature">
@@ -43,7 +79,7 @@ const Email: React.FC = () => {
 
     const emailData = {
       userEmail: 'maryamkameshki02@gmail.com', // temporary email address
-      subject: 'Test Email',
+      subject: 'Additional Document Required',
       body: emailBody
     };
 
@@ -116,27 +152,62 @@ const Email: React.FC = () => {
           text-transform: uppercase;
           font-size: 16pt;
         }
+        body {
+          margin: 0;
+          padding: 0;
+          font-family: Arial, sans-serif;
+          background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        .heading {
+            font-size: 32px;
+            font-weight: bold;
+            color: #434343;
+            margin-bottom: 20px;
+        }
+        .content {
+            font-size: 18px;
+            color: #9b9b9b;
+            line-height: 1.5;
+        }
+        .signature {
+            display: flex;
+            align-items: center;
+            margin-top: 20px;
+        }
+        .signature-name {
+            font-size: 16px;
+            font-weight: bold;
+            color: #434343;
+        }
       `}
     </style>
     <div className="container">
       <h1 className='title'>Email Request Form</h1>
       <div>
-        <label htmlFor="universityEmail">University Email:</label><br />
+        <label htmlFor="universityName">University Name:</label><br />
         <input
           type="email"
-          id="universityEmail"
-          name="universityEmail"
-          value={universityEmail}
+          id="universityName"
+          name="universityName"
+          value={universityName}
           onChange={handleChange}
           required
         />
       </div>
       <div>
-        <label htmlFor="body">What additional document do you want to request?</label><br />
+        <label htmlFor="document">What additional document do you want to request?</label><br />
         <textarea
-          id="body"
-          name="body"
-          value={body}
+          id="document"
+          name="document"
+          value={document}
           onChange={handleChange}
           rows={5}
           required
@@ -144,6 +215,24 @@ const Email: React.FC = () => {
       </div>
       <button onClick={sendEmail}>Send Request</button>
       <p className='result'>{result}</p>
+    </div>
+
+    <div className='container'>
+      <h1>Sample Email That will be sent:</h1>
+      <div className='container'>
+        <div className="heading">Important Notice</div>
+          <div className="content">
+              <p>Dear recipient from {universityName},</p>
+              <p>I am writing to request an additional document from you.</p>
+              <p>Would you be able to provide the following document at your earliest convenience?</p>
+              <p>{document}</p>
+              <p>Thank you for your cooperation.</p>
+              <p>Sincerely,</p>
+          </div>
+          <div className="signature">
+              <div className="signature-name">BQA Reviewer</div>
+          </div>
+      </div>
     </div>
   </div>  
   );
