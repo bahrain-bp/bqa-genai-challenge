@@ -57,7 +57,7 @@ const BqaRequestPage: React.FC = () => {
       if (name === 'user') {
         const email = query.get('email');
         setSelectedEmail(email ?? '');
-      } else if (name === 'document') {
+      } else if (name === 'message') {
         setMessage(value);
       }
     };
@@ -66,8 +66,6 @@ const BqaRequestPage: React.FC = () => {
       const handleSubmit = async () => {
     // Example of what you might do, customize as needed:
     console.log(`Email: ${selectedEmail}, Subject: Additional Document Required, Message: ${message}`);
-    toast.success(`Request is successfully sent to ${selectedEmail}`, { position: 'top-right' });
-    //toast.error('Failed to send the request.', { position: 'top-right' });
 
     // Here you would typically send this data to a backend API 
     //SES part
@@ -154,12 +152,14 @@ const BqaRequestPage: React.FC = () => {
       const responseData = await response.json();
       if (responseData.result === 'OK') {
         setResult('Email sent successfully');
+        toast.success(`Request is successfully sent to ${selectedEmail}`, { position: 'top-right' });
       } else {
         setResult('Error sending email');
       }
     } catch (error) {
       console.error('Network Error:', error);
       setResult('Error sending email');
+      toast.error('Failed to send the request.', { position: 'top-right' });
     }
   };
     
