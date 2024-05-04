@@ -8,7 +8,7 @@ import { S3Stack } from "./S3Stack";
 export function ApiStack({ stack }: StackContext) {
   const { auth } = use(AuthStack);
   const { table } = use(DBStack);
-  const {documentsQueue} = use(S3Stack)
+  const { documentsQueue } = use(S3Stack);
 
   const api = new Api(stack, "signinAPI", {
     // Commented out the authorizers section
@@ -33,29 +33,30 @@ export function ApiStack({ stack }: StackContext) {
       "POST /uploadS3": {
         function: {
           handler: "packages/functions/src/s3Upload.uploadToS3",
-          permissions: ("*"),
-          bind:[documentsQueue]
-        }
+          permissions: "*",
+          bind: [documentsQueue],
+        },
       },
-      
+
       "POST /comprehend": {
         function: {
           handler: "packages/functions/src/comprehend.comprehendText",
-          permissions: ["comprehend"]
-        }
+          permissions: ["comprehend"],
+        },
       },
       "POST /textract": {
         function: {
           handler: "packages/functions/src/textractPdf.extractTextFromPDF",
           permissions: ["textract", "s3"],
-          timeout:"200 seconds",
-        }
+          timeout: "200 seconds",
+          bind: [documentsQueue],
+        },
       },
       "GET /detectFileType": {
         function: {
           handler: "packages/functions/detectFileType.detect",
           permissions: ["s3"],
-        }
+        },
       },
       "GET /private": "packages/functions/src/private.main",
       // Another sample TypeScript lambda function
@@ -66,7 +67,7 @@ export function ApiStack({ stack }: StackContext) {
           handler: "packages/functions/src/sample-python-lambda/lambda.main",
           runtime: "python3.11",
           timeout: "60 seconds",
-        }
+        },
       },
       // Add the new route for retrieving files
       "GET /files": {

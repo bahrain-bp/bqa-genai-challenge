@@ -36,8 +36,7 @@ export default {
         .stack(AuthStack)
         .stack(ApiStack)
         .stack(StandardAPIStack)
-        .stack(FrontendStack)
-        
+        .stack(FrontendStack);
     }
   },
 } satisfies SSTConfig;

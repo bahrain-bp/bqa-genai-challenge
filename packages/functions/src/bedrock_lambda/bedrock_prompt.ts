@@ -1,10 +1,11 @@
 import { SQSEvent } from "aws-lambda";
 import axios, { AxiosResponse } from "axios";
 import * as AWS from "aws-sdk";
+import { Queue } from "sst/node/queue";
 // Variable to store processed message IDs
 let processedMessageIds: Set<string> = new Set();
 
-export async function handler(event: SQSEvent) {
+export async function handler(event: SQSEvent, app: any) {
   try {
     for (const record of event.Records) {
       // Check if the message ID has been processed before
@@ -30,16 +31,22 @@ export async function handler(event: SQSEvent) {
       console.log("Subfolder Name:", subfolderName);
       console.log("File Name:", fileName);
 
-      // Post the file URL to the '/textract' endpoint along with extracted parameters
-      const postResponse: AxiosResponse = await axios.post(
-        "https://qucmchgtm8.execute-api.us-east-1.amazonaws.com/textract",
-        {
-          bucketName,
-          folderName,
-          subfolderName,
-          fileName,
-        }
-      );
+      let endpointUrl: string;
+
+      if (app.stage === "prod") {
+        endpointUrl =
+          "https://u1oaj2omi2.execute-api.us-east-1.amazonaws.com/textract";
+      } else {
+        endpointUrl =
+          "https://4qzn87j7l2.execute-api.us-east-1.amazonaws.com/textract";
+      }
+
+      const postResponse: AxiosResponse = await axios.post(endpointUrl, {
+        bucketName,
+        folderName,
+        subfolderName,
+        fileName,
+      });
 
       // Extracted text
       const responseData = postResponse.data;
@@ -59,6 +66,7 @@ export async function handler(event: SQSEvent) {
           },
         },
       };
+      await deleteMessageFromQueue(record.receiptHandle);
 
       // If the response is successful (status code 200), make a POST request to the SageMaker endpoint
       if (postResponse.status === 200) {
@@ -104,7 +112,7 @@ async function deleteMessageFromQueue(receiptHandle: string): Promise<void> {
   const sqs = new AWS.SQS();
   await sqs
     .deleteMessage({
-      QueueUrl: 'https://sqs.us-east-1.amazonaws.com/211125580170/amjad-documents-queue.fifo', 
+      QueueUrl: Queue["Document-Queue"].queueUrl,
       ReceiptHandle: receiptHandle,
     })
     .promise();
