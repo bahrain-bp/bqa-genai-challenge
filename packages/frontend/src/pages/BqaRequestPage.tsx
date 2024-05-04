@@ -2,7 +2,7 @@ import Breadcrumb from '../components/Breadcrumbs/Breadcrumb';
 import React, { useEffect, useState } from 'react';
 import DefaultLayout from '../layout/DefaultLayout';
 import { useLocation } from 'react-router-dom';
-import {  toast } from 'react-toastify';
+import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 function useQuery() {
@@ -138,6 +138,12 @@ const BqaRequestPage: React.FC = () => {
       subject: 'Additional Document Required',
       body: JSON.stringify(emailBody)
     };
+    // for testing in postman :
+    // {
+    //   "userEmail": "maryamalsaad@hotmail.co.uk",
+    //   "subject": "Additional Document Required",
+    //   "body": "JSON.stringify(emailBody)"
+    // }
 
     const apiUrl = `https://6fy734lqlc.execute-api.us-east-1.amazonaws.com/send-email`; // changed to my stage URL
 
