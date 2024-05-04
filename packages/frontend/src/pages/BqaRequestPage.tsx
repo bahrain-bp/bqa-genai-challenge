@@ -131,12 +131,12 @@ const BqaRequestPage: React.FC = () => {
     `;
 
         // Example of what you might do, customize as needed:
-        console.log(`Email: ${selectedEmail}, Subject: Additional Document Required, Message: ${emailBody}`);
+        console.log(`Email: ${selectedEmail}, Subject: Additional Document Required, Message: ${JSON.stringify(emailBody)}`);
 
     const emailData = {
       userEmail: `${selectedEmail}`,
       subject: 'Additional Document Required',
-      body: emailBody
+      body: JSON.stringify(emailBody)
     };
 
     const apiUrl = `https://6fy734lqlc.execute-api.us-east-1.amazonaws.com/send-email`; // changed to my stage URL
