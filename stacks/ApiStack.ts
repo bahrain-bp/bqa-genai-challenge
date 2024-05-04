@@ -34,7 +34,6 @@ export function ApiStack({ stack }: StackContext) {
       "POST /uploadS3": {
         function: {
           handler: "packages/functions/src/s3Upload.uploadToS3",
-
           permissions: "*",
           bind: [documentsQueue],
         },

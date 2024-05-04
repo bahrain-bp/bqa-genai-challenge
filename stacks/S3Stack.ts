@@ -52,6 +52,7 @@ export function S3Stack({ stack, app }: StackContext) {
     },
   });
   documentsQueue.attachPermissions("*");
+  bedrock_lambda.bind([documentsQueue])
 
   const textractQueue = new Queue(stack, "textract-Queue", {
     consumer: {
