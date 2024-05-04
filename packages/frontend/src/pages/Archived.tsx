@@ -6,7 +6,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {  faUndo } from '@fortawesome/free-solid-svg-icons';
 
 
-const PredefinedTemplate: React.FC = () => {
+const Archived: React.FC = () => {
 
 
 
@@ -332,4 +332,4 @@ const PredefinedTemplate: React.FC = () => {
   );
 };
 
-export default PredefinedTemplate;
+export default Archived;
