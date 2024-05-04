@@ -64,8 +64,6 @@ const BqaRequestPage: React.FC = () => {
 
     // Function to handle form submission
       const handleSubmit = async () => {
-    // Example of what you might do, customize as needed:
-    console.log(`Email: ${selectedEmail}, Subject: Additional Document Required, Message: ${message}`);
 
     // Here you would typically send this data to a backend API 
     //SES part
@@ -131,6 +129,9 @@ const BqaRequestPage: React.FC = () => {
       </body>
       </html>
     `;
+
+        // Example of what you might do, customize as needed:
+        console.log(`Email: ${selectedEmail}, Subject: Additional Document Required, Message: ${emailBody}`);
 
     const emailData = {
       userEmail: `${selectedEmail}`,
