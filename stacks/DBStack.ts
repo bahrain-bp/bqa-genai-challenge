@@ -38,10 +38,21 @@ export function DBStack({ stack, app }: StackContext) {
             status: "string",        // Attribute for status
             description: "string",
             documentName: "string",
-            documentURL: "string"
+            documentURL: "string",
         },
         primaryIndex: { partitionKey: "entityType", sortKey: "entityId" },
     });
+
+    // Create the DynamoDB table for AI Summarization
+    const AItable = new Table(stack, "FileSummary", {
+        fields: {
+            standardName: "string",
+            indicatorName: "string",
+            fileUrl: "string",
+            fileName: "string",
+            summaryResults: "string", // Attribute to store summary results from Jumpstar AI model
+        },
+        });
 
     // Create an RDS database
     const mainDBLogicalName = "MainDatabase";
