@@ -31,6 +31,7 @@ export function S3Stack({ stack, app }: StackContext) {
   const bedrock_lambda = new Function(stack, "bedrock_lambda", {
     handler: handler,
     permissions: "*",
+    timeout:"300 seconds",
   });
   // Attach AmazonS3FullAccess managed policy to the role associated with the Lambda function
   bedrock_lambda.role?.addManagedPolicy(
