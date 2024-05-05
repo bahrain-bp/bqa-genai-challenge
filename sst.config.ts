@@ -6,11 +6,10 @@ import { FrontendStack } from "./stacks/FrontendStack";
 import { DBStack } from "./stacks/DBStack";
 import { StandardAPIStack } from "./stacks/StandardAPIStack";
 import { EmailAPIStack } from "./stacks/EmailAPIStack";
-
+import { S3Stack } from "./stacks/S3Stack"
 import { ImageBuilderForCodeCatalyst } from "./stacks/devops/ImageBuilderForCodeCatalyst";
 import { OIDCForGitHubCI } from "./stacks/devops/OIDCForGitHubCI";
 
-import { S3Stack } from "./stacks/S3Stack"
 import { S3 } from "aws-cdk-lib/aws-ses-actions";
 
 export default {
@@ -36,9 +35,9 @@ export default {
         .stack(AuthStack)
         .stack(ApiStack)
         .stack(StandardAPIStack)
+        .stack(S3Stack)
         .stack(EmailAPIStack)
         .stack(FrontendStack)
-        .stack(S3Stack)
     }
   },
 } satisfies SSTConfig;
