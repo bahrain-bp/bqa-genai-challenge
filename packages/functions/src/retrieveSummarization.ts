@@ -16,7 +16,7 @@ export async function main(event: any) {
 
         // Define DynamoDB parameters
         const params = {
-            TableName: Table.BQA.tableName,
+            TableName: Table.FileTable.tableName, // Updated to use the correct table
             Key: {
                 fileName: fileName,
             },
@@ -30,13 +30,13 @@ export async function main(event: any) {
             throw new Error("File not found.");
         }
 
-        // Extract the text and summarization from the retrieved item
-        const { comparison, summarization } = result.Item;
+        // Extract the attributes from the retrieved item
+        const { fileURL, standardName, standardNumber, indicatorNumber, name, content, summary, strength, weakness, score, comments } = result.Item;
 
-        // Return the text and summarization
+        // Return the attributes
         return {
             statusCode: 200,
-            body: JSON.stringify({ fileName, comparison, summarization }),
+            body: JSON.stringify({ fileName, fileURL, standardName, standardNumber, indicatorNumber, name, content, summary, strength, weakness, score, comments }),
         };
     } catch (error) {
         // Handle errors
@@ -45,4 +45,4 @@ export async function main(event: any) {
             body: JSON.stringify({ message: "Error retrieving file", error: error }),
         };
     }
-};
+}

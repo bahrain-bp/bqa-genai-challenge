@@ -70,7 +70,7 @@ export function ApiStack({ stack }: StackContext) {
         },
       },
 
-      "GET /summarization/{id}": "packages/functions/src/retrieveSummarization.main",
+      "GET /summarization/{fileName}": "packages/functions/src/retrieveSummarization.main",
       //Uploading logo to S3
       /*
       "POST /uploadLogo": {
