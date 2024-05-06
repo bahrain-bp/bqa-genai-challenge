@@ -12,7 +12,7 @@ i18n
       en: { translation: enTranslation },
       ar: { translation: arTranslation }
     },
-    fallbackLng: 'ar', // Fallback language if translation is not available
+    fallbackLng: 'en', // Fallback language if translation is not available
     debug: true, // Enable debug mode for logging
     interpolation: {
       escapeValue: false // React already does escaping

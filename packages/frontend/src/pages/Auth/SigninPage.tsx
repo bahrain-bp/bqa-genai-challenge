@@ -21,15 +21,15 @@ const SignInPage = ({
   const { t } = useTranslation(); // Hook to access translation functions
     
   const handleSignIn = async (email: string, password: string) => {
-    toast.info('Logging in...', { position: 'top-right' });
+    toast.info(t('loading'), { position: 'top-right' });
     try {
       const user = await signIn({ username: email, password });
       setUser(user);
-      toast.success('Welcome!', { position: 'top-right' });
+      toast.success(t('welcomeMessage'), { position: 'top-right' });
       navigate('/Dashboard'); // Redirect to dashboard after successful sign-in
     } catch (error) {
       console.error('Error signing in', error);
-      toast.error('Error signing in', { position: 'top-right' });
+      toast.error(t('error'), { position: 'top-right' });
       
     }
   };

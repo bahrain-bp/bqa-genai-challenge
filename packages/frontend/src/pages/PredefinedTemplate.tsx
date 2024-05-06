@@ -5,6 +5,7 @@ import './PredefinedTemplate.css'; // Importing CSS file
 import '@fortawesome/fontawesome-free/css/all.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash, faArchive } from '@fortawesome/free-solid-svg-icons';
+import { useTranslation } from 'react-i18next';
 
 
 //INDICATORS FILE **
@@ -12,6 +13,8 @@ import { faTrash, faArchive } from '@fortawesome/free-solid-svg-icons';
 const PredefinedTemplate: React.FC = () => {
  // Get the standardId from the URL
 const standardId = window.location.pathname.split('/').pop();
+const { t } = useTranslation(); // Hook to access translation functions
+    
 
 // Set the value of the input field if it exists
 const inputElement = document.querySelector<HTMLInputElement>('input[name="standardId"]');
@@ -283,7 +286,7 @@ const [indicators, setIndicators] = useState<any[]>([]); // State variable to st
           })
           .catch(error => {
             console.error('Error uploading file:', error);
-            alert('Failed to upload file');
+            // alert('Failed to upload file');
           });
       }
     };
@@ -325,7 +328,7 @@ setStandardName(standardName);
         type="button" // Change type to "button"
         onClick={toggleForm} // Add onClick handler
       >
-       Upload Evidencee
+       {t('uploadEvidence')}
       </button>
       </div>
       {showForm && (
@@ -333,11 +336,11 @@ setStandardName(standardName);
           <div className="modal-overlay">
             <div className="modal-content">
             <div className="form-group">
-              <label>Choose Indicator :</label>
+              <label>  {t('chooseIndicator')}</label>
               <select name="indicatorId" value={recordData.indicatorId} onChange={handleChange} className="white-background" >
               {/* <select name="indicatorId" value="blah" className="white-background" > */}
              
-                <option value="">Select an Indicator</option>
+                <option value="">{t('selectIndicator')}</option>
                 {indicators.map((indicator: any) => (
                   <option key={indicator.indicatorId} value={indicator.indicatorId}>
                     {`${indicator.indicatorId}: ${indicator.indicatorName}`}
@@ -349,23 +352,23 @@ setStandardName(standardName);
 
           
             <div className="form-group">
-              <label>Indicator Name:</label>
+              <label>{t('indicatorName')}</label>
               <input type="text" name="indicatorName" value={recordData.indicatorName} onChange={handleChange} className="white-background" />
             </div><br />
             <div className="form-group">
-              <label>Indicator Id:</label>
+              <label>{t('indicatorId')}</label>
               <input type="text" name="indicatorId" value={recordData.indicatorId} onChange={handleChange} className="white-background" />
             </div><br />
             <div className="form-group">
-              <label>Upload Document:</label>
+              <label>{t('uploadDocument')}</label>
               <input type="file" name="documentName" value={recordData.documentName} onChange={handleChange} className="white-background" />
             </div><br />
             <div className="form-group">
-              <label>Document Description:</label>
+              <label>{t('documentDescription')}</label>
               <input type="text" name="description" value={recordData.description} onChange={handleChange} className="white-background" />
             </div><br />
             <div className="form-group">
-              <label>Status:</label>
+              <label>{t('status')}</label>
               <input type="text" name="status" value={recordData.status} onChange={handleChange} className="white-background" readOnly />
             </div><br />
             <div className="form-buttons">
@@ -374,14 +377,14 @@ setStandardName(standardName);
         type="button"
         onClick={handleCancel}
       >
-        Cancel
+        {t('cancel')}
       </button>
       <button
         className={`flex rounded bg-primary py-2 px-6 font-medium text-gray hover:bg-opacity-90 mr-4`}
         type="button" // Change type to "button"
         onClick={createRecord} // Add onClick handler
       >
-        Save
+        {t('save')}
       </button>
       </div>
       </div>
@@ -393,8 +396,8 @@ setStandardName(standardName);
 
       <div>
       <div className="predefined-header">
-        <h2>Indicators</h2>
-        <h6>In here, you can find templates for each indicator that can help guide you to the required documents.</h6>
+        <h2>   {t('indicators')}</h2>
+        <h6>  {t('findTemplates')}</h6>
       </div>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-4 2xl:gap-7.5">
        

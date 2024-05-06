@@ -4,12 +4,14 @@ import './PredefinedTemplate.css'; // Importing CSS file
 import '@fortawesome/fontawesome-free/css/all.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash, faArchive } from '@fortawesome/free-solid-svg-icons';
+import { useTranslation } from 'react-i18next';
 
 
 const Standards: React.FC = () => {
 
   const [showForm, setShowForm] = useState(false); // State variable to toggle form visibility
- 
+  const { t } = useTranslation(); // Hook to access translation functions
+    
   const handleDelete = async (standardId: string) => {
     try {
       // Fetch records with the matching standardId
@@ -191,7 +193,7 @@ const Standards: React.FC = () => {
         type="button" // Change type to "button"
         onClick={toggleForm} // Add onClick handler
       >
-       Create New Standard
+        {t('createNewStandard')}
       </button>
       </div>
       {showForm && (
@@ -200,11 +202,11 @@ const Standards: React.FC = () => {
             <div className="modal-content">
            
             <div className="form-group">
-              <label>Standard Id:</label>
+              <label> {t('standardId')}</label>
               <input type="text"  name="standardId" value={recordData.standardId} onChange={handleChange} className="white-background" />
             </div><br />
             <div className="form-group">
-              <label>Standard Name:</label>
+              <label>{t('standardName')}</label>
               <input type="text" name="standardName" value={recordData.standardName} onChange={handleChange} className="white-background" />
             </div><br />
             
@@ -215,14 +217,14 @@ const Standards: React.FC = () => {
         type="button"
         onClick={handleCancel}
       >
-        Cancel
+        {t('cancel')}
       </button>
       <button
         className={`flex rounded bg-primary py-2 px-6 font-medium text-gray hover:bg-opacity-90 mr-4`}
         type="button" // Change type to "button"
         onClick={createRecord} // Add onClick handler
       >
-        Save
+        {t('save')}
       </button>
       </div>
           </div>
@@ -235,8 +237,8 @@ const Standards: React.FC = () => {
 
       <div>
       <div className="predefined-header">
-        <h2>Predefined Templates</h2>
-        <h6>In here, you can find predefined templates for each standard that can help guide you to the required documents.</h6>
+        <h2>{t('predefinedTemplates')}</h2>
+        <h6>{t('predefinedTemplateDesc')}</h6>
       </div>
    
         {/* Get data from DB */}
