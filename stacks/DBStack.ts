@@ -40,11 +40,10 @@ export function DBStack({ stack, app }: StackContext) {
             documentName: "string",
             documentURL: "string",
         },
-        primaryIndex: { partitionKey: "entityType", sortKey: "entityId" },
     });
 
     // Create the DynamoDB table for AI Summarization
-    const AItable = new Table(stack, "FileSummary", {
+    const Sumtable = new Table(stack, "FileSummary", {
         fields: {
             standardName: "string",
             indicatorName: "string",
@@ -52,21 +51,8 @@ export function DBStack({ stack, app }: StackContext) {
             fileName: "string",
             summaryResults: "string", // Attribute to store summary results from Jumpstar AI model
         },
+        primaryIndex: { partitionKey: "standardName", sortKey: "indicatorName" },
         });
-
-      // An API to accept an input (path of S3 file that is already uploaded) 
-      // then trigger AI workflow processing Jumpstart and store the summary results in the database.
-
-      const api = new Api(stack, "AItableApi", {
-        defaults: {
-            function: {
-                bind: [AItable], // Bind the table name to our API
-            },
-        },
-        routes: {
-            "POST /": "packages/functions/src/lambda.main", // will be changed later to the lambda for retieving the results
-        },
-      });
 
     // Create an RDS database
     const mainDBLogicalName = "MainDatabase";
@@ -113,13 +99,10 @@ export function DBStack({ stack, app }: StackContext) {
     //     });
     // }
 
-    stack.addOutputs({
-        ApiEndpoint: api.url,
-    });
 
     return {
-        api,
         bucket,
-        table
+        table,
+        Sumtable,
     };
 }

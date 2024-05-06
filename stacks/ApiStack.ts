@@ -8,7 +8,7 @@ import * as iam from '@aws-cdk/aws-iam';
 
 export function ApiStack({ stack }: StackContext) {
   const { auth } = use(AuthStack);
-  const { table } = use(DBStack);
+  const { table, Sumtable } = use(DBStack);
 
   const api = new Api(stack, "signinAPI", {
     // Commented out the authorizers section
@@ -22,7 +22,7 @@ export function ApiStack({ stack }: StackContext) {
     // },
     defaults: {
       function: {
-        bind: [table], // Bind the table name to our API
+        bind: [table, Sumtable], // Bind the tables name to our API
       },
       // Optional: Remove authorizer from defaults if set to "jwt"
       // authorizer: "jwt",
@@ -68,8 +68,24 @@ export function ApiStack({ stack }: StackContext) {
           //permissions wil be changed
         },
       },
+      // API routes for "FileSummary" CRUD
+      
 
      
+      // An API to accept an input (path of S3 file that is already uploaded) 
+      // then trigger AI workflow processing Jumpstart and store the summary results in the database.
+
+      // const api = new Api(stack, "AItableApi", {
+      //   defaults: {
+      //       function: {
+      //           bind: [AItable], // Bind the table name to our API
+      //       },
+      //   },
+      //   routes: {
+      //       "POST /": "packages/functions/src/lambda.main", // will be changed later to the lambda for retieving the results
+      //   },
+      // });
+
       //Uploading logo to S3
       /*
       "POST /uploadLogo": {
