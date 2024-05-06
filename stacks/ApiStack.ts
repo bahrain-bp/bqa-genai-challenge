@@ -8,7 +8,7 @@ import * as iam from "@aws-cdk/aws-iam";
 
 export function ApiStack({ stack }: StackContext) {
   const { auth } = use(AuthStack);
-  const { table } = use(DBStack);
+  const { table, fileTable } = use(DBStack);
   const { documentsQueue } = use(S3Stack);
 
   const api = new Api(stack, "signinAPI", {
@@ -23,7 +23,7 @@ export function ApiStack({ stack }: StackContext) {
     // },
     defaults: {
       function: {
-        bind: [table], // Bind the table name to our API
+        bind: [table, fileTable], // Bind the table name to our API
       },
       // Optional: Remove authorizer from defaults if set to "jwt"
       // authorizer: "jwt",
@@ -85,6 +85,20 @@ export function ApiStack({ stack }: StackContext) {
           //permissions wil be changed
         },
       },
+      "POST /createFileDB": {
+        function: {
+          handler: "packages/functions/src/files/create.main",
+          permissions: "*"
+        }
+      },
+      "PUT /fileSummary/{fileName}": {
+        function: {
+          handler: "packages/functions/src/files/update.main",
+          permissions: "*"
+        }
+      },
+
+
 
       //Uploading logo to S3
       /*
