@@ -5,7 +5,7 @@ export const sendEmail = async (event: APIGatewayProxyEvent): Promise<APIGateway
   const { userEmail, body, subject } = JSON.parse(event.body || '{}');
   const source = "ayshacheema469@gmail.com";
   console.log('source email:', source);
-console.log("userEmail:", userEmail);
+  console.log("userEmail:", userEmail);
   let data = {
     result: 'ERROR',
   };
