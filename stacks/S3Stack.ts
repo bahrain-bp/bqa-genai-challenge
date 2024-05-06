@@ -31,7 +31,7 @@ export function S3Stack({ stack, app }: StackContext) {
   const bedrock_lambda = new Function(stack, "bedrock_lambda", {
     handler: handler,
     permissions: "*",
-    timeout:"300 seconds",
+    timeout: "900 seconds",
   });
   // Attach AmazonS3FullAccess managed policy to the role associated with the Lambda function
   bedrock_lambda.role?.addManagedPolicy(
@@ -52,22 +52,22 @@ export function S3Stack({ stack, app }: StackContext) {
     },
   });
   documentsQueue.attachPermissions("*");
-  bedrock_lambda.bind([documentsQueue])
 
-  const textractQueue = new Queue(stack, "textract-Queue", {
+  const analysisQueue = new Queue(stack, "analysis-Queue", {
     consumer: {
-      function: bedrock_lambda,
+      function: "packages/functions/src/standards/compareStandards.handler",
     },
     cdk: {
       queue: {
         fifo: true,
         // contentBasedDeduplication: true,
-        queueName: stack.stage + "-textract-queue.fifo",
+        queueName: stack.stage + "-analysis-queue.fifo",
         contentBasedDeduplication: true,
       },
     },
   });
-  textractQueue.attachPermissions("*");
+  analysisQueue.attachPermissions("*");
+  bedrock_lambda.bind([documentsQueue, analysisQueue]);
 
   async function configureBucketPolicy(
     stack: any,
@@ -76,5 +76,5 @@ export function S3Stack({ stack, app }: StackContext) {
   ): Promise<void> {
     // Your bucket policy configuration logic here, to only allow cognito users to upload into the bucket
   }
-  return { documentsQueue };
+  return { documentsQueue, analysisQueue };
 }

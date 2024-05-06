@@ -4,7 +4,7 @@ import * as AWS from "aws-sdk";
 import { Queue } from "sst/node/queue";
 // Variable to store processed message IDs
 let processedMessageIds: Set<string> = new Set();
-
+const sqs = new AWS.SQS();
 export async function handler(event: SQSEvent, app: any) {
   try {
     for (const record of event.Records) {
@@ -33,7 +33,7 @@ export async function handler(event: SQSEvent, app: any) {
 
       let endpointUrl: string;
       endpointUrl =
-        "https://u1oaj2omi2.execute-api.us-east-1.amazonaws.com/textract";
+        "https://4qzn87j7l2.execute-api.us-east-1.amazonaws.com/textract";
 
       const postResponse: AxiosResponse = await axios.post(endpointUrl, {
         bucketName,
@@ -41,6 +41,14 @@ export async function handler(event: SQSEvent, app: any) {
         subfolderName,
         fileName,
       });
+      const sqsResponse = await sqs
+        .sendMessage({
+          QueueUrl: Queue["analysis-Queue"].queueUrl,
+          MessageBody: "invoked",
+          MessageGroupId: "file", // Use fileName as MessageGroupId
+          //MessageDeduplicationId: `${fileName}-${Date.now()}`,
+        })
+        .promise();
 
       // Extracted text
       const responseData = postResponse.data;
@@ -74,11 +82,15 @@ export async function handler(event: SQSEvent, app: any) {
 
           // Log the response
           console.log("Response from endpoint:", response.data);
+
+          //console.log("SQS Response:", sqsResponse);
+
           // Now this needs to be saved in the database with the corresponding standard name/uni/fileURL
         } catch (error: any) {
           // Log any errors
           console.error("Error sending request:", error.message);
         }
+        // Send message to SQS
       }
 
       // Delete the message from the SQS queue to avoid processing it again
