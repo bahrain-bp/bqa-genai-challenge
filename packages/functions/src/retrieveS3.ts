@@ -8,16 +8,23 @@ export async function main(event: APIGatewayProxyEvent): Promise<APIGatewayProxy
     const bucketName = event.headers['bucket-name'];
     const folderName = event.headers['folder-name'];
     const subfolderName = event.headers['subfolder-name'];
+    const subSubfolderName = event.headers['subsubfolder-name'];
 
     if (!bucketName || !folderName) {
       return {
         statusCode: 400,
-                body: JSON.stringify({ message: "Bucket name and folder name are required" }),
+        body: JSON.stringify({ message: "Bucket name and folder name are required" }),
       };
     }
 
-    // Combine folder and subfolder name if subfolder is provided
-    const folderPath = subfolderName ? `${folderName}/${subfolderName}/` : `${folderName}/`;
+    // Combine folder, subfolder, and sub-subfolder names if provided
+    let folderPath = folderName + '/';
+    if (subfolderName) {
+      folderPath += subfolderName + '/';
+    }
+    if (subSubfolderName) {
+      folderPath += subSubfolderName + '/';
+    }
 
     // Get list of objects in the specified folder
     const params = {
@@ -31,7 +38,6 @@ export async function main(event: APIGatewayProxyEvent): Promise<APIGatewayProxy
       return {
         statusCode: 200,
         body: JSON.stringify({ message: "No files found in the specified folder" }),
-       
       };
     }
 
@@ -43,23 +49,15 @@ export async function main(event: APIGatewayProxyEvent): Promise<APIGatewayProxy
         };
       });
 
-      const response = {
-        statusCode: 200,
-        // headers: {
-        //     "Access-Control-Allow-Origin": "*", // Adjust in production
-        //     "Access-Control-Allow-Methods": "GET, HEAD, PUT, POST,DELETE",
-        //     "Access-Control-Allow-Headers": "*"
-        // },
-        body: JSON.stringify({files}),
+    return {
+      statusCode: 200,
+      body: JSON.stringify({ files }),
     };
-    return response;
-    
-
   } catch (error) {
     console.error("Error retrieving files:", error);
     return {
       statusCode: 500,
-      body: JSON.stringify({ message: "Error retrieving files", error: error.message }),
+      body: JSON.stringify({ message: "Error retrieving files", error}),
     };
   }
 }

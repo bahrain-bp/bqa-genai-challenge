@@ -36,7 +36,6 @@ export default {
         .stack(AuthStack)
         .stack(ApiStack)
         .stack(StandardAPIStack)
-        .stack(S3Stack)
         .stack(EmailAPIStack)
         .stack(FrontendStack)
     }
