@@ -52,7 +52,8 @@ export function DBStack({ stack, app }: StackContext) {
             fileName: "string",
             summaryResults: "string", // Attribute to store summary results from Jumpstar AI model
         },
-    });
+        primaryIndex: { partitionKey: "standardName", sortKey: "indicatorName" },
+        });
 
 
     // Create an RDS database
