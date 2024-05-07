@@ -99,6 +99,7 @@ export function ApiStack({ stack }: StackContext) {
       },
 
 
+      "GET /summarization/{fileName}": "packages/functions/src/files/retrieveSummarization.main",
 
       //Uploading logo to S3
       /*
