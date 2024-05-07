@@ -43,6 +43,18 @@ export function DBStack({ stack, app }: StackContext) {
         primaryIndex: { partitionKey: "entityType", sortKey: "entityId" },
     });
 
+        // Create the DynamoDB table for AI Summarization
+    const Sumtable = new Table(stack, "FileSummary", {
+        fields: {
+            standardName: "string",
+            indicatorName: "string",
+            fileUrl: "string",
+            fileName: "string",
+            summaryResults: "string", // Attribute to store summary results from Jumpstar AI model
+        },
+    });
+
+
     // Create an RDS database
     const mainDBLogicalName = "MainDatabase";
     // Define output/export attributes names
@@ -92,5 +104,6 @@ export function DBStack({ stack, app }: StackContext) {
     return {
         bucket,
         table,
+     // Sumtable,
     };
 }

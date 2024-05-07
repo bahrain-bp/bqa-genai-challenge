@@ -6,7 +6,7 @@ import { AuthStack } from "./AuthStack";
 
 export function ApiStack({ stack }: StackContext) {
   const { auth } = use(AuthStack);
-  const { table } = use(DBStack);
+  const { table, Sumtable } = use(DBStack);
 
   const api = new Api(stack, "signinAPI", {
     // Commented out the authorizers section
@@ -20,7 +20,7 @@ export function ApiStack({ stack }: StackContext) {
     // },
     defaults: {
       function: {
-        bind: [table], // Bind the table name to our API
+        bind: [table, Sumtable], // Bind the table name to our API
       },
       // Optional: Remove authorizer from defaults if set to "jwt"
       // authorizer: "jwt",
@@ -32,6 +32,14 @@ export function ApiStack({ stack }: StackContext) {
       "GET /standards": "packages/functions/src/standards/list.main",
       "PUT /standards/{id}": "packages/functions/src/standards/update.main",
       "DELETE /standards/{id}": "packages/functions/src/standards/delete.main",
+
+      // FileSummarization api routes
+      "POST /fileSummary": "packages/functions/src/fileSummary/create.main",
+      "GET /fileSummary/{id}": "packages/functions/src/fileSummary/get.main",
+      "GET /fileSummary": "packages/functions/src/fileSummary/list.main",
+      "PUT /fileSummary/{id}": "packages/functions/src/fileSummary/update.main",
+      "DELETE /fileSummary/{id}": "packages/functions/src/fileSummary/delete.main",
+
       // Email API routes
       "POST /send-email": {
         function: {
