@@ -5,14 +5,11 @@ import * as AWS from 'aws-sdk';
 import '@fortawesome/fontawesome-free/css/all.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash, faArchive } from '@fortawesome/free-solid-svg-icons';
-import { useTranslation } from 'react-i18next';
 
 
 const PredefinedTemplate: React.FC = () => {
  // Get the standardId from the URL
 const standardId = window.location.pathname.split('/').pop();
-const { t } = useTranslation(); // Hook to access translation functions
-    
 
 // Set the value of the input field if it exists
 const inputElement = document.querySelector<HTMLInputElement>('input[name="standardId"]');
@@ -340,7 +337,7 @@ setStandardName(standardName);
         type="button" // Change type to "button"
         onClick={toggleForm} // Add onClick handler
       >
-       {t('uploadEvidence')}
+      Upload Evidence
       </button>
       </div>
       {showForm && (
@@ -348,10 +345,10 @@ setStandardName(standardName);
           <div className="modal-overlay">
             <div className="modal-content">
             <div className="form-group">
-              <label>  {t('chooseIndicator')}</label>
+              <label> Choose indicator</label>
               <select name="indicatorId" value={recordData.indicatorId} onChange={handleChange} className="white-background" >
               
-                <option value="">{t('selectIndicator')}</option>
+                <option value="">Select indicator</option>
              
              {[...new Set(indicators.map((indicator: any) => indicator.indicatorId))]
   .sort((a, b) => a - b)
@@ -367,23 +364,23 @@ setStandardName(standardName);
             </div><br />
 
             <div className="form-group">
-              <label>{t('indicatorName')}</label>
+              <label>Inidcator name</label>
               <input type="text" name="indicatorName" value={recordData.indicatorName} onChange={handleChange} className="white-background" />
             </div><br />
             <div className="form-group">
-              <label>{t('indicatorId')}</label>
+              <label>Indicator id </label>
               <input type="text" name="indicatorId" value={recordData.indicatorId} onChange={handleChange} className="white-background" />
             </div><br />
             <div className="form-group">
-              <label>{t('uploadDocument')}</label>
+              <label>upload doc</label>
               <input type="file" name="documentName" value={recordData.documentName} onChange={handleChange} className="white-background" />
             </div><br />
             <div className="form-group">
-              <label>{t('documentDescription')}</label>
+              <label>doc desc</label>
               <input type="text" name="description" value={recordData.description} onChange={handleChange} className="white-background" />
             </div><br />
             <div className="form-group">
-              <label>{t('status')}</label>
+              <label>status</label>
               <input type="text" name="status" value={recordData.status} onChange={handleChange} className="white-background" readOnly />
             </div><br />
             <div className="form-buttons">
@@ -392,14 +389,14 @@ setStandardName(standardName);
         type="button"
         onClick={handleCancel}
       >
-        {t('cancel')}
+       cancel
       </button>
       <button
         className={`flex rounded bg-primary py-2 px-6 font-medium text-gray hover:bg-opacity-90 mr-4`}
         type="button" // Change type to "button"
         onClick={createRecord} // Add onClick handler
       >
-        {t('save')}
+        save
       </button>
       </div>
       </div>
@@ -411,8 +408,8 @@ setStandardName(standardName);
 
       <div>
       <div className="predefined-header">
-        <h2>   {t('indicators')}</h2>
-        <h6>  {t('findTemplates')}</h6>
+        <h2>  Indicator</h2>
+        <h6>  sample</h6>
       </div>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-4 2xl:gap-7.5">
        
