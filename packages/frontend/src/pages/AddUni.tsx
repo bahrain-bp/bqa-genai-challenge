@@ -166,7 +166,7 @@ if (!logo) {
         'bucket-name':'uni-artifacts',
         'folder-name':name,
         'subfolder-name':'logos',
-        'Content-Type': mimeType
+        'Content-Type': 'image/png'
       },
      // body: JSON.stringify({ logo }),
     };

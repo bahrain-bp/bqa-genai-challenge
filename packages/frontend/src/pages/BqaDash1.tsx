@@ -41,7 +41,7 @@ const [imageUrl, setImageUrl] = useState('');
           method: 'GET',
           headers: {
             'bucket-name': 'uni-artifacts',
-            'folder-name': 'bahrainPolytechnic',
+            'folder-name': 'bahrainPolytechnic',// it should be user attribute name 
             'subfolder-name': 'logos'
           }
         });

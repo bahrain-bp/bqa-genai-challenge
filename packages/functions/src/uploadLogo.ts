@@ -131,9 +131,7 @@ export async function uploadLogoToS3(event: any) {
       statusCode: 200,
       body: JSON.stringify({
         message: "File uploaded successfully",
-        location: signedUrl
-        // location: s3ObjectUrl
-
+        location: signedUrl,
 
 
       }),
