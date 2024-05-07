@@ -6,7 +6,8 @@ import { AuthStack } from "./AuthStack";
 
 export function ApiStack({ stack }: StackContext) {
   const { auth } = use(AuthStack);
-  const { table, Sumtable } = use(DBStack);
+  const { table } = use(DBStack);
+  // const { table, Sumtable } = use(DBStack);
 
   const api = new Api(stack, "signinAPI", {
     // Commented out the authorizers section
@@ -20,7 +21,8 @@ export function ApiStack({ stack }: StackContext) {
     // },
     defaults: {
       function: {
-        bind: [table, Sumtable], // Bind the table name to our API
+        bind: [table], // Bind the table name to our API
+        // bind: [table, Sumtable], // Bind the table name to our API
       },
       // Optional: Remove authorizer from defaults if set to "jwt"
       // authorizer: "jwt",
