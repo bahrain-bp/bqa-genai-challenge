@@ -61,11 +61,75 @@ const AddUni = () => {
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
   const [logo, setLogo] = useState<File | null>(null);
+  const [logoUrl, setLogoUrl] = useState('');
 
+  
+  const getMimeType = (filename:any) => {
+    const extension = filename.split('.').pop();
+    switch (extension.toLowerCase()) {
+        case 'jpg': return 'image/jpg';
+        case 'jpeg': return 'image/jpeg';
+        case 'png': return 'image/png';
+        default: return 'application/octet-stream'; // Default MIME type
+    }
+};
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files ? event.target.files[0] : null;
     setLogo(file);
   };
+    //trying the upload logo
+    const uploadLogo = async ( logo:File ) => {
+      const mimeType = getMimeType(File.name);
+  if (!logo) {
+      toast.error('Please select a logo to upload.');
+      return;
+    }
+      const url =
+        'https://66xzg471hh.execute-api.us-east-1.amazonaws.com/uploadLogo'; // This will be replaced with the main api
+      /////
+       const formData = new FormData();
+          formData.append('logo', logo, logo.name); // Append the file to FormData
+          //formData.append('name', name); // Optionally send email or other fields
+      
+        const requestOptions: RequestInit = {
+        method: 'POST',
+        body:formData,
+        headers: {
+          'file-name': logo.name,
+          'bucket-name':'uni-artifacts',
+          'folder-name':'bahrainPolytechnic',
+          'subfolder-name':'logos',
+          'Content-Type': mimeType
+        },
+       // body: JSON.stringify({ logo }),
+      };
+  
+      // try {
+      //   const response = await fetch(url, requestOptions);
+      //   if (response.ok) {
+      //     const data = await response.json();
+      //     console.log('Logo uploaded successfully', data);
+      //     // Handle success (e.g., display success message to the user)
+      //   } else {
+      //     const errorData = await response.json();
+      //     console.error('Failed to upload logo:', errorData);
+      //     // Handle failure (e.g., display error message to the user)
+      //   }
+      // } catch (error) {
+      //   console.error('Error Uploading Logo:', error);
+      //   // Handle error (e.g., display error message to the user)
+      // }
+      const response = await fetch(url, requestOptions);
+      if (response.ok) {
+          const data = await response.json();
+          console.log('Logo uploaded successfully', data);
+          return data.location; // Return the URL of the logo
+      } else {
+          const errorData = await response.json();
+          console.error('Failed to upload logo:', errorData);
+          throw new Error('Failed to upload logo');
+      }
+    };
 
 
   async function handleAddEmail() {
@@ -74,25 +138,21 @@ const AddUni = () => {
       return;
     }
     const tempPassword = generateTemporaryPassword(); // Generate a compliant temporary password
-    // const params: AWS.CognitoIdentityServiceProvider.AdminCreateUserRequest = {
-    //   UserPoolId: cognitoPoolId, // Replace with your User Pool ID
+   
+    //First uploa the
 
-    //   Username: email,
-    //   TemporaryPassword: tempPassword,
-    //   UserAttributes: [
-    //     {
-    //       Name: 'email',
-    //       Value: email,
-    //     },
-    //     {
-    //       Name: 'email_verified',
-    //       Value: 'true',
-    //     },
-    //   ],
-    //   // MessageAction: 'RESEND', // Optionally, uncomment this line if needed
-    //   DesiredDeliveryMediums: ['EMAIL'],
-    // };
-    const createUser = async (email: string, tempPassword: string, name: string) => {
+    try {
+      const logoUrl = await uploadLogo(logo); // Get the URL of the uploaded logo
+      await createUser(email, tempPassword, name, logoUrl); // Now pass logoUrl to createUser
+      toast.success('User and logo added successfully!');
+  } catch (error) {
+      console.error('Operation failed:', error);
+      toast.error('Operation failed, please try again.');
+  }
+}
+
+
+    const createUser = async (email: string, tempPassword: string, name: string,logoUrl:any) => {
       const url =
         'https://66xzg471hh.execute-api.us-east-1.amazonaws.com/createUser'; // This will be replaced with the main api
         //66xzg471hh mine ----- prod u1oaj2omi2
@@ -101,7 +161,7 @@ const AddUni = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, tempPassword , name}),
+        body: JSON.stringify({ email, tempPassword , name,logoUrl}),
       };
 
       try {
@@ -121,65 +181,25 @@ const AddUni = () => {
       }
     };
 
-    try {
-      createUser(email, tempPassword,name);
-
-      console.log('Admin create user successful');
-      toast.success('Verification email sent to ' + email);
-    } catch (error) {
-      console.error('Error creating user:', error);
-      toast.error('Failed to create user: ');
-    }
-
-
-    // trying the upload logo
-  //   const uploadLogo = async ( logo:File ) => {
-  //     const url =
-  //       'https://u1oaj2omi2.execute-api.us-east-1.amazonaws.com/uploadS3'; // This will be replaced with the main api
-  //     /////
-  //      const formData = new FormData();
-  //         formData.append('logo', logo, logo.name); // Append the file to FormData
-  //         //formData.append('name', name); // Optionally send email or other fields
-      
-  //       const requestOptions: RequestInit = {
-  //       method: 'POST',
-  //       body:formData,
-  //       headers: {
-  //         'file-name': 'logo',
-  //         'bucket-name':'uni-artifacts',
-  //         'folder-name':'bahrainPolytechnic'
-  //       },
-  //      // body: JSON.stringify({ logo }),
-  //     };
-
-  //     try {
-  //       const response = await fetch(url, requestOptions);
-  //       if (response.ok) {
-  //         const data = await response.json();
-  //         console.log('Logo uploaded successfully', data);
-  //         // Handle success (e.g., display success message to the user)
-  //       } else {
-  //         const errorData = await response.json();
-  //         console.error('Failed to upload logo:', errorData);
-  //         // Handle failure (e.g., display error message to the user)
-  //       }
-  //     } catch (error) {
-  //       console.error('Error Uploading Logo:', error);
-  //       // Handle error (e.g., display error message to the user)
-  //     }
-  //   }; //end of upload
 
 
     
-  //   try {
-  //     await uploadLogo(logo);
-  //     toast.success('Logo uploaded successfully!');
-  //   } catch (error) {
-  //     console.error('Upload failed:', error);
-  //     toast.error('Upload failed, please try again.');
-  //   }
-  
-};
+
+    // try {
+    //   createUser(email, tempPassword,name);
+
+    //   console.log('Admin create user successful');
+    //   toast.success('Verification email sent to ' + email);
+    // } catch (error) {
+    //   console.error('Error creating user:', error);
+    //   toast.error('Failed to create user: ');
+    // }
+
+
+   //end of upload
+
+
+   
 
 
   
@@ -190,9 +210,10 @@ const AddUni = () => {
       <div className="container mx-auto px-4 py-8">
       <div className="max-w-md mx-auto">
 
+
+
       <div className="mb-4">
 
-    
       <label htmlFor="universityEmail" className="block text-m font-medium text-gray-700">University Email:</label>
           <input
             id="email"

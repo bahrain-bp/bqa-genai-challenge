@@ -87,14 +87,12 @@ export function ApiStack({ stack }: StackContext) {
       },
 
       //Uploading logo to S3
-      /*
       "POST /uploadLogo": {
         function: {
-          handler: "packages/functions/uploadLogo.uploadLogo",
-          permissions: "*"
-        }
+          handler: "packages/functions/src/uploadLogo.uploadLogoToS3",
+          permissions: "*",
+        },
       },
-      */
 
       //Fetching all users in cognito
       "GET /getUsers": {

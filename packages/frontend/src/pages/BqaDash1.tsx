@@ -1,43 +1,26 @@
 import Breadcrumb from '../components/Breadcrumbs/Breadcrumb';
 import DefaultLayout from '../layout/DefaultLayout';
 import './BqaDash1.css'; // Custom CSS file for progress bars
-import  { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
-
-
-
-
-
+import AWS from 'aws-sdk';
 const BqaDash1 = () => {
-
   const navigate = useNavigate();
-
-  /*const handleUniversitySelect = (email:any) => {
-    navigate(`/BqaDash2/${email}`);
-  };*/
   const [users, setUsers] = useState<{ Username: string; Attributes: { Name: string; Value: string }[] }[]>([]);
- 
-
-
- //const [selectedEmail, /*setSelectedEmail*/] = useState<string>('');
-  
- // const [subject, /*setSubject*/] = useState<string>('');
-  //const [message, /*setMessage*/] = useState<string>('');
-
-  
-
+const [imageUrl, setImageUrl] = useState('');
+  const [logos, setLogos] = useState<string[]>([]);
   useEffect(() => {
     const fetchCognitoUsers = async () => {
       try {
-        const response = await fetch('https://u1oaj2omi2.execute-api.us-east-1.amazonaws.com/getUsers');
+        const response = await fetch('https://66xzg471hh.execute-api.us-east-1.amazonaws.com/getUsers');
         const data = await response.json();
         if (response.ok) {
-                  // Filter out users where the 'name' attribute is 'BQA reviewer'
-        const filteredUsers = data.filter((user: { Attributes: { Name: string; Value: string; }[]; }) => {
-          const nameValue = getAttributeValue(user.Attributes, 'name');
-          return nameValue !== 'BQA Reviewer';
-        });
+          // Filter out users where the 'name' attribute is 'BQA reviewer'
+          const filteredUsers = data.filter((user: { Attributes: { Name: string; Value: string }[] }) => {
+            const nameValue = getAttributeValue(user.Attributes, 'name');
+            return nameValue !== 'BQA Reviewer';
+          });
           console.log(data); // Users data
           setUsers(filteredUsers); // Update the users state with the fetched data
         } else {
@@ -49,58 +32,140 @@ const BqaDash1 = () => {
     };
 
     fetchCognitoUsers(); // Call the fetchCognitoUsers function
-  }, []);
-    // Function to find attribute value by name
-    const getAttributeValue = (attributes: { Name: string; Value: string }[], attributeName: string): string => {
-      const attribute = attributes.find(attr => attr.Name === attributeName);
-      return attribute ? attribute.Value : 'N/A'; // Returns 'N/A' if attribute not found
+
+
+    const fetchLogos = async () => {
+      const url = 'https://66xzg471hh.execute-api.us-east-1.amazonaws.com/files'; // Replace with your actual API Gateway URL
+      try {
+        const response = await fetch(url, {
+          method: 'GET',
+          headers: {
+            'bucket-name': 'uni-artifacts',
+            'folder-name': 'bahrainPolytechnic',
+            'subfolder-name': 'logos'
+          }
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setLogos(data.files); // Assuming the Lambda returns an array of file information
+          console.log('Logos fetched successfully:', data.files);
+        } else {
+          const errorData = await response.json();
+          console.error('Failed to fetch logos:', errorData);
+        }
+      } catch (error) {
+        console.error('Error fetching logos:', error);
+      }
     };
-    
-  //     const handleSubmit = () => {
-  //   // Example of what you might do, customize as needed:
-  //   console.log(`Email: ${selectedEmail}, Subject: ${subject}, Message: ${message}`);
-  //   // Here you would typically send this data to a backend API
+
+
+
+
+
+
+  }, []);
+
+  // Function to find attribute value by name
+  const getAttributeValue = (attributes: { Name: string; Value: string }[], attributeName: string): string => {
+    const attribute = attributes.find(attr => attr.Name === attributeName);
+    return attribute ? attribute.Value : 'N/A'; // Returns 'N/A' if attribute not found
+  };
+
+//   // Function to remove query parameters from a URL
+  // const removeQueryParams = (url: string): string => {
+  //   try {
+  //     const urlObj = new URL(url);
+  //     urlObj.search = ''; // Remove query parameters
+  //     return urlObj.toString(); // Return the modified URL without query parameters
+  //   } catch (error) {
+  //     console.error('Invalid URL:', url);
+  //     return ''; // Return empty string for invalid URLs
+  //   }
   // };
+// // // Create an instance of the S3 service
+//  const s3 = new AWS.S3();
+//  useEffect(() => {
+//   const getSignedUrl = async () => {
+//     const params = {
+//       Bucket: 'uni-artifacts',
+//          Key: 'bahrainPolytechnic/logos/UOB%20LOGO.png',
+//     };
 
+//     try {
+//       const signedUrl = await s3.getSignedUrlPromise('getObject', params);
+//       setImageUrl(signedUrl);
+//     } catch (error) {
+//       console.error('Error generating signed URL:', error);
+//     }
+//   };
 
+//   getSignedUrl(); // Generate the signed URL
+// }, []);
 
+// // // Parameters for getObject method
+// const params = {
+//   Bucket: 'uni-artifacts',
+//   Key: 'bahrainPolytechnic/logos', // Replace with the actual key of your image in S3
+// };
 
+// // // Retrieve the object URL from S3
+// s3.getObject(params, (err, data) => {
+//   if (err) {
+//     console.error('Error retrieving image from S3:', err);
+//   } else {
+//     // Construct the object URL
+//     const objectUrl = URL.createObjectURL(new Blob([data.Body as BlobPart]));
+//         setImageUrl(objectUrl);
+//   }
+// });
 
-
-
-
+// // Clean up the object URL when component unmounts
+// if (imageUrl) {
+//   URL.revokeObjectURL(imageUrl);
+// }
 
   return (
     <DefaultLayout>
-    <Breadcrumb pageName="Bqa Reviewer Dashboard" />
-    <div className="container">
-    <div className="flex justify-end py-4">
-
-{/* Add university */}
-        <button   
+      <Breadcrumb pageName="Bqa Reviewer Dashboard" />
+      <div className="container">
+        <div className="flex justify-end py-4">
+          {/* Add university */}
+          <button
             className="px-5 py-2 bg-primary text-white rounded-md shadow-sm hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary-dark focus:ring-opacity-50"
-        > 
-              <Link to={`/AddUni`}>
-                Add University
-              </Link>
-      </button>
-      </div>
-      <div className="row">
-        {users.map(user => (
-          <div key={user.Username} className="col-md-4 col-sm-6" style={{ cursor: 'pointer' }}
-            onClick={() => navigate(`/BqaDash2/${getAttributeValue(user.Attributes, 'email')}`)}>
-            <div className="rounded-xl border border-stroke bg-white py-6 px-7.5 shadow-default dark:border-strokedark" style={{ marginBottom: '20px' }}>
-              <div className="d-flex justify-content-between align-items-center">
-                <h3 style={{ marginBottom: '10px' }}>{getAttributeValue(user.Attributes, 'name')}</h3>
-                <div className="inline-flex rounded-full bg-opacity-10 py-1 px-3 text-sm font-medium indicator bg-success text-success">Completed</div>
+          >
+            <Link to={`/AddUni`}>Add University</Link>
+          </button>
+        </div>
+        <div className="row">
+          {users.map(user => (
+            <div
+              key={user.Username}
+              className="col-md-4 col-sm-6"
+              style={{ cursor: 'pointer' }}
+              onClick={() => navigate(`/BqaDash2/${getAttributeValue(user.Attributes, 'email')}`)}
+            >
+              <div
+                className="rounded-xl border border-stroke bg-white py-6 px-7.5 shadow-default dark:border-strokedark"
+                style={{ marginBottom: '20px' }}
+              >
+                <div className="d-flex justify-content-between align-items-center">
+                  <h3 style={{ marginBottom: '10px' }}>{getAttributeValue(user.Attributes, 'name')}</h3>
+                  {/* Display the user's logo if available */}
+    
+
+                  <div className="inline-flex rounded-full bg-opacity-10 py-1 px-3 text-sm font-medium indicator bg-success text-success">
+                    Completed
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
-    </div>
-  </DefaultLayout>
+    </DefaultLayout>
   );
 };
 
 export default BqaDash1;
+
+
