@@ -20,7 +20,7 @@ const Standards: React.FC = () => {
   
       // Delete each record
       await Promise.all(recordsToDelete.map(async record => {
-        const apiUrl = `https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards/${record.entityId}`;
+        const apiUrl = `hhttps://bu6d6fsf7f.execute-api.us-east-1.amazonaws.com/standards/${record.entityId}`; // apiUrl of 'standards' DynamoDB to delete the record
         const response = await fetch(apiUrl, {
           method: 'DELETE',
         });
@@ -49,7 +49,7 @@ const Standards: React.FC = () => {
   
       // Update status to 'archived' for each record
       await Promise.all(recordsToArchive.map(async record => {
-        const apiUrl = `https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards/${record.entityId}`;
+        const apiUrl = `hhttps://bu6d6fsf7f.execute-api.us-east-1.amazonaws.com/standards/${record.entityId}`; // apiUrl of 'standards' DynamoDB to update the record
         const response = await fetch(apiUrl, {
           method: 'PUT', // Use PUT method to update the record
           headers: {
@@ -95,7 +95,7 @@ const Standards: React.FC = () => {
 
   const fetchRecords = async () => {
     try {
-      const response = await fetch(`https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards`);
+      const response = await fetch(`hhttps://bu6d6fsf7f.execute-api.us-east-1.amazonaws.com/standards`); // apiUrl of 'standards' DynamoDB to fetch the records
       if (!response.ok) {
         throw new Error('Failed to fetch records');
       }
@@ -125,7 +125,7 @@ const Standards: React.FC = () => {
        const newRecordData = {
         ...recordData,
       };
-      const response = await fetch('https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards', {
+      const response = await fetch('hhttps://bu6d6fsf7f.execute-api.us-east-1.amazonaws.com/standards', { // apiUrl of 'standards' DynamoDB to create the record
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

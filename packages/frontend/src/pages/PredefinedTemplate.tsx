@@ -74,7 +74,7 @@ const [indicators, setIndicators] = useState<any[]>([]); // State variable to st
   
       // Delete each record
       await Promise.all(recordsToDelete.map(async record => {
-        const apiUrl = `https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards/${record.entityId}`;
+        const apiUrl = `hhttps://bu6d6fsf7f.execute-api.us-east-1.amazonaws.com/standards/${record.entityId}`; // apiUrl of 'standards' DynamoDB to delete the record
         const response = await fetch(apiUrl, {
           method: 'DELETE',
         });
@@ -102,7 +102,7 @@ const [indicators, setIndicators] = useState<any[]>([]); // State variable to st
   
       // Update status to 'archived' for each record
       await Promise.all(recordsToArchive.map(async record => {
-        const apiUrl = `https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards/${record.entityId}`;
+        const apiUrl = `hhttps://bu6d6fsf7f.execute-api.us-east-1.amazonaws.com/standards/${record.entityId}`; // apiUrl of 'standards' DynamoDB to update the record
         const response = await fetch(apiUrl, {
           method: 'PUT', // Use PUT method to update the record
           headers: {
@@ -150,7 +150,7 @@ const [indicators, setIndicators] = useState<any[]>([]); // State variable to st
       await handleFileSelect(file, selectedStandard);
   
       // Create record in DynamoDB
-      const documentURL = `https://d2qvr68pyo44tt.cloudfront.net/${selectedStandard}/${file.name}`;
+      const documentURL = `https://d2qvr68pyo44tt.cloudfront.net/${selectedStandard}/${file.name}`; // Generate documentURL
       const newRecordData = {
         ...recordData,
         documentName: file.name,
@@ -158,7 +158,7 @@ const [indicators, setIndicators] = useState<any[]>([]); // State variable to st
         standardId: standardId, // Ensure standardId is included in the record data
         standardName: standardName // Include standardName in recordData
       };
-      const response = await fetch('https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards', {
+      const response = await fetch('hhttps://bu6d6fsf7f.execute-api.us-east-1.amazonaws.com/standards', { // apiUrl of 'standards' DynamoDB to create a new record
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -193,7 +193,7 @@ const [indicators, setIndicators] = useState<any[]>([]); // State variable to st
 
   const fetchIndicators = async (standardId: string | undefined) => {
     try {
-      const response = await fetch(`https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards?standardId=${standardId}`);
+      const response = await fetch(`hhttps://bu6d6fsf7f.execute-api.us-east-1.amazonaws.com/standards?standardId=${standardId}`); // apiUrl of 'standards' DynamoDB to fetch indicators
       if (!response.ok) {
         throw new Error('Failed to fetch indicators');
       }
@@ -208,7 +208,7 @@ const [indicators, setIndicators] = useState<any[]>([]); // State variable to st
 
   const fetchRecords = async (standardId: string | undefined) => {
     try {
-      const response = await fetch(`https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards?standard=${standardId}`);
+      const response = await fetch(`hhttps://bu6d6fsf7f.execute-api.us-east-1.amazonaws.com/standards?standard=${standardId}`); // apiUrl of 'standards' DynamoDB to fetch records
       if (!response.ok) {
         throw new Error('Failed to fetch records');
       }
@@ -294,7 +294,7 @@ const [indicators, setIndicators] = useState<any[]>([]); // State variable to st
 const fetchStandardName = async (standardId: string | undefined) => {
   try {
     // Make API call to fetch standard name based on standardId
-    const response = await fetch(`https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards?standardId=${standardId}`);
+    const response = await fetch(`hhttps://bu6d6fsf7f.execute-api.us-east-1.amazonaws.com/standards?standardId=${standardId}`); // apiUrl of 'standards' DynamoDB to fetch standard name
     if (!response.ok) {
       throw new Error('Failed to fetch standards');
     }

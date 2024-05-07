@@ -11,7 +11,7 @@ const EvidenceFiles: React.FC = () => {
   const fetchRecords = async (indicatorId: string | undefined) => {
     try {
       // Constructing URL with standard name
-      const apiUrl = `https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards?standard=${indicatorId}`;
+      const apiUrl = `hhttps://bu6d6fsf7f.execute-api.us-east-1.amazonaws.com/standards?standard=${indicatorId}`; // apiUrl of 'standards' DynamoDB to fetch records
 
       const response = await fetch(apiUrl);
       if (!response.ok) {
@@ -35,7 +35,7 @@ const EvidenceFiles: React.FC = () => {
         throw new Error('Record not found for the given document URL');
       }
   
-      const apiUrl = `https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards/${recordToDelete.entityId}`;
+      const apiUrl = `hhttps://bu6d6fsf7f.execute-api.us-east-1.amazonaws.com/standards/${recordToDelete.entityId}`; // apiUrl of 'standards' DynamoDB to delete record
       const response = await fetch(apiUrl, {
         method: 'DELETE',
       });
@@ -62,7 +62,7 @@ const EvidenceFiles: React.FC = () => {
     console.log('Record to be archived:', recordToArchive);
 
   
-      const apiUrl = `https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards/${recordToArchive.entityId}`;
+      const apiUrl = `hhttps://bu6d6fsf7f.execute-api.us-east-1.amazonaws.com/standards/${recordToArchive.entityId}`; // apiUrl of 'standards' DynamoDB to update record
       const response = await fetch(apiUrl, {
         method: 'PUT', // Use PUT method to update the record
         headers: {

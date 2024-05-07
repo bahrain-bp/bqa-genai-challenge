@@ -3,12 +3,10 @@ import { DBStack } from "./DBStack";
 import { CacheHeaderBehavior, CachePolicy } from "aws-cdk-lib/aws-cloudfront";
 import { Duration } from "aws-cdk-lib/core";
 import { AuthStack } from "./AuthStack";
-import * as iam from '@aws-cdk/aws-iam';
-
 
 export function ApiStack({ stack }: StackContext) {
   const { auth } = use(AuthStack);
-  const { table, Sumtable } = use(DBStack);
+  const { table } = use(DBStack);
 
   const api = new Api(stack, "signinAPI", {
     // Commented out the authorizers section
@@ -22,25 +20,38 @@ export function ApiStack({ stack }: StackContext) {
     // },
     defaults: {
       function: {
-        bind: [table, Sumtable], // Bind the tables name to our API
+        bind: [table], // Bind the table name to our API
       },
       // Optional: Remove authorizer from defaults if set to "jwt"
       // authorizer: "jwt",
     },
     routes: {
+      // Standards api routes
+      "POST /standards": "packages/functions/src/standards/create.main",
+      "GET /standards/{id}": "packages/functions/src/standards/get.main",
+      "GET /standards": "packages/functions/src/standards/list.main",
+      "PUT /standards/{id}": "packages/functions/src/standards/update.main",
+      "DELETE /standards/{id}": "packages/functions/src/standards/delete.main",
+      // Email API routes
+      "POST /send-email": {
+        function: {
+          handler: "packages/functions/src/send-email.sendEmail",
+          permissions: ["ses"]
+        }
+      },
       // Sample TypeScript lambda function
       "POST /": "packages/functions/src/lambda.main",
       "POST /uploadS3": {
         function: {
           handler: "packages/functions/src/s3Upload.uploadToS3",
-          permissions: ["s3"],
-        },
+          permissions: ["s3"]
+        }
       },
       "GET /detectFileType": {
         function: {
           handler: "packages/functions/detectFileType.detect",
           permissions: ["s3"],
-        },
+        }
       },
       "GET /private": "packages/functions/src/private.main",
       // Another sample TypeScript lambda function
@@ -51,7 +62,7 @@ export function ApiStack({ stack }: StackContext) {
           handler: "packages/functions/src/sample-python-lambda/lambda.main",
           runtime: "python3.11",
           timeout: "60 seconds",
-        },
+        }
       },
       // Add the new route for retrieving files
       "GET /files": {
@@ -60,60 +71,8 @@ export function ApiStack({ stack }: StackContext) {
           permissions: ["s3"], // Grant necessary S3 permissions
         },
       },
-
-      "POST /createUser": {
-        function: {
-          handler: "packages/functions/createUser.createUserInCognito",
-          permissions: "*",
-          //permissions wil be changed
-        },
-      },
-      // API routes for "FileSummary" CRUD
-      
-
-     
-      // An API to accept an input (path of S3 file that is already uploaded) 
-      // then trigger AI workflow processing Jumpstart and store the summary results in the database.
-
-      // const api = new Api(stack, "AItableApi", {
-      //   defaults: {
-      //       function: {
-      //           bind: [AItable], // Bind the table name to our API
-      //       },
-      //   },
-      //   routes: {
-      //       "POST /": "packages/functions/src/lambda.main", // will be changed later to the lambda for retieving the results
-      //   },
-      // });
-
-      //Uploading logo to S3
-      /*
-      "POST /uploadLogo": {
-        function: {
-          handler: "packages/functions/uploadLogo.uploadLogo",
-          permissions: "*"
-        }
-      },
-      */
-      
-      
-
-      //Fetching all users in cognito
-      "GET /getUsers": {
-        function: {
-          handler: "packages/functions/src/fetchUsers.getUsers", // Replace with your location
-          permissions: [
-            "cognito-idp:ListUsers" // Add any additional permissions if required
-          ]
-        },
-      },
-
     },
   });
-  const get_users_function = api.getFunction("POST /createUser");
-  get_users_function?.role?.addManagedPolicy(
-    iam.ManagedPolicy.fromAwsManagedPolicyName("AmazonCognitoPowerUser")
-  );
 
   // Define cache policy for the API
   const apiCachePolicy = new CachePolicy(stack, "CachePolicy", {
@@ -126,6 +85,11 @@ export function ApiStack({ stack }: StackContext) {
       "Referer"
     ),
   });
-  
+
+  // Add outputs
+  stack.addOutputs({
+    ApiEndpoint: api.url,
+  });
+
   return { api, apiCachePolicy };
 }

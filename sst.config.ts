@@ -4,8 +4,6 @@ import { ApiStack } from "./stacks/ApiStack";
 import {} from "./stacks/AuthStack";
 import { FrontendStack } from "./stacks/FrontendStack";
 import { DBStack } from "./stacks/DBStack";
-import { StandardAPIStack } from "./stacks/StandardAPIStack";
-import { EmailAPIStack } from "./stacks/EmailAPIStack";
 
 import { ImageBuilderForCodeCatalyst } from "./stacks/devops/ImageBuilderForCodeCatalyst";
 import { OIDCForGitHubCI } from "./stacks/devops/OIDCForGitHubCI";
@@ -35,8 +33,6 @@ export default {
         .stack(DBStack)
         .stack(AuthStack)
         .stack(ApiStack)
-        .stack(StandardAPIStack)
-        .stack(EmailAPIStack)
         .stack(FrontendStack)
         .stack(S3Stack)
     }
