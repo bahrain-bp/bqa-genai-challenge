@@ -259,7 +259,7 @@ const [indicators, setIndicators] = useState<any[]>([]); // State variable to st
         }
       );
       // var newS3 = new AWS.S3();
-
+// hell0
       // const params = {
       //   Bucket: 'bqa-standards-upload',
       //   Key: folderName + '/' + fileName,
