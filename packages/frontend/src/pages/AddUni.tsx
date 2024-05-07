@@ -61,7 +61,6 @@ const AddUni = () => {
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
   const [logo, setLogo] = useState<File | null>(null);
-  const [logoUrl, setLogoUrl] = useState('');
 
   
   const getMimeType = (filename:any) => {
@@ -77,61 +76,7 @@ const AddUni = () => {
     const file = event.target.files ? event.target.files[0] : null;
     setLogo(file);
   };
-    //trying the upload logo
-    const uploadLogo = async ( logo:File ) => {
-      const mimeType = getMimeType(File.name);
-  if (!logo) {
-      toast.error('Please select a logo to upload.');
-      return;
-    }
-      const url =
-        'https://66xzg471hh.execute-api.us-east-1.amazonaws.com/uploadLogo'; // This will be replaced with the main api
-      /////
-       const formData = new FormData();
-          formData.append('logo', logo, logo.name); // Append the file to FormData
-          //formData.append('name', name); // Optionally send email or other fields
-      
-        const requestOptions: RequestInit = {
-        method: 'POST',
-        body:formData,
-        headers: {
-          'file-name': logo.name,
-          'bucket-name':'uni-artifacts',
-          'folder-name':'bahrainPolytechnic',
-          'subfolder-name':'logos',
-          'Content-Type': mimeType
-        },
-       // body: JSON.stringify({ logo }),
-      };
-  
-      // try {
-      //   const response = await fetch(url, requestOptions);
-      //   if (response.ok) {
-      //     const data = await response.json();
-      //     console.log('Logo uploaded successfully', data);
-      //     // Handle success (e.g., display success message to the user)
-      //   } else {
-      //     const errorData = await response.json();
-      //     console.error('Failed to upload logo:', errorData);
-      //     // Handle failure (e.g., display error message to the user)
-      //   }
-      // } catch (error) {
-      //   console.error('Error Uploading Logo:', error);
-      //   // Handle error (e.g., display error message to the user)
-      // }
-      const response = await fetch(url, requestOptions);
-      if (response.ok) {
-          const data = await response.json();
-          console.log('Logo uploaded successfully', data);
-          return data.location; // Return the URL of the logo
-      } else {
-          const errorData = await response.json();
-          console.error('Failed to upload logo:', errorData);
-          throw new Error('Failed to upload logo');
-      }
-    };
-
-
+ 
   async function handleAddEmail() {
     if (!email || !name || !logo) {
       toast.error('Please fill all the fields.');
@@ -142,17 +87,19 @@ const AddUni = () => {
     //First uploa the
 
     try {
-      const logoUrl = await uploadLogo(logo); // Get the URL of the uploaded logo
-      await createUser(email, tempPassword, name, logoUrl); // Now pass logoUrl to createUser
+      //const logoUrl = await uploadLogo(logo); // Get the URL of the uploaded logo
+      await createUser(email, tempPassword, name); //
+      await uploadLogo(logo, name); //
+
       toast.success('User and logo added successfully!');
   } catch (error) {
-      console.error('Operation failed:', error);
-      toast.error('Operation failed, please try again.');
+      console.error('Error:', error);
+      toast.error('Error, please try again.');
   }
 }
 
 
-    const createUser = async (email: string, tempPassword: string, name: string,logoUrl:any) => {
+    const createUser = async (email: string, tempPassword: string, name: string) => {
       const url =
         'https://66xzg471hh.execute-api.us-east-1.amazonaws.com/createUser'; // This will be replaced with the main api
         //66xzg471hh mine ----- prod u1oaj2omi2
@@ -161,7 +108,7 @@ const AddUni = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, tempPassword , name,logoUrl}),
+        body: JSON.stringify({ email, tempPassword , name}),
       };
 
       try {
@@ -197,7 +144,67 @@ const AddUni = () => {
 
 
    //end of upload
+   //trying the upload logo
+   const uploadLogo = async ( logo:File , name:string) => {
+    const mimeType = getMimeType(File.name);
+if (!logo) {
+    toast.error('Please select a logo to upload.');
+    return;
+  }
+    const url =
+      'https://66xzg471hh.execute-api.us-east-1.amazonaws.com/uploadLogo'; // This will be replaced with the main api
+    /////
+     const formData = new FormData();
+        formData.append('logo', logo, logo.name); // Append the file to FormData
+        //formData.append('name', name); // Optionally send email or other fields
+    
+      const requestOptions: RequestInit = {
+      method: 'POST',
+      body:formData,
+      headers: {
+        'file-name': logo.name,
+        'bucket-name':'uni-artifacts',
+        'folder-name':name,
+        'subfolder-name':'logos',
+        'Content-Type': mimeType
+      },
+     // body: JSON.stringify({ logo }),
+    };
 
+    // try {
+    //   const response = await fetch(url, requestOptions);
+    //   if (response.ok) {
+    //     const data = await response.json();
+    //     console.log('Logo uploaded successfully', data);
+    //     // Handle success (e.g., display success message to the user)
+    //   } else {
+    //     const errorData = await response.json();
+    //     console.error('Failed to upload logo:', errorData);
+    //     // Handle failure (e.g., display error message to the user)
+    //   }
+    // } catch (error) {
+    //   console.error('Error Uploading Logo:', error);
+    //   // Handle error (e.g., display error message to the user)
+    // }
+  
+    try {
+      const response = await fetch(url, requestOptions);
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Logo uploaded successfully:', data);
+        // Handle success (e.g., display success message to the user)
+      } else {
+        const errorData = await response.json();
+        console.error('Failed to upload logo:', errorData);
+        // Handle failure (e.g., display error message to the user)
+      }
+    } catch (error) {
+      console.error('Error uploading logo:', error);
+      // Handle error (e.g., display error message to the user)
+    }
+
+
+  };
 
    
 

@@ -16,7 +16,7 @@ const userPoolId = "us-east-1_PraHctOMo";
 export const createUserInCognito: APIGatewayProxyHandlerV2 = async (
   event: any
 ) => {
-  const { email, tempPassword,name,logoUrl } = JSON.parse(event.body);
+  const { email, tempPassword,name } = JSON.parse(event.body);
 
   try {
     const command = new AdminCreateUserCommand({
@@ -37,7 +37,7 @@ export const createUserInCognito: APIGatewayProxyHandlerV2 = async (
            Name: "name", 
            Value: name 
           },
-            { Name: "picture", Value: logoUrl }
+            
         
       ],
       //MessageAction: 'SUPPRESS', // This will change the force change password to confirmed.
