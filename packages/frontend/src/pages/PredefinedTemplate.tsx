@@ -239,7 +239,7 @@ const [indicators, setIndicators] = useState<any[]>([]); // State variable to st
   }, []);
   
   async function uploadToS3Evidence(fileData: Blob | File, fileName: string, folderName: string) {
-    try {
+    // try {
       var upload = new AWS.S3.ManagedUpload({
         params: {
           Bucket:  'bqa-standards-upload',
@@ -269,10 +269,10 @@ const [indicators, setIndicators] = useState<any[]>([]); // State variable to st
       //  const uploadResult = await newS3.upload(params).promise();
 
       return { message: 'File uploaded successfully'};
-    } catch (error) {
-      console.error('Error uploading file:', error);
-      throw new Error('Failed to upload file');
-    }
+    // } catch (error) {
+    //   console.error('Error uploading file:', error);
+    //   throw new Error('Failed to upload file');
+    // }
   }
 
   async function handleFileSelect(file: File, selectedFolder: string) {
