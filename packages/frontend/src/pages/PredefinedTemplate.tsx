@@ -4,10 +4,13 @@ import './PredefinedTemplate.css'; // Importing CSS file
 import '@fortawesome/fontawesome-free/css/all.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash, faArchive } from '@fortawesome/free-solid-svg-icons';
+
 import { useTranslation } from 'react-i18next';
 
 
 //INDICATORS FILE **
+// import { CognitoIdentityServiceProvider } from 'aws-sdk';
+
 
 const PredefinedTemplate: React.FC = () => {
  // Get the standardId from the URL
@@ -23,8 +26,7 @@ if (inputElement) {
 
 const [showForm, setShowForm] = useState(false); // State variable to toggle form visibility
 const [standardName, setStandardName] = useState('');
-// const [standardName, setStandardName] = useState<any[]>([]); // State variable to store indicators
- 
+// const [standardName, setStandardName] = useState<any[]>([]);
 const [indicators, setIndicators] = useState<any[]>([]); // State variable to store indicators
  
   const [recordData, setRecordData] = useState({
@@ -125,8 +127,6 @@ const [indicators, setIndicators] = useState<any[]>([]); // State variable to st
     }
   };
   
-  
- 
   const toggleForm = () => {
     setShowForm(!showForm);
   };
@@ -240,12 +240,13 @@ const [indicators, setIndicators] = useState<any[]>([]); // State variable to st
     const standardId = window.location.pathname.split('/').pop();
     
  // Fetch indicators based on the standardId
- fetchStandardName(standardId);
- fetchIndicators(standardId);
+    fetchStandardName(standardId);
+    fetchIndicators(standardId);
     fetchRecords(standardId); 
   }, []);
   
   async function uploadToS3Evidence(fileData: Blob | File, fileName: string, folderName: string) {
+
     try {
       const AWS = require('aws-sdk');
       const s3 = new AWS.S3();
@@ -270,6 +271,61 @@ const [indicators, setIndicators] = useState<any[]>([]); // State variable to st
       console.error('Error uploading file:', error);
       throw new Error('Failed to upload file');
     }
+    // try {
+      const AWS = require('aws-sdk');
+      const s3 = new AWS.S3();
+      
+const uploadParams = {
+  Bucket: 'bqa-standards-upload',
+  Key: folderName + '/' + fileName,
+  Body: fileData
+};
+
+const upload = s3.upload(uploadParams);
+
+upload.promise()
+  .then(function() {
+    alert("Successfully uploaded photo.");
+  })
+  .catch(function() {
+    alert("There was an error uploading your photo: ");
+  });
+      // var upload = new AWS.S3.ManagedUpload({
+      //   params: {
+      //     Bucket:  'bqa-standards-upload',
+      //     Key: folderName + '/' + fileName,
+      //     Body: fileData
+      //   },
+      // });
+    
+      // var promise = upload.promise();
+
+      // promise.then(
+      //   function () {
+      //     alert("Successfully uploaded photo.");
+      //   },
+      //   function () {
+      //     return alert("There was an error uploading your photo: ");
+      //   }
+      // );
+
+
+
+      // // var newS3 = new AWS.S3();
+// hell0
+      // const params = {
+      //   Bucket: 'bqa-standards-upload',
+      //   Key: folderName + '/' + fileName,
+      //   Body: fileData
+      // };
+
+      //  const uploadResult = await newS3.upload(params).promise();
+
+      return { message: 'File uploaded successfully'};
+    // } catch (error) {
+    //   console.error('Error uploading file:', error);
+    //   throw new Error('Failed to upload file');
+    // }
   }
 
   async function handleFileSelect(file: File, selectedFolder: string) {
@@ -292,7 +348,11 @@ const [indicators, setIndicators] = useState<any[]>([]); // State variable to st
           })
           .catch(error => {
             console.error('Error uploading file:', error);
+
             // alert('Failed to upload file');
+
+            alert('Failed to upload file!');
+
           });
       }
     };
@@ -334,7 +394,11 @@ setStandardName(standardName);
         type="button" // Change type to "button"
         onClick={toggleForm} // Add onClick handler
       >
+
        {t('uploadEvidence')}
+
+      Upload Evidence
+
       </button>
       </div>
       {showForm && (
@@ -342,22 +406,39 @@ setStandardName(standardName);
           <div className="modal-overlay">
             <div className="modal-content">
             <div className="form-group">
+
               <label>  {t('chooseIndicator')}</label>
+
+              <label> Choose indicator</label>
+
               <select name="indicatorId" value={recordData.indicatorId} onChange={handleChange} className="white-background" >
-              {/* <select name="indicatorId" value="blah" className="white-background" > */}
+              
+                <option value="">Select indicator</option>
              
+
                 <option value="">{t('selectIndicator')}</option>
                 {indicators.map((indicator: any) => (
                   <option key={indicator.indicatorId} value={indicator.indicatorId}>
                     {`${indicator.indicatorId}: ${indicator.indicatorName}`}
                   </option>
                 ))}
+
+             {[...new Set(indicators.map((indicator: any) => indicator.indicatorId))]
+  .sort((a, b) => a - b)
+  .map((indicatorId: any) => {
+    const indicator = indicators.find((indicator: any) => indicator.indicatorId === indicatorId);
+    return (
+      <option key={indicator.indicatorId} value={indicator.indicatorId}>
+        {`${indicator.indicatorId}: ${indicator.indicatorName}`}
+      </option>
+    );
+  })}
+
               </select>
             </div><br />
 
-
-          
             <div className="form-group">
+
               <label>{t('indicatorName')}</label>
               <input type="text" name="indicatorName" value={recordData.indicatorName} onChange={handleChange} className="white-background" />
             </div><br />
@@ -375,6 +456,25 @@ setStandardName(standardName);
             </div><br />
             <div className="form-group">
               <label>{t('status')}</label>
+
+              <label>Inidcator name</label>
+              <input type="text" name="indicatorName" value={recordData.indicatorName} onChange={handleChange} className="white-background" />
+            </div><br />
+            <div className="form-group">
+              <label>Indicator id </label>
+              <input type="text" name="indicatorId" value={recordData.indicatorId} onChange={handleChange} className="white-background" />
+            </div><br />
+            <div className="form-group">
+              <label>upload doc</label>
+              <input type="file" name="documentName" value={recordData.documentName} onChange={handleChange} className="white-background" />
+            </div><br />
+            <div className="form-group">
+              <label>doc desc</label>
+              <input type="text" name="description" value={recordData.description} onChange={handleChange} className="white-background" />
+            </div><br />
+            <div className="form-group">
+              <label>status</label>
+
               <input type="text" name="status" value={recordData.status} onChange={handleChange} className="white-background" readOnly />
             </div><br />
             <div className="form-buttons">
@@ -383,14 +483,22 @@ setStandardName(standardName);
         type="button"
         onClick={handleCancel}
       >
+
         {t('cancel')}
+
+       cancel
+
       </button>
       <button
         className={`flex rounded bg-primary py-2 px-6 font-medium text-gray hover:bg-opacity-90 mr-4`}
         type="button" // Change type to "button"
         onClick={createRecord} // Add onClick handler
       >
+
         {t('save')}
+
+        save
+
       </button>
       </div>
       </div>
@@ -402,8 +510,13 @@ setStandardName(standardName);
 
       <div>
       <div className="predefined-header">
+
         <h2>   {t('indicators')}</h2>
         <h6>  {t('findTemplates')}</h6>
+
+        <h2>  Indicator</h2>
+        <h6>  sample</h6>
+
       </div>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-4 2xl:gap-7.5">
        
