@@ -2,6 +2,7 @@ import { useState, ChangeEvent } from "react";
 import { Link } from "react-router-dom";
 import { toast } from 'react-toastify'; // Import toast from react-toastify
 import 'react-toastify/dist/ReactToastify.css'; // Import the CSS for react-toastify
+import { useTranslation } from 'react-i18next';
 import { resetPassword, confirmResetPassword,
    type ResetPasswordOutput, type ConfirmResetPasswordInput } from 'aws-amplify/auth';
 
@@ -23,7 +24,8 @@ export default function ForgotPassword() {
   const [confirmed, setConfirmed] = useState(false);
   const [/*isConfirming*/, setIsConfirming] = useState(false);
   const [/*isSendingCode*/, setIsSendingCode] = useState(false);
-
+  const { t } = useTranslation(); // Hook to access translation functions
+    
   const handleFieldChange = (e: ChangeEvent<HTMLInputElement>) => {
     setFields({
       ...fields,
@@ -115,7 +117,7 @@ export default function ForgotPassword() {
     return (
       <div className="container mx-auto px-4 py-8 flex justify-center items-center h-screen">
          <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-         <h1 className="text-2xl font-semibold mb-4">Enter Your Email</h1>
+         <h1 className="text-2xl font-semibold mb-4"> {t('enterEmail')}</h1>
 
       <form onSubmit={handleSendCodeClick} className="max-w-md mx-auto">
         <input
@@ -136,8 +138,7 @@ export default function ForgotPassword() {
           type="submit"
           disabled={!validateCodeForm()}
           className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition duration-300">
-
-          Send Confirmation
+      {t('confirmation')}
         </button>
         </div>
 
@@ -155,7 +156,7 @@ export default function ForgotPassword() {
       <form onSubmit={handleConfirmClick} className="max-w-md mx-auto">
       <div className="mb-4">
 
-        <label htmlFor="code" className="block text-sm font-medium text-gray-700">Confirmation Code</label>
+        <label htmlFor="code" className="block text-sm font-medium text-gray-700"> {t('confirmationCode')}</label>
         <input
           autoFocus
           type="tel"
@@ -168,7 +169,7 @@ export default function ForgotPassword() {
         </div>
         <div className="mb-4">
 
-        <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700">New Password</label>
+        <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700"> {t('newPassword')}</label>
         <input
           type="password"
           id="password"
@@ -180,8 +181,8 @@ export default function ForgotPassword() {
         />
         </div>
         <div className="mb-4">
-
-        <label htmlFor="confirmNewPassword" className="block text-sm font-medium text-gray-700">Confirm Password</label>
+        
+        <label htmlFor="confirmNewPassword" className="block text-sm font-medium text-gray-700">{t('confirmPassword')}</label>
         <input
           type="password"
           id="confirmPassword"
@@ -197,7 +198,7 @@ export default function ForgotPassword() {
           type="submit"
           disabled={!validateResetForm()}
           className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition duration-300">
-          Confirm
+          {t('confirm')}
         </button>
         </div>
       </form>
@@ -210,7 +211,7 @@ export default function ForgotPassword() {
     return (
 <div className="container mx-auto px-4 py-8 flex justify-center items-center h-screen">
          <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-                  <p className="block text-lg font-medium text-gray-700">Your password has been reset. Click <Link to="/Auth/SignInPage" className="font-bold text-black-700 underline">here</Link> to login with your new credentials.</p>
+                  <p className="block text-lg font-medium text-gray-700">{t('passwordResetSuccess')} <Link to="/Auth/SignInPage" className="font-bold text-black-700 underline">here</Link> {t('passwordResetSuccessContinue')}</p>
      </div>
       </div>
     );

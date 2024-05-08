@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import SidebarLinkGroup from './SidebarLinkGroup';
 import Logo from '../../images/logo/Eduscribe.svg';
+import { useTranslation } from 'react-i18next';
 
 interface SidebarProps {
   sidebarOpen: boolean;
@@ -11,10 +12,14 @@ interface SidebarProps {
 const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
   const location = useLocation();
   const { pathname } = location;
-
+  const { t, i18n } = useTranslation(); // Hook to access translation functions
+    
   const trigger = useRef<any>(null);
   const sidebar = useRef<any>(null);
 
+  const changeLanguage = (lng: string) => {
+    i18n.changeLanguage(lng);
+  };
   const storedSidebarExpanded = localStorage.getItem('sidebar-expanded');
   const [sidebarExpanded, setSidebarExpanded] = useState(
     storedSidebarExpanded === null ? false : storedSidebarExpanded === 'true'
@@ -91,14 +96,15 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
         </button>
       </div>
       {/* <!-- SIDEBAR HEADER --> */}
-
+ <button onClick={() => changeLanguage('ar')}>العربية</button>
+            <button onClick={() => changeLanguage('en')}>English</button>
       <div className="no-scrollbar flex flex-col overflow-y-auto duration-300 ease-linear">
         {/* <!-- Sidebar Menu --> */}
         <nav className="mt-5 py-4 px-4 lg:mt-9 lg:px-6">
           {/* <!-- Menu Group --> */}
           <div>
             <h3 className="mb-4 ml-4 text-sm font-semibold text-bodydark2">
-              MENU
+            {t('menu')}
             </h3>
 
             <ul className="mb-6 flex flex-col gap-1.5">
@@ -138,7 +144,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                           />
                         
                   </svg>
-                  Officer Dashboard
+                  {t('officerDashboard')}
                 </NavLink>
               </li>
               {/* <!-- Menu Item Profile --> */}
@@ -162,7 +168,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
 
 
                   
-                  Predefined Template
+{t('predefinedTemplate')}
                 </NavLink>
               </li>
               {/* <!-- Menu Item Profile --> */}
@@ -181,7 +187,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
   <path d="M12 2V16"></path>
   <path d="M5 9L12 2L19 9"></path>
                   </svg>
-                  Upload Evidence
+{t('uploadEvidence')}
                 </NavLink>
               </li>
               {/* <!-- Menu Item Profile --> */}
@@ -199,7 +205,8 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
   <path d="M13 3V12H21"></path>
   <path d="M3 12V21H8"></path>
                   </svg>
-                  Bqa Reviewer Dashboard
+                  
+{t('bqaReviewerDashboard')}
                 </NavLink>
               </li>
               {/* <!-- Menu Item Profile --> */}
@@ -216,7 +223,8 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
           {/* <!-- Others Group --> */}
           <div>
             <h3 className="mb-4 ml-4 text-sm font-semibold text-bodydark2">
-              OTHERS
+              
+{t('others')}
             </h3>
 
             <ul className="mb-6 flex flex-col gap-1.5">
@@ -701,7 +709,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                       </clipPath>
                     </defs>
                   </svg>
-                  Settings
+               {t('settings')}
                 </NavLink>
               </li>
               {/* <!-- Menu Item Settings --> */}
@@ -756,7 +764,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                             </clipPath>
                           </defs>
                         </svg>
-                        Authentication
+                        {t('authentication')}
                         <svg
                           className={`absolute right-4 top-1/2 -translate-y-1/2 fill-current ${
                             open && 'rotate-180'
@@ -790,7 +798,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                                 (isActive && '!text-white')
                               }
                             >
-                              Sign In
+                          {t('signIn')}
                             </NavLink>
                           </li>
                           <li>

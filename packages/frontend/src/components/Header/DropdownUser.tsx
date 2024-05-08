@@ -5,6 +5,7 @@ import UserOne from '../../images/user/UOB-Logo-Transparant.png';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import {fetchUserAttributes } from 'aws-amplify/auth';
+import { useTranslation } from 'react-i18next';
 
 
 const DropdownUser = () => {
@@ -13,7 +14,8 @@ const DropdownUser = () => {
   const dropdown = useRef<any>(null);
   const [currentEmail, setCurrentEmail] = useState('');
   const [currentName, setCurrentName] = useState('');
-
+  const { t } = useTranslation(); // Hook to access translation functions
+    
   //const [users, setUsers] = useState<{ Username: string; Attributes: { Name: string; Value: string }[] }[]>([]);
 
 
@@ -152,7 +154,7 @@ const DropdownUser = () => {
                   fill=""
                 />
               </svg>
-              Predefined Template
+              {t('predefinedTemplates')}
             </Link>
           </li>
 
@@ -178,7 +180,7 @@ const DropdownUser = () => {
                   fill=""
                 />
               </svg>
-              Upload Evidence
+              {t('uploadEvidence')}
             </Link>
           </li>
 
@@ -204,7 +206,7 @@ const DropdownUser = () => {
                   fill=""
                 />
               </svg>
-              Bqa Reviewer Dashboard           
+              {t('bqaReviewerDashboard')}         
                </Link>
           </li>
 
@@ -230,7 +232,7 @@ const DropdownUser = () => {
                   fill=""
                 />
               </svg>
-              Bqa Reviewer Dashboard University Details       
+              {t('bqaReviewerDashboardUniversityDetails')}     
                </Link>
           </li>
 
@@ -276,7 +278,7 @@ const DropdownUser = () => {
                   fill=""
                 />
               </svg>
-              Change Password
+              {t('changePassword')}     
             </Link>
           </li>
 
@@ -302,7 +304,7 @@ const DropdownUser = () => {
                   fill=""
                 />
               </svg>
-              Account Settings
+              {t('accountSettings')}  
             </Link>
           </li>
         </ul>
@@ -329,7 +331,7 @@ const DropdownUser = () => {
               fill=""
             />
           </svg>
-          Log Out
+          {t('logOut')}  
         </button>
       </div>
       {/* <!-- Dropdown End --> */}
