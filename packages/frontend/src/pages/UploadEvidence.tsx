@@ -5,6 +5,8 @@ import styled from 'styled-components';
 import { toast } from 'react-toastify';
 import { FileUpload } from 'primereact/fileupload';
 
+
+
 const MainContainer = styled.div`
   width: 100%;
   max-width: 900px;
@@ -86,11 +88,48 @@ const ButtonStyle = styled.button`
   }
 `;
 
+const StyledFileDisplay = styled.div`
+  padding: 10px;
+  margin: 5px 0;
+  background-color: #f4f4f4;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+`;
+
+const FileName = styled.span`
+  margin-left: 10px;
+`;
+
+const DeleteIcon = styled.i`
+  cursor: pointer;
+  margin-left: auto;
+  color: red; // You can adjust the color as needed
+`;
+
 const UploadEvidence = () => {
   const [standards, setStandards] = useState([]);
   const [activeStep, setActiveStep] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState({});
+
+
+
+  const getMimeType = (files:any) => {
+    const extension = files.split('.').pop();
+    switch (extension.toLowerCase()) {
+        case 'pdf': return 'application/pdf';
+        // case 'jpg':
+        // case 'jpeg': return 'image/jpeg';
+        // case 'png': return 'image/png';
+        // case 'doc': return 'application/msword';
+        // case 'docx': return 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+        // case 'txt': return 'text/plain';
+        default: return 'application/octet-stream'; // Default MIME type
+    }
+};
 
 
   
@@ -133,14 +172,10 @@ const UploadEvidence = () => {
   const handleFileChange = async (files:any, standard:any, indicator:any) => {
     setIsUploading(true);
 
-    // Ensure all necessary data is available
     if (!standard || !indicator) {
-      console.error('Invalid standard or indicator data');
-      toast.error('Invalid data provided for upload');
-      setIsUploading(false);
-        console.log("Standard Data:", standards[activeStep]);
-        console.log("Indicator Data:", indicator);
-
+        console.error('Invalid standard or indicator data');
+        toast.error('Invalid data provided for upload');
+        setIsUploading(false);
         return;
     }
 
@@ -157,12 +192,14 @@ const UploadEvidence = () => {
             const response = await fetch('https://l1ca6m1ik7.execute-api.us-east-1.amazonaws.com/uploadS3', {
                 method: 'POST',
                 body: formData,
-                headers: new Headers({
-                  'file-name': (file.name),
+                headers: {
+                    'file-name': file.name,
                     'bucket-name': 'uni-artifacts',
-                    'folder-name': 'UOB',
-                    'subfolder-name': (`${standard.standardId}/${indicator.id}`),
-                }),
+                    'folder-name': 'BUB',
+                    'subfolder-name': `${standard.standardId}`,
+                    'subSubfolder-name': `${indicator.id}`,
+                    'content-type': 'application/pdf' // Assuming all files are PDF
+                },
             });
 
             if (!response.ok) {
@@ -170,12 +207,11 @@ const UploadEvidence = () => {
                 throw new Error(`Failed to upload file: ${errorText}`);
             }
 
-           // const uploadedFile = await response.json(); // Adjust based on actual response structure 
+            // Log file info and refresh file list
+            console.log("Uploaded file:", file.name);
+            fetchUploadedFiles(); // Assuming this fetches and logs files
             toast.success('File uploaded successfully');
-            
-            //console.log("Updating state with new file: ", uploadedFile);
-
-
+           
 
         } catch (error) {
             console.error('Upload error:', error);
@@ -185,77 +221,100 @@ const UploadEvidence = () => {
     setIsUploading(false);
 };
 
-
 //fetch uploaded folders TRY#1
 
-// const fetchUploadedFiles = async () => {
-//   if (standards.length === 0 || activeStep < 0 || activeStep >= standards.length) {
-//     return; // Guard against fetching if no standards are loaded or activeStep is out of bounds
-//   }
+const fetchUploadedFiles = async () => {
+  if (standards.length === 0 || activeStep < 0 || activeStep >= standards.length) {
+      return; // Guard clause
+  }
 
-//   const currentStandard = standards[activeStep];
-//   const url = `https://l1ca6m1ik7.execute-api.us-east-1.amazonaws.com/files`;
+  const currentStandard = standards[activeStep];
+  const url = `https://l1ca6m1ik7.execute-api.us-east-1.amazonaws.com/files`;
 
-//   try {
-//     const response = await fetch(url, {
-//       method: 'GET',
-//       headers: {
-//         'Accept': 'application/json',
-//         //'file-name': (files.name),
-//                     'bucket-name': 'uni-artifacts',
-//                     'folder-name': 'UOB',
-//                     //'subfolder-name': (`${standard.standardId}/${indicator.id}`), 
-//       },
-//     });
-//     if (!response.ok) {
-//       throw new Error(`HTTP status ${response.status}`);
-//     }
-//     const data = await response.json();
-//     setUploadedFiles(prev => ({ ...prev, [currentStandard.standardId]: data }));
-//   } catch (error) {
-//     console.error('Error fetching uploaded files:', error);
-//     toast.error(`Error fetching uploaded files: ${error.message}`);
-//   }
-// };
+  try {
+      const response = await fetch(url, {
+          method: 'GET',
+          headers: {
+              'bucket-name': 'uni-artifacts',
+              'folder-name': 'BUB',
+              'subfolder-name': `${currentStandard.standardId}`,
+          },
+      });
 
-// useEffect(() => {
-//   fetchUploadedFiles();
-// }, [activeStep, standards]);
+      if (!response.ok) {
+          throw new Error(`HTTP status ${response.status}`);
+      }
+      const data = await response.json();
+      const files = data.files; // Ensure this matches the structure you log in Lambda
 
+      const filesByIndicator = files.reduce((acc, file) => {
+          // Path structure: 'BUB/StandardID/IndicatorID/filename'
+          const parts = file.Key.split('/');
+          const indicatorId = parts[2]; // This assumes the indicator ID is the third part
+          if (!acc[indicatorId]) {
+              acc[indicatorId] = [];
+          }
+          acc[indicatorId].push({ name: file.Key });
+          return acc;
+      }, {});
 
-
-
-
-
-//fetch uploaded folders TRY#2
-
-// useEffect(() => {
-//   const fetchUploadedFilesForCurrentStep = async () => {
-//     const currentStandard = standards[activeStep];
-//     if (currentStandard) {
-//       try {
-//         const response = await fetch(`https://l1ca6m1ik7.execute-api.us-east-1.amazonaws.com/files/${currentStandard.standardId}/${currentStandard.indicatorId}`);
-//         if (!response.ok) {
-//           throw new Error(`HTTP status ${response.status}`);
-//         }
-//         const files = await response.json();
-//         setUploadedFiles(prevFiles => ({
-//           ...prevFiles,
-//           [currentStandard.standardId]: files
-//         }));
-//       } catch (error) {
-//         console.error('Error fetching files:', error);
-//         toast.error(`Error fetching files: ${error.message}`);
-//       }
-//     }
-//   };
-
-//   if (standards.length > 0) {
-//     fetchUploadedFilesForCurrentStep();
-//   }
-// }, [activeStep, standards]);  // Add standards to the dependency array if the fetching depends on it
+      setUploadedFiles(prev => ({
+          ...prev,
+          [currentStandard.standardId]: filesByIndicator
+      }));
+  } catch (error) {
+      console.error('Error fetching uploaded files:', error);
+      toast.error(`Error fetching uploaded files: ${error.message}`);
+  }
+};
 
 
+const handleFileDelete = async (fileKey, standardId, indicatorId) => {
+  try {
+    // Construct the API endpoint URL
+    const url = `https://l1ca6m1ik7.execute-api.us-east-1.amazonaws.com/deleteFile`; // Replace with your actual endpoint URL
+
+    const response = await fetch(url, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        bucketName: 'uni-artifacts', // Your S3 bucket name
+        key: fileKey // This should be the full path of the file in S3
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP status ${response.status}`);
+    }
+
+    // Parse JSON response if necessary
+    const result = await response.json();
+    toast.success('File deleted successfully');
+
+    // Update local state to remove the file from the list
+    setUploadedFiles(prevFiles => {
+      const updatedFiles = {...prevFiles};
+      const filteredFiles = updatedFiles[standardId][indicatorId].filter(file => file.name !== fileKey);
+      updatedFiles[standardId][indicatorId] = filteredFiles;
+
+      return updatedFiles;
+    });
+
+  } catch (error) {
+    console.error('Delete file error:', error);
+    toast.error(`Failed to delete file: ${error.message}`);
+  }
+};
+
+
+
+
+
+useEffect(() => {
+  fetchUploadedFiles();
+}, [activeStep, standards]); // Re-fetch when these change
 
 
   const nextStep = () => {
@@ -292,29 +351,57 @@ const UploadEvidence = () => {
         <br /><br /><br /><br /><br />
          
    
-{standards[activeStep]?.indicators.map((indicator, index) => (
-        <div key={`${activeStep}-${index}`} className="card">
-          <h4>{indicator.label}</h4>
-          {uploadedFiles[standards[activeStep]?.standardId]?.map(file => (
-            <p key={file.name}>{file.name}</p> // Display uploaded files
-          ))}
+        {/* {standards[activeStep]?.indicators.map((indicator, index) => (
+  <div key={`${activeStep}-${index}`} className="card">
+    <h4>{indicator.label}</h4> */}
+
+    {/* Safely render uploaded files if they exist, default to empty array if not 
+    {(uploadedFiles[standards[activeStep]?.standardId] || []).map(file => (
+      <p key={file.name}>{file.name}</p>  // Display uploaded files
+    ))}
+
+    */}
+    
+{/*   
+  {(uploadedFiles[standards[activeStep]?.standardId] || []).map(file => (
+    <p key={file.name}>{file.name.split('/').pop()}</p>  // Use split and pop to get the last part of the path
+))} */}
+
+
     
 
-    <FileUpload
-      name={`upload-${activeStep}-${index}`}
-      url='https://l1ca6m1ik7.execute-api.us-east-1.amazonaws.com/uploadS3'
-      multiple
-      accept="*"
-      maxFileSize={10000000}  // 10 MB
-      onSelect={(e) => handleFileChange(e.files, standards[activeStep], indicator)}
-      onError={(e) => {
-        console.error('Upload Error:', e);
-        // toast.error(`Upload failed: ${e.message || 'See console for more details.'}`);
-      }}
-      emptyTemplate={<p>Drag and drop files here to upload</p>}
-    />
-  </div>
-))}
+{
+    standards[activeStep]?.indicators.map((indicator, index) => (
+        <div key={`${activeStep}-${index}`} className="card">
+            <h4>{indicator.label}</h4>
+            <FileUpload
+                name={`upload-${activeStep}-${index}`}
+                url='https://l1ca6m1ik7.execute-api.us-east-1.amazonaws.com/uploadS3'
+                multiple
+                accept="*"
+                maxFileSize={10000000} // 10 MB limit
+                onSelect={(e) => handleFileChange(e.files, standards[activeStep], indicator)}
+                onError={(e) => {
+                    console.error('Upload Error:', e);
+                }}
+                emptyTemplate={<p>Drag and drop files here to upload</p>}
+            />
+            <div style={{ marginTop: '10px' }}>
+            {
+    (uploadedFiles[standards[activeStep]?.standardId]?.[indicator.id] || []).map(file => (
+        <StyledFileDisplay key={file.name}>
+            <i className="pi pi-file" style={{ fontSize: '1.2em' }}></i>
+           {file.name.split('/').pop()}
+            <DeleteIcon className="pi pi-times"   onClick={() => handleFileDelete(file.name, standards[activeStep]?.standardId, indicator.id)}
+ />
+        </StyledFileDisplay>
+    ))
+}
+
+            </div>
+        </div>
+    ))
+}
 
       </MainContainer>
     </DefaultLayout>

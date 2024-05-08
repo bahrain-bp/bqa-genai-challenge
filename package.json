@@ -27,12 +27,9 @@
   "dependencies": {
     "@aws-amplify/auth": "^6.0.25",
     "@aws-amplify/ui-react": "^6.1.6",
-
-    "@aws-sdk/client-textract": "^3.568.0",
-
     "@aws-cdk/aws-iam": "^1.204.0",
     "@aws-sdk/client-cognito-identity-provider": "^3.564.0",
-
+    "@aws-sdk/client-textract": "^3.569.0",
     "@coreui/icons": "^3.0.1",
     "@coreui/icons-react": "^2.2.1",
     "aws-amplify": "^6.0.26",
@@ -40,10 +37,8 @@
     "bootstrap": "^5.3.3",
     "bootstrap-icons": "^1.11.3",
     "immer": "^9.0.21",
-
     "pdfjs-dist": "^4.1.392",
-    "proxy-agent": "^6.4.0",
-
+    "primeicons": "^7.0.0",
     "primereact": "^10.6.5",
     "proxy-agent": "^6.4.0",
     "react": "^18.2.0",

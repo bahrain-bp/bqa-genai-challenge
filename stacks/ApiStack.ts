@@ -78,6 +78,14 @@ export function ApiStack({ stack }: StackContext) {
         },
       },
 
+      // Add the new route for deleting files
+  "DELETE /deleteFile": {
+    function: {
+      handler: "packages/functions/src/deleteS3.main", // Replace with your actual handler location
+      permissions: ["s3"],
+    },
+  },
+
       "POST /createUser": {
         function: {
           handler: "packages/functions/createUser.createUserInCognito",
