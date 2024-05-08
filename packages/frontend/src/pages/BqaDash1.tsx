@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import Loader from '../common/Loader';
-import AWS from 'aws-sdk';
+//import AWS from 'aws-sdk';
 const BqaDash1 = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState<boolean>(true);
