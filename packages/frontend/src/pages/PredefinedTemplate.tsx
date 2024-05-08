@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import DefaultLayout from '../layout/DefaultLayout';
 import './PredefinedTemplate.css'; // Importing CSS file
-// import * as AWS from 'aws-sdk';
 import '@fortawesome/fontawesome-free/css/all.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash, faArchive } from '@fortawesome/free-solid-svg-icons';
@@ -248,22 +247,29 @@ const [indicators, setIndicators] = useState<any[]>([]); // State variable to st
   
   async function uploadToS3Evidence(fileData: Blob | File, fileName: string, folderName: string) {
     try {
-      // const s3 = new AWS.S3();
+      const AWS = require('aws-sdk');
+      const s3 = new AWS.S3();
 
-      const params = {
-        Bucket: 'bqa-standards-upload',
-        Key: folderName + '/' + fileName,
-        Body: fileData
-      };
+    const uploadParams = {
+      Bucket: 'bqa-standards-upload',
+      Key: folderName + '/' + fileName,
+      Body: fileData
+    };
 
-      // const uploadResult = await s3.upload(params).promise();
+    const upload = s3.upload(uploadParams);
 
-      return { message: 'File uploaded successfully', params };
+    upload.promise()
+  .then(function() {
+    alert("Successfully uploaded file.");
+  })
+  .catch(function() {
+    alert("There was an error uploading your file: ");
+  });
+      return { message: 'File uploaded successfully'};
     } catch (error) {
       console.error('Error uploading file:', error);
       throw new Error('Failed to upload file');
     }
-    // console.log(' uploading file:', fileData,fileName,folderName);
   }
 
   async function handleFileSelect(file: File, selectedFolder: string) {
