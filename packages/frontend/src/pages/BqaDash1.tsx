@@ -17,30 +17,30 @@ const BqaDash1 = () => {
   };*/
   const [users, setUsers] = useState<{ Username: string; Attributes: { Name: string; Value: string }[] }[]>([]);
   const { t } = useTranslation(); // Hook to access translation functions
-   const [imageUrl, setImageUrl] = useState('');
-  const [logos, setLogos] = useState<string[]>([]);
+   //const [imageUrl, setImageUrl] = useState('');
+  //const [logos, setLogos] = useState<string[]>([]);
   useEffect(() => {
-    const fetchCognitoUsers = async () => {
-      try {
-        //66xzg471hh
+     //66xzg471hh
         //prod u1oaj2omi2
-        const response = await fetch('https://66xzg471hh.execute-api.us-east-1.amazonaws.com/getUsers');
-        const data = await response.json();
-        if (response.ok) {
-          
-          const filteredUsers = data.filter((user: { Attributes: { Name: string; Value: string }[] }) => {
-            const nameValue = getAttributeValue(user.Attributes, 'name');
-            return nameValue;
-          });
-          console.log(data); // Users data
-          setUsers(filteredUsers); // Update the users state with the fetched data
-        } else {
-          console.error('Error fetching users:', data.error);
-        }
-      } catch (error) {
-        console.error('Error fetching users:', error);
-      }
-    };
+        const fetchCognitoUsers = async () => {
+          try {
+            const response = await fetch('https://u1oaj2omi2.execute-api.us-east-1.amazonaws.com/getUsers');
+            const data = await response.json();
+            if (response.ok) {
+                      // Filter out users where the 'name' attribute is 'BQA reviewer'
+            const filteredUsers = data.filter((user: { Attributes: { Name: string; Value: string; }[]; }) => {
+              const nameValue = getAttributeValue(user.Attributes, 'name');
+              return nameValue !== 'BQA Reviewer';
+            });
+              console.log(data); // Users data
+              setUsers(filteredUsers); // Update the users state with the fetched data
+            } else {
+              console.error('Error fetching users:', data.error);
+            }
+          } catch (error) {
+            console.error('Error fetching users:', error);
+          }
+        };
 
     fetchCognitoUsers(); // Call the fetchCognitoUsers function
 

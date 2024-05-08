@@ -101,7 +101,7 @@ const AddUni = () => {
 
     const createUser = async (email: string, tempPassword: string, name: string) => {
       const url =
-        'https://66xzg471hh.execute-api.us-east-1.amazonaws.com/createUser'; // This will be replaced with the main api
+        'https://u1oaj2omi2.execute-api.us-east-1.amazonaws.com/createUser'; // This will be replaced with the main api
         //66xzg471hh mine ----- prod u1oaj2omi2
       const requestOptions: RequestInit = {
         method: 'POST',
@@ -152,7 +152,7 @@ if (!logo) {
     return;
   }
     const url =
-      'https://66xzg471hh.execute-api.us-east-1.amazonaws.com/uploadLogo'; // This will be replaced with the main api
+      'https://u1oaj2omi2.execute-api.us-east-1.amazonaws.com/uploadLogo'; // This will be replaced with the main api
     /////
      const formData = new FormData();
         formData.append('logo', logo, logo.name); // Append the file to FormData
@@ -166,7 +166,7 @@ if (!logo) {
         'bucket-name':'uni-artifacts',
         'folder-name':name,
         'subfolder-name':'logos',
-        'Content-Type': 'image/png'
+        'Content-Type': mimeType
       },
      // body: JSON.stringify({ logo }),
     };
