@@ -5,11 +5,13 @@ import '@fortawesome/fontawesome-free/css/all.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash, faArchive } from '@fortawesome/free-solid-svg-icons';
 
+
 import { useTranslation } from 'react-i18next';
 
 
 //INDICATORS FILE **
 // import { CognitoIdentityServiceProvider } from 'aws-sdk';
+
 
 
 const PredefinedTemplate: React.FC = () => {
@@ -248,6 +250,9 @@ const [indicators, setIndicators] = useState<any[]>([]); // State variable to st
   async function uploadToS3Evidence(fileData: Blob | File, fileName: string, folderName: string) {
 
     try {
+
+
+    try {
       const AWS = require('aws-sdk');
       const s3 = new AWS.S3();
 
@@ -272,9 +277,10 @@ const [indicators, setIndicators] = useState<any[]>([]); // State variable to st
       throw new Error('Failed to upload file');
     }
     // try {
+
       const AWS = require('aws-sdk');
       const s3 = new AWS.S3();
-      
+
 const uploadParams = {
   Bucket: 'bqa-standards-upload',
   Key: folderName + '/' + fileName,
@@ -290,42 +296,11 @@ upload.promise()
   .catch(function() {
     alert("There was an error uploading your photo: ");
   });
-      // var upload = new AWS.S3.ManagedUpload({
-      //   params: {
-      //     Bucket:  'bqa-standards-upload',
-      //     Key: folderName + '/' + fileName,
-      //     Body: fileData
-      //   },
-      // });
-    
-      // var promise = upload.promise();
-
-      // promise.then(
-      //   function () {
-      //     alert("Successfully uploaded photo.");
-      //   },
-      //   function () {
-      //     return alert("There was an error uploading your photo: ");
-      //   }
-      // );
-
-
-
-      // // var newS3 = new AWS.S3();
-// hell0
-      // const params = {
-      //   Bucket: 'bqa-standards-upload',
-      //   Key: folderName + '/' + fileName,
-      //   Body: fileData
-      // };
-
-      //  const uploadResult = await newS3.upload(params).promise();
-
       return { message: 'File uploaded successfully'};
-    // } catch (error) {
-    //   console.error('Error uploading file:', error);
-    //   throw new Error('Failed to upload file');
-    // }
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      throw new Error('Failed to upload file');
+    }
   }
 
   async function handleFileSelect(file: File, selectedFolder: string) {
