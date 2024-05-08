@@ -4,12 +4,26 @@ import { CognitoIdentityServiceProvider } from 'aws-sdk';
 export const getUsers: APIGatewayProxyHandler = async (event, context) => {
   const client = new CognitoIdentityServiceProvider({ region: 'us-east-1' });
 
-  const params = {
-    UserPoolId: 'us-east-1_PraHctOMo', // Replace with your User Pool ID
-  };
+ 
+  const userPoolId: string = 'us-east-1_PraHctOMo'; // Your User Pool ID
+  const groupName: string = 'universityOfficers';
+  console.log(`Fetching users from group: ${groupName} in pool: ${userPoolId}`);
+
 
   try {
-    const data = await client.listUsers(params).promise();
+    const data = await client.listUsersInGroup(
+      {
+        UserPoolId: userPoolId,
+        GroupName: groupName,
+      }
+
+    ).promise();
+    console.log('Users fetched:', data.Users?.length);
+    if (data.Users) {
+      data.Users.forEach(user => console.log(user.Username));
+    } else {
+      console.log('No users found in the group.');
+    }
     const users = data.Users || [];
 
     return {
@@ -21,7 +35,7 @@ export const getUsers: APIGatewayProxyHandler = async (event, context) => {
 
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: 'Failed to fetch users' }),
+      body: JSON.stringify({ error: 'Failed to fetch users from group' }),
     };
   }
 };

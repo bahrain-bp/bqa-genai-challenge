@@ -1,6 +1,10 @@
 import { ApexOptions } from 'apexcharts';
 import React, { useState } from 'react';
 import ReactApexChart from 'react-apexcharts';
+import  {  useEffect } from 'react';
+
+import Loader from '../../common/Loader';
+
 
 const options: ApexOptions = {
   colors: ['#3C50E0', '#80CAEE'],
@@ -44,7 +48,7 @@ const options: ApexOptions = {
   },
 
   xaxis: {
-    categories: ['1', '2', '3', '4', '5', '6', '7','8','9'],
+    categories: ['1', '2', '3', '4', '5', '6'],
   },
   legend: {
     position: 'top',
@@ -74,7 +78,7 @@ const ChartTwo: React.FC = () => {
     series: [
       {
         name: 'Standard',
-        data: [44, 55, 41, 67, 22, 43, 65,55,90],
+        data: [44, 55, 41, 67, 22, 43],
       },
       //{
         //name: 'Revenue',
@@ -82,6 +86,10 @@ const ChartTwo: React.FC = () => {
       //},
     ],
   });
+  const [loading, setLoading] = useState<boolean>(true);
+  useEffect(() => {
+    setTimeout(() => setLoading(false), 1000);
+  }, []);
   
   const handleReset = () => {
     setState((prevState) => ({
@@ -90,7 +98,9 @@ const ChartTwo: React.FC = () => {
   };
   handleReset;  
 
-  return (
+  return loading ? (
+    <Loader />
+  ) : (
     <div className="col-span-12 rounded-sm border border-stroke bg-white p-7.5 shadow-default dark:border-strokedark dark:bg-boxdark xl:col-span-4">
       <div className="mb-4 justify-between gap-4 sm:flex">
         <div>
@@ -142,7 +152,7 @@ const ChartTwo: React.FC = () => {
       </div>
 
       <div>
-        <div id="chartTwo" className="-ml-5 -mb-9">
+        <div id="chartTwo" className="-ml-5 -mb-8">
           <ReactApexChart
             options={options}
             series={state.series}

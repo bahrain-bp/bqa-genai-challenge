@@ -7,9 +7,6 @@ import {  faUndo } from '@fortawesome/free-solid-svg-icons';
 
 
 const Archived: React.FC = () => {
-
-
-
   const handleArchiveStandard = async (standardId: string) => {
     try {
       // Fetch records with the matching standardId
