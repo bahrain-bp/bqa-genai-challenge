@@ -7,6 +7,8 @@ import DefaultLayout from '../layout/DefaultLayout';
 import { Package } from '../types/package';
 import ChartThree from '../components/Charts/ChartThree';
 import ChartTwo from '../components/Charts/ChartTwo';
+import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 
 
@@ -108,7 +110,11 @@ const OfficerDash = () => {
                 </td>
                 <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
                   <div className="flex items-center space-x-3.5">
+                    {/**This button will take you to the summarization tex */}
                     <button className="hover:text-primary">
+                    <Link to={`/SummaryPage`}>
+                
+              
                       <svg
                         className="fill-current"
                         width="18"
@@ -126,6 +132,7 @@ const OfficerDash = () => {
                           fill=""
                         />
                       </svg>
+                      </Link>
                     </button>
                     <button className="hover:text-primary">
                       <svg
