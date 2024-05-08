@@ -4,6 +4,7 @@ import './BqaDash1.css'; // Custom CSS file for progress bars
 import  { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import Loader from '../common/Loader';
 
 
@@ -20,7 +21,8 @@ const BqaDash1 = () => {
     navigate(`/BqaDash2/${email}`);
   };*/
   const [users, setUsers] = useState<{ Username: string; Attributes: { Name: string; Value: string }[] }[]>([]);
- 
+  const { t } = useTranslation(); // Hook to access translation functions
+    
 
 
  //const [selectedEmail, /*setSelectedEmail*/] = useState<string>('');
@@ -82,7 +84,7 @@ const BqaDash1 = () => {
     <Loader />
   ) : (
     <DefaultLayout>
-    <Breadcrumb pageName="Bqa Reviewer Dashboard" />
+    <Breadcrumb pageName={t("bqaReviewerDashboard")} />
     <div className="container">
     <div className="flex justify-end py-4">
 
@@ -91,7 +93,7 @@ const BqaDash1 = () => {
             className="px-5 py-2 bg-primary text-white rounded-md shadow-sm hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary-dark focus:ring-opacity-50"
         > 
               <Link to={`/AddUni`}>
-                Add University
+              {t('addUniversity')}
               </Link>
       </button>
       </div>
@@ -103,7 +105,7 @@ const BqaDash1 = () => {
             <div className="rounded-xl border border-stroke bg-white py-6 px-7.5 shadow-default dark:border-strokedark" style={{ marginBottom: '20px' }}>
               <div className="d-flex justify-content-between align-items-center">
                 <h3 style={{ marginBottom: '10px' }}>{getAttributeValue(user.Attributes, 'name')}</h3>
-                <div className="inline-flex rounded-full bg-opacity-10 py-1 px-3 text-sm font-medium indicator bg-success text-success">Completed</div>
+                <div className="inline-flex rounded-full bg-opacity-10 py-1 px-3 text-sm font-medium indicator bg-success text-success">  {t('completed')}</div>
               </div>
             </div>
           </div>

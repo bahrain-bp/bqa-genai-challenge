@@ -5,7 +5,7 @@ import {  toast } from 'react-toastify';
 import Logo from '../../images/logo/Eduscribe_dark.svg';
 import 'react-toastify/dist/ReactToastify.css';
 import { Link } from 'react-router-dom';
-
+import { useTranslation } from 'react-i18next';
 
 type SetStateType<T> = React.Dispatch<React.SetStateAction<T>>;
 
@@ -18,17 +18,18 @@ const SignInPage = ({
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const navigate = useNavigate();
-
+  const { t } = useTranslation(); // Hook to access translation functions
+    
   const handleSignIn = async (email: string, password: string) => {
-    toast.info('Logging in...', { position: 'top-right' });
+    toast.info(t('loading'), { position: 'top-right' });
     try {
       const user = await signIn({ username: email, password });
       setUser(user);
-      toast.success('Welcome!', { position: 'top-right' });
+      toast.success(t('welcomeMessage'), { position: 'top-right' });
       navigate('/Standards'); // Redirect to dashboard after successful sign-in
     } catch (error) {
       console.error('Error signing in', error);
-      toast.error('Error signing in', { position: 'top-right' });
+      toast.error(t('error'), { position: 'top-right' });
       
     }
   };
@@ -79,7 +80,7 @@ const SignInPage = ({
           <div className="w-full border-stroke dark:border-strokedark xl:w-1/2 xl:border-l-2">
             <div className="w-full p-4 sm:p-12.5 xl:p-17.5">
               <h2 className="mb-9 text-2xl font-bold text-black dark:text-white sm:text-title-xl2">
-                Sign In to Eduscribe
+              {t('signInToEduscribe')}
               </h2>
 
               <form
@@ -90,13 +91,13 @@ const SignInPage = ({
               >
                 <div className="mb-4">
                   <label className="mb-2.5 block font-medium text-black dark:text-white">
-                    Email
+                  {t('email')}
                   </label>
                   <div className="relative">
                     <input
                       type="email"
                       onChange={(e) => setEmail(e.target.value)}
-                      placeholder="Enter your email"
+                      placeholder=   {t('enterYourEmail')}
                       className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                     />
 
@@ -122,13 +123,13 @@ const SignInPage = ({
 
                 <div className="mb-6">
                   <label className="mb-2.5 block font-medium text-black dark:text-white">
-                    Password
+                  {t('password')}
                   </label>
                   <div className="relative">
                     <input
                       type="password"
                       onChange={(e) => setPassword(e.target.value)}
-                      placeholder="6+ Characters, 1 Capital letter"
+                      placeholder={t('passwordRequirements')}
                       className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                     />
 
@@ -167,7 +168,7 @@ const SignInPage = ({
                 
                 <div>
                   {/* Your sign-in form */}
-                  <Link to="/ForgotPassword">Forgot Password ?</Link>
+                  <Link to="/ForgotPassword"> {t('forgotPassword')}</Link>
               </div>
 
               {/* <div>
