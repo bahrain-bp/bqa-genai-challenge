@@ -2,6 +2,7 @@ import { SQSEvent } from "aws-lambda";
 import axios, { AxiosResponse } from "axios";
 import * as AWS from "aws-sdk";
 import { Queue } from "sst/node/queue";
+
 // Variable to store processed message IDs
 let processedMessageIds: Set<string> = new Set();
 
@@ -44,40 +45,50 @@ export async function handler(event: SQSEvent, app: any) {
 
       // Extracted text
       const responseData = postResponse.data;
-      const extractedText = responseData.text;
+      var extractedText = responseData.text;
+      
+      // Check if the extracted text is a string before splitting it
+      extractedText = String(extractedText);
+
       console.log("Extracted Text from the handler:", extractedText);
 
-      // Construct the request payload to match the provided structure
-      const requestBody = {
-        body: {
-          inputs:
-            extractedText +
-            "can you provide a summary about this file content, start the summary with This file is about and summarize it in 5 bullet points ",
-          parameters: {
-            max_new_tokens: 3000,
-            top_p: 0.9,
-            temperature: 0.2,
+      // Split the extracted text by logical boundaries
+      const chunks = splitTextByLogicalBoundaries(extractedText);
+      console.log("Text chunks:", chunks);
+
+      // Iterate over the text chunks and process each one
+      for (let i = 0; i < chunks.length; i++) {
+        const chunk = chunks[i];
+        console.log(`Processing chunk ${i + 1}/${chunks.length}: ${chunk}`);
+
+        // Construct the request payload for each chunk
+        const requestBody = {
+          body: {
+            inputs: chunk + "can you provide a summary about this file content, start the summary with This file is about and summarize it in small paragraph ",
+            parameters: {
+              max_new_tokens: 3500,
+              top_p: 0.9,
+              temperature: 0.2,
+            },
           },
-        },
-      };
-      await deleteMessageFromQueue(record.receiptHandle);
+        };
+        
+        // If the response is successful (status code 200), make a POST request to the SageMaker endpoint
+        if (postResponse.status === 200) {
+          // Replace "Text" with the actual extracted text
+          const endpoint = "https://d55gtzdu04.execute-api.us-east-1.amazonaws.com/dev-demo/sageMakerInvoke";
 
-      // If the response is successful (status code 200), make a POST request to the SageMaker endpoint
-      if (postResponse.status === 200) {
-        // Replace "Text" with the actual extracted text
-        const endpoint =
-          "https://d55gtzdu04.execute-api.us-east-1.amazonaws.com/dev-demo/sageMakerInvoke";
+          try {
+            // Make the POST request to the endpoint for each chunk
+            const response = await axios.post(endpoint, requestBody);
 
-        try {
-          // Make the POST request to the endpoint
-          const response = await axios.post(endpoint, requestBody);
-
-          // Log the response
-          console.log("Response from endpoint:", response.data);
-          // Now this needs to be saved in the database with the corresponding standard name/uni/fileURL
-        } catch (error: any) {
-          // Log any errors
-          console.error("Error sending request:", error.message);
+            // Log the response
+            console.log("Response from endpoint:", response.data);
+            // Now this needs to be saved in the database with the corresponding standard name/uni/fileURL
+          } catch (error: any) {
+            // Log any errors
+            console.error("Error sending request:", error.message);
+          }
         }
       }
 
@@ -110,4 +121,26 @@ async function deleteMessageFromQueue(receiptHandle: string): Promise<void> {
       ReceiptHandle: receiptHandle,
     })
     .promise();
+}
+
+function splitTextByLogicalBoundaries(text: string): string[] {
+  // This function chunks the last full stop given text to the max token size 
+  const sentences = text.split(/[.!?]/);
+  const chunks: string[] = [];
+  let currentChunk = '';
+
+  for (const sentence of sentences) {
+    if ((currentChunk.length + sentence.length) <= 4000) {
+      currentChunk += sentence + '.';
+    } else {
+      chunks.push(currentChunk.trim());
+      currentChunk = sentence + '.';
+    }
+  }
+
+  if (currentChunk) {
+    chunks.push(currentChunk.trim());
+  }
+
+  return chunks;
 }
