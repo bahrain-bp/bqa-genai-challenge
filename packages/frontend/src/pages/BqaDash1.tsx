@@ -37,7 +37,7 @@ const BqaDash1 = () => {
       try {
         //66xzg471hh
         //prod u1oaj2omi2
-        const response = await fetch('https://66xzg471hh.execute-api.us-east-1.amazonaws.com/getUsers');
+        const response = await fetch('https://u1oaj2omi2.execute-api.us-east-1.amazonaws.com/getUsers');
         const data = await response.json();
         if (response.ok) {
                   

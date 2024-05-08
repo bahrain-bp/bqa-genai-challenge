@@ -94,7 +94,7 @@ const AddUni = () => {
     // };
     const createUser = async (email: string, tempPassword: string, name: string) => {
       const url =
-        'https://66xzg471hh.execute-api.us-east-1.amazonaws.com/createUser'; // This will be replaced with the main api
+        'https://u1oaj2omi2.execute-api.us-east-1.amazonaws.com/createUser'; // This will be replaced with the main api
         //66xzg471hh mine ----- prod u1oaj2omi2
       const requestOptions: RequestInit = {
         method: 'POST',
