@@ -6,6 +6,7 @@ import { toast } from 'react-toastify';
 //import { ProgressBar, step } from 'react-step-ProgressBar';
 //import styled from 'styled-components';
 import 'react-toastify/dist/ReactToastify.css';
+import { useTranslation } from 'react-i18next';
 
 interface StepContentProps {
   stepNumber: number;
@@ -49,7 +50,8 @@ const StepContent: React.FC<StepContentProps> = ({ stepNumber,  standardName, in
             </svg>
           </span>
           <p>
-            <span className="text-primary">Click to upload</span> or drag and drop
+            
+            <span className="text-primary"> Click to upload </span> or drag and drop
           </p>
           <p className="mt-1.5">SVG, PNG, JPG or GIF</p>
           <p>(max, 800 X 800px)</p>
@@ -83,7 +85,8 @@ const UploadEvidence = () => {
   const [savedSteps, setSavedSteps] = useState<number[]>([]);
   //const [saveClicked, setSaveClicked] = useState<boolean>(false);
   const [currentStep, setCurrentStep] = useState<number>(1);
-
+  const { t } = useTranslation(); // Hook to access translation functions
+    
   const handleSaveClick = () => {
     //setSaveClicked(true);
     setSavedSteps([...savedSteps, currentStep]);
@@ -102,10 +105,10 @@ const UploadEvidence = () => {
   const moveToNextStep = () => {
     setCurrentStep(currentStep + 1);
   };
-
+  
   return (
     <DefaultLayout>
-      <Breadcrumb pageName="Upload Evidence" />
+      <Breadcrumb pageName={t('uploadEvidence')} />
       {/* Progress bar */}
       <div className="mb-4">
         <div className="flex flex-col items-center justify-between mt-2">

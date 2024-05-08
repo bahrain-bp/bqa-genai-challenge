@@ -30,7 +30,6 @@ import BqaRequestPage from './pages/BqaRequestPage';
 import { getCurrentUser, fetchUserAttributes } from 'aws-amplify/auth';
 import { ToastContainer } from 'react-toastify';
 
-
 function App() {
   const [user, setUser] = useState<any | null>(null);
 
@@ -92,6 +91,7 @@ function App() {
             </>
           }
         />
+        
 
         <Route
           path="/Dashboard"
@@ -121,6 +121,7 @@ function App() {
             </>
           }
         />
+        
          <Route
           path="/Archived"
           element={
