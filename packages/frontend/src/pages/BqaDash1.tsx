@@ -6,11 +6,6 @@ import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import Loader from '../common/Loader';
-
-
-
-
-
 import AWS from 'aws-sdk';
 const BqaDash1 = () => {
   const navigate = useNavigate();
@@ -29,7 +24,7 @@ const BqaDash1 = () => {
       try {
         //66xzg471hh
         //prod u1oaj2omi2
-        const response = await fetch('https://u1oaj2omi2.execute-api.us-east-1.amazonaws.com/getUsers');
+        const response = await fetch('https://66xzg471hh.execute-api.us-east-1.amazonaws.com/getUsers');
         const data = await response.json();
         if (response.ok) {
           
@@ -50,29 +45,29 @@ const BqaDash1 = () => {
     fetchCognitoUsers(); // Call the fetchCognitoUsers function
 
 
-    const fetchLogos = async () => {
-      const url = 'https://66xzg471hh.execute-api.us-east-1.amazonaws.com/files'; // Replace with your actual API Gateway URL
-      try {
-        const response = await fetch(url, {
-          method: 'GET',
-          headers: {
-            'bucket-name': 'uni-artifacts',
-            'folder-name': 'bahrainPolytechnic',// it should be user attribute name 
-            'subfolder-name': 'logos'
-          }
-        });
-        if (response.ok) {
-          const data = await response.json();
-          setLogos(data.files); // Assuming the Lambda returns an array of file information
-          console.log('Logos fetched successfully:', data.files);
-        } else {
-          const errorData = await response.json();
-          console.error('Failed to fetch logos:', errorData);
-        }
-      } catch (error) {
-        console.error('Error fetching logos:', error);
-      }
-    };
+    // const fetchLogos = async () => {
+    //   const url = 'https://66xzg471hh.execute-api.us-east-1.amazonaws.com/files'; // Replace with your actual API Gateway URL
+    //   try {
+    //     const response = await fetch(url, {
+    //       method: 'GET',
+    //       headers: {
+    //         'bucket-name': 'uni-artifacts',
+    //         'folder-name': 'bahrainPolytechnic',// it should be user attribute name 
+    //         'subfolder-name': 'logos'
+    //       }
+    //     });
+    //     if (response.ok) {
+    //       const data = await response.json();
+    //       setLogos(data.files); // Assuming the Lambda returns an array of file information
+    //       console.log('Logos fetched successfully:', data.files);
+    //     } else {
+    //       const errorData = await response.json();
+    //       console.error('Failed to fetch logos:', errorData);
+    //     }
+    //   } catch (error) {
+    //     console.error('Error fetching logos:', error);
+    //   }
+    // };
 
 
 
