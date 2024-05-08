@@ -139,18 +139,6 @@ function App() {
           }
         />
 
-    
-
-        <Route
-          path="/OfficerDash"
-          element={
-            <>
-              <PageTitle title="Officer Dashboard | EduScribe" />
-              <OfficerDash />
-            </>
-          }
-        />
-
 
          <Route
           path="/forms/form-elements"
@@ -215,15 +203,7 @@ function App() {
             </>
           }
         />
-                <Route
-          path="/ChangePassword"
-          element={
-            <>
-              <PageTitle title="Change Password | EduScribe" />
-              <ChangePassword />
-            </>
-          }
-        />
+
        
          <Route
           path="/ForgotPassword"
