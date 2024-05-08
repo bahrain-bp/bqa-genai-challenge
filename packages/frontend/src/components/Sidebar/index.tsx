@@ -2,6 +2,11 @@ import React, { useEffect, useRef, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import SidebarLinkGroup from './SidebarLinkGroup';
 import Logo from '../../images/logo/Eduscribe.svg';
+import {fetchUserAttributes } from 'aws-amplify/auth';
+import Loader from '../../common/Loader';
+import { signOut } from 'aws-amplify/auth';
+import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
 interface SidebarProps {
@@ -16,6 +21,22 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
     
   const trigger = useRef<any>(null);
   const sidebar = useRef<any>(null);
+  const [/*currentName*/, setCurrentName] = useState('');
+  const [isAdmin, setIsAdmin] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true);
+  const navigate = useNavigate();
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      // Navigate to the SignInPage after signing out
+      navigate('/Auth/SignInPage');
+      toast.success('Logged out successfully', { position: 'top-left' });
+    } catch (error) {
+      console.error('Error signing out', error);
+      toast.error('Error during logout', { position: 'top-left' });
+    }
+  };
 
   const changeLanguage = (lng: string) => {
     i18n.changeLanguage(lng);
@@ -40,6 +61,9 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
     document.addEventListener('click', clickHandler);
     return () => document.removeEventListener('click', clickHandler);
   });
+  useEffect(() => {
+    setTimeout(() => setLoading(false), 1000);
+  }, []);
 
   // close if the esc key is pressed
   useEffect(() => {
@@ -60,7 +84,25 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
     }
   }, [sidebarExpanded]);
 
-  return (
+  useEffect(() => {
+    const fetchCurrentUserInfo = async () => {
+      try {
+        const attributes = await fetchUserAttributes();
+        const name:any= attributes.name;
+        setCurrentName(name);
+        setIsAdmin(name.endsWith("BQA Reviewer") || false);
+
+      } catch (error) {
+        console.error('Error fetching current user info:', error);
+      }
+    };
+
+    fetchCurrentUserInfo();
+  }, []);
+
+  return loading ? (
+    <Loader />
+  ) : (
     <aside
       ref={sidebar}
       className={`absolute left-0 top-0 z-9999 flex h-screen w-72.5 flex-col overflow-y-hidden bg-black duration-300 ease-linear dark:bg-boxdark lg:static lg:translate-x-0 ${
@@ -111,6 +153,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
             
 
               {/* <!-- Menu Item Profile --> */}
+              {!isAdmin ?(
               <li>
                 <NavLink
                   to="/OfficerDash"
@@ -147,6 +190,10 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                   {t('officerDashboard')}
                 </NavLink>
               </li>
+              ) : null}
+
+
+
               {/* <!-- Menu Item Profile --> */}
 
 
@@ -174,6 +221,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
               {/* <!-- Menu Item Profile --> */}
 
               {/* <!-- Menu Item Profile --> */}
+              {!isAdmin ? (
               <li>
                 <NavLink
                   to="/UploadEvidence"
@@ -190,7 +238,9 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
 {t('uploadEvidence')}
                 </NavLink>
               </li>
+              ) : null}
               {/* <!-- Menu Item Profile --> */}
+              {isAdmin ?(
 
               <li>
                 <NavLink
@@ -209,6 +259,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
 {t('bqaReviewerDashboard')}
                 </NavLink>
               </li>
+              ):null}
               {/* <!-- Menu Item Profile --> */}
      
 
@@ -792,18 +843,32 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                         <ul className="mt-4 mb-5.5 flex flex-col gap-2.5 pl-6">
                           <li>
                             <NavLink
-                              to="/Auth/SigninPage"
+                              to="/ChangePassword"
                               className={({ isActive }) =>
                                 'group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:text-white ' +
                                 (isActive && '!text-white')
                               }
                             >
-                          {t('signIn')}
+                              Change your password
                             </NavLink>
                           </li>
-                          <li>
+
+
+
+
+                          <li className="mt-4 mb-5.5 flex flex-col gap-2.5 pl-6">
                           {/* Logout */ }
-                    
+                          <NavLink 
+                            to="/" 
+                            onClick={handleSignOut}
+                            className='group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:text-white ' 
+
+>
+                              Log Out
+
+
+                          </NavLink>
+                              
 
                           </li>
                         </ul>

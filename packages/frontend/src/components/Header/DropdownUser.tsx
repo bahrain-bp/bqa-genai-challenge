@@ -132,7 +132,7 @@ const DropdownUser = () => {
         }`}
       >
         <ul className="flex flex-col gap-5 border-b border-stroke px-6 py-7.5 dark:border-strokedark">
-          <li>
+          {/* <li>
             <Link
               to="/PredefinedTemplate"
               className="flex items-center gap-3.5 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base"
@@ -156,9 +156,9 @@ const DropdownUser = () => {
               </svg>
               {t('predefinedTemplates')}
             </Link>
-          </li>
+          </li> */}
 
-          <li>
+          {/* <li>
             <Link
               to="/UploadEvidence"
               className="flex items-center gap-3.5 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base"
@@ -182,9 +182,9 @@ const DropdownUser = () => {
               </svg>
               {t('uploadEvidence')}
             </Link>
-          </li>
+          </li> */}
 
-          <li>
+          {/* <li>
             <Link
               to="/BqaDash1"
               className="flex items-center gap-3.5 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base"
@@ -208,9 +208,9 @@ const DropdownUser = () => {
               </svg>
               {t('bqaReviewerDashboard')}         
                </Link>
-          </li>
+          </li> */}
 
-          <li>
+          {/* <li>
             <Link
               to="/BqaDash2"
               className="flex items-center gap-3.5 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base"
@@ -234,11 +234,11 @@ const DropdownUser = () => {
               </svg>
               {t('bqaReviewerDashboardUniversityDetails')}     
                </Link>
-          </li>
+          </li> */}
 
 
           
-          <li>
+          {/* <li>
             <Link
               to="#"
               className="flex items-center gap-3.5 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base"
@@ -258,7 +258,7 @@ const DropdownUser = () => {
               </svg>
               My Contacts
             </Link>
-          </li>
+          </li> */}
 
           <li>
             <Link
@@ -282,7 +282,7 @@ const DropdownUser = () => {
             </Link>
           </li>
 
-          <li>
+          {/* <li>
             <Link
               to="/pages/settings"
               className="flex items-center gap-3.5 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base"
@@ -306,7 +306,7 @@ const DropdownUser = () => {
               </svg>
               {t('accountSettings')}  
             </Link>
-          </li>
+          </li> */}
         </ul>
 
 

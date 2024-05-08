@@ -8,7 +8,8 @@ import { Package } from '../types/package';
 import ChartThree from '../components/Charts/ChartThree';
 import ChartTwo from '../components/Charts/ChartTwo';
 import { useTranslation } from 'react-i18next';
-
+import Loader from '../common/Loader';
+import  {  useEffect,useState } from 'react';
 
 
 
@@ -45,8 +46,19 @@ const OfficerDash = () => {
   const { t } = useTranslation(); // Hook to access translation functions
     
 
-  return (
+  const [loading, setLoading] = useState<boolean>(true);
+  useEffect(() => {
+    setTimeout(() => setLoading(false), 1000);
+  }, []);
+
+  return  (
+    
     <DefaultLayout>
+
+      {loading && (
+    <Loader /> 
+    )}
+        
       <Breadcrumb pageName=  {t('universityOfficerDashboard')} />
 
 
@@ -186,7 +198,7 @@ const OfficerDash = () => {
       </div>
     </div>
 
-
+         
     </DefaultLayout>
   );
 };

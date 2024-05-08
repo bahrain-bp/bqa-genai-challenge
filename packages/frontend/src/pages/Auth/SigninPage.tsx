@@ -26,7 +26,7 @@ const SignInPage = ({
       const user = await signIn({ username: email, password });
       setUser(user);
       toast.success(t('welcomeMessage'), { position: 'top-right' });
-      navigate('/Dashboard'); // Redirect to dashboard after successful sign-in
+      navigate('/Standards'); // Redirect to dashboard after successful sign-in
     } catch (error) {
       console.error('Error signing in', error);
       toast.error(t('error'), { position: 'top-right' });
@@ -35,15 +35,31 @@ const SignInPage = ({
   };
 
   useEffect(() => {
-    const checkUser = async () => {
+    const checkUserSignIn = async () => {
       const currentUser = await getCurrentUser();
       if (currentUser) {
         setUser(currentUser);
         console.log('userid', currentUser.userId);
-        navigate('/Dashboard');
+        navigate('/Standards');
       }
     };
-    checkUser();
+    checkUserSignIn();
+
+  //   const checkUser = async () => {
+  //   try {
+  //     const user = await getAuthenticatedUser();
+  //     if (user.groups.includes("UniversityOfficers")) {
+  //       toast.info("Restricted access for University Officers.", { position: 'top-right' });
+  //       navigate('/'); // Redirect to an allowed page
+  //     } else {
+  //       setUser(user);
+  //       navigate('/Dashboard'); // Navigate to dashboard if not restricted
+  //     }
+  //   } catch (error) {
+  //     console.log("Not signed in or session expired", error);
+  //   }
+  // };
+
   }, []);
 
   return (
