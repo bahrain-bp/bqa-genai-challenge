@@ -13,7 +13,7 @@ export async function main(event: APIGatewayProxyEvent): Promise<APIGatewayProxy
     if (!bucketName || !folderName) {
       return {
         statusCode: 400,
-                body: JSON.stringify({ message: "Bucket name and folder name are required" }),
+        body: JSON.stringify({ message: "Bucket name and folder name are required" }),
       };
     }
 
@@ -39,7 +39,6 @@ export async function main(event: APIGatewayProxyEvent): Promise<APIGatewayProxy
       return {
         statusCode: 200,
         body: JSON.stringify({ message: "No files found in the specified folder" }),
-       
       };
     }
 
@@ -71,7 +70,7 @@ export async function main(event: APIGatewayProxyEvent): Promise<APIGatewayProxy
     console.error("Error retrieving files:", error);
     return {
       statusCode: 500,
-      body: JSON.stringify({ message: "Error retrieving files", error: error.message }),
+      body: JSON.stringify({ message: "Error retrieving files", error}),
     };
   }
 }
