@@ -8,7 +8,6 @@ import { S3Stack } from "./stacks/S3Stack"
 
 import { StandardAPIStack } from "./stacks/StandardAPIStack";
 import { EmailAPIStack } from "./stacks/EmailAPIStack";
-
 import { ImageBuilderForCodeCatalyst } from "./stacks/devops/ImageBuilderForCodeCatalyst";
 import { OIDCForGitHubCI } from "./stacks/devops/OIDCForGitHubCI";
 
@@ -33,13 +32,13 @@ export default {
       app.stack(OIDCForGitHubCI);
     } else {
       app
-        .stack(DBStack)
-        .stack(S3Stack)
-        .stack(AuthStack)
-        .stack(ApiStack)
-        .stack(StandardAPIStack)
-        .stack(EmailAPIStack)
-        .stack(FrontendStack)
+      .stack(DBStack)
+      .stack(S3Stack)
+      .stack(AuthStack)
+      .stack(ApiStack)
+      .stack(StandardAPIStack)
+      .stack(EmailAPIStack)
+      .stack(FrontendStack)
     }
   },
 } satisfies SSTConfig;

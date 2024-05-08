@@ -1,15 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import DefaultLayout from '../layout/DefaultLayout';
 import './PredefinedTemplate.css'; // Importing CSS file
-import * as AWS from 'aws-sdk';
 import '@fortawesome/fontawesome-free/css/all.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash, faArchive } from '@fortawesome/free-solid-svg-icons';
+import Loader from '../common/Loader';
+import {fetchUserAttributes } from 'aws-amplify/auth';
+
+
+
+import { useTranslation } from 'react-i18next';
+
+
+//INDICATORS FILE **
 
 
 const PredefinedTemplate: React.FC = () => {
  // Get the standardId from the URL
 const standardId = window.location.pathname.split('/').pop();
+const { t } = useTranslation(); // Hook to access translation functions
+    
 
 // Set the value of the input field if it exists
 const inputElement = document.querySelector<HTMLInputElement>('input[name="standardId"]');
@@ -21,7 +31,10 @@ const [showForm, setShowForm] = useState(false); // State variable to toggle for
 const [standardName, setStandardName] = useState('');
 // const [standardName, setStandardName] = useState<any[]>([]);
 const [indicators, setIndicators] = useState<any[]>([]); // State variable to store indicators
- 
+const [isAdmin, setIsAdmin] = useState<boolean>(false);
+const [/*currentName*/, setCurrentName] = useState('');
+
+
   const [recordData, setRecordData] = useState({
     entityType: '',
     entityId: '',
@@ -35,6 +48,7 @@ const [indicators, setIndicators] = useState<any[]>([]); // State variable to st
     status: 'unarchived',
   });
   const [records, setRecords] = useState<any[]>([]); // Initialize state to store fetched records
+  const [loading, setLoading] = useState<boolean>(true);
 
 
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
@@ -237,42 +251,54 @@ const [indicators, setIndicators] = useState<any[]>([]); // State variable to st
     fetchIndicators(standardId);
     fetchRecords(standardId); 
   }, []);
+
+  useEffect(() => {
+    const fetchCurrentUserInfo = async () => {
+      try {
+        const attributes = await fetchUserAttributes();
+        const name:any= attributes.name;
+        setCurrentName(name);
+        setIsAdmin(name.endsWith("BQA Reviewer") || false);
+
+      } catch (error) {
+        console.error('Error fetching current user info:', error);
+      }
+    };
+
+    fetchCurrentUserInfo();
+  }, []);
+
+  useEffect(() => {
+    setTimeout(() => setLoading(false), 1000);
+  }, []);
+
+
   
   async function uploadToS3Evidence(fileData: Blob | File, fileName: string, folderName: string) {
-    // try {
-      var upload = new AWS.S3.ManagedUpload({
-        params: {
-          Bucket:  'bqa-standards-upload',
-          Key: folderName + '/' + fileName,
-          Body: fileData
-        },
-      });
-    
-      var promise = upload.promise();
+    try {
+      const AWS = require('aws-sdk');
+      const s3 = new AWS.S3();
 
-      promise.then(
-        function () {
-          alert("Successfully uploaded photo.");
-        },
-        function () {
-          return alert("There was an error uploading your photo: ");
-        }
-      );
-      // var newS3 = new AWS.S3();
-// hell0
-      // const params = {
-      //   Bucket: 'bqa-standards-upload',
-      //   Key: folderName + '/' + fileName,
-      //   Body: fileData
-      // };
+    const uploadParams = {
+      Bucket: 'bqa-standards-upload',
+      Key: folderName + '/' + fileName,
+      Body: fileData
+    };
 
-      //  const uploadResult = await newS3.upload(params).promise();
+    const upload = s3.upload(uploadParams);
 
+    upload.promise()
+  .then(function() {
+    alert("Successfully uploaded file.");
+  })
+  .catch(function() {
+    alert("There was an error uploading your file: ");
+  });
       return { message: 'File uploaded successfully'};
-    // } catch (error) {
-    //   console.error('Error uploading file:', error);
-    //   throw new Error('Failed to upload file');
-    // }
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      throw new Error('Failed to upload file');
+    }
   }
 
   async function handleFileSelect(file: File, selectedFolder: string) {
@@ -295,7 +321,11 @@ const [indicators, setIndicators] = useState<any[]>([]); // State variable to st
           })
           .catch(error => {
             console.error('Error uploading file:', error);
+
+            // alert('Failed to upload file');
+
             alert('Failed to upload file!');
+
           });
       }
     };
@@ -325,31 +355,47 @@ setStandardName(standardName);
   }
 };
     
-  return (
+return loading ? (
+  <Loader />
+) : (
     <DefaultLayout>
      
 
 <div>
-  
+{isAdmin?(  
+
 <div className="button-container">
+
 <button
         className={`flex justify-center rounded bg-primary py-2 px-6 font-medium text-gray hover:bg-opacity-90 mr-4`}
         type="button" // Change type to "button"
         onClick={toggleForm} // Add onClick handler
       >
-      Upload Evidence
+
+       {t('uploadEvidence')}
+
       </button>
+      
       </div>
+):null}
       {showForm && (
         
           <div className="modal-overlay">
             <div className="modal-content">
             <div className="form-group">
-              <label> Choose indicator</label>
+
+              <label>  {t('chooseIndicator')}</label>
+
+
               <select name="indicatorId" value={recordData.indicatorId} onChange={handleChange} className="white-background" >
               
-                <option value="">Select indicator</option>
-             
+                <option value="">{t('selectIndicator')}</option>
+                {indicators.map((indicator: any) => (
+                  <option key={indicator.indicatorId} value={indicator.indicatorId}>
+                    {`${indicator.indicatorId}: ${indicator.indicatorName}`}
+                  </option>
+                ))}
+
              {[...new Set(indicators.map((indicator: any) => indicator.indicatorId))]
   .sort((a, b) => a - b)
   .map((indicatorId: any) => {
@@ -360,27 +406,29 @@ setStandardName(standardName);
       </option>
     );
   })}
+
               </select>
             </div><br />
 
             <div className="form-group">
-              <label>Inidcator name</label>
+
+              <label>{t('indicatorName')}</label>
               <input type="text" name="indicatorName" value={recordData.indicatorName} onChange={handleChange} className="white-background" />
             </div><br />
             <div className="form-group">
-              <label>Indicator id </label>
+              <label>{t('indicatorId')}</label>
               <input type="text" name="indicatorId" value={recordData.indicatorId} onChange={handleChange} className="white-background" />
             </div><br />
             <div className="form-group">
-              <label>upload doc</label>
+              <label>{t('uploadDocument')}</label>
               <input type="file" name="documentName" value={recordData.documentName} onChange={handleChange} className="white-background" />
             </div><br />
             <div className="form-group">
-              <label>doc desc</label>
+              <label>{t('documentDescription')}</label>
               <input type="text" name="description" value={recordData.description} onChange={handleChange} className="white-background" />
             </div><br />
             <div className="form-group">
-              <label>status</label>
+              <label>{t('status')}</label>
               <input type="text" name="status" value={recordData.status} onChange={handleChange} className="white-background" readOnly />
             </div><br />
             <div className="form-buttons">
@@ -389,14 +437,20 @@ setStandardName(standardName);
         type="button"
         onClick={handleCancel}
       >
-       cancel
+
+        {t('cancel')}
+
+
       </button>
       <button
         className={`flex rounded bg-primary py-2 px-6 font-medium text-gray hover:bg-opacity-90 mr-4`}
         type="button" // Change type to "button"
         onClick={createRecord} // Add onClick handler
       >
-        save
+
+        {t('save')}
+
+
       </button>
       </div>
       </div>
@@ -408,8 +462,10 @@ setStandardName(standardName);
 
       <div>
       <div className="predefined-header">
-        <h2>  Indicator</h2>
-        <h6>  sample</h6>
+
+        <h2>   {t('indicators')}</h2>
+        <h6>  {t('findTemplates')}</h6>
+
       </div>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-4 2xl:gap-7.5">
        
