@@ -10,8 +10,6 @@ import { useTranslation } from 'react-i18next';
 
 
 //INDICATORS FILE **
-// import { CognitoIdentityServiceProvider } from 'aws-sdk';
-
 
 
 const PredefinedTemplate: React.FC = () => {
@@ -248,10 +246,6 @@ const [indicators, setIndicators] = useState<any[]>([]); // State variable to st
   }, []);
   
   async function uploadToS3Evidence(fileData: Blob | File, fileName: string, folderName: string) {
-
-    try {
-
-
     try {
       const AWS = require('aws-sdk');
       const s3 = new AWS.S3();
@@ -270,31 +264,6 @@ const [indicators, setIndicators] = useState<any[]>([]); // State variable to st
   })
   .catch(function() {
     alert("There was an error uploading your file: ");
-  });
-      return { message: 'File uploaded successfully'};
-    } catch (error) {
-      console.error('Error uploading file:', error);
-      throw new Error('Failed to upload file');
-    }
-    // try {
-
-      const AWS = require('aws-sdk');
-      const s3 = new AWS.S3();
-
-const uploadParams = {
-  Bucket: 'bqa-standards-upload',
-  Key: folderName + '/' + fileName,
-  Body: fileData
-};
-
-const upload = s3.upload(uploadParams);
-
-upload.promise()
-  .then(function() {
-    alert("Successfully uploaded photo.");
-  })
-  .catch(function() {
-    alert("There was an error uploading your photo: ");
   });
       return { message: 'File uploaded successfully'};
     } catch (error) {
@@ -372,8 +341,6 @@ setStandardName(standardName);
 
        {t('uploadEvidence')}
 
-      Upload Evidence
-
       </button>
       </div>
       {showForm && (
@@ -384,13 +351,9 @@ setStandardName(standardName);
 
               <label>  {t('chooseIndicator')}</label>
 
-              <label> Choose indicator</label>
 
               <select name="indicatorId" value={recordData.indicatorId} onChange={handleChange} className="white-background" >
               
-                <option value="">Select indicator</option>
-             
-
                 <option value="">{t('selectIndicator')}</option>
                 {indicators.map((indicator: any) => (
                   <option key={indicator.indicatorId} value={indicator.indicatorId}>
@@ -431,25 +394,6 @@ setStandardName(standardName);
             </div><br />
             <div className="form-group">
               <label>{t('status')}</label>
-
-              <label>Inidcator name</label>
-              <input type="text" name="indicatorName" value={recordData.indicatorName} onChange={handleChange} className="white-background" />
-            </div><br />
-            <div className="form-group">
-              <label>Indicator id </label>
-              <input type="text" name="indicatorId" value={recordData.indicatorId} onChange={handleChange} className="white-background" />
-            </div><br />
-            <div className="form-group">
-              <label>upload doc</label>
-              <input type="file" name="documentName" value={recordData.documentName} onChange={handleChange} className="white-background" />
-            </div><br />
-            <div className="form-group">
-              <label>doc desc</label>
-              <input type="text" name="description" value={recordData.description} onChange={handleChange} className="white-background" />
-            </div><br />
-            <div className="form-group">
-              <label>status</label>
-
               <input type="text" name="status" value={recordData.status} onChange={handleChange} className="white-background" readOnly />
             </div><br />
             <div className="form-buttons">
@@ -461,7 +405,6 @@ setStandardName(standardName);
 
         {t('cancel')}
 
-       cancel
 
       </button>
       <button
@@ -472,7 +415,6 @@ setStandardName(standardName);
 
         {t('save')}
 
-        save
 
       </button>
       </div>
@@ -488,9 +430,6 @@ setStandardName(standardName);
 
         <h2>   {t('indicators')}</h2>
         <h6>  {t('findTemplates')}</h6>
-
-        <h2>  Indicator</h2>
-        <h6>  sample</h6>
 
       </div>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-4 2xl:gap-7.5">
