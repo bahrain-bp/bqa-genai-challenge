@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import DefaultLayout from '../layout/DefaultLayout';
 import './PredefinedTemplate.css'; // Importing CSS file
-import * as AWS from 'aws-sdk';
+// import * as AWS from 'aws-sdk';
 import '@fortawesome/fontawesome-free/css/all.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash, faArchive } from '@fortawesome/free-solid-svg-icons';
-
+// import { CognitoIdentityServiceProvider } from 'aws-sdk';
 
 const PredefinedTemplate: React.FC = () => {
  // Get the standardId from the URL
@@ -240,25 +240,46 @@ const [indicators, setIndicators] = useState<any[]>([]); // State variable to st
   
   async function uploadToS3Evidence(fileData: Blob | File, fileName: string, folderName: string) {
     // try {
-      var upload = new AWS.S3.ManagedUpload({
-        params: {
-          Bucket:  'bqa-standards-upload',
-          Key: folderName + '/' + fileName,
-          Body: fileData
-        },
-      });
-    
-      var promise = upload.promise();
+      const AWS = require('aws-sdk');
+      const s3 = new AWS.S3();
+      
+const uploadParams = {
+  Bucket: 'bqa-standards-upload',
+  Key: folderName + '/' + fileName,
+  Body: fileData
+};
 
-      promise.then(
-        function () {
-          alert("Successfully uploaded photo.");
-        },
-        function () {
-          return alert("There was an error uploading your photo: ");
-        }
-      );
-      // var newS3 = new AWS.S3();
+const upload = s3.upload(uploadParams);
+
+upload.promise()
+  .then(function() {
+    alert("Successfully uploaded photo.");
+  })
+  .catch(function() {
+    alert("There was an error uploading your photo: ");
+  });
+      // var upload = new AWS.S3.ManagedUpload({
+      //   params: {
+      //     Bucket:  'bqa-standards-upload',
+      //     Key: folderName + '/' + fileName,
+      //     Body: fileData
+      //   },
+      // });
+    
+      // var promise = upload.promise();
+
+      // promise.then(
+      //   function () {
+      //     alert("Successfully uploaded photo.");
+      //   },
+      //   function () {
+      //     return alert("There was an error uploading your photo: ");
+      //   }
+      // );
+
+
+
+      // // var newS3 = new AWS.S3();
 // hell0
       // const params = {
       //   Bucket: 'bqa-standards-upload',
