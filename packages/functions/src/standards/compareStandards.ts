@@ -2,43 +2,34 @@ import { SQSEvent } from "aws-lambda";
 import axios, { AxiosResponse } from "axios";
 import * as AWS from "aws-sdk";
 import { Queue } from "sst/node/queue";
-export async function handler(event: SQSEvent, app: any) {
+export async function handler(event: any, app: any) {
   const orientationDayText: string = `
 University Health and Safety - New Orientation Day
 Date: October 27th, 2016
-
 Estate and Support Services Introduction – Welcome
-
 What we do:
 - Health & Safety Advisory Service
 - Strategic estate development, planning and construction
 - Land and buildings maintenance
 - Alterations and infrastructure replacement
 - Space planning, utilization, and management
-
 How to Reach Us:
 - H&S, Maintenance & Housekeeping
 - All preventative as well as reactive maintenance records concerning H&S are maintained by Estates
 - Report housekeeping issues and maintenance through: university@gmail.bh
 - Ext 2302 - Allan
 - Ext 2200 - Ali
-
 Health and Safety Awareness
-
 Policy:
 - The University has a regard for the working environment and its most important asset, our employees and students, to ensure safety by managing as well as raising awareness of health and safety risks.
-
 University Responsibility:
 - Health and Safety within the University is the responsibility of every employee, student, supplier, and contractor.
-
 Employee Responsibility:
 - Take reasonable care of yourself and others and cooperate with the University by:
   - Following instructions
   - Attending training
   - Reporting hazards
-
 Campus Familiarity – Fire Safety & Arrangements
-
 Expectations:
 - Emergency procedures
 - Know your nearest exit (may not be the main entrance route)
@@ -49,12 +40,10 @@ Expectations:
 - Don’t attempt to fight a fire unless it is safe to do so (small fire), you have been trained in the use of fire extinguishers, and you have raised the alarm first.
 - Every second counts in an emergency. Be prepared. Prevent panic.
 - Further training is provided to FIRE WARDEN’s to assist in evacuation.
-
 Smoking Policy:
 - The University is strictly a smoke-free college.
 - Please do not smoke within 5 meters of the University.
 - Thank you for not smoking.
-
 Fire Alarm Test:
 - The University Campus is protected 24 hours a day by up-to-date systems and physical checks.
 - Weekly preventative maintenance is carried out through the Continuous Fire Alarm Test.
@@ -62,7 +51,6 @@ Fire Alarm Test:
   - Every Thursday at 10 am
   - Duration: 10-20 seconds
 - Should the alarm be activated at any other time or continue longer than 1 minute, please evacuate immediately.
-
 First Aid:
 - Certified First Aider staff and their telephone numbers are displayed at reception in each of the buildings as well as notice boards.
 - Two AED Units located at the main reception and SRC reception.
@@ -73,7 +61,6 @@ First Aid:
   - Who the First Aiders are
   - Where the Treatment Room is
   - Where to report an incident
-
 Emergency Communications Contact:
 - Within THE UNIVERSITY dial 9 for an external line and dial 999 (9-999).
 - Always inform security of any incident or emergency.
@@ -89,7 +76,6 @@ Emergency Communications Contact:
     - Ext. 2200
 - If you are the caller, give the phone number you are calling from.
 - Let security know so they can direct the emergency services.
-
 Security Arrangements:
 - Your staff ID badge and Car Sticker’s should be attained from office 204 in the Estates Department.
 - Entrance is permitted on presentation of either of these IDs at the main gate.
@@ -97,21 +83,17 @@ Security Arrangements:
   - Notify in advance to Security Centre by emailing to security@THE UNIVERSITY.com, specifying the name, date, or time you are expecting the person(s).
   - If notification isn’t given to security, they will contact You/Estates/Reception to check whether anyone is expecting you to confirm whether to grant access.
   - If notice is not given in advance and you cannot be located, access will be denied.
-
 Further Information:
 - Contact:
   - Mr. Bill, Head of Estate and Support Services - Mobile No. 39xxxxxx
   - Ms. Judi, Occupational Health & Safety Advisor - Mobile No. 39xxxxxx
   - Office 205 Ext 2303
-- Thank you
-- Questions?
+
 `;
   const infrastructureCriteria: string = `
 Indicator 10 - Infrastructure
-
 Comments
 Supporting Material
-
 10.1   The institution ensures the compliance of its premises and facilities with the related HEC regulations through continuous reviews.
 
 10.2   There are registers showing that the provided classrooms, tutorial and study spaces, library, offices, laboratories, amenities, medical facilities and security services are suitably equipped, sufficient and timetabled for the academic and non-academic activities and events.
@@ -127,25 +109,24 @@ Supporting Material
 10.7   Access to the premises is appropriately restricted, secured and convenient for staff and students with special needs.
 
 10.8   Where applicable, the residential accommodation offered by the institution is clean, safe, supervised and of a standard which is adequate to the needs of students, and there are arrangements in place to ensure that regular inspections are conducted.
-
 `;
 
   const requestBody = {
     body: {
       inputs:
-        "This is the file submitted from the university.\n\n" +
+        "Below is content that describes an evidence paired with the criteria that the evedince have to follow \n\n" +
         orientationDayText +
-        "\n\nI want you to check if it complies with the criteria.",
-      "This is the criteria that the file should follow:\n\n":
+        "\n\nWrite a response to identify areas of strength for the universtiy and provide a score from 1 to 5 for each indicator." +
+        "\n\nfollowing this criteria." +
         infrastructureCriteria +
-        "\n\nPlease identify areas of strength, areas of weaknesses, and the compliance score for this.",
-
+        "for example this universty mets .... and so on",
       parameters: {
-        max_tokens: 3000,
-        temperature: 0.2,
+        max_tokens: 4000,
+        temperature: 0.9,
       },
     },
   };
+  //console.log(requestBody.body.inputs);
 
   // If the response is successful (status code 200), make a POST request to the SageMaker endpoint
 

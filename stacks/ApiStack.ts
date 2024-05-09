@@ -9,7 +9,7 @@ import * as iam from "@aws-cdk/aws-iam";
 export function ApiStack({ stack }: StackContext) {
   const { auth } = use(AuthStack);
   const { table } = use(DBStack);
-  const { documentsQueue,analysisQueue } = use(S3Stack);
+  const { documentsQueue, analysisQueue } = use(S3Stack);
 
   const api = new Api(stack, "signinAPI", {
     // Commented out the authorizers section
@@ -35,7 +35,7 @@ export function ApiStack({ stack }: StackContext) {
         function: {
           handler: "packages/functions/src/s3Upload.uploadToS3",
           permissions: "*",
-          bind: [documentsQueue,analysisQueue],
+          bind: [documentsQueue, analysisQueue],
         },
       },
 
@@ -45,12 +45,18 @@ export function ApiStack({ stack }: StackContext) {
           permissions: ["comprehend"],
         },
       },
+      "POST /compare": {
+        function: {
+          handler: "packages/functions/src/standards/compareStandards.handler",
+          permissions: "*",
+        },
+      },
       "POST /textract": {
         function: {
           handler: "packages/functions/src/textractPdf.extractTextFromPDF",
           permissions: ["textract", "s3"],
           timeout: "200 seconds",
-          bind: [documentsQueue,analysisQueue],
+          bind: [documentsQueue, analysisQueue],
         },
       },
       "GET /detectFileType": {
