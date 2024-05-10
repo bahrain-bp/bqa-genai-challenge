@@ -8,6 +8,7 @@ export async function main(event: APIGatewayProxyEvent): Promise<APIGatewayProxy
     const bucketName = event.headers['bucket-name'];
     const folderName = event.headers['folder-name'];
     const subfolderName = event.headers['subfolder-name'];
+    const subsubfolderName =event.headers['subsubfolder-name']
 
     if (!bucketName || !folderName) {
       return {
@@ -17,8 +18,15 @@ export async function main(event: APIGatewayProxyEvent): Promise<APIGatewayProxy
     }
 
     // Combine folder and subfolder name if subfolder is provided
-    const folderPath = subfolderName ? `${folderName}/${subfolderName}/` : `${folderName}/`;
 
+      // Combine folder, subfolder, and sub-subfolder names if provided
+      let folderPath = folderName + '/';
+      if (subfolderName) {
+        folderPath += subfolderName + '/';
+      }
+      if (subsubfolderName) {
+        folderPath += subsubfolderName + '/';
+      }
     // Get list of objects in the specified folder
     const params = {
       Bucket: bucketName,
@@ -40,21 +48,29 @@ export async function main(event: APIGatewayProxyEvent): Promise<APIGatewayProxy
         return {
           Key: obj.Key!,
         };
+        
       });
 
-    const responseBody = {
-      statusCode: 200,
-      body: JSON.stringify({
-        files,
-      }),
-    };
 
-    return responseBody;
+      console.log("Files to be returned:", JSON.stringify(files));
+
+      const response = {
+        statusCode: 200,
+        headers: {
+            "Access-Control-Allow-Origin": "*", // Adjust in production
+            "Access-Control-Allow-Methods": "GET, HEAD, PUT, POST,DELETE",
+            "Access-Control-Allow-Headers": "*"
+        },
+        body: JSON.stringify({files}),
+    };      
+    return response;
+    
+
   } catch (error) {
     console.error("Error retrieving files:", error);
     return {
       statusCode: 500,
-      body: JSON.stringify({ message: "Error retrieving files" }),
+      body: JSON.stringify({ message: "Error retrieving files", error}),
     };
   }
 }

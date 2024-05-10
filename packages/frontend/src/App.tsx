@@ -27,7 +27,7 @@ import AddUni from './pages/AddUni';
 import ChangePassword from './pages/Auth/ChangePassword';
 import ForgotPassword from './pages/Auth/ForgotPassword';
 import BqaRequestPage from './pages/BqaRequestPage';
-import SummaryPage from './pages/summaryPage';
+import SummaryPage from './pages/SummaryPage';
 
 import { getCurrentUser, fetchUserAttributes } from 'aws-amplify/auth';
 import { ToastContainer } from 'react-toastify';
@@ -53,7 +53,7 @@ function App() {
       console.log((await attributes).email);
       //console.log((await attributes).name);
        const names=(await fetchUserAttributes()).name;
-       console.log(names);
+      //  console.log(names);
       return {
         id,
         username,
@@ -130,7 +130,7 @@ function App() {
           }
         />
       <Route
-          path="/summaryPage"
+          path="/SummaryPage"
           element={
             <>
               <PageTitle title="Bqa Reviewer Add University | EduScribe" />
