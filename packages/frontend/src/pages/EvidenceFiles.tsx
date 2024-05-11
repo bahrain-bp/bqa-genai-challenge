@@ -4,9 +4,13 @@ import './PredefinedTemplate.css';
 import '@fortawesome/fontawesome-free/css/all.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash, faArchive } from '@fortawesome/free-solid-svg-icons';
+import { useTranslation } from 'react-i18next';
+
 
 const EvidenceFiles: React.FC = () => {
   const [records, setRecords] = useState<any[]>([]);
+  const { t } = useTranslation(); // Hook to access translation functions
+    
 
   const fetchRecords = async (indicatorId: string | undefined) => {
     try {
@@ -95,7 +99,7 @@ const EvidenceFiles: React.FC = () => {
     <DefaultLayout>
      
      <div className="download-header">
-        <h2>Download Files</h2>
+        <h2> {t('downloadFiles')}</h2>
         <h6></h6>
       </div>
       {records

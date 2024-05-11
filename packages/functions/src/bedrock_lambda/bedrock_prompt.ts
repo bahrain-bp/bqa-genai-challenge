@@ -53,6 +53,8 @@ export async function handler(event: SQSEvent, app: any) {
       const extractedText = responseData.text;
       console.log("Extracted Text from the handler:", extractedText);
 
+
+
       // Construct the request payload to match the provided structure
       const requestBody = {
         body: {

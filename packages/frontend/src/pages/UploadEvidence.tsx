@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import DefaultLayout from '../layout/DefaultLayout';
 import Breadcrumb from '../components/Breadcrumbs/Breadcrumb';
-import styled from 'styled-components';
+import DefaultLayout from '../layout/DefaultLayout';
 import { toast } from 'react-toastify';
 import { FileUpload } from 'primereact/fileupload';
-
+import { useTranslation } from 'react-i18next';
+import Loader from '../common/Loader';
 
 
 const MainContainer = styled.div`
@@ -323,11 +324,41 @@ useEffect(() => {
 
   const prevStep = () => {
     setActiveStep(prevStep => prevStep - 1);
+  //const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [fileName, setFileName] = useState<string>('');
+  const [savedSteps, setSavedSteps] = useState<number[]>([]);
+  //const [saveClicked, setSaveClicked] = useState<boolean>(false);
+  const [currentStep, setCurrentStep] = useState<number>(1);
+  const { t } = useTranslation(); // Hook to access translation functions
+    
+  const handleSaveClick = () => {
+    //setSaveClicked(true);
+    setSavedSteps([...savedSteps, currentStep]);
+    toast.success('File saved successfully!');
+    moveToNextStep();
+    
   };
 
-  return (
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files ? event.target.files[0] : null;
+    if (file) {
+      setFileName(file.name);
+    }
+  };
+
+  const moveToNextStep = () => {
+    setCurrentStep(currentStep + 1);
+  };
+  const [loading, setLoading] = useState<boolean>(true);
+  useEffect(() => {
+    setTimeout(() => setLoading(false), 1000);
+  }, []);
+  
+  return loading ? (
+    <Loader />
+  ) : (
     <DefaultLayout>
-      <Breadcrumb pageName="Upload Evidence" />
+      <Breadcrumb pageName={t('uploadEvidence')} />
       <MainContainer>
         <StepContainer>
           {standards.map((standard, index) => (

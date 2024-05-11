@@ -4,6 +4,8 @@ import { ApiStack } from "./stacks/ApiStack";
 import {} from "./stacks/AuthStack";
 import { FrontendStack } from "./stacks/FrontendStack";
 import { DBStack } from "./stacks/DBStack";
+//import { S3Stack } from "./stacks/S3Stack"
+
 import { StandardAPIStack } from "./stacks/StandardAPIStack";
 import { EmailAPIStack } from "./stacks/EmailAPIStack";
 import { S3Stack } from "./stacks/S3Stack"
@@ -31,13 +33,13 @@ export default {
       app.stack(OIDCForGitHubCI);
     } else {
       app
-        .stack(DBStack)
-        .stack(S3Stack)
-        .stack(AuthStack)
-        .stack(ApiStack)
-        .stack(StandardAPIStack)
-        .stack(EmailAPIStack)
-        .stack(FrontendStack)
+      .stack(DBStack)
+      .stack(S3Stack)
+      .stack(AuthStack)
+      .stack(ApiStack)
+      .stack(StandardAPIStack)
+      .stack(EmailAPIStack)
+      .stack(FrontendStack)
     }
   },
 } satisfies SSTConfig;

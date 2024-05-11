@@ -1,7 +1,8 @@
 import {
   CognitoIdentityProviderClient,
   AdminCreateUserCommand,
-  AdminSetUserPasswordCommand
+  AdminSetUserPasswordCommand,
+
 } from "@aws-sdk/client-cognito-identity-provider";
 import { APIGatewayProxyHandlerV2 } from "aws-lambda";
 
@@ -35,6 +36,7 @@ export const createUserInCognito: APIGatewayProxyHandlerV2 = async (
            Name: "name", 
            Value: name 
           },
+            
         
       ],
       //MessageAction: 'SUPPRESS', // This will change the force change password to confirmed.
@@ -55,6 +57,10 @@ export const createUserInCognito: APIGatewayProxyHandlerV2 = async (
 
     });
     await cognitoClient.send(setPass);
+
+
+
+
 
     return {
       statusCode: 200,
