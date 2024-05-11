@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect,useRef } from 'react';
 import DefaultLayout from '../layout/DefaultLayout';
 import Breadcrumb from '../components/Breadcrumbs/Breadcrumb';
-import DefaultLayout from '../layout/DefaultLayout';
+import styled from 'styled-components';
 import { toast } from 'react-toastify';
 import { FileUpload } from 'primereact/fileupload';
 import { useTranslation } from 'react-i18next';
 import Loader from '../common/Loader';
+
 
 
 const MainContainer = styled.div`
@@ -90,25 +91,78 @@ const ButtonStyle = styled.button`
 `;
 
 const StyledFileDisplay = styled.div`
-  padding: 10px;
-  margin: 5px 0;
-  background-color: #f4f4f4;
-  border: 1px solid #ddd;
+  padding: 8px 16px;
+  margin: 5px 2px;
+  background-color: #f6f6f6;
+  border: 1px solid #e0e0e0;
   border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   display: flex;
-  align-items: center;
+  align-items: ;
   justify-content: space-between;
+  transition: background-color 0.2s, box-shadow 0.2s;
+
+  &:hover {
+    background-color: #ffffff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  }
 `;
 
 const FileName = styled.span`
   margin-left: 10px;
+  flex-grow: 1; // Allows the file name to take up any extra space
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis; // Adds an ellipsis if the file name is too long
+`;
+
+const FileIcon = styled.i`
+  font-size: 20px;
+  color: #606060;
+  margin-right: 10px; // Adds some space before the file name
 `;
 
 const DeleteIcon = styled.i`
   cursor: pointer;
-  margin-left: auto;
-  color: red; // You can adjust the color as needed
+  color: #f44336; // Google's material design color for destructive actions
+  &:hover {
+    color: #d32f2f; // Darken the color on hover
+  }
 `;
+
+
+const IndicatorName = styled.h4`
+  font-size: 20px;
+  color: ;
+  margin-top: 0;
+  margin-bottom: 5px; // Space below each indicator name
+  padding: 10px; // Adds padding around the text for better spacing
+  background-color: #fff; // Ensures background color matches your design, if needed
+  border-radius: 5px; // Optionally round the corners if you prefer
+`;
+
+
+const SectionTitle = styled.h2`
+  font-size: 28px;
+  color: #2ECC71; // A green shade that matches your step indicators
+  text-align: center;
+  margin-top: 20px;
+  margin-bottom: 20px;
+`;
+
+const Card = styled.div`
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  margin: 20px; // Adjust margin for spacing around the card
+  padding: 20px; // Increase padding to move contents away from the edges
+  display: flex;
+  flex-direction: column;
+`;
+
+
+
+
 
 const UploadEvidence = () => {
   const [standards, setStandards] = useState([]);
@@ -117,27 +171,6 @@ const UploadEvidence = () => {
   const [uploadedFiles, setUploadedFiles] = useState({});
 
 
-
-  const getMimeType = (files:any) => {
-    const extension = files.split('.').pop();
-    switch (extension.toLowerCase()) {
-        case 'pdf': return 'application/pdf';
-        // case 'jpg':
-        // case 'jpeg': return 'image/jpeg';
-        // case 'png': return 'image/png';
-        // case 'doc': return 'application/msword';
-        // case 'docx': return 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
-        // case 'txt': return 'text/plain';
-        default: return 'application/octet-stream'; // Default MIME type
-    }
-};
-
-
-  
-  useEffect(() => {
-    //fetchStandards();
-    //fetchUploadedFiles();
-  }, [activeStep]);  // Fetch files every time active step changes
 
   useEffect(() => {
     const fetchStandards = async () => {
@@ -149,6 +182,7 @@ const UploadEvidence = () => {
         const rawData = await response.json();
         const standardsMap = new Map();
         rawData.forEach((item:any) => {
+        if(item.status=="unarchived"){
           if (!standardsMap.has(item.standardId)) {
             standardsMap.set(item.standardId, { ...item, indicators: [] });
           }
@@ -157,6 +191,7 @@ const UploadEvidence = () => {
             uploadSection: item.uploadSection,
             id:item.indicatorId
           });
+        }
         });
         setStandards(Array.from(standardsMap.values()));
       } catch (error) {
@@ -167,7 +202,6 @@ const UploadEvidence = () => {
 
     fetchStandards();
   }, []);
-
 
 
   const handleFileChange = async (files:any, standard:any, indicator:any) => {
@@ -223,7 +257,6 @@ const UploadEvidence = () => {
 };
 
 //fetch uploaded folders TRY#1
-
 const fetchUploadedFiles = async () => {
   if (standards.length === 0 || activeStep < 0 || activeStep >= standards.length) {
       return; // Guard clause
@@ -248,7 +281,7 @@ const fetchUploadedFiles = async () => {
       const data = await response.json();
       const files = data.files; // Ensure this matches the structure you log in Lambda
 
-      const filesByIndicator = files.reduce((acc, file) => {
+      const filesByIndicator = files.reduce((acc:any, file:any) => {
           // Path structure: 'BUB/StandardID/IndicatorID/filename'
           const parts = file.Key.split('/');
           const indicatorId = parts[2]; // This assumes the indicator ID is the third part
@@ -270,7 +303,7 @@ const fetchUploadedFiles = async () => {
 };
 
 
-const handleFileDelete = async (fileKey, standardId, indicatorId) => {
+const handleFileDelete = async (fileKey:any, standardId:any, indicatorId:any) => {
   try {
     // Construct the API endpoint URL
     const url = `https://l1ca6m1ik7.execute-api.us-east-1.amazonaws.com/deleteFile`; // Replace with your actual endpoint URL
@@ -294,6 +327,7 @@ const handleFileDelete = async (fileKey, standardId, indicatorId) => {
     const result = await response.json();
     toast.success('File deleted successfully');
 
+
     // Update local state to remove the file from the list
     setUploadedFiles(prevFiles => {
       const updatedFiles = {...prevFiles};
@@ -309,10 +343,6 @@ const handleFileDelete = async (fileKey, standardId, indicatorId) => {
   }
 };
 
-
-
-
-
 useEffect(() => {
   fetchUploadedFiles();
 }, [activeStep, standards]); // Re-fetch when these change
@@ -324,42 +354,16 @@ useEffect(() => {
 
   const prevStep = () => {
     setActiveStep(prevStep => prevStep - 1);
-  //const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [fileName, setFileName] = useState<string>('');
-  const [savedSteps, setSavedSteps] = useState<number[]>([]);
-  //const [saveClicked, setSaveClicked] = useState<boolean>(false);
-  const [currentStep, setCurrentStep] = useState<number>(1);
-  const { t } = useTranslation(); // Hook to access translation functions
-    
-  const handleSaveClick = () => {
-    //setSaveClicked(true);
-    setSavedSteps([...savedSteps, currentStep]);
-    toast.success('File saved successfully!');
-    moveToNextStep();
-    
   };
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files ? event.target.files[0] : null;
-    if (file) {
-      setFileName(file.name);
-    }
-  };
 
-  const moveToNextStep = () => {
-    setCurrentStep(currentStep + 1);
-  };
-  const [loading, setLoading] = useState<boolean>(true);
-  useEffect(() => {
-    setTimeout(() => setLoading(false), 1000);
-  }, []);
   
-  return loading ? (
-    <Loader />
-  ) : (
+  return (
     <DefaultLayout>
-      <Breadcrumb pageName={t('uploadEvidence')} />
+      <Breadcrumb pageName="Upload Evidence" />
       <MainContainer>
+      <SectionTitle>{standards[activeStep]?.standardId}: {standards[activeStep]?.standardName}</SectionTitle> 
+
         <StepContainer>
           {standards.map((standard, index) => (
             <StepWrapper key={index}>
@@ -367,7 +371,7 @@ useEffect(() => {
                 <StepCount>{index + 1}</StepCount>
               </StepStyle>
               <StepsLabelContainer>
-                <StepLabel>{standard.standardName}</StepLabel>
+
               </StepsLabelContainer>
             </StepWrapper>
           ))}
@@ -379,42 +383,26 @@ useEffect(() => {
             {isUploading ? 'Uploading...' : 'Next'}
           </ButtonStyle>
         </ButtonsContainer>
-        <br /><br /><br /><br /><br />
+        <br />
+        
          
-   
-        {/* {standards[activeStep]?.indicators.map((indicator, index) => (
-  <div key={`${activeStep}-${index}`} className="card">
-    <h4>{indicator.label}</h4> */}
-
-    {/* Safely render uploaded files if they exist, default to empty array if not 
-    {(uploadedFiles[standards[activeStep]?.standardId] || []).map(file => (
-      <p key={file.name}>{file.name}</p>  // Display uploaded files
-    ))}
-
-    */}
-    
-{/*   
-  {(uploadedFiles[standards[activeStep]?.standardId] || []).map(file => (
-    <p key={file.name}>{file.name.split('/').pop()}</p>  // Use split and pop to get the last part of the path
-))} */}
-
-
-    
-
-{
-    standards[activeStep]?.indicators.map((indicator, index) => (
+{standards[activeStep]?.indicators.map((indicator:any, index:any) => (
         <div key={`${activeStep}-${index}`} className="card">
-            <h4>{indicator.label}</h4>
+                      {/* <StandardName>{standards[activeStep].standardName}</StandardName> */}
+
+            <IndicatorName>{indicator.id}: {indicator.label}</IndicatorName>
             <FileUpload
                 name={`upload-${activeStep}-${index}`}
                 url='https://l1ca6m1ik7.execute-api.us-east-1.amazonaws.com/uploadS3'
                 multiple
                 accept="*"
+                auto={true}
                 maxFileSize={10000000} // 10 MB limit
                 onSelect={(e) => handleFileChange(e.files, standards[activeStep], indicator)}
                 onError={(e) => {
                     console.error('Upload Error:', e);
                 }}
+
                 emptyTemplate={<p>Drag and drop files here to upload</p>}
             />
             <div style={{ marginTop: '10px' }}>
