@@ -5,10 +5,6 @@ import  { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 
-
-
-
-
 const BqaDash1 = () => {
 
   const navigate = useNavigate();
@@ -17,15 +13,6 @@ const BqaDash1 = () => {
     navigate(`/BqaDash2/${email}`);
   };*/
   const [users, setUsers] = useState<{ Username: string; Attributes: { Name: string; Value: string }[] }[]>([]);
- 
-
-
- //const [selectedEmail, /*setSelectedEmail*/] = useState<string>('');
-  
- // const [subject, /*setSubject*/] = useState<string>('');
-  //const [message, /*setMessage*/] = useState<string>('');
-
-  
 
   useEffect(() => {
     const fetchCognitoUsers = async () => {
@@ -47,28 +34,14 @@ const BqaDash1 = () => {
         console.error('Error fetching users:', error);
       }
     };
-
     fetchCognitoUsers(); // Call the fetchCognitoUsers function
   }, []);
+
     // Function to find attribute value by name
     const getAttributeValue = (attributes: { Name: string; Value: string }[], attributeName: string): string => {
       const attribute = attributes.find(attr => attr.Name === attributeName);
       return attribute ? attribute.Value : 'N/A'; // Returns 'N/A' if attribute not found
     };
-    
-  //     const handleSubmit = () => {
-  //   // Example of what you might do, customize as needed:
-  //   console.log(`Email: ${selectedEmail}, Subject: ${subject}, Message: ${message}`);
-  //   // Here you would typically send this data to a backend API
-  // };
-
-
-
-
-
-
-
-
 
   return (
     <DefaultLayout>
@@ -88,7 +61,7 @@ const BqaDash1 = () => {
       <div className="row">
         {users.map(user => (
           <div key={user.Username} className="col-md-4 col-sm-6" style={{ cursor: 'pointer' }}
-            onClick={() => navigate(`/BqaDash2/${getAttributeValue(user.Attributes, 'email')}`)}>
+            onClick={() => navigate(`/BqaDash2/${getAttributeValue(user.Attributes, 'email')}`)}> {/* here is the email to be exported then imported to Request page */}
             <div className="rounded-xl border border-stroke bg-white py-6 px-7.5 shadow-default dark:border-strokedark" style={{ marginBottom: '20px' }}>
               <div className="d-flex justify-content-between align-items-center">
                 <h3 style={{ marginBottom: '10px' }}>{getAttributeValue(user.Attributes, 'name')}</h3>
@@ -96,11 +69,10 @@ const BqaDash1 = () => {
               </div>
             </div>
           </div>
-        ))}
+        ))}\
       </div>
     </div>
   </DefaultLayout>
   );
 };
-
 export default BqaDash1;

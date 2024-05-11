@@ -9,7 +9,7 @@ export function EmailAPIStack({ stack }: StackContext) {
                 function:
                 {
                     handler: "packages/functions/src/send-email.sendEmail",
-                    permissions: ["SES"]
+                    permissions: ["ses"]
                 }
             },
 
