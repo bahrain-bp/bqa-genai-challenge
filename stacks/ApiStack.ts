@@ -38,7 +38,13 @@ export function ApiStack({ stack }: StackContext) {
           bind: [documentsQueue],
         },
       },
-
+      "POST /splitPdf": {
+        function: {
+          handler: "packages/functions/src/splitPdf.handler",
+          permissions: ["s3"]
+          
+        },
+      },
       "POST /comprehend": {
         function: {
           handler: "packages/functions/src/comprehend.comprehendText",
