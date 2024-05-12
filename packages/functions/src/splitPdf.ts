@@ -1,89 +1,92 @@
-import * as AWS from "aws-sdk";
-import { APIGatewayEvent, Context } from 'aws-lambda'; // Import the APIGatewayEvent interface
+import * as AWS from 'aws-sdk';
+import { PageSizes, PDFDocument, PDFPage } from 'pdf-lib';
 
-const jspdf = require('jspdf');
+const s3 = new AWS.S3();
 
-const s3 = new AWS.S3({ region: process.env.AWS_REGION });
+export const handler = async (event: any) => {
+  try {
+    // Extract parameters from event headers with meaningful names
+    const bucketName = event.headers['bucket-name'];
+    const key = event.headers['file-name'] || 'unnamed.pdf'; // Default filename if absent
+    const folderName = event.headers['folder-name'] || '';
+    const subfolderName = event.headers['subfolder-name'] || '';
 
-export const handler = async (event: APIGatewayEvent, context: Context) => {
-    try {
-        // Extract parameters from event body
-        const { bucketName, folderName, subfolderName, fileName } = JSON.parse(event.body!);
-    
-        // Validate required parameters
-        if (!bucketName || !fileName) {
-          return {
-            statusCode: 400,
-            body: JSON.stringify({
-              message: 'Missing required parameters: bucketName and fileName are required.',
-            }),
-          };
+    // Validate required parameters
+    if (!bucketName || !key) {
+      throw new Error('Missing required parameters: Bucket and file key');
+    }
+
+    // Construct S3 object key with optional folder/subfolder structure
+    const objectKey = `${folderName ? folderName + '/' : ''}${subfolderName ? subfolderName + '/' : ''}${key}`;
+
+    // Download the PDF file from S3
+    const response = await s3.getObject({ Bucket: bucketName, Key: objectKey }).promise();
+
+    // Check if Body exists in the response
+    if (!response.Body) {
+      throw new Error('Failed to retrieve PDF file from S3');
+    }
+
+    // Convert Body to ArrayBuffer
+    let arrayBuffer: ArrayBuffer;
+
+    // Handle different types of Body
+    if (typeof response.Body === 'string') {
+      // Body is a string, convert it to Uint8Array first
+      const uint8Array = new TextEncoder().encode(response.Body);
+      // Then convert Uint8Array to ArrayBuffer
+      arrayBuffer = uint8Array.buffer;
+    } else if (response.Body instanceof Uint8Array) {
+      // Body is already a Uint8Array
+      arrayBuffer = response.Body.buffer;
+    } else if (response.Body instanceof Blob) {
+      // Body is a Blob, convert it to ArrayBuffer
+      arrayBuffer = await response.Body.arrayBuffer();
+    } else {
+      throw new Error('Unsupported type of Body');
+    }
+
+    // Load PDF document
+    const pdfDoc = await PDFDocument.load(arrayBuffer);
+
+    // Split the PDF into smaller documents
+    const totalPages = pdfDoc.getPages().length;
+    const splitSize = 1; // Adjust split size as needed
+
+    for (let i = 0; i < totalPages; i += splitSize) {
+        const endPage = Math.min(i + splitSize, totalPages);
+      
+        // Copy pages
+        const copiedPagesPromise = pdfDoc.copyPages(pdfDoc, Array.from({ length: endPage - i }, (_, index) => index + i));
+        const copiedPages: PDFPage[] = await copiedPagesPromise;
+      
+        // Create a new PDF document for the split
+        const splitDoc = await PDFDocument.create();
+      
+       // Add copied pages to the new document
+       for (const copiedPage of copiedPages) {
+            const clonedPage = await splitDoc.embedPage(copiedPage);
+            const newPage = splitDoc.addPage([copiedPage.getWidth(), copiedPage.getHeight()]);
+            newPage.drawPage(clonedPage);
         }
-    
-  
-
-    // Build object key
-    const objectKey = `${folderName ? folderName + '/' : ''}${subfolderName ? subfolderName + '/' : ''}${fileName}`;
-
-    // Download PDF from S3
-    const downloadParams = { Bucket: bucketName, Key: objectKey };
-    const downloadResponse = await s3.getObject(downloadParams).promise();
-    const pdfData = downloadResponse.Body;
-
-    // Check if downloaded data is empty
-    if (!pdfData) {
-      console.error('Downloaded data is empty');
-      return {
-        statusCode: 400,
-        body: JSON.stringify({ message: 'Failed to download PDF from S3 (empty data)' }),
-      };
+      
+        // Save the split PDF into a buffer
+        const splitPDFBytes = await splitDoc.save();
+        
+        // Upload the split PDF file to the same S3 bucket and key
+        await s3.putObject({
+            Bucket: bucketName,
+            Key: `${objectKey}-split-${i + 1}.pdf`, // Append split index to the key
+            Body: splitPDFBytes,
+            ContentType: 'application/pdf', // Set the content type accordingly
+        }).promise();
     }
 
-    // Define chunk size
-    const chunkSize = 10; // Modify this value to adjust chunk size (in pages)
+    // Return success message
+    return { message: 'Split PDF files uploaded successfully' };
 
-    // Load PDF document using jsPDF
-    const doc = new jspdf();
-    await doc.load(pdfData); 
-
-    // Get total number of pages
-    const totalPages = doc.internal.getNumberOfPages();
-
-    // Split PDF into chunks
-    const chunks = [];
-    for (let i = 0; i < totalPages; i += chunkSize) {
-      const end = Math.min(i + chunkSize, totalPages);
-      const chunkDoc = new jspdf();
-      for (let page = i; page < end; page++) {
-        await chunkDoc.addPage(doc.internal.pageSize.getWidth(), doc.internal.pageSize.getHeight());
-        chunkDoc.setPage(page + 1); // jsPDF starts page numbering at 1
-        chunkDoc.copyPages(doc, [page], { translate: 0, scale: 1 });
-      }
-      chunks.push(chunkDoc);
-    }
-
-    // Upload each chunk to S3
-    const uploadedFiles = [];
-    for (let i = 0; i < chunks.length; i++) {
-      const chunkBuffer = await chunks[i].output('blob');
-      const chunkKey = `${objectKey}_chunk_${i + 1}.pdf`;
-      const uploadParams = { Bucket: bucketName, Key: chunkKey, Body: chunkBuffer };
-      await s3.putObject(uploadParams).promise();
-      uploadedFiles.push(chunkKey);
-    }
-
-    return {
-      statusCode: 200,
-      body: JSON.stringify({
-        message: 'PDF split successfully',
-        uploadedFiles,
-      }),
-    };
   } catch (error) {
-    console.error('Error splitting PDF:', error);
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ message: 'Failed to split PDF' }),
-    };
+    console.error('Error:', error);
+    throw error; // Or return an appropriate error response
   }
 };
