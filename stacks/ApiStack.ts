@@ -45,6 +45,8 @@ export function ApiStack({ stack }: StackContext) {
           permissions: ["comprehend"],
         },
       },
+
+      
       "POST /textract": {
         function: {
           handler: "packages/functions/src/textractPdf.extractTextFromPDF",
