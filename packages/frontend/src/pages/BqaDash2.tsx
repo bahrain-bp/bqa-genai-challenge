@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useParams, Link } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
 import './BqaDash1.css'; // Custom CSS file for progress bars
 import { ToastContainer } from 'react-toastify';
@@ -23,7 +22,7 @@ const BqaDash2 = ({}) => {
   const [isDownloading, setIsDownloading] = useState(false);
   const [files, setFiles] = useState<any[]>([]);
   const [standard, setStandard] = useState<string>('Standard 1');
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading] = useState(false);
   const location = useLocation();
   const uniName = location.state.uniName;
   const apiURL = import.meta.env.VITE_API_URL;
@@ -40,8 +39,6 @@ const BqaDash2 = ({}) => {
   // function useQuery() {
   //   return new URLSearchParams(useLocation().search);
   // }
-
-  const { t } = useTranslation(); // Hook to access translation functions
 
   //const [selectedFile, setSelectedFile] = useState(null);
   const { name } = useParams();
