@@ -85,7 +85,8 @@ const [/*currentName*/, setCurrentName] = useState('');
   
       // Delete each record
       await Promise.all(recordsToDelete.map(async record => {
-        const apiUrl = `https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards/${record.entityId}`;
+        const api = import.meta.env.VITE_API_URL;
+        const apiUrl = `${api}/standards/${record.entityId}`;
         const response = await fetch(apiUrl, {
           method: 'DELETE',
         });
@@ -113,7 +114,8 @@ const [/*currentName*/, setCurrentName] = useState('');
   
       // Update status to 'archived' for each record
       await Promise.all(recordsToArchive.map(async record => {
-        const apiUrl = `https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards/${record.entityId}`;
+        const api = import.meta.env.VITE_API_URL;
+        const apiUrl = `${api}/standards/${record.entityId}`;
         const response = await fetch(apiUrl, {
           method: 'PUT', // Use PUT method to update the record
           headers: {
@@ -167,7 +169,8 @@ const [/*currentName*/, setCurrentName] = useState('');
         standardId: standardId, // Ensure standardId is included in the record data
         standardName: standardName // Include standardName in recordData
       };
-      const response = await fetch('https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards', {
+      const api = import.meta.env.VITE_API_URL;
+      const response = await fetch(`${api}/standards`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -202,7 +205,8 @@ const [/*currentName*/, setCurrentName] = useState('');
 
   const fetchIndicators = async (standardId: string | undefined) => {
     try {
-      const response = await fetch(`https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards?standardId=${standardId}`);
+      const api = import.meta.env.VITE_API_URL;
+      const response = await fetch(`${api}/standards?standardId=${standardId}`);
       if (!response.ok) {
         throw new Error('Failed to fetch indicators');
       }
@@ -217,7 +221,8 @@ const [/*currentName*/, setCurrentName] = useState('');
 
   const fetchRecords = async (standardId: string | undefined) => {
     try {
-      const response = await fetch(`https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards?standard=${standardId}`);
+      const api = import.meta.env.VITE_API_URL;
+      const response = await fetch(`${api}/standards?standard=${standardId}`);
       if (!response.ok) {
         throw new Error('Failed to fetch records');
       }
@@ -336,7 +341,8 @@ const [/*currentName*/, setCurrentName] = useState('');
 const fetchStandardName = async (standardId: string | undefined) => {
   try {
     // Make API call to fetch standard name based on standardId
-    const response = await fetch(`https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards?standardId=${standardId}`);
+    const api = import.meta.env.VITE_API_URL;
+    const response = await fetch(`${api}/standards?standardId=${standardId}`);
     if (!response.ok) {
       throw new Error('Failed to fetch standards');
     }
