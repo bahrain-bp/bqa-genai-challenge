@@ -51,7 +51,7 @@ export function ApiStack({ stack }: StackContext) {
         function: {
           handler: "packages/functions/src/textractPdf.extractTextFromPDF",
           permissions: ["textract", "s3"],
-          timeout: "200 seconds",
+          ///timeout: "200 seconds",
           bind: [documentsQueue],
         },
       },
