@@ -29,7 +29,8 @@ const Standards: React.FC = () => {
   
       // Delete each record
       await Promise.all(recordsToDelete.map(async record => {
-        const apiUrl = `https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards/${record.entityId}`;
+        const api = import.meta.env.VITE_API_URL;
+        const apiUrl = `${api}/standards/${record.entityId}`;
         const response = await fetch(apiUrl, {
           method: 'DELETE',
         });
@@ -58,7 +59,8 @@ const Standards: React.FC = () => {
   
       // Update status to 'archived' for each record
       await Promise.all(recordsToArchive.map(async record => {
-        const apiUrl = `https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards/${record.entityId}`;
+        const api = import.meta.env.VITE_API_URL;
+        const apiUrl = `${api}/standards/${record.entityId}`;
         const response = await fetch(apiUrl, {
           method: 'PUT', // Use PUT method to update the record
           headers: {
@@ -122,7 +124,8 @@ const Standards: React.FC = () => {
 
   const fetchRecords = async () => {
     try {
-      const response = await fetch(`https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards`);
+      const api = import.meta.env.VITE_API_URL;
+      const response = await fetch(`${api}/standards`);
       if (!response.ok) {
         throw new Error('Failed to fetch records');
       }
@@ -152,7 +155,8 @@ const Standards: React.FC = () => {
        const newRecordData = {
         ...recordData,
       };
-      const response = await fetch('https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards', {
+      const api = import.meta.env.VITE_API_URL;
+      const response = await fetch(`${api}/standards`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
