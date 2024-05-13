@@ -142,6 +142,7 @@ const BqaDash1 = () => {
     <Loader />
   ) : (
     <DefaultLayout>
+
       <Breadcrumb pageName={t('bqaReviewerDashboard')} />
       <div className="container">
         <div className="flex justify-end py-4">
@@ -181,6 +182,30 @@ const BqaDash1 = () => {
                     {t('completed')}
                   </div>
                 </div>
+
+    <Breadcrumb pageName={t("bqaReviewerDashboard")} />
+    <div className="container">
+    <div className="flex justify-end py-4">
+
+{/* Add university */}
+        <button   
+            className="px-5 py-2 bg-primary text-white rounded-md shadow-sm hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary-dark focus:ring-opacity-50"
+        > 
+              <Link to={`/AddUni`}>
+              {t('addUniversity')}
+              </Link>
+      </button>
+      </div>
+      <div className="row">
+        {/**Add logo for each university */}
+        {users.map(user => (
+          <div key={user.Username} className="col-md-4 col-sm-6" style={{ cursor: 'pointer' }}
+            onClick={() => navigate(`/BqaDash2/${getAttributeValue(user.Attributes, 'name')}`)}>
+            <div className="rounded-xl border border-stroke bg-white py-6 px-7.5 shadow-default dark:border-strokedark" style={{ marginBottom: '20px' }}>
+              <div className="d-flex justify-content-between align-items-center">
+                <h3 style={{ marginBottom: '10px' }}>{getAttributeValue(user.Attributes, 'name')}</h3>
+                <div className="inline-flex rounded-full bg-opacity-10 py-1 px-3 text-sm font-medium indicator bg-success text-success">  {t('completed')}</div>
+
               </div>
             </div>
           ))}

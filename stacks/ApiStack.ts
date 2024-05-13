@@ -125,7 +125,13 @@ export function ApiStack({ stack }: StackContext) {
           ],
         },
       },
+      "POST /standards": "packages/functions/src/standards/create.main",
+      "GET /standards/{id}": "packages/functions/src/standards/get.main",
+      "GET /standards": "packages/functions/src/standards/list.main",
+      "PUT /standards/{id}": "packages/functions/src/standards/update.main",
+      "DELETE /standards/{id}": "packages/functions/src/standards/delete.main",
     },
+    
   });
   const get_users_function = api.getFunction("POST /createUser");
   get_users_function?.role?.addManagedPolicy(

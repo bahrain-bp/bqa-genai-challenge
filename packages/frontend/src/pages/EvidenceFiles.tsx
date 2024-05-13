@@ -15,7 +15,8 @@ const EvidenceFiles: React.FC = () => {
   const fetchRecords = async (indicatorId: string | undefined) => {
     try {
       // Constructing URL with standard name
-      const apiUrl = `https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards?standard=${indicatorId}`;
+      const api = import.meta.env.VITE_API_URL;
+      const apiUrl = `${api}/standards?standard=${indicatorId}`;
 
       const response = await fetch(apiUrl);
       if (!response.ok) {
@@ -38,8 +39,8 @@ const EvidenceFiles: React.FC = () => {
       if (!recordToDelete) {
         throw new Error('Record not found for the given document URL');
       }
-  
-      const apiUrl = `https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards/${recordToDelete.entityId}`;
+      const api = import.meta.env.VITE_API_URL;
+      const apiUrl = `${api}/standards/${recordToDelete.entityId}`;
       const response = await fetch(apiUrl, {
         method: 'DELETE',
       });
@@ -65,8 +66,8 @@ const EvidenceFiles: React.FC = () => {
           // Print the record to be updated in the console
     console.log('Record to be archived:', recordToArchive);
 
-  
-      const apiUrl = `https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards/${recordToArchive.entityId}`;
+    const api = import.meta.env.VITE_API_URL;
+      const apiUrl = `${api}/standards/${recordToArchive.entityId}`;
       const response = await fetch(apiUrl, {
         method: 'PUT', // Use PUT method to update the record
         headers: {

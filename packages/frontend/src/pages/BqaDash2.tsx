@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useParams, Link } from 'react-router-dom';
+
 import { useLocation } from 'react-router-dom';
 import './BqaDash1.css'; // Custom CSS file for progress bars
 import { ToastContainer } from 'react-toastify';
@@ -39,6 +40,51 @@ const BqaDash2 = ({}) => {
     console.log('University email received:', email);
     fetchDataForStandard(standard);
   }, [email, standard]);
+
+// import { useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+
+
+interface Package {
+  name: string;
+  invoiceDate: string;
+}
+
+const packageData: Package[] = [
+  {
+    name: 'File 1.ppt',
+    invoiceDate: `Jan 13, 2023`,
+  },
+  {
+    name: 'File 2.png',
+    invoiceDate: `Jan 13, 2023`,
+  },
+  {
+    name: 'File 3.tsx',
+    invoiceDate: `Jan 13, 2023`,
+  },
+  {
+    name: 'File 4.pdf',
+    invoiceDate: `Jan 13, 2023`,
+  },
+];
+
+
+// function useQuery() {
+//   return new URLSearchParams(useLocation().search);
+// }
+
+const BqaDash2 = () => {
+  const [isDownloading, setIsDownloading] = useState(false);
+  const { t } = useTranslation(); // Hook to access translation functions
+
+  //const [selectedFile, setSelectedFile] = useState(null);
+   const { name } = useParams();
+ console.log("name:" + name);
+  // const query = useQuery();
+  // const name = query.get('name');
+
+
 
   //use /files enpoint to fetch uni files --pass uniName/Standard selected
   useEffect(() => {
@@ -125,10 +171,22 @@ const BqaDash2 = ({}) => {
     }
   };
 
+
+  //////////////////////////
+  useEffect(() => {
+
+    console.log("University name received:", name);
+    
+    // console.log("University email received:", email);
+    // Fetch more data if needed using the university email
+  }, []);
+  
+
   return (
     <>
       <DefaultLayout>
         <Breadcrumb pageName={`University Files / ${uniName}`} />
+
 
         <div className="flex justify-end py-4">
           {/* Request Document Button */}
@@ -154,6 +212,33 @@ const BqaDash2 = ({}) => {
                 <span className="progress-bar"></span>
               </span>
               <div className="progress-value">90%</div>
+
+      {/* Request Document Button */}
+              <button   
+                  className="px-5 py-2 bg-primary text-white rounded-md shadow-sm hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary-dark focus:ring-opacity-50"
+                 // className={`flex justify-center rounded bg-primary py-2 px-6 font-medium text-gray hover:bg-opacity-90 mr-4`
+              > 
+                    <Link to={`/BqaRequestPage?name=${name}`}>
+                    {t('requestDocuments')}
+                    </Link>
+                    
+            </button>
+            </div>
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-4 2xl:gap-7.5">
+ 
+ 
+            <div className="rounded-xl border border-stroke bg-white py-6 px-7.5 shadow-default dark:border-strokedark" style={{ marginBottom: '20px' }}>
+              <h3 style={{ marginBottom: '10px' }}>Standard 1</h3>
+              <div className="progress blue">
+                <span className="progress-left">
+                  <span className="progress-bar"></span>
+                </span>
+                <span className="progress-right">
+                  <span className="progress-bar"></span>
+                </span>
+                <div className="progress-value">90%</div>
+              </div>
+
             </div>
 
             {/* Add progress bar here */}
