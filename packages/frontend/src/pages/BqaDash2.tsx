@@ -9,10 +9,16 @@ import './BqaDash1.css'; // Custom CSS file for progress bars
 import { ToastContainer } from 'react-toastify';
 import Loader from '../common/Loader';
 import axios from 'axios';
-import MultiSelect from '../components/Forms/MultiSelect';
-//import { FormControl,InputLabel,FormHelperText,Input } from '@mui/material';
+// import MultiSelect from '../components/Forms/MultiSelect';
+import {
+  FormControl,
+  InputLabel,
+  TextField,
+  MenuItem,
+  Select,
+} from '@mui/material';
 
-const BqaDash2 = ({}) => {
+const BqaDash2 = ({ }) => {
   const [isDownloading, setIsDownloading] = useState(false);
   const [files, setFiles] = useState<any[]>([]);
   const [standard, setStandard] = useState<string>('Standard 1');
@@ -21,6 +27,12 @@ const BqaDash2 = ({}) => {
   const uniName = location.state.uniName;
   console.log(uniName, 'name uni');
   const { email } = useParams();
+  // State for search term in the search bar
+  const [searchTerm, setSearchTerm] = useState('');
+
+  // State for selected indicator in the select menu
+  const [selectedIndicator, setSelectedIndicator] = useState('');
+
 
   useEffect(() => {
     console.log('University email received:', email);
@@ -42,15 +54,26 @@ const BqaDash2 = ({}) => {
             },
           },
         );
-        setFiles(response.data.files);
+        // Filter files based on search term and indicator
+        let filteredFiles = response.data.files;
+        if (searchTerm.trim() !== '') {
+          filteredFiles = filteredFiles.filter((file) => file.Key.includes(searchTerm));
+        }
+        if (selectedIndicator !== '') {
+          filteredFiles = filteredFiles.filter((file) => file.Key.includes(selectedIndicator));
+        }
+
+        setFiles(filteredFiles);
       } catch (error) {
         console.error('Error fetching data:', error);
         // Handle error
       }
     };
     fetchData();
-  }, [standard]);
+  }, [standard, searchTerm, uniName]); // Include uniName in the dependency array
   console.log('files', files);
+  // In the Select component, populate the options with unique indicators from files
+  const indicators = [...new Set(files.map((file) => file.Key.split('/')[2]))];
 
   const fetchDataForStandard = (standardName: string) => {
     setStandard(standardName);
@@ -126,10 +149,38 @@ const BqaDash2 = ({}) => {
           <Loader /> // Render loader component when loading is true
         ) : (
           <>
-            <div className="flex flex-col gap-2 p-2 bg-white">
+            {/* <div className="flex flex-col gap-2 p-2 bg-white">
               <MultiSelect id="multiSelect" />
-            </div>
+            </div> */}
+
             <div className="rounded-sm border border-stroke bg-white px-5 pt-6 pb-2.5 shadow-default dark:border-strokedark sm:px-7.5 x1:pb-1">
+              <div className="flex justify-between mb-4">
+                <TextField
+                  label="Search by File Name"
+                  variant="outlined"
+                  size="small"
+                  style={{ width: '69%' }}
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)} // Update search term state
+                />
+                <FormControl
+                  variant="outlined"
+                  size="small"
+                  style={{ width: '29%' }}
+                >
+                  <InputLabel>Indicator</InputLabel>
+                  <Select
+                    value={selectedIndicator}
+                    onChange={(e) => setSelectedIndicator(e.target.value)}
+                    label="Indicator"
+                  >
+                    <MenuItem value="">All</MenuItem>
+                    {indicators.map((indicator, index) => (
+                      <MenuItem key={index} value={indicator}>{indicator}</MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </div>
               <div className="max-w-full overflow-x-auto">
                 <table className="w-full table-auto">
                   <thead>
