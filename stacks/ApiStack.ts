@@ -45,8 +45,13 @@ export function ApiStack({ stack }: StackContext) {
           permissions: ["comprehend"],
         },
       },
+      "GET /downloadFile": {
+        function: {
+          handler: "packages/functions/src/files/downloadFile.main",
+          permissions: "*",
+        },
+      },
 
-      
       "POST /textract": {
         function: {
           handler: "packages/functions/src/textractPdf.extractTextFromPDF",
@@ -90,18 +95,18 @@ export function ApiStack({ stack }: StackContext) {
       "POST /createFileDB": {
         function: {
           handler: "packages/functions/src/files/create.main",
-          permissions: "*"
-        }
+          permissions: "*",
+        },
       },
       "PUT /fileSummary/{fileName}": {
         function: {
           handler: "packages/functions/src/files/update.main",
-          permissions: "*"
-        }
+          permissions: "*",
+        },
       },
 
-
-      "GET /summarization/{fileName}": "packages/functions/src/files/retrieveSummarization.main",
+      "GET /summarization/{fileName}":
+        "packages/functions/src/files/retrieveSummarization.main",
 
       //Uploading logo to S3
       "POST /uploadLogo": {
