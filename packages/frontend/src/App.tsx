@@ -296,7 +296,7 @@ function App() {
 
 
         <Route
-          path="/BqaDash2/:email"
+          path="/BqaDash2/:name"
           element={
             <>
               <PageTitle title="Bqa Reviewer Dashboard (University Details)| EduScribe" />
