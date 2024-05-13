@@ -159,7 +159,7 @@ const BqaDash1 = () => {
         {/**Add logo for each university */}
         {users.map(user => (
           <div key={user.Username} className="col-md-4 col-sm-6" style={{ cursor: 'pointer' }}
-            onClick={() => navigate(`/BqaDash2/${getAttributeValue(user.Attributes, 'email')}`)}>
+            onClick={() => navigate(`/BqaDash2/${getAttributeValue(user.Attributes, 'name')}`)}>
             <div className="rounded-xl border border-stroke bg-white py-6 px-7.5 shadow-default dark:border-strokedark" style={{ marginBottom: '20px' }}>
               <div className="d-flex justify-content-between align-items-center">
                 <h3 style={{ marginBottom: '10px' }}>{getAttributeValue(user.Attributes, 'name')}</h3>

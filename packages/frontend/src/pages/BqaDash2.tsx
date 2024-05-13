@@ -13,6 +13,9 @@ import { useState,useEffect  } from 'react';
 import { ToastContainer } from 'react-toastify';
 //import { uploadToS3 } from './functions/src/s3Upload.ts'; // Import the uploadToS3 function
 import { useParams, Link } from 'react-router-dom';
+// import { useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+
 
 interface Package {
   name: string;
@@ -38,10 +41,21 @@ const packageData: Package[] = [
   },
 ];
 
+
+// function useQuery() {
+//   return new URLSearchParams(useLocation().search);
+// }
+
 const BqaDash2 = () => {
   const [isDownloading, setIsDownloading] = useState(false);
+  const { t } = useTranslation(); // Hook to access translation functions
+
   //const [selectedFile, setSelectedFile] = useState(null);
-  const { email } = useParams();
+   const { name } = useParams();
+ console.log("name:" + name);
+  // const query = useQuery();
+  // const name = query.get('name');
+
 
   const handleButtonClick = () => {
     setIsDownloading(true);
@@ -53,9 +67,12 @@ const BqaDash2 = () => {
   };
   //////////////////////////
   useEffect(() => {
-    console.log("University email received:", email);
+
+    console.log("University name received:", name);
+    
+    // console.log("University email received:", email);
     // Fetch more data if needed using the university email
-  }, [email]);
+  }, []);
   
   return (
     <DefaultLayout>
@@ -67,9 +84,10 @@ const BqaDash2 = () => {
                   className="px-5 py-2 bg-primary text-white rounded-md shadow-sm hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary-dark focus:ring-opacity-50"
                  // className={`flex justify-center rounded bg-primary py-2 px-6 font-medium text-gray hover:bg-opacity-90 mr-4`
               > 
-                    <Link to={`/BqaRequestPage?email=${email}`}>
-                      Request Documents
+                    <Link to={`/BqaRequestPage?name=${name}`}>
+                    {t('requestDocuments')}
                     </Link>
+                    
             </button>
             </div>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-4 2xl:gap-7.5">
