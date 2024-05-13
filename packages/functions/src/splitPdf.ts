@@ -51,7 +51,7 @@ export const handler = async (event: any) => {
 
     // Split the PDF into smaller documents
     const totalPages = pdfDoc.getPages().length;
-    const splitSize = 1; // Adjust split size as needed
+    const splitSize = 2; // Adjust split size as needed
 
     for (let i = 0; i < totalPages; i += splitSize) {
         const endPage = Math.min(i + splitSize, totalPages);
@@ -76,7 +76,7 @@ export const handler = async (event: any) => {
         // Upload the split PDF file to the same S3 bucket and key
         await s3.putObject({
             Bucket: bucketName,
-            Key: `${objectKey}-split-${i + 1}.pdf`, // Append split index to the key
+            Key: `${objectKey}-split-${i + 1}.pdf`,
             Body: splitPDFBytes,
             ContentType: 'application/pdf', // Set the content type accordingly
         }).promise();
@@ -87,6 +87,6 @@ export const handler = async (event: any) => {
 
   } catch (error) {
     console.error('Error:', error);
-    throw error; // Or return an appropriate error response
+    throw error; 
   }
 };
