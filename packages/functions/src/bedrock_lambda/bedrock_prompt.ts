@@ -70,8 +70,8 @@ export async function handler(event: SQSEvent, app: any) {
               top_p: 0.9,
               temperature: 0.2,
             },
-          },
-        };
+
+          }};
         
         // If the response is successful (status code 200), make a POST request to the SageMaker endpoint
         if (postResponse.status === 200) {
