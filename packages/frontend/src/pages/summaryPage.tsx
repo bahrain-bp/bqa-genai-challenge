@@ -20,13 +20,17 @@ const SummaryPage=() => {
     const { fileName } = useParams<{ fileName: string }>();
     const [fileData, setFileData] = useState<any | null>(null);
     const [loading, setLoading] = useState(false);
+    const apiURL = import.meta.env.VITE_API_URL;
+
 
 
         const fetchFiles = async () => {
           // setLoading(true);
 
           try {
-            const response = await fetch('https://66xzg471hh.execute-api.us-east-1.amazonaws.com/summarization/BusinessPlan.pdf');
+            // const response = await fetch('https://66xzg471hh.execute-api.us-east-1.amazonaws.com/summarization/BusinessPlan.pdf');
+            const response = await fetch(`${apiURL}/summarization/BusinessPlan.pdf`);
+
             const data = await response.json();
             setFileData(data);
            setLoading(false);

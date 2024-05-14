@@ -59,6 +59,8 @@ const OfficerDash = () => {
   const [loading, setLoading] = useState<boolean>(true);
   //const [files, setFiles] = useState({});
   const [files, setFiles] = useState<FileDetail[]>([]);
+  const apiURL = import.meta.env.VITE_API_URL;
+
 
   const navigate = useNavigate();
   useEffect(() => {
@@ -96,7 +98,7 @@ const OfficerDash = () => {
   // }
 
   // const currentStandard = standards[activeStep];
-  const url = `https://66xzg471hh.execute-api.us-east-1.amazonaws.com/files`;
+  const url = `${apiURL}/files`;
 
   try {
             const response = await fetch(url, {
