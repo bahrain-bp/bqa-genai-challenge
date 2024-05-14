@@ -2,11 +2,12 @@
 import Breadcrumb from '../components/Breadcrumbs/Breadcrumb';
 import styled from 'styled-components';
 import DefaultLayout from '../layout/DefaultLayout';
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { FileUpload } from 'primereact/fileupload';
 //import { useTranslation } from 'react-i18next';
 //import Loader from '../common/Loader';
+
 
 const MainContainer = styled.div`
   width: 100%;
@@ -29,19 +30,28 @@ const StepWrapper = styled.div`
   justify-content: ; // Center the circle within each segment
 `;
  
-const ProgressLine = styled.div`
+interface ProgressLineProps {
+  activeStep: number;
+  totalSteps: number;
+}
+
+// Apply the interface to your styled component
+const ProgressLine = styled.div<ProgressLineProps>`
   height: 9px;
   background: #2ECC71;
   width: ${props => `calc(${props.activeStep / (props.totalSteps - 1) * 100}% - 10px)`};
   position: absolute;
-  top: 16px; // Adjust this value to align with the center of your StepStyle circles
-  left: -4 px; // Half the size of the StepStyle to start the line right after the first circle
+  top: 16px;
+  left: -4px;
   z-index: -8;
 `;
+
+interface StepStyleProps {
+  completed: boolean;
+}
  
- 
-const StepStyle = styled.div`
-  width: 40px;
+const StepStyle = styled.div<StepStyleProps>`  
+  width:40px;
   height: 40px;
   border-radius: 50%;
   background-color: ${({ completed }) => completed ? '#2ECC71' : '#FFFFFF'};
@@ -133,10 +143,10 @@ const SectionTitle = styled.h2`
 `;
 
 const UploadEvidence = () => {
-  const [standards, setStandards] = useState([]);
+  const [standards, setStandards] = useState<any[]>([]);  // Using 'any[]' for state typing
   const [activeStep, setActiveStep] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
-  const [uploadedFiles, setUploadedFiles] = useState({});
+  const [uploadedFiles, setUploadedFiles] = useState<any[]>([]);
   
 
 
@@ -164,9 +174,15 @@ const UploadEvidence = () => {
         });
         setStandards(Array.from(standardsMap.values()));
       } catch (error) {
-        console.error('Error fetching standards:', error);
-        toast.error(`Error fetching standards: ${error.message}`);
-
+        // Check if error is an instance of Error
+        if (error instanceof Error) {
+          console.error('Error fetching standards:', error);
+          toast.error(`Error fetching standards: ${error.message}`);
+        } else {
+          // Handle cases where error is not an Error instance
+          console.error('An unexpected error occurred:', error);
+          toast.error('An unexpected error occurred');
+        }
       }
     };
 
@@ -219,9 +235,10 @@ const UploadEvidence = () => {
            
 
         } catch (error) {
-            console.error('Upload error:', error);
-            toast.error('Upload error: ' + error.message);
-        }
+          const message = error instanceof Error ? error.message : "An unexpected error occurred";
+          console.error('Upload error:', message);
+          toast.error(`Upload error: ${message}`);
+      }
     }
     setIsUploading(false);
 };
@@ -266,11 +283,12 @@ const fetchUploadedFiles = async () => {
           ...prev,
           [currentStandard.standardId]: filesByIndicator
       }));
-  } catch (error) {
-      console.error('Error fetching uploaded files:', error);
-      toast.error(`Error fetching uploaded files: ${error.message}`);
-
-  }
+  }  catch (error) {
+    // Check if error is an instance of Error and then access its message property
+    const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
+    console.error('Error fetching uploaded files:', errorMessage);
+    toast.error(`Error fetching uploaded files: ${errorMessage}`);
+}
 };
 
 
@@ -301,16 +319,17 @@ const handleFileDelete = async (fileKey:any, standardId:any, indicatorId:any) =>
 
     // Update local state to remove the file from the list
     setUploadedFiles(prevFiles => {
-      const updatedFiles = {...prevFiles};
-      const filteredFiles = updatedFiles[standardId][indicatorId].filter(file => file.name !== fileKey);
+      const updatedFiles = {...prevFiles} as any;
+      const filteredFiles = updatedFiles[standardId][indicatorId].filter((file:any) => file.name !== fileKey);
       updatedFiles[standardId][indicatorId] = filteredFiles;
 
       return updatedFiles;
     });
 
   } catch (error) {
-    console.error('Delete file error:', error);
-    toast.error(`Failed to delete file: ${error.message}`);
+    const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
+    console.error('Delete file error:', errorMessage);
+    toast.error(`Failed to delete file: ${errorMessage}`);
   }
 };
 
@@ -338,7 +357,7 @@ useEffect(() => {
       <SectionTitle>{standards[activeStep]?.standardId}: {standards[activeStep]?.standardName}</SectionTitle> 
 
         <StepContainer>
-          {standards.map((standard, index) => (
+          {standards.map((_,index) => (
             <StepWrapper key={index}>
               <StepStyle completed={activeStep >= index}>
                 <StepCount>{index + 1}</StepCount>
@@ -380,7 +399,7 @@ useEffect(() => {
             />
             <div style={{ marginTop: '10px' }}>
             {
-    (uploadedFiles[standards[activeStep]?.standardId]?.[indicator.id] || []).map(file => (
+    (uploadedFiles[standards[activeStep]?.standardId]?.[indicator.id] || []).map((file:any) => (
         <StyledFileDisplay key={file.name}>
             <i className="pi pi-file" style={{ fontSize: '1.2em' }}></i>
            {file.name.split('/').pop()}
