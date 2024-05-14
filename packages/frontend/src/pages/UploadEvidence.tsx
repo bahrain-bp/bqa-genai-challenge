@@ -2,7 +2,7 @@
 import Breadcrumb from '../components/Breadcrumbs/Breadcrumb';
 import styled from 'styled-components';
 import DefaultLayout from '../layout/DefaultLayout';
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { FileUpload } from 'primereact/fileupload';
 //import { useTranslation } from 'react-i18next';
@@ -137,13 +137,16 @@ const UploadEvidence = () => {
   const [activeStep, setActiveStep] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState({});
+  const apiURL = import.meta.env.VITE_API_URL;
+
 
 
 
   useEffect(() => {
     const fetchStandards = async () => {
       try {
-        const response = await fetch(`https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards`);
+        const response = await fetch(`${apiURL}/standards`);
+
         if (!response.ok) {
           throw new Error(`HTTP status ${response.status}`);
         }
@@ -193,7 +196,7 @@ const UploadEvidence = () => {
         formData.append('file', file);
 
         try {
-            const response = await fetch('https://l1ca6m1ik7.execute-api.us-east-1.amazonaws.com/uploadS3', {
+            const response = await fetch(`${apiURL}/uploadS3`, {
                 method: 'POST',
                 body: formData,
                 headers: {
@@ -232,7 +235,8 @@ const fetchUploadedFiles = async () => {
   }
 
   const currentStandard = standards[activeStep];
-  const url = `https://l1ca6m1ik7.execute-api.us-east-1.amazonaws.com/files`;
+
+  const url = `${apiURL}/files`;
 
   try {
       const response = await fetch(url, {
@@ -276,7 +280,7 @@ const fetchUploadedFiles = async () => {
 const handleFileDelete = async (fileKey:any, standardId:any, indicatorId:any) => {
   try {
     // Construct the API endpoint URL
-    const url = `https://l1ca6m1ik7.execute-api.us-east-1.amazonaws.com/deleteFile`; // Replace with your actual endpoint URL
+    const url = `${apiURL}/deleteFile`; // Replace with your actual endpoint URL
 
     const response = await fetch(url, {
       method: 'DELETE',
