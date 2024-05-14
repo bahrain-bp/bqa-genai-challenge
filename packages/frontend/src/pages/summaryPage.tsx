@@ -1,7 +1,7 @@
 import Breadcrumb from '../components/Breadcrumbs/Breadcrumb';
 import DefaultLayout from '../layout/DefaultLayout';
-import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import  { useState, useEffect } from 'react';
+// import { useParams } from 'react-router-dom';
 
 
 // Define a type for the expected file data
@@ -17,7 +17,7 @@ import { useParams } from 'react-router-dom';
 // }
 const SummaryPage=() => {
     //standards?standardId=${standardId}
-    const { fileName } = useParams<{ fileName: string }>();
+    // const { fileName } = useParams<{ fileName: string }>();
     const [fileData, setFileData] = useState<any | null>(null);
     const [loading, setLoading] = useState(false);
     const apiURL = import.meta.env.VITE_API_URL;
