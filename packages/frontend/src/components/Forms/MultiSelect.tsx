@@ -94,16 +94,16 @@ const MultiSelect: React.FC<DropdownProps> = ({ id }) => {
     });
 
   return (
-    <div className="relative z-50">
+    <div className="relative z-30">
       <label className="mb-3 block text-sm font-medium text-black dark:text-white">
-        Multiselect Dropdown
+        Choose an indicator
       </label>
       <div>
         <select className="hidden" id={id}>
-          <option value="1">Option 2</option>
-          <option value="2">Option 3</option>
-          <option value="3">Option 4</option>
-          <option value="4">Option 5</option>
+          <option value="1">Indicator 1</option>
+          <option value="2">Indicator 2</option>
+          <option value="3">Indicator 3</option>
+          <option value="4">Indicator 4</option>
         </select>
 
         <div className="flex flex-col items-center">
