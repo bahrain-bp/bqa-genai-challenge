@@ -8,6 +8,7 @@ import { useLocation } from 'react-router-dom';
 import './BqaDash1.css'; // Custom CSS file for progress bars
 import { ToastContainer } from 'react-toastify';
 import Loader from '../common/Loader';
+import Pagination from '@mui/material/Pagination';
 import axios from 'axios';
 // import MultiSelect from '../components/Forms/MultiSelect';
 import {
@@ -23,6 +24,8 @@ const BqaDash2 = ({}) => {
   const [files, setFiles] = useState<any[]>([]);
   const [standard, setStandard] = useState<string>('Standard 1');
   const [isLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
   const location = useLocation();
   const uniName = location.state.uniName;
   const apiURL = import.meta.env.VITE_API_URL;
@@ -61,13 +64,16 @@ const BqaDash2 = ({}) => {
             },
           },
         );
-        // Filter files based on search term and indicator
         let filteredFiles = response.data.files;
+
+        // Filter based on search term
         if (searchTerm.trim() !== '') {
           filteredFiles = filteredFiles.filter((file: any) =>
-            file.Key.includes(searchTerm),
+            file.Key.toLowerCase().includes(searchTerm.toLowerCase()),
           );
         }
+
+        // Filter based on selected indicator
         if (selectedIndicator !== '') {
           filteredFiles = filteredFiles.filter((file: any) =>
             file.Key.includes(selectedIndicator),
@@ -81,7 +87,12 @@ const BqaDash2 = ({}) => {
       }
     };
     fetchData();
-  }, [standard, searchTerm, uniName]); // Include uniName in the dependency array
+  }, [standard, searchTerm, selectedIndicator, uniName]);
+  // Calculate the indexes for the current page based on the filtered files
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentFiles = files.slice(indexOfFirstItem, indexOfLastItem);
+
   console.log('files', files);
   // In the Select component, populate the options with unique indicators from files
   const indicators = [...new Set(files.map((file) => file.Key.split('/')[2]))];
@@ -246,12 +257,18 @@ const BqaDash2 = ({}) => {
                   </thead>
 
                   <tbody>
-                    {files.map((file, key) => (
+                    {currentFiles.map((file, key) => (
                       <tr key={key}>
                         <td className="border-b border-[#eee] py-5 px-4 pl-9 dark:border-strokedark xl:pl-11">
-                          <h5 className="font-medium text-black dark:text-white">
-                            {file.Key}
-                          </h5>
+                          <a
+                            href="#"
+                            onClick={() => handleButtonClick(file.Key)}
+                            className="cursor-pointer text-black dark:text-white hover:underline hover:text-blue-500"
+                          >
+                            <h5 className="font-medium hover:text-blue-500 hover:underline">
+                              {file.Key}
+                            </h5>
+                          </a>
                         </td>
                         <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
                           <p className="text-black dark:text-white">
@@ -294,6 +311,14 @@ const BqaDash2 = ({}) => {
                       </tr>
                     ))}
                   </tbody>
+                  <div className="flex justify-end mt-4">
+                    <Pagination
+                      count={Math.ceil(files.length / itemsPerPage)}
+                      page={currentPage}
+                      onChange={(event, value) => setCurrentPage(value)}
+                      // color="primary"
+                    />
+                  </div>
                 </table>
               </div>
             </div>
