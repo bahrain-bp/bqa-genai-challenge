@@ -13,8 +13,8 @@ function useQuery() {
 const BqaRequestPage: React.FC = () => {
  // const [/*users*/, setUsers] = useState<{ Username: string; Attributes: { Name: string; Value: string }[] }[]>([]);
  
- const [selectedEmail, setSelectedEmail] = useState<string>('');
-  const [subject, setSubject] = useState<string>('');
+  const [selectedEmail, setSelectedEmail] = useState<string>('');
+  const subject = "Additional Document Request";
   const [message, setMessage] = useState<string>('');
   // const { t } = useTranslation(); // Hook to access translation functions
   const api = import.meta.env.VITE_API_URL;
@@ -103,9 +103,9 @@ const BqaRequestPage: React.FC = () => {
             <select id="user" name="user" 
             disabled={true}
             className="w-full mt-1 px-1.5 py-1.5 rounded-md border border-gray-300 bg-gray focus:ring-primary focus:border-primary dark:border-gray-700 dark:bg-gray-800 dark:focus:border-primary dark:focus:ring-primary dark:text-gray-300"
-            value={userEmail}
-            onChange={(e) => setUserEmail(e.target.value)}>
-                <option value={userEmail}>{userEmail}</option>
+            value={selectedEmail}
+            onChange={(e) => setSelectedEmail(e.target.value)}>
+                <option value={selectedEmail}>{selectedEmail}</option>
             </select>     
           </div>
 
@@ -114,8 +114,8 @@ const BqaRequestPage: React.FC = () => {
            <textarea
             id="message"
             name="message"
-            value={body}
-            onChange={(e) => setBody(e.target.value)}
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
             className="w-full rounded border border-stroke bg-gray py-3 px-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
             placeholder="Write your message here"
            ></textarea>
@@ -129,11 +129,9 @@ const BqaRequestPage: React.FC = () => {
         Send Request
       </button>
     </div>
-    <div className="result">
-      {result && <p>{result}</p>}
-    </div>   
-        </div>
-      </DefaultLayout>
+
+  </div>
+</DefaultLayout>
     );
   };
 
