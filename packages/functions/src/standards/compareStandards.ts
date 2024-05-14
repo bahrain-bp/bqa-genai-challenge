@@ -1,8 +1,8 @@
-import { SQSEvent } from "aws-lambda";
-import axios, { AxiosResponse } from "axios";
-import * as AWS from "aws-sdk";
-import { Queue } from "sst/node/queue";
-export async function handler(event: any, app: any) {
+import axios from "axios";
+import { APIGatewayProxyEventV2 } from "aws-lambda";
+import { v4 as uuidv4 } from "uuid";
+
+export async function handler(event: APIGatewayProxyEventV2, app: any) {
   const orientationDayText: string = `
   University Health and Safety - New Orientation Day
   Date: October 27th, 2016
@@ -88,7 +88,7 @@ export async function handler(event: any, app: any) {
     - Mr. Bill, Head of Estate and Support Services - Mobile No. 39xxxxxx
     - Ms. Judi, Occupational Health & Safety Advisor - Mobile No. 39xxxxxx
     - Office 205 Ext 2303
-`;
+  `;
   const infrastructureCriteria: string = `
   Indicator 10 - Infrastructure
   Comments
@@ -108,58 +108,68 @@ export async function handler(event: any, app: any) {
   10.7   Access to the premises is appropriately restricted, secured and convenient for staff and students with special needs.
   
   10.8   Where applicable, the residential accommodation offered by the institution is clean, safe, supervised and of a standard which is adequate to the needs of students, and there are arrangements in place to ensure that regular inspections are conducted.
-  
-`;
+  `;
 
+  const requestBody = {
+    body: {
+      inputs:
+        "Below is the content describing the university's orientation day and the infrastructure criteria for evaluation:\n\n" +
+        orientationDayText +
+        "\n\nBased on the provided evidence, evaluate the university's compliance and performance across the infrastructure indicators listed below. Provide a score from 1 to 5 for each indicator, along with specific examples or evidence supporting your assessment:\n\n" +
+        "Infrastructure Criteria:\n" +
+        infrastructureCriteria +
+        "\n\nFor each indicator:\n" +
+        "- Assign a score from 1 to 5 based on the level of compliance and effectiveness." +
+        "- Include specific examples or practices from the orientation day text to justify your score.\n" +
+        "- Highlight areas of strength and potential areas for improvement.\n\n" +
+        "Example Response:\n" +
+        "10.1 - Compliance with HEC regulations: Score 4 out of 5.\n" +
+        "\nThe university conducts regular reviews of its premises and facilities to ensure compliancewith HEC regulations. For example, the orientation day text mentions the maintenance of health and safety records by the Estates department, demonstrating a proactive approach to compliance.\n" +
+        "10.2 - Provision of adequate facilities: Score 3 out of 5.\n" +
+        "The university provides a wide range of facilities, including classrooms, offices, and medical facilities, which are well-equipped and maintained. The orientation day text highlights the availability of space planning and maintenance services, ensuring that facilities meet",
 
-const requestBody = {
-  body: {
-    inputs:
-      "Below is the content describing the university's orientation day and the infrastructure criteria for evaluation:\n\n" +
-      orientationDayText +
-      "\n\nBased on the provided evidence, evaluate the university's compliance and performance across the infrastructure indicators listed below. Provide a score from 1 to 5 for each indicator, along with specific examples or evidence supporting your assessment:\n\n" +
-      "Infrastructure Criteria:\n" +
-      infrastructureCriteria +
-      "\n\nFor each indicator:\n" +
-      "- Assign a score from 1 to 5 based on the level of compliance and effectiveness." +
-      "- Include specific examples or practices from the orientation day text to justify your score.\n" +
-      "- Highlight areas of strength and potential areas for improvement.\n\n" +
-      "Example Response:\n" +
-      "10.1 - Compliance with HEC regulations: Score 4 out of 5.\n" +
-      "\nThe university conducts regular reviews of its premises and facilities to ensure compliance with HEC regulations. For example, the orientation day text mentions the maintenance of health and safety records by the Estates department, demonstrating a proactive approach to compliance.\n" +
-      "10.2 - Provision of adequate facilities: Score 3 out of 5.\n" +
-      "The university provides a wide range of facilities, including classrooms, offices, and medical facilities, which are well-equipped and maintained. The orientation day text highlights the availability of space planning and maintenance services, ensuring that facilities meet",
-
-    parameters: {
-      max_tokens: 60000, 
-      temperature: 0.9,
+      parameters: {
+        max_tokens: 60000,
+        temperature: 0.9,
+      },
     },
-  },
-};
+  };
 
-  //console.log(requestBody.body.inputs);
-
-  // If the response is successful (status code 200), make a POST request to the SageMaker endpoint
-
-  // Replace "Text" with the actual extracted text
   const endpoint =
     "https://d55gtzdu04.execute-api.us-east-1.amazonaws.com/dev-demo/sageMakerInvoke";
+  
 
   try {
-    // Make the POST request to the endpoint
     const response = await axios.post(endpoint, requestBody);
-    
-    // Log the response
+
     console.log(
       "Response from endpoint of the standards comparing:",
       response.data
     );
-    // Now this needs to be saved in the database with the corresponding standard name/uni/fileURL
 
+    // Generate a unique ID for the record
+    const fileId = uuidv4();
 
-    
+    // Send a POST request to your create Lambda function endpoint
+    const createLambdaResponse = await axios.post('https://30fuaz2c4c.execute-api.us-east-1.amazonaws.com/createFileDB', {
+      fileName: "new File Name", //has to be unique to store each record
+      fileURL: "test File URL",
+      standardName: "Test Standard Name",
+      standardNumber: "Standard Number",
+      indicatorNumber: "Indicator Number",
+      name: "Name",
+      content: "Content",
+      summary: "Summary",
+      strength: "Strength",
+      weakness: "Weakness",
+      score: "Score",
+      comments: "Comments",
+      comparisonResponse: response.data, // Passing the comparison response from SageMaker
+    });
+
+    console.log("Record created via Create Lambda:", fileId);
+    console.log("Create Lambda Response:", createLambdaResponse.data);
   } catch (error: any) {
-    // Log any errors
     console.error("Error sending request:", error.message);
   }
 }

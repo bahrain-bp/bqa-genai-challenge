@@ -24,7 +24,7 @@ export const main: APIGatewayProxyHandlerV2 = async (event: any) => {
             Key: {
                 fileName: itemId,
             },
-            UpdateExpression: "set fileURL = :url, standardName = :standardName, standardNumber = :standardNumber, indicatorNumber = :indicatorNumber, #name = :name, content = :content, summary = :summary, strength = :strength, weakness = :weakness, score = :score, comments = :comments",
+            UpdateExpression: "set fileURL = :url, standardName = :standardName, standardNumber = :standardNumber, indicatorNumber = :indicatorNumber, #name = :name, content = :content, summary = :summary, strength = :strength, weakness = :weakness, score = :score, comments = :comments, comparisonResponse = :comparisonResponse",
             ExpressionAttributeValues: {
                 ":url": data.fileURL,
                 ":standardName": data.standardName,
@@ -36,7 +36,8 @@ export const main: APIGatewayProxyHandlerV2 = async (event: any) => {
                 ":strength": data.strength,
                 ":weakness": data.weakness,
                 ":score": data.score,
-                ":comments": data.comments
+                ":comments": data.comments,
+                ":comparisonResponse": data.comparisonResponse,
             },
             ExpressionAttributeNames: {
                 "#name": "name" // 'name' is a reserved word in DynamoDB, so we need to use ExpressionAttributeNames to specify it

@@ -8,13 +8,8 @@ import * as iam from "@aws-cdk/aws-iam";
 
 export function ApiStack({ stack }: StackContext) {
   const { auth } = use(AuthStack);
-<<<<<<< HEAD
-  const { table } = use(DBStack);
-  const { documentsQueue, analysisQueue } = use(S3Stack);
-=======
   const { table, fileTable } = use(DBStack);
-  const { documentsQueue } = use(S3Stack);
->>>>>>> origin/main
+  const { documentsQueue, analysisQueue } = use(S3Stack);
 
   const api = new Api(stack, "signinAPI", {
     // Commented out the authorizers section
