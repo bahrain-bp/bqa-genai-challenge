@@ -17,6 +17,7 @@ const BqaRequestPage: React.FC = () => {
   const [subject, setSubject] = useState<string>('');
   const [message, setMessage] = useState<string>('');
   // const { t } = useTranslation(); // Hook to access translation functions
+  const api = import.meta.env.VITE_API_URL;
 
   //const [user, setUsers] = useState<{ Username: string; Attributes: { Name: string; Value: string }[] }[]>([]);
 
@@ -39,7 +40,9 @@ const BqaRequestPage: React.FC = () => {
             //  console.log("Uni name: " + name);
 
         // Assuming fetchUserAttributes takes a name parameter and fetches the corresponding user attributes
-        const response = await fetch(`https://u1oaj2omi2.execute-api.us-east-1.amazonaws.com/getUsers`);
+        const response = await fetch(`${api}/getUsers`);
+
+        // const response = await fetch(`https://u1oaj2omi2.execute-api.us-east-1.amazonaws.com/getUsers`);
         const data = await response.json();
 
         if (!response.ok) {

@@ -29,6 +29,8 @@ import ForgotPassword from './pages/Auth/ForgotPassword';
 import BqaRequestPage from './pages/BqaRequestPage';
 import { getCurrentUser, fetchUserAttributes } from 'aws-amplify/auth';
 import { ToastContainer } from 'react-toastify';
+import SummaryPage from './pages/summaryPage';
+
 
 function App() {
   const [user, setUser] = useState<any | null>(null);
@@ -51,7 +53,7 @@ function App() {
       console.log((await attributes).email);
       //console.log((await attributes).name);
        const names=(await fetchUserAttributes()).name;
-       console.log(names);
+      //  console.log(names);
       return {
         id,
         username,
@@ -127,6 +129,17 @@ function App() {
             </>
           }
         />
+      <Route
+          path="/SummaryPage"
+          element={
+            <>
+              <PageTitle title="Bqa Reviewer Add University | EduScribe" />
+              <SummaryPage/>
+            </>
+          }
+        />
+
+
          <Route
           path="/forms/form-elements"
           element={
@@ -190,15 +203,7 @@ function App() {
             </>
           }
         />
-                <Route
-          path="/ChangePassword"
-          element={
-            <>
-              <PageTitle title="Change Password | EduScribe" />
-              <ChangePassword />
-            </>
-          }
-        />
+
        
          <Route
           path="/ForgotPassword"
