@@ -39,9 +39,9 @@ async function createFolder(bucketName: string, folderPath: string) {
 }
 
 async function generatePresignedUrl(
-  bucketName: string,
+  bucketName: string, 
   folderPath: string,
-  fileName: string,
+  fileName: string, //nfs 
   contentType: string
 ): Promise<string> {
   try {
@@ -61,12 +61,12 @@ async function generatePresignedUrl(
   }
 }
 
-export async function uploadToS3(event: any) {
+export async function uploadLogoToS3(event: any) {
   try {
     const fileData = event.body;
-    const fileName = event.headers["file-name"];
+    const fileName = event.headers["file-name"]; //logo1.png
     const bucketName = event.headers["bucket-name"];
-    const folderName = event.headers["folder-name"];
+    const folderName = event.headers["folder-name"];//uni versity
     const subfolderName = event.headers["subfolder-name"];
     const contentType = event.headers["content-type"];
 
@@ -124,33 +124,16 @@ export async function uploadToS3(event: any) {
 
     console.log("signedurl", signedUrl);
 
-    try {
-      // Send message to SQS
-      const sqsResponse = await sqs
-        .sendMessage({
-          QueueUrl: Queue["Document-Queue"].queueUrl,
-          MessageBody: s3ObjectUrl,
-          MessageGroupId: "file", // Use fileName as MessageGroupId
-          MessageDeduplicationId: `${fileName}-${Date.now()}`,
-        })
-        .promise();
-      console.log("SQS Response:", sqsResponse);
-    } catch (error) {
-      console.error("Error sending message to SQS:", error);
-      throw new Error("Failed to send message to SQS");
-    }
 
-    console.log("Message queued!");
-
-    // if (!response.ok) {
-    //   throw new Error("Failed to upload file");
-    // }
+    
 
     return {
       statusCode: 200,
       body: JSON.stringify({
         message: "File uploaded successfully",
         location: signedUrl,
+
+
       }),
     };
   } catch (error) {

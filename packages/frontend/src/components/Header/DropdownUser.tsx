@@ -5,6 +5,7 @@ import UserOne from '../../images/user/UOB-Logo-Transparant.png';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import {fetchUserAttributes } from 'aws-amplify/auth';
+import { useTranslation } from 'react-i18next';
 
 
 const DropdownUser = () => {
@@ -13,7 +14,8 @@ const DropdownUser = () => {
   const dropdown = useRef<any>(null);
   const [currentEmail, setCurrentEmail] = useState('');
   const [currentName, setCurrentName] = useState('');
-
+  const { t } = useTranslation(); // Hook to access translation functions
+    
   //const [users, setUsers] = useState<{ Username: string; Attributes: { Name: string; Value: string }[] }[]>([]);
 
 
@@ -130,7 +132,7 @@ const DropdownUser = () => {
         }`}
       >
         <ul className="flex flex-col gap-5 border-b border-stroke px-6 py-7.5 dark:border-strokedark">
-          <li>
+          {/* <li>
             <Link
               to="/PredefinedTemplate"
               className="flex items-center gap-3.5 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base"
@@ -152,11 +154,11 @@ const DropdownUser = () => {
                   fill=""
                 />
               </svg>
-              Predefined Template
+              {t('predefinedTemplates')}
             </Link>
-          </li>
+          </li> */}
 
-          <li>
+          {/* <li>
             <Link
               to="/UploadEvidence"
               className="flex items-center gap-3.5 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base"
@@ -178,11 +180,11 @@ const DropdownUser = () => {
                   fill=""
                 />
               </svg>
-              Upload Evidence
+              {t('uploadEvidence')}
             </Link>
-          </li>
+          </li> */}
 
-          <li>
+          {/* <li>
             <Link
               to="/BqaDash1"
               className="flex items-center gap-3.5 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base"
@@ -204,11 +206,11 @@ const DropdownUser = () => {
                   fill=""
                 />
               </svg>
-              Bqa Reviewer Dashboard           
+              {t('bqaReviewerDashboard')}         
                </Link>
-          </li>
+          </li> */}
 
-          <li>
+          {/* <li>
             <Link
               to="/BqaDash2"
               className="flex items-center gap-3.5 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base"
@@ -230,13 +232,13 @@ const DropdownUser = () => {
                   fill=""
                 />
               </svg>
-              Bqa Reviewer Dashboard University Details       
+              {t('bqaReviewerDashboardUniversityDetails')}     
                </Link>
-          </li>
+          </li> */}
 
 
           
-          <li>
+          {/* <li>
             <Link
               to="#"
               className="flex items-center gap-3.5 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base"
@@ -256,7 +258,7 @@ const DropdownUser = () => {
               </svg>
               My Contacts
             </Link>
-          </li>
+          </li> */}
 
           <li>
             <Link
@@ -276,11 +278,11 @@ const DropdownUser = () => {
                   fill=""
                 />
               </svg>
-              Change Password
+              {t('changePassword')}     
             </Link>
           </li>
 
-          <li>
+          {/* <li>
             <Link
               to="/pages/settings"
               className="flex items-center gap-3.5 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base"
@@ -302,9 +304,9 @@ const DropdownUser = () => {
                   fill=""
                 />
               </svg>
-              Account Settings
+              {t('accountSettings')}  
             </Link>
-          </li>
+          </li> */}
         </ul>
 
 
@@ -329,7 +331,7 @@ const DropdownUser = () => {
               fill=""
             />
           </svg>
-          Log Out
+          {t('logOut')}  
         </button>
       </div>
       {/* <!-- Dropdown End --> */}
