@@ -14,6 +14,7 @@ interface TextractRequest {
   bucketName: string;
   folderName?: string;
   subfolderName?: string;
+  subsubfolderName?: string;
   fileName: string;
 }
 
@@ -46,11 +47,12 @@ export const extractTextFromPDF = async (
       bucketName,
       folderName = "",
       subfolderName = "",
+      subsubfolderName = "",
       fileName,
     } = requestBody;
 
     // Construct the S3 object key with optional folder structure
-    const objectKey = `${folderName ? folderName + "/" : ""}${subfolderName ? subfolderName + "/" : ""}${fileName}`;
+    const objectKey = `${folderName ? folderName + "/" : ""}${subfolderName ? subfolderName + "/" : ""}${subsubfolderName ? subsubfolderName + "/" : ""}${fileName}`;
     console.log("Object Key:", objectKey);
 
     // Download the PDF from S3

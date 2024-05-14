@@ -36,6 +36,7 @@ export function ApiStack({ stack }: StackContext) {
           handler: "packages/functions/src/s3Upload.uploadToS3",
           permissions: "*",
           bind: [documentsQueue],
+          timeout: "300 seconds"
         },
       },
 
@@ -84,6 +85,14 @@ export function ApiStack({ stack }: StackContext) {
           permissions: ["s3"], // Grant necessary S3 permissions
         },
       },
+
+      // Add the new route for deleting files
+  "DELETE /deleteFile": {
+    function: {
+      handler: "packages/functions/src/deleteS3.main", // Replace with your actual handler location
+      permissions: ["s3"],
+    },
+  },
 
       "POST /createUser": {
         function: {

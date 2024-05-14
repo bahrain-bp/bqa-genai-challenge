@@ -75,6 +75,7 @@ export async function main(
     console.error("Error retrieving files:", error);
     return {
       statusCode: 500,
+      body: JSON.stringify({ message: "Error retrieving files", error}),
       body: JSON.stringify({ message: "Error retrieving files", error }),
     };
   }
