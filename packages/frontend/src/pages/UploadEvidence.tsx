@@ -1,13 +1,11 @@
-import React, { useState, useEffect,useRef } from 'react';
+import { useState, useEffect} from 'react';
 import DefaultLayout from '../layout/DefaultLayout';
 import Breadcrumb from '../components/Breadcrumbs/Breadcrumb';
 import styled from 'styled-components';
 import { toast } from 'react-toastify';
 import { FileUpload } from 'primereact/fileupload';
-import { useTranslation } from 'react-i18next';
-import Loader from '../common/Loader';
-
-
+//import { useTranslation } from 'react-i18next';
+//import Loader from '../common/Loader';
 
 const MainContainer = styled.div`
   width: 100%;
@@ -66,11 +64,7 @@ const StepsLabelContainer = styled.div`
   transform: translateX(-50%);
 `;
  
-const StepLabel = styled.span`
-  font-size: 19px;
-  color: #2ECC71;
-`;
- 
+
 const ButtonsContainer = styled.div`
   display: flex;
   justify-content: space-between;
@@ -108,19 +102,6 @@ const StyledFileDisplay = styled.div`
   }
 `;
 
-const FileName = styled.span`
-  margin-left: 10px;
-  flex-grow: 1; // Allows the file name to take up any extra space
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis; // Adds an ellipsis if the file name is too long
-`;
-
-const FileIcon = styled.i`
-  font-size: 20px;
-  color: #606060;
-  margin-right: 10px; // Adds some space before the file name
-`;
 
 const DeleteIcon = styled.i`
   cursor: pointer;
@@ -149,20 +130,6 @@ const SectionTitle = styled.h2`
   margin-top: 20px;
   margin-bottom: 20px;
 `;
-
-const Card = styled.div`
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  margin: 20px; // Adjust margin for spacing around the card
-  padding: 20px; // Increase padding to move contents away from the edges
-  display: flex;
-  flex-direction: column;
-`;
-
-
-
-
 
 const UploadEvidence = () => {
   const [standards, setStandards] = useState([]);
@@ -197,6 +164,7 @@ const UploadEvidence = () => {
       } catch (error) {
         console.error('Error fetching standards:', error);
         toast.error(`Error fetching standards: ${error.message}`);
+
       }
     };
 
@@ -299,6 +267,7 @@ const fetchUploadedFiles = async () => {
   } catch (error) {
       console.error('Error fetching uploaded files:', error);
       toast.error(`Error fetching uploaded files: ${error.message}`);
+
   }
 };
 
@@ -324,7 +293,7 @@ const handleFileDelete = async (fileKey:any, standardId:any, indicatorId:any) =>
     }
 
     // Parse JSON response if necessary
-    const result = await response.json();
+    //const result = await response.json();
     toast.success('File deleted successfully');
 
 
@@ -359,6 +328,8 @@ useEffect(() => {
 
   
   return (
+
+    
     <DefaultLayout>
       <Breadcrumb pageName="Upload Evidence" />
       <MainContainer>

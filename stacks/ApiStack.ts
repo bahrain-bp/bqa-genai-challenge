@@ -36,6 +36,7 @@ export function ApiStack({ stack }: StackContext) {
           handler: "packages/functions/src/s3Upload.uploadToS3",
           permissions: "*",
           bind: [documentsQueue],
+          timeout: "300 seconds"
         },
       },
 
