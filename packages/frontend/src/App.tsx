@@ -27,10 +27,10 @@ import AddUni from './pages/AddUni';
 import ChangePassword from './pages/Auth/ChangePassword';
 import ForgotPassword from './pages/Auth/ForgotPassword';
 import BqaRequestPage from './pages/BqaRequestPage';
-import SummaryPage from './pages/summaryPage';
-
 import { getCurrentUser, fetchUserAttributes } from 'aws-amplify/auth';
 import { ToastContainer } from 'react-toastify';
+import SummaryPage from './pages/summaryPage';
+
 
 function App() {
   const [user, setUser] = useState<any | null>(null);

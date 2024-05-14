@@ -4,11 +4,10 @@ import DefaultLayout from '../layout/DefaultLayout';
 //import userSix from '../images/user/user-06.png';
 //import { Link } from 'react-router-dom';
 //import CardDataStats from '../components/CardDataStats';
-import { Package } from '../types/package';
+// import { Package } from '../types/package';
 import ChartThree from '../components/Charts/ChartThree';
 import ChartTwo from '../components/Charts/ChartTwo';
 import { useNavigate } from 'react-router-dom';
-import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import Loader from '../common/Loader';
 import  {  useEffect,useState } from 'react';
@@ -23,39 +22,39 @@ type FileDetail = {
 };
 
 
-const packageData: Package[] = [
-    {
-      name: 'File 1.ppt',
-      invoiceDate: `Jan 13,2023`,
-      size:'56 MB',
-      status: 'Completed',
-    },
-    {
-      name: 'File 2.png',
-      invoiceDate: `Jan 13,2023`,
-      size:'45 MB' ,
+// const packageData: Package[] = [
+//     {
+//       name: 'File 1.ppt',
+//       invoiceDate: `Jan 13,2023`,
+//       size:'56 MB',
+//       status: 'Completed',
+//     },
+//     {
+//       name: 'File 2.png',
+//       invoiceDate: `Jan 13,2023`,
+//       size:'45 MB' ,
 
-      status: 'In Progress',
-    },
-    {
-      name: 'File 3.tsx',
-      invoiceDate: `Jan 13,2023`,
-      size:'4 MB',
-      status: 'Completed',
-    },
-    {
-      name: 'File 4.pdf',
-      invoiceDate: `Jan 13,2023`,
-      size:'77 MB' ,
-      status: 'In Progress',
-    },
-  ];
+//       status: 'In Progress',
+//     },
+//     {
+//       name: 'File 3.tsx',
+//       invoiceDate: `Jan 13,2023`,
+//       size:'4 MB',
+//       status: 'Completed',
+//     },
+//     {
+//       name: 'File 4.pdf',
+//       invoiceDate: `Jan 13,2023`,
+//       size:'77 MB' ,
+//       status: 'In Progress',
+//     },
+//   ];
 
 
 const OfficerDash = () => {
   const { t } = useTranslation(); // Hook to access translation functions
     
-  const [currentName, setCurrentName] = useState('');
+  const [/*currentName*/, setCurrentName] = useState('');
   const [loading, setLoading] = useState<boolean>(true);
   //const [files, setFiles] = useState({});
   const [files, setFiles] = useState<FileDetail[]>([]);
