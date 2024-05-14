@@ -315,7 +315,7 @@ const BqaDash2 = ({}) => {
                     <Pagination
                       count={Math.ceil(files.length / itemsPerPage)}
                       page={currentPage}
-                      onChange={(event, value) => setCurrentPage(value)}
+                      onChange={(value: any) => setCurrentPage(value)}
                       // color="primary"
                     />
                   </div>
