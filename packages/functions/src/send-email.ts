@@ -2,12 +2,13 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import * as aws from 'aws-sdk';
 
 export const sendEmail = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-  let { userEmail = '', body = '', subject = '' } = {}; // fix error(Binding element 'userEmail' implicitly has an 'any' type.ts(7031) let userEmail: any) 
+  let { sourceEmail = '', userEmail = '', body = '', subject = '' } = {}; // fix error(Binding element 'userEmail' implicitly has an 'any' type.ts(7031) let userEmail: any) 
                                                         // by: initializing the variables to empty string.
   try {
     console.log(`Email: ${userEmail}, Subject: ${subject}, Message: ${body}`);
 
     const requestBody = JSON.parse(event.body || '{}');
+    sourceEmail = requestBody.sourceEmail;
     userEmail = requestBody.userEmail;
     body = requestBody.body;
     subject = requestBody.subject;
@@ -19,8 +20,7 @@ export const sendEmail = async (event: APIGatewayProxyEvent): Promise<APIGateway
     };
   }
 
-  const source = "ayshacheema469@gmail.com"; // sender email
-  console.log('source email:', source);
+  console.log('source email:', sourceEmail);
   console.log("userEmail:", userEmail);
   
   let data = {
@@ -34,7 +34,7 @@ export const sendEmail = async (event: APIGatewayProxyEvent): Promise<APIGateway
       Destination: {
         ToAddresses: [userEmail],
       },
-      Source: source,
+      Source: sourceEmail,
       Message: {
         Subject: {
           Data: subject || '',

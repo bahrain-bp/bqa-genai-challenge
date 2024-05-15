@@ -5,6 +5,7 @@ import { useLocation } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 // import { useTranslation } from 'react-i18next';
+import { fetchUserAttributes } from 'aws-amplify/auth';
 
 
 function useQuery() {
@@ -14,8 +15,9 @@ const BqaRequestPage: React.FC = () => {
  // const [/*users*/, setUsers] = useState<{ Username: string; Attributes: { Name: string; Value: string }[] }[]>([]);
  
   // state variables
+  const [sourceEmail, setSourceEmail] = useState('');
   const [userEmail, setUserEmail] = useState('');
-  const [subject, setSubject] = useState('');
+  const subject = 'Additional Document Required';
   const [body, setBody] = useState('');
 
   // const { t } = useTranslation(); // Hook to access translation functions
@@ -31,7 +33,21 @@ const BqaRequestPage: React.FC = () => {
     const attribute = attributes.find(attr => attr.Name === attributeName);
     return attribute ? attribute.Value : 'N/A'; // Returns 'N/A' if attribute not found
   };
+
   useEffect(() => {
+    // Fetch sourceEmail info
+    const getCurrentUserInfo = async () => {
+      try {
+        const attributes = fetchUserAttributes();
+        setSourceEmail((await attributes)?.email ?? ''); // Provide a default value for setSourceEmail
+        console.log("Source Email:" + sourceEmail);
+      } catch (error) {
+        console.error('Failed to fetch user info:', error);
+      }
+    };
+
+    getCurrentUserInfo();
+
     const fetchUserInfo = async () => {
 
       if (!name) {
@@ -67,8 +83,6 @@ const BqaRequestPage: React.FC = () => {
                 console.log(`No user found with the name: ${name}`);
                 // setuserEmail(''); // Clear the email if no user is found
             }
-
-            
          
       } catch (error) {
         console.error('Error fetching user info:', error);
@@ -78,8 +92,8 @@ const BqaRequestPage: React.FC = () => {
     fetchUserInfo();
   }, [name]);
 
-      // test before sending
-      console.log(`Email: ${userEmail}, Subject: Additional Document Required, Message: ${body}`);
+    // test before sending
+    // console.log(`Email: ${userEmail}, Subject: Additional Document Required, Message: ${body}`);
     
   const handleSubmit = async (event: { preventDefault: () => void; }) => {
     event.preventDefault();
@@ -89,7 +103,7 @@ const BqaRequestPage: React.FC = () => {
     try {
 
       // test before sending
-      console.log(`Email: ${userEmail}, Subject: Additional Document Required, Message: ${body}`);
+      // console.log(`Email: ${userEmail}, Subject: Additional Document Required, Message: ${body}`);
 
       // Invoke lambda function to send email
       const response = await fetch('https://y68sgxxozi.execute-api.us-east-1.amazonaws.com/send-email', {
@@ -98,6 +112,7 @@ const BqaRequestPage: React.FC = () => {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
+          sourceEmail,
           userEmail, // recipient
           subject,
           body
@@ -147,7 +162,7 @@ const BqaRequestPage: React.FC = () => {
             id="subject"
             name="subject"
             value={subject}
-            onChange={(e) => setSubject(e.target.value)}
+            disabled={true}
             className="w-full rounded border border-stroke bg-gray py-3 px-4.5  text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
             placeholder="Write your subject here"
           />
@@ -155,7 +170,7 @@ const BqaRequestPage: React.FC = () => {
         </div>
 
        <div className="message-section mt-6 " >
-         <label htmlFor="message" className="block text-lg font-medium text-gray-700 dark:text-gray-300">Message:</label>
+         <label htmlFor="message" className="block text-lg font-medium text-gray-700 dark:text-gray-300">What do you want to include in the body?</label>
          <textarea
           id="message"
           name="message"
