@@ -4,6 +4,8 @@ import DefaultLayout from '../layout/DefaultLayout';
 import { useLocation } from 'react-router-dom';
 import {  toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+// import { useTranslation } from 'react-i18next';
+
 
 function useQuery() {
   return new URLSearchParams(useLocation().search);
@@ -11,48 +13,71 @@ function useQuery() {
 const BqaRequestPage: React.FC = () => {
  // const [/*users*/, setUsers] = useState<{ Username: string; Attributes: { Name: string; Value: string }[] }[]>([]);
  
-
-
  const [selectedEmail, setSelectedEmail] = useState<string>('');
-  
   const [subject, setSubject] = useState<string>('');
   const [message, setMessage] = useState<string>('');
+  // const { t } = useTranslation(); // Hook to access translation functions
+  const api = import.meta.env.VITE_API_URL;
+
+  //const [user, setUsers] = useState<{ Username: string; Attributes: { Name: string; Value: string }[] }[]>([]);
 
   const query = useQuery();
-
-
+  const name = query.get('name');
+  
+  // const [currentEmail, setCurrentEmail] = useState('');
+  const getAttributeValue = (attributes: { Name: string; Value: string }[], attributeName: string): string => {
+    const attribute = attributes.find(attr => attr.Name === attributeName);
+    return attribute ? attribute.Value : 'N/A'; // Returns 'N/A' if attribute not found
+  };
   useEffect(() => {
-    const email = query.get('email');
-    setSelectedEmail(email ?? '');
+    const fetchUserInfo = async () => {
 
-    // const fetchCognitoUsers = async () => {
-    //   try {
-    //     const response = await fetch('https://u1oaj2omi2.execute-api.us-east-1.amazonaws.com/getUsers');
-    //     const data = await response.json();
-    //     if (response.ok) {
-    //               // Filter out users where the 'name' attribute is 'BQA reviewer'
-    //     const filteredUsers = data.filter((user: { Attributes: { Name: string; Value: string; }[]; }) => {
-    //       const nameValue = getAttributeValue(user.Attributes, 'name');
-    //       return nameValue !== 'BQA Reviewer';
-    //     });
-    //       console.log(data); // Users data
-    //       setUsers(filteredUsers); // Update the users state with the fetched data
-    //     } else {
-    //       console.error('Error fetching users:', data.error);
-    //     }
-    //   } catch (error) {
-    //     console.error('Error fetching users:', error);
-    //   }
-    // };
+      if (!name) {
+        console.error('No name provided in query parameters');
+        return;
+      }
+      try {
+            //  console.log("Uni name: " + name);
 
-  //   fetchCognitoUsers(); // Call the fetchCognitoUsers function
-}, 
-  []);
-    // Function to find attribute value by name
-    // const getAttributeValue = (attributes: { Name: string; Value: string }[], attributeName: string): string => {
-    //   const attribute = attributes.find(attr => attr.Name === attributeName);
-    //   return attribute ? attribute.Value : 'N/A'; // Returns 'N/A' if attribute not found
-    // };
+        // Assuming fetchUserAttributes takes a name parameter and fetches the corresponding user attributes
+        const response = await fetch(`${api}/getUsers`);
+
+        // const response = await fetch(`https://u1oaj2omi2.execute-api.us-east-1.amazonaws.com/getUsers`);
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+       
+          const filteredUsers = data.filter((user: { Attributes: { Name: string; Value: string; }[]; }) => {
+            const nameValue = getAttributeValue(user.Attributes, 'name');
+            return nameValue === name;
+          }).map((user: { Attributes: { Name: string; Value: string; }[]; }) => ({
+            name: getAttributeValue(user.Attributes, 'name'), // Extract name
+            email: getAttributeValue(user.Attributes, 'email') // Extract email
+
+        }   ));
+
+         // Check if there's a matching user and set their email
+            if (filteredUsers.length > 0) {
+              setSelectedEmail(filteredUsers[0].email); 
+              console.log(`Email of the user ${name}: ${filteredUsers[0].email}`);
+            } else {
+                console.log(`No user found with the name: ${name}`);
+                setSelectedEmail(''); // Clear the email if no user is found
+            }
+
+            
+         
+      } catch (error) {
+        console.error('Error fetching user info:', error);
+      }
+    };
+
+    fetchUserInfo();
+  }, [name]);
+
+  
     
       const handleSubmit = () => {
     // Example of what you might do, customize as needed:
