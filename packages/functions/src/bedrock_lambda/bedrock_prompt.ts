@@ -35,10 +35,10 @@ export async function handler(event: SQSEvent, app: any) {
 
       let endpointUrl: string;
       endpointUrl =
-        "https://l1ca6m1ik7.execute-api.us-east-1.amazonaws.com/textract";
+        "https://u1oaj2omi2.execute-api.us-east-1.amazonaws.com/textract";
 
-        // endpointUrl =
-        // "https://u1oaj2omi2.execute-api.us-east-1.amazonaws.com/textract";
+      // endpointUrl =
+      // "https://u1oaj2omi2.execute-api.us-east-1.amazonaws.com/textract";
 
       const postResponse: AxiosResponse = await axios.post(endpointUrl, {
         bucketName,
@@ -52,8 +52,6 @@ export async function handler(event: SQSEvent, app: any) {
       const responseData = postResponse.data;
       const extractedText = responseData.text;
       console.log("Extracted Text from the handler:", extractedText);
-
-
 
       // Construct the request payload to match the provided structure
       const requestBody = {
