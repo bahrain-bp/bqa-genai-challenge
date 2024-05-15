@@ -4,15 +4,20 @@ import './PredefinedTemplate.css';
 import '@fortawesome/fontawesome-free/css/all.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash, faArchive } from '@fortawesome/free-solid-svg-icons';
+import { useTranslation } from 'react-i18next';
+
 
 const EvidenceFiles: React.FC = () => {
   const [records, setRecords] = useState<any[]>([]);
+  const { t } = useTranslation(); // Hook to access translation functions
+    
 
   const fetchRecords = async (indicatorId: string | undefined) => {
     try {
       // Constructing URL with standard name
-      const apiUrl = `hhttps://bu6d6fsf7f.execute-api.us-east-1.amazonaws.com/standards?standard=${indicatorId}`; // apiUrl of 'standards' DynamoDB to fetch records
 
+      const api = import.meta.env.VITE_API_URL;
+      const apiUrl = `${api}/standards?standard=${indicatorId}`;
       const response = await fetch(apiUrl);
       if (!response.ok) {
         throw new Error('Failed to fetch records');
@@ -34,8 +39,8 @@ const EvidenceFiles: React.FC = () => {
       if (!recordToDelete) {
         throw new Error('Record not found for the given document URL');
       }
-  
-      const apiUrl = `hhttps://bu6d6fsf7f.execute-api.us-east-1.amazonaws.com/standards/${recordToDelete.entityId}`; // apiUrl of 'standards' DynamoDB to delete record
+      const api = import.meta.env.VITE_API_URL;
+      const apiUrl = `${api}/standards/${recordToDelete.entityId}`;
       const response = await fetch(apiUrl, {
         method: 'DELETE',
       });
@@ -61,8 +66,8 @@ const EvidenceFiles: React.FC = () => {
           // Print the record to be updated in the console
     console.log('Record to be archived:', recordToArchive);
 
-  
-      const apiUrl = `hhttps://bu6d6fsf7f.execute-api.us-east-1.amazonaws.com/standards/${recordToArchive.entityId}`; // apiUrl of 'standards' DynamoDB to update record
+    const api = import.meta.env.VITE_API_URL;
+      const apiUrl = `${api}/standards/${recordToArchive.entityId}`;
       const response = await fetch(apiUrl, {
         method: 'PUT', // Use PUT method to update the record
         headers: {
@@ -95,7 +100,7 @@ const EvidenceFiles: React.FC = () => {
     <DefaultLayout>
      
      <div className="download-header">
-        <h2>Download Files</h2>
+        <h2> {t('downloadFiles')}</h2>
         <h6></h6>
       </div>
       {records

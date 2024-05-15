@@ -33,14 +33,32 @@ export function DBStack({ stack, app }: StackContext) {
             entityId: "string",
             standardId: "string",
             standardName: "string",   // Attribute for standards
-            indicatorId: "string", 
-            indicatorName: "string", 
+            indicatorId: "string",
+            indicatorName: "string",
             status: "string",        // Attribute for status
             description: "string",
             documentName: "string",
             documentURL: "string",
         },
         primaryIndex: { partitionKey: "entityType", sortKey: "entityId" },
+    });
+    const fileTable = new Table(stack, "FileTable", {
+        fields: {
+            fileName: "string",
+            fileURL: "string",
+            standardName: "string",
+            indicatorName: "string",
+            standardNumber: "number",
+            indicatorNumber: "number",
+            name: "string", // Standard name indicator
+            content: "string",
+            summary: "string",
+            strength: "string",
+            weakness: "string",
+            score: "number",
+            comments: "string"
+        },
+        primaryIndex: { partitionKey: "fileName" } // Assuming fileURL is unique
     });
 
     // Create an RDS database
@@ -92,5 +110,6 @@ export function DBStack({ stack, app }: StackContext) {
     return {
         bucket,
         table,
+        fileTable
     };
 }

@@ -3,10 +3,13 @@ import { DBStack } from "./DBStack";
 import { CacheHeaderBehavior, CachePolicy } from "aws-cdk-lib/aws-cloudfront";
 import { Duration } from "aws-cdk-lib/core";
 import { AuthStack } from "./AuthStack";
+import { S3Stack } from "./S3Stack";
+import * as iam from "@aws-cdk/aws-iam";
 
 export function ApiStack({ stack }: StackContext) {
   const { auth } = use(AuthStack);
-  const { table } = use(DBStack);
+  const { table, fileTable } = use(DBStack);
+  const { documentsQueue } = use(S3Stack);
 
   const api = new Api(stack, "signinAPI", {
     // Commented out the authorizers section
@@ -20,7 +23,7 @@ export function ApiStack({ stack }: StackContext) {
     // },
     defaults: {
       function: {
-        bind: [table], // Bind the table name to our API
+        bind: [table, fileTable], // Bind the table name to our API
       },
       // Optional: Remove authorizer from defaults if set to "jwt"
       // authorizer: "jwt",
@@ -44,8 +47,32 @@ export function ApiStack({ stack }: StackContext) {
       "POST /uploadS3": {
         function: {
           handler: "packages/functions/src/s3Upload.uploadToS3",
-          permissions: ["s3"]
-        }
+          permissions: "*",
+          bind: [documentsQueue],
+          timeout: "300 seconds"
+        },
+      },
+
+      "POST /comprehend": {
+        function: {
+          handler: "packages/functions/src/comprehend.comprehendText",
+          permissions: ["comprehend"],
+        },
+      },
+      "GET /downloadFile": {
+        function: {
+          handler: "packages/functions/src/files/downloadFile.main",
+          permissions: "*",
+        },
+      },
+
+      "POST /textract": {
+        function: {
+          handler: "packages/functions/src/textractPdf.extractTextFromPDF",
+          permissions: ["textract", "s3"],
+          ///timeout: "200 seconds",
+          bind: [documentsQueue],
+        },
       },
       "GET /detectFileType": {
         function: {
@@ -71,7 +98,61 @@ export function ApiStack({ stack }: StackContext) {
           permissions: ["s3"], // Grant necessary S3 permissions
         },
       },
+      // Add the new route for deleting files
+  "DELETE /deleteFile": {
+    function: {
+      handler: "packages/functions/src/deleteS3.main", // Replace with your actual handler location
+      permissions: ["s3"],
     },
+  },
+
+      "POST /createUser": {
+        function: {
+          handler: "packages/functions/createUser.createUserInCognito",
+          permissions: "*",
+          //permissions wil be changed
+        },
+      },
+      "POST /createFileDB": {
+        function: {
+          handler: "packages/functions/src/files/create.main",
+          permissions: "*",
+        },
+      },
+      "PUT /fileSummary/{fileName}": {
+        function: {
+          handler: "packages/functions/src/files/update.main",
+          permissions: "*",
+        },
+      },
+
+      "GET /summarization/{fileName}":
+        "packages/functions/src/files/retrieveSummarization.main",
+
+      //Uploading logo to S3
+      "POST /uploadLogo": {
+        function: {
+          handler: "packages/functions/src/uploadLogo.uploadLogoToS3",
+          permissions: "*",
+        },
+      },
+
+      //Fetching all users in cognito
+      "GET /getUsers": {
+        function: {
+          handler: "packages/functions/src/fetchUsers.getUsers", // Replace with your location
+          permissions: [
+            "cognito-idp:ListUsers", // Add any additional permissions if required
+          ],
+        },
+      },
+      "POST /standards": "packages/functions/src/standards/create.main",
+      "GET /standards/{id}": "packages/functions/src/standards/get.main",
+      "GET /standards": "packages/functions/src/standards/list.main",
+      "PUT /standards/{id}": "packages/functions/src/standards/update.main",
+      "DELETE /standards/{id}": "packages/functions/src/standards/delete.main",
+    },
+    
   });
 
   // Define cache policy for the API

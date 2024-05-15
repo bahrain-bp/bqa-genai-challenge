@@ -7,9 +7,6 @@ import {  faUndo } from '@fortawesome/free-solid-svg-icons';
 
 
 const Archived: React.FC = () => {
-
-
-
   const handleArchiveStandard = async (standardId: string) => {
     try {
       // Fetch records with the matching standardId
@@ -20,7 +17,10 @@ const Archived: React.FC = () => {
   
       // Update status to 'archived' for each record
       await Promise.all(recordsToArchive.map(async record => {
-        const apiUrl = `https://bu6d6fsf7f.execute-api.us-east-1.amazonaws.com/standards/${record.entityId}`; // apiUrl of 'standards' DynamoDB to update record
+        
+        const api = import.meta.env.VITE_API_URL;
+        const apiUrl = `${api}/standards/${record.entityId}`;
+
         const response = await fetch(apiUrl, {
           method: 'PUT', // Use PUT method to update the record
           headers: {
@@ -53,7 +53,9 @@ const Archived: React.FC = () => {
   
       // Update status to 'archived' for each record
       await Promise.all(recordsToArchive.map(async record => {
-        const apiUrl = `https://bu6d6fsf7f.execute-api.us-east-1.amazonaws.com/standards/${record.entityId}`; // apiUrl of 'standards' DynamoDB to update record
+        
+        const api = import.meta.env.VITE_API_URL;
+        const apiUrl = `${api}/standards/${record.entityId}`;
         const response = await fetch(apiUrl, {
           method: 'PUT', // Use PUT method to update the record
           headers: {
@@ -85,8 +87,9 @@ const Archived: React.FC = () => {
           // Print the record to be updated in the console
     console.log('Record to be archived:', recordToArchive);
 
-  
-      const apiUrl = `https://bu6d6fsf7f.execute-api.us-east-1.amazonaws.com/standards/${recordToArchive.entityId}`; // apiUrl of 'standards' DynamoDB to update record
+
+    const api = import.meta.env.VITE_API_URL;
+      const apiUrl = `${api}/standards/${recordToArchive.entityId}`;
       const response = await fetch(apiUrl, {
         method: 'PUT', // Use PUT method to update the record
         headers: {
@@ -120,7 +123,9 @@ const Archived: React.FC = () => {
 
   const fetchStandardRecords = async () => {
     try {
-      const response = await fetch(`hhttps://bu6d6fsf7f.execute-api.us-east-1.amazonaws.com/standards`); // Fetch records from the API
+
+      const api = import.meta.env.VITE_API_URL;
+      const response = await fetch(`${api}/standards`);
       if (!response.ok) {
         throw new Error('Failed to fetch records');
       }
@@ -144,7 +149,9 @@ const Archived: React.FC = () => {
 
   const fetchIndicatorRecords = async () => {
     try {
-      const response = await fetch(`hhttps://bu6d6fsf7f.execute-api.us-east-1.amazonaws.com/standards`); // Fetch records from the API
+
+      const api = import.meta.env.VITE_API_URL;
+      const response = await fetch(`${api}/standards`);
       if (!response.ok) {
         throw new Error('Failed to fetch records');
       }
@@ -173,7 +180,8 @@ const Archived: React.FC = () => {
   const fetchFileRecords = async () => {
     try {
       // Constructing URL with standard name
-      const apiUrl = `hhttps://bu6d6fsf7f.execute-api.us-east-1.amazonaws.com/standards`; // apiUrl of 'standards' DynamoDB to fetch records
+      const api = import.meta.env.VITE_API_URL;
+      const apiUrl = `${api}/standards`;
 
       const response = await fetch(apiUrl);
       if (!response.ok) {
