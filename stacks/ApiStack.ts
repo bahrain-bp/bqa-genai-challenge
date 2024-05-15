@@ -29,6 +29,16 @@ export function ApiStack({ stack }: StackContext) {
       // authorizer: "jwt",
     },
     routes: {
+      // Standard API route
+        "POST /standards": "packages/functions/src/standards/create.main",
+        "GET /standards/{id}": "packages/functions/src/standards/get.main",
+        "GET /standards": "packages/functions/src/standards/list.main",
+        "PUT /standards/{id}": "packages/functions/src/standards/update.main",
+        "DELETE /standards/{id}": "packages/functions/src/standards/delete.main",
+
+      //  Email API route
+        "POST /sesLambda": "packages/functions/src/sesLambda.sendEmail",
+
       // Sample TypeScript lambda function
       "POST /": "packages/functions/src/lambda.main",
       "POST /uploadS3": {
@@ -80,8 +90,6 @@ export function ApiStack({ stack }: StackContext) {
         }
       },
       */
-      
-      
 
       //Fetching all users in cognito
       "GET /getUsers": {
@@ -111,6 +119,11 @@ export function ApiStack({ stack }: StackContext) {
       "Referer"
     ),
   });
+
+    // Show the API endpoint in the output
+    stack.addOutputs({
+      ApiEndpoint: api.url,
+    });
 
   return { api, apiCachePolicy };
 }
