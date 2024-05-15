@@ -7,7 +7,7 @@ import { toast } from 'react-toastify';
 import { FileUpload } from 'primereact/fileupload';
 //import { useTranslation } from 'react-i18next';
 //import Loader from '../common/Loader';
-import { getCurrentUser, fetchUserAttributes } from 'aws-amplify/auth';
+import { fetchUserAttributes } from 'aws-amplify/auth';
 
 
 
@@ -44,7 +44,7 @@ const ProgressLine = styled.div<ProgressLineProps>`
   width: ${props => `calc(${props.activeStep / (props.totalSteps - 1) * 100}% - 10px)`};
   position: absolute;
   top: 16px;
-  left: -4px;
+  left: 1px;
   z-index: -8;
 `;
 
