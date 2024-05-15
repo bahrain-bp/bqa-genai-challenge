@@ -39,9 +39,9 @@ async function createFolder(bucketName: string, folderPath: string) {
 }
 
 async function generatePresignedUrl(
-  bucketName: string,
+  bucketName: string, 
   folderPath: string,
-  fileName: string,
+  fileName: string, //nfs 
   contentType: string
 ): Promise<string> {
   try {
@@ -61,14 +61,13 @@ async function generatePresignedUrl(
   }
 }
 
-export async function uploadToS3(event: any) {
+export async function uploadLogoToS3(event: any) {
   try {
     const fileData = event.body;
-    const fileName = event.headers["file-name"];
+    const fileName = event.headers["file-name"]; //logo1.png
     const bucketName = event.headers["bucket-name"];
-    const folderName = event.headers["folder-name"];
+    const folderName = event.headers["folder-name"];//uni versity
     const subfolderName = event.headers["subfolder-name"];
-    const subsubfolderName = event.headers["subsubfolder-name"]; // New header for sub-subfolder
     const contentType = event.headers["content-type"];
 
     // Check file size before upload (optional)
@@ -87,14 +86,10 @@ export async function uploadToS3(event: any) {
       throw new Error("Folder name not provided");
     }
 
-    // Combine folder, subfolder, and subsubfolder names if provided
-    let folderPath = folderName;
-    if (subfolderName) {
-      folderPath += `/${subfolderName}`;
-    }
-    if (subsubfolderName) {
-      folderPath += `/${subsubfolderName}`; // Append the subsubfolder to the path
-    }
+    // Combine folder and subfolder name if subfolder is provided
+    const folderPath = subfolderName
+      ? `${folderName}/${subfolderName}`
+      : folderName;
 
     // Create folder if it doesn't exist
     await createFolder(bucketName, folderPath);
@@ -129,33 +124,16 @@ export async function uploadToS3(event: any) {
 
     console.log("signedurl", signedUrl);
 
-    try {
-      // Send message to SQS
-      const sqsResponse = await sqs
-        .sendMessage({
-          QueueUrl: Queue["Document-Queue"].queueUrl,
-          MessageBody: s3ObjectUrl,
-          MessageGroupId: "file", // Use fileName as MessageGroupId
-          //MessageDeduplicationId: `${fileName}-${Date.now()}`,
-        })
-        .promise();
-      console.log("SQS Response:", sqsResponse);
-    } catch (error) {
-      console.error("Error sending message to SQS:", error);
-      throw new Error("Failed to send message to SQS");
-    }
 
-    console.log("Message queued!");
-
-    // if (!response.ok) {
-    //   throw new Error("Failed to upload file");
-    // }
+    
 
     return {
       statusCode: 200,
       body: JSON.stringify({
         message: "File uploaded successfully",
         location: signedUrl,
+
+
       }),
     };
   } catch (error) {

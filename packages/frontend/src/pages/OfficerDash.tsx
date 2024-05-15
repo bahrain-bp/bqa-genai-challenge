@@ -4,46 +4,170 @@ import DefaultLayout from '../layout/DefaultLayout';
 //import userSix from '../images/user/user-06.png';
 //import { Link } from 'react-router-dom';
 //import CardDataStats from '../components/CardDataStats';
-import { Package } from '../types/package';
+// import { Package } from '../types/package';
 import ChartThree from '../components/Charts/ChartThree';
 import ChartTwo from '../components/Charts/ChartTwo';
+import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import Loader from '../common/Loader';
+import  {  useEffect,useState } from 'react';
+import { fetchUserAttributes } from 'aws-amplify/auth';
+import { toast } from 'react-toastify';
 
 
+type FileDetail = {
+  key: string;
+  name: string;
+ 
+};
 
 
-const packageData: Package[] = [
-    {
-      name: 'File 1.ppt',
-      invoiceDate: `Jan 13,2023`,
-      size:'56 MB',
-      status: 'Completed',
-    },
-    {
-      name: 'File 2.png',
-      invoiceDate: `Jan 13,2023`,
-      size:'45 MB' ,
+// const packageData: Package[] = [
+//     {
+//       name: 'File 1.ppt',
+//       invoiceDate: `Jan 13,2023`,
+//       size:'56 MB',
+//       status: 'Completed',
+//     },
+//     {
+//       name: 'File 2.png',
+//       invoiceDate: `Jan 13,2023`,
+//       size:'45 MB' ,
 
-      status: 'In Progress',
-    },
-    {
-      name: 'File 3.tsx',
-      invoiceDate: `Jan 13,2023`,
-      size:'4 MB',
-      status: 'Completed',
-    },
-    {
-      name: 'File 4.pdf',
-      invoiceDate: `Jan 13,2023`,
-      size:'77 MB' ,
-      status: 'In Progress',
-    },
-  ];
+//       status: 'In Progress',
+//     },
+//     {
+//       name: 'File 3.tsx',
+//       invoiceDate: `Jan 13,2023`,
+//       size:'4 MB',
+//       status: 'Completed',
+//     },
+//     {
+//       name: 'File 4.pdf',
+//       invoiceDate: `Jan 13,2023`,
+//       size:'77 MB' ,
+//       status: 'In Progress',
+//     },
+//   ];
 
 
 const OfficerDash = () => {
-  return (
+  const { t } = useTranslation(); // Hook to access translation functions
+    
+  const [/*currentName*/, setCurrentName] = useState('');
+  const [loading, setLoading] = useState<boolean>(true);
+  //const [files, setFiles] = useState({});
+  const [files, setFiles] = useState<FileDetail[]>([]);
+  const apiURL = import.meta.env.VITE_API_URL;
+
+
+  const navigate = useNavigate();
+  useEffect(() => {
+    setTimeout(() => setLoading(false), 1000);
+  }, []);
+
+
+      const fetchCurrentUserInfo = async () => {
+        try {
+          const attributes = await fetchUserAttributes();
+          const name:any= attributes.name;
+         
+          setCurrentName(name);
+          console.log(name);
+           // Call to fetch files after successful fetching of user name
+      if (name) {
+        await fetchUploadedFiles(name);
+      }
+  
+        } catch (error) {
+          console.error('Error fetching current user info:', error);
+        }
+      };
+      useEffect(() => {
+        fetchCurrentUserInfo();
+
+      
+
+      }, []);
+      //fetch uploaded folders TRY#1
+
+      const fetchUploadedFiles = async (userName:any) => {
+  // if (standards.length === 0 || activeStep < 0 || activeStep >= standards.length) {
+  //     return; // Guard clause
+  // }
+
+  // const currentStandard = standards[activeStep];
+  const url = `${apiURL}/files`;
+
+  try {
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'bucket-name': 'uni-artifacts',
+                    'folder-name': userName,
+                    'subfolder-name':'Standard2',
+                    'subsubfolder-name':'Indicator7'
+                },
+            });
+
+      if (!response.ok) {
+          throw new Error(`HTTP status ${response.status}`);
+      }
+      const data = await response.json(); 
+      if (data.files && Array.isArray(data.files)) {
+        const fetchedFiles: FileDetail[] = data.files.map((file: any) => ({
+            key: file.Key,
+            name: file.Key.split('/').pop() // Extracts the filename from the path
+        }));
+
+        setFiles(fetchedFiles);
+        console.log("Fetched files:", fetchedFiles);
+    } else {
+        console.error('Expected files to be an array but got:', data.files);
+        setFiles([]); // Reset or handle as needed if data is not in the expected format
+    }
+      // const files = data.files; // Ensure this matches the structure you log in Lambda
+      // const fetchedFiles = files.map(file => ({
+      //   key: file.name,
+      //   name: file.name.split('/').pop()
+      // }));
+      
+      // files.map(file => ({ name: file.Key }))
+         // size: 'Unknown',  Example placeholder
+         // status: 'Completed',  Example placeholder
+         // date:'unknown',  Example placeholder
+      // }));
+
+
+      setLoading(false);
+
+      // setUploadedFiles(prev => ({
+      //     ...prev,
+      //     [currentStandard.standardId]: files.map(file => ({ name: file.Key }))
+      // }));
+  } catch (error:any) {
+      console.error('Error fetching uploaded files:', error);
+      toast.error(`Error fetching uploaded files: ${error.message}`);
+  }
+};
+// useEffect(() => {
+//   fetchUploadedFiles();
+// }, []);
+
+
+    
+
+   
+
+  return  (
+    
     <DefaultLayout>
-      <Breadcrumb pageName="University Officer Dashboard" />
+
+      {loading && (
+    <Loader /> 
+    )}
+        
+      <Breadcrumb pageName=  {t('universityOfficerDashboard')} />
 
 
       <div className="grid grid-cols-9 gap-4 md:gap-6 2xl:gap-7.5 sm:px-7.5 xl:pb-1">
@@ -58,57 +182,62 @@ const OfficerDash = () => {
           <thead>
             <tr className="bg-gray-2 text-left dark:bg-meta-4">
               <th className="min-w-[220px] py-4 px-4 font-medium text-black dark:text-white xl:pl-11">
-                File Name
+              {t('fileName')}
               </th>
               <th className="min-w-[150px] py-4 px-4 font-medium text-black dark:text-white">
-                date
+              {t('date')}
               </th>
               
               <th className="py-4 px-4 font-medium text-black dark:text-white">
-                size
+              {t('size')}
               </th>
               <th className="min-w-[120px] py-4 px-4 font-medium text-black dark:text-white">
-                Status
+              {t('status')}
               </th>
               <th className="py-4 px-4 font-medium text-black dark:text-white">
-                Actions
+              {t('actions')}
               </th>
             </tr>
           </thead>
-          <tbody>
-            {packageData.map((packageItem, key) => (
-              <tr key={key}>
-                <td className="border-b border-[#eee] py-5 px-4 pl-9 dark:border-strokedark xl:pl-11">
-                  <h5 className="font-medium text-black dark:text-white">
-                    {packageItem.name}
-                  </h5>
-                </td>
-                <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
-                  <p className="text-black dark:text-white">
-                    {packageItem.invoiceDate}
-                  </p>
-                </td>
-                <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
-                  <p className="text-black dark:text-white">
-                    {packageItem.size}
-                  </p>
-                  </td>
-                <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
-                  <p
-                    className={`inline-flex rounded-full bg-opacity-10 py-1 px-3 text-sm font-medium ${
-                      packageItem.status === 'Completed'
-                        ? 'bg-success text-success'
-                        : packageItem.status === 'In Progress'
-                        ? 'bg-danger text-warning'
-                        : 'bg-warning text-warning'
-                    }`}
-                  >
-                    {packageItem.status}
-                  </p>
-                </td>
-                <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
-                  <div className="flex items-center space-x-3.5">
-                    <button className="hover:text-primary">
+                 <tbody>
+
+                   {files.map((file, index) => (
+                    <tr key={index}>
+                      <td className="border-b border-[#eee] py-5 px-4 pl-9 dark:border-strokedark xl:pl-11">
+                        <h5 className="font-medium text-black dark:text-white">
+                          {file.name}
+                        </h5>
+                      </td>
+                      <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
+                        <p className="text-black dark:text-white">
+                          Unknown
+                        </p>
+                      </td>
+                      <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
+                        <p className="inline-flex rounded-full bg-opacity-10 py-1 px-3 text-sm font-medium bg-success text-success">
+                        Unknown
+                        </p>
+                      </td>
+                      <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
+                        <p className="inline-flex rounded-full bg-opacity-10 py-1 px-3 text-sm font-medium bg-success text-success">
+                        Unknown
+                        </p>
+                      </td>
+
+                      
+                      
+                      
+                      <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
+                     <div className="flex items-center space-x-3.5">
+                    {/**This button will take you to the summarization tex */}
+                    <button className="hover:text-primary"
+                     onClick={() => navigate(`/SummaryPage`)}
+                    //onClick={() => navigate(`/SummaryPage/${file.name}`)}
+                    //This did not work
+
+                    
+                    >
+                  
                       <svg
                         className="fill-current"
                         width="18"
@@ -175,14 +304,15 @@ const OfficerDash = () => {
                     </button>
                   </div>
                 </td>
-              </tr>
-            ))}
-          </tbody>
+
+                    </tr>
+                  ))}
+                </tbody>
         </table>
       </div>
     </div>
 
-
+         
     </DefaultLayout>
   );
 };
