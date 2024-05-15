@@ -7,6 +7,8 @@ import { toast } from 'react-toastify';
 import { FileUpload } from 'primereact/fileupload';
 //import { useTranslation } from 'react-i18next';
 //import Loader from '../common/Loader';
+import { getCurrentUser, fetchUserAttributes } from 'aws-amplify/auth';
+
 
 
 const MainContainer = styled.div`
@@ -147,7 +149,24 @@ const UploadEvidence = () => {
   const [activeStep, setActiveStep] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState<any[]>([]);
-  
+  const [currentName, setCurrentName] = useState('');
+
+  useEffect(() => {
+    const fetchCurrentUserInfo = async () => {
+      try {
+        const attributes = await fetchUserAttributes();
+        const name:any= attributes.name;
+        setCurrentName(name);
+
+      } catch (error) {
+        console.error('Error fetching current user info:', error);
+      }
+    };
+
+    fetchCurrentUserInfo();
+  }, []);
+
+   
 
 
 
@@ -216,7 +235,7 @@ const UploadEvidence = () => {
                 headers: {
                     'file-name': file.name,
                     'bucket-name': 'uni-artifacts',
-                    'folder-name': 'BUB',
+                    'folder-name': currentName,
                     'subfolder-name': `${standard.standardId}`,
                     'subSubfolder-name': `${indicator.id}`,
                     'content-type': 'application/pdf' // Assuming all files are PDF
@@ -257,7 +276,7 @@ const fetchUploadedFiles = async () => {
           method: 'GET',
           headers: {
               'bucket-name': 'uni-artifacts',
-              'folder-name': 'BUB',
+              'folder-name': currentName,
               'subfolder-name': `${currentStandard.standardId}`,
           },
       });
@@ -355,6 +374,7 @@ useEffect(() => {
       <Breadcrumb pageName="Upload Evidence" />
       <MainContainer>
       <SectionTitle>{standards[activeStep]?.standardId}: {standards[activeStep]?.standardName}</SectionTitle> 
+      {currentName && `  ${currentName}`}
 
         <StepContainer>
           {standards.map((_,index) => (
