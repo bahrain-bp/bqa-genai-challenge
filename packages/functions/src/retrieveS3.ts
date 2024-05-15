@@ -56,7 +56,6 @@ export async function main(
           Key: obj.Key!,
           Date: obj.LastModified,
         };
-        
       });
 
     console.log("Files to be returned:", JSON.stringify(files));
@@ -75,7 +74,6 @@ export async function main(
     console.error("Error retrieving files:", error);
     return {
       statusCode: 500,
-      body: JSON.stringify({ message: "Error retrieving files", error}),
       body: JSON.stringify({ message: "Error retrieving files", error }),
     };
   }
