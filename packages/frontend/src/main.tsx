@@ -9,32 +9,35 @@ import './css/satoshi.css';
 import 'jsvectormap/dist/css/jsvectormap.css';
 import 'flatpickr/dist/flatpickr.min.css';
 import { Amplify } from 'aws-amplify';
+import { UserProvider } from './UserContext.tsx';
 
 Amplify.configure({
-Auth: {
-Cognito: {
-userPoolId: 'us-east-1_PraHctOMo',
-userPoolClientId: '27k6s7bn2jtbb8724kgbrord3h',
-},
-},
-API: {
-endpoints: [
-{
-name: 'api',
-endpoint: import.meta.env.VITE_APP_API_URL,
-region: import.meta.env.VITE_APP_REGION,
-},
-],
-},
+  Auth: {
+    Cognito: {
+      userPoolId: 'us-east-1_PraHctOMo',
+      userPoolClientId: '27k6s7bn2jtbb8724kgbrord3h',
+    },
+  },
+  API: {
+    endpoints: [
+      {
+        name: 'api',
+        endpoint: import.meta.env.VITE_APP_API_URL,
+        region: import.meta.env.VITE_APP_REGION,
+      },
+    ],
+  },
 } as any);
 
 ReactDOM.render(
-<I18nextProvider i18n={i18n}>
-<React.StrictMode>
-<Router>
-<App />
-</Router>
-</React.StrictMode>
-</I18nextProvider>,
-document.getElementById('root')
+  <I18nextProvider i18n={i18n}>
+    <React.StrictMode>
+      <UserProvider>
+        <Router>
+          <App />
+        </Router>
+      </UserProvider>
+    </React.StrictMode>
+  </I18nextProvider>,
+  document.getElementById('root'),
 );

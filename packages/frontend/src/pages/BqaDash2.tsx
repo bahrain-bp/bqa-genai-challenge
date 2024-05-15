@@ -10,6 +10,8 @@ import { ToastContainer } from 'react-toastify';
 import Loader from '../common/Loader';
 import Pagination from '@mui/material/Pagination';
 import axios from 'axios';
+import { useUser } from '../UserContext';
+import ForbiddenPage from './Forbidden';
 // import MultiSelect from '../components/Forms/MultiSelect';
 import {
   FormControl,
@@ -36,7 +38,7 @@ const BqaDash2 = ({}) => {
 
   // State for selected indicator in the select menu
   const [selectedIndicator, setSelectedIndicator] = useState('');
-
+  const { user } = useUser();
   // import { useLocation } from 'react-router-dom';
 
   // function useQuery() {
@@ -48,7 +50,9 @@ const BqaDash2 = ({}) => {
   console.log('name:' + name);
   // const query = useQuery();
   // const name = query.get('name');
-
+  if (!user?.name.includes('BQA')) {
+    return <ForbiddenPage />;
+  }
   //use /files enpoint to fetch uni files --pass uniName/Standard selected
   useEffect(() => {
     const fetchData = async () => {
