@@ -24,21 +24,27 @@ export async function handler(event: SQSEvent, app: any) {
       const bucketName = "uni-artifacts";
       const folderName = urlParts[3];
       const subfolderName = urlParts[4];
-      const fileName = urlParts[5];
+      const subsubfolderName = urlParts[5];
+      const fileName = urlParts[6];
 
       console.log("Bucket Name:", bucketName);
       console.log("Folder Name:", folderName);
       console.log("Subfolder Name:", subfolderName);
+      console.log("Subsubfolder Name:", subsubfolderName);
       console.log("File Name:", fileName);
 
       let endpointUrl: string;
       endpointUrl =
         "https://u1oaj2omi2.execute-api.us-east-1.amazonaws.com/textract";
 
+      // endpointUrl =
+      // "https://u1oaj2omi2.execute-api.us-east-1.amazonaws.com/textract";
+
       const postResponse: AxiosResponse = await axios.post(endpointUrl, {
         bucketName,
         folderName,
         subfolderName,
+        subsubfolderName,
         fileName,
       });
 
@@ -46,8 +52,6 @@ export async function handler(event: SQSEvent, app: any) {
       const responseData = postResponse.data;
       const extractedText = responseData.text;
       console.log("Extracted Text from the handler:", extractedText);
-
-
 
       // Construct the request payload to match the provided structure
       const requestBody = {

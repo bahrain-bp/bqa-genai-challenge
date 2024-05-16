@@ -56,7 +56,6 @@ export async function main(
           Key: obj.Key!,
           Date: obj.LastModified,
         };
-        
       });
 
     console.log("Files to be returned:", JSON.stringify(files));

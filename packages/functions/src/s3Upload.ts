@@ -68,6 +68,7 @@ export async function uploadToS3(event: any) {
     const bucketName = event.headers["bucket-name"];
     const folderName = event.headers["folder-name"];
     const subfolderName = event.headers["subfolder-name"];
+    const subsubfolderName = event.headers["subsubfolder-name"]; // New header for sub-subfolder
     const contentType = event.headers["content-type"];
 
     // Check file size before upload (optional)
@@ -86,10 +87,14 @@ export async function uploadToS3(event: any) {
       throw new Error("Folder name not provided");
     }
 
-    // Combine folder and subfolder name if subfolder is provided
-    const folderPath = subfolderName
-      ? `${folderName}/${subfolderName}`
-      : folderName;
+    // Combine folder, subfolder, and subsubfolder names if provided
+    let folderPath = folderName;
+    if (subfolderName) {
+      folderPath += `/${subfolderName}`;
+    }
+    if (subsubfolderName) {
+      folderPath += `/${subsubfolderName}`; // Append the subsubfolder to the path
+    }
 
     // Create folder if it doesn't exist
     await createFolder(bucketName, folderPath);
@@ -131,7 +136,7 @@ export async function uploadToS3(event: any) {
           QueueUrl: Queue["Document-Queue"].queueUrl,
           MessageBody: s3ObjectUrl,
           MessageGroupId: "file", // Use fileName as MessageGroupId
-          MessageDeduplicationId: `${fileName}-${Date.now()}`,
+          //MessageDeduplicationId: `${fileName}-${Date.now()}`,
         })
         .promise();
       console.log("SQS Response:", sqsResponse);

@@ -1,179 +1,470 @@
 import Breadcrumb from '../components/Breadcrumbs/Breadcrumb';
+import styled from 'styled-components';
 import DefaultLayout from '../layout/DefaultLayout';
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
-//import { ToastContainer } from 'react-toastify';
-//import { ProgressBar, step } from 'react-step-ProgressBar';
-//import styled from 'styled-components';
-import 'react-toastify/dist/ReactToastify.css';
-import { useTranslation } from 'react-i18next';
-import Loader from '../common/Loader';
+import { FileUpload } from 'primereact/fileupload';
+//import { useTranslation } from 'react-i18next';
+//import Loader from '../common/Loader';
+import { fetchUserAttributes } from 'aws-amplify/auth';
 
 
+const MainContainer = styled.div`
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 16px;
+`;
 
-interface StepContentProps {
-  stepNumber: number;
-  standardName: string;
-  indicatorName: string;
-  handleFileChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  fileName: string;
-  handleSaveClick: () => void;
+const StepContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+  margin-top: 50px;
+  position: relative;
+`;
+
+const StepWrapper = styled.div`
+  flex:;
+  position: relative;
+  display: flex;
+  justify-content:; // Center the circle within each segment
+`;
+
+interface ProgressLineProps {
+  activeStep: number;
+  totalSteps: number;
 }
 
-const StepContent: React.FC<StepContentProps> = ({ stepNumber, standardName, indicatorName, handleFileChange, fileName, handleSaveClick }) => (
-  <>
-    <h3 className="font-medium text-black dark:text-white">
-      <b>{standardName}</b>
-    </h3>
-    <h3 className="font-medium text-black dark:text-white">
-      {indicatorName}
-    </h3>
-    {/* File upload container */}
-    <div className="p-4">
-      <div
-        id="FileUpload"
-        className="relative mb-5.5 block w-full cursor-pointer appearance-none rounded border border-dashed border-primary bg-gray py-4 px-4 dark:bg-meta-4 sm:py-7.5"
-      >
-        <input
-          type="file"
-          accept="*"
-          className="absolute inset-0 z-50 m-0 h-full w-full cursor-pointer p-0 opacity-0 outline-none"
-          onChange={handleFileChange}
-        />
-        <div className="flex flex-col items-center justify-center space-y-3">
-          <span className="flex h-10 w-10 items-center justify-center rounded-full border border-stroke bg-white dark:border-strokedark dark:bg-boxdark">
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 16 16"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              {/* SVG paths */}
-            </svg>
-          </span>
-          <p>
+// Apply the interface to your styled component
+const ProgressLine = styled.div<ProgressLineProps>`
+  height: 9px;
+  background: #2ecc71;
+  width: ${(props) =>
+    `calc(${(props.activeStep / (props.totalSteps - 1)) * 100}% - 10px)`};
+  position: absolute;
+  top: 16px;
+  left: 1px;
+  z-index: -8;
+`;
 
-            <span className="text-primary"> Click to upload </span> or drag and drop
-          </p>
-          <p className="mt-1.5">SVG, PNG, JPG or GIF</p>
-          <p>(max, 800 X 800px)</p>
-          {fileName && <p>{fileName}</p>}
-        </div>
-      </div>
-    </div>
-    {/* Save and cancel buttons */}
+interface StepStyleProps {
+  completed: boolean;
+}
 
-    <div className="flex justify-end gap- mb-5">
-      <button
-        className="flex justify-center rounded border border-stroke py-2 px-6 font-medium text-black hover:shadow-1 dark:border-strokedark dark:text-white mr-4"
-        type="submit"
-      >
-        Cancel
-      </button>
-      <button
-        className={`flex justify-center rounded bg-primary py-2 px-6 font-medium text-gray hover:bg-opacity-90 mr-4`}
-        type="button" // Change type to "button"
-        onClick={handleSaveClick} // Add onClick handler
-      >
-        {stepNumber === 1 ? 'Save' : 'Next'}
-      </button>
-    </div>
-  </>
-);
+const StepStyle = styled.div<StepStyleProps>`
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: ${({ completed }) => (completed ? '#2ECC71' : '#FFFFFF')};
+  border: 3px solid ${({ completed }) => (completed ? '#2ECC71' : '#F3E7F3')};
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative; // Ensures correct positioning within StepWrapper
+  z-index: 1; // Makes sure it appears above the progress line
+`;
+
+const StepCount = styled.span`
+  font-size: 19px;
+  color: #2ecc71;
+`;
+
+const StepsLabelContainer = styled.div`
+  position: absolute;
+  top: 66px;
+  left: 50%;
+  transform: translateX(-50%);
+`;
+
+const ButtonsContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+`;
+
+const ButtonStyle = styled.button`
+  padding: 8px;
+  width: 90px;
+  border-radius: 4px;
+  border: 0;
+  background: none;
+  color: #2ecc71;
+  cursor: pointer;
+  :disabled {
+    color: #b1b1b1;
+    cursor: not-allowed;
+  }
+`;
+
+const StyledFileDisplay = styled.div`
+  padding: 8px 16px;
+  margin: 5px 2px;
+  background-color: #f6f6f6;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items:;
+  justify-content: space-between;
+  transition:
+    background-color 0.2s,
+    box-shadow 0.2s;
+
+  &:hover {
+    background-color: #ffffff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  }
+`;
+
+const DeleteIcon = styled.i`
+  cursor: pointer;
+  color: #f44336; // Google's material design color for destructive actions
+  &:hover {
+    color: #d32f2f; // Darken the color on hover
+  }
+`;
+
+const IndicatorName = styled.h4`
+  font-size: 20px;
+  color:;
+  margin-top: 0;
+  margin-bottom: 5px; // Space below each indicator name
+  padding: 10px; // Adds padding around the text for better spacing
+  background-color: #fff; // Ensures background color matches your design, if needed
+  border-radius: 5px; // Optionally round the corners if you prefer
+`;
+
+const SectionTitle = styled.h2`
+  font-size: 28px;
+  color: #2ecc71; // A green shade that matches your step indicators
+  text-align: center;
+  margin-top: 20px;
+  margin-bottom: 20px;
+`;
 
 const UploadEvidence = () => {
-  //const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [fileName, setFileName] = useState<string>('');
-  const [savedSteps, setSavedSteps] = useState<number[]>([]);
-  //const [saveClicked, setSaveClicked] = useState<boolean>(false);
-  const [currentStep, setCurrentStep] = useState<number>(1);
-  const { t } = useTranslation(); // Hook to access translation functions
+  const [standards, setStandards] = useState<any[]>([]); // Using 'any[]' for state typing
+  const [activeStep, setActiveStep] = useState(0);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadedFiles, setUploadedFiles] = useState<any[]>([]);
 
-  const handleSaveClick = () => {
-    //setSaveClicked(true);
-    setSavedSteps([...savedSteps, currentStep]);
-    toast.success('File saved successfully!');
-    moveToNextStep();
+  const [currentName, setCurrentName] = useState('');
 
+  useEffect(() => {
+    const fetchCurrentUserInfo = async () => {
+      try {
+        const attributes = await fetchUserAttributes();
+        const name:any= attributes.name;
+        setCurrentName(name);
+
+      } catch (error) {
+        console.error('Error fetching current user info:', error);
+      }
+    };
+
+    fetchCurrentUserInfo();
+  }, []);
+
+   
+
+
+
+  const apiURL = import.meta.env.VITE_API_URL;
+
+
+  useEffect(() => {
+    const fetchStandards = async () => {
+      try {
+        const response = await fetch(
+          `https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards`,
+        );
+        if (!response.ok) {
+          throw new Error(`HTTP status ${response.status}`);
+        }
+        const rawData = await response.json();
+        const standardsMap = new Map();
+        rawData.forEach((item: any) => {
+          if (item.status == 'unarchived') {
+            if (!standardsMap.has(item.standardId)) {
+              standardsMap.set(item.standardId, { ...item, indicators: [] });
+            }
+            standardsMap.get(item.standardId).indicators.push({
+              label: item.indicatorName,
+              uploadSection: item.uploadSection,
+              id: item.indicatorId,
+            });
+          }
+        });
+        setStandards(Array.from(standardsMap.values()));
+      } catch (error) {
+        // Check if error is an instance of Error
+        if (error instanceof Error) {
+          console.error('Error fetching standards:', error);
+          toast.error(`Error fetching standards: ${error.message}`);
+        } else {
+          // Handle cases where error is not an Error instance
+          console.error('An unexpected error occurred:', error);
+          toast.error('An unexpected error occurred');
+        }
+      }
+    };
+
+    fetchStandards();
+  }, []);
+
+  const handleFileChange = async (
+    files: any,
+    standard: any,
+    indicator: any,
+  ) => {
+    setIsUploading(true);
+
+    if (!standard || !indicator) {
+      console.error('Invalid standard or indicator data');
+      toast.error('Invalid data provided for upload');
+      setIsUploading(false);
+      return;
+    }
+
+    for (let file of files) {
+      if (file.size > 10000000) {
+        // 10 MB limit
+        toast.error('File size should not exceed 10 MB');
+        continue;
+      }
+
+
+      const formData = new FormData();
+      formData.append('file', file);
+
+
+      try {
+        const response = await fetch(`${apiURL}/uploadS3`, {
+          method: 'POST',
+          body: formData,
+          headers: {
+            'file-name': file.name,
+            'bucket-name': 'uni-artifacts',
+            'folder-name': 'currentName',
+            'subfolder-name': `${standard.standardId}`,
+            'subSubfolder-name': `${indicator.id}`,
+            'content-type': 'application/pdf', // Assuming all files are PDF
+          },
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`Failed to upload file: ${errorText}`);
+        }
+
+        // Log file info and refresh file list
+        console.log('Uploaded file:', file.name);
+        fetchUploadedFiles(); // Assuming this fetches and logs files
+        toast.success('File uploaded successfully');
+      } catch (error) {
+        const message =
+          error instanceof Error
+            ? error.message
+            : 'An unexpected error occurred';
+        console.error('Upload error:', message);
+        toast.error(`Upload error: ${message}`);
+      }
+    }
+    setIsUploading(false);
   };
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files ? event.target.files[0] : null;
-    if (file) {
-      setFileName(file.name);
+  //fetch uploaded folders TRY#1
+  const fetchUploadedFiles = async () => {
+    if (
+      standards.length === 0 ||
+      activeStep < 0 ||
+      activeStep >= standards.length
+    ) {
+      return; // Guard clause
+    }
+
+    const currentStandard = standards[activeStep];
+    const url = `${apiURL}/files`;
+
+    try {
+      const response = await fetch(url, {
+          method: 'GET',
+          headers: {
+              'bucket-name': 'uni-artifacts',
+              'folder-name': currentName,
+              'subfolder-name': `${currentStandard.standardId}`,
+          },
+
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP status ${response.status}`);
+      }
+      const data = await response.json();
+      const files = data.files; // Ensure this matches the structure you log in Lambda
+
+      const filesByIndicator = files.reduce((acc: any, file: any) => {
+        // Path structure: 'BUB/StandardID/IndicatorID/filename'
+        const parts = file.Key.split('/');
+        const indicatorId = parts[2]; // This assumes the indicator ID is the third part
+        if (!acc[indicatorId]) {
+          acc[indicatorId] = [];
+        }
+        acc[indicatorId].push({ name: file.Key });
+        return acc;
+      }, {});
+
+      setUploadedFiles((prev) => ({
+        ...prev,
+        [currentStandard.standardId]: filesByIndicator,
+      }));
+    } catch (error) {
+      // Check if error is an instance of Error and then access its message property
+      const errorMessage =
+        error instanceof Error ? error.message : 'An unknown error occurred';
+      console.error('Error fetching uploaded files:', errorMessage);
+      toast.error(`Error fetching uploaded files: ${errorMessage}`);
     }
   };
 
-  const moveToNextStep = () => {
-    setCurrentStep(currentStep + 1);
+  const handleFileDelete = async (
+    fileKey: any,
+    standardId: any,
+    indicatorId: any,
+  ) => {
+    try {
+      // Construct the API endpoint URL
+      const url = `${apiURL}/deleteFile`; // Replace with your actual endpoint URL
+
+      const response = await fetch(url, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          bucketName: 'uni-artifacts', // Your S3 bucket name
+          key: fileKey, // This should be the full path of the file in S3
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP status ${response.status}`);
+      }
+
+      // Parse JSON response if necessary
+      //const result = await response.json();
+      toast.success('File deleted successfully');
+
+      // Update local state to remove the file from the list
+      setUploadedFiles((prevFiles) => {
+        const updatedFiles = { ...prevFiles } as any;
+        const filteredFiles = updatedFiles[standardId][indicatorId].filter(
+          (file: any) => file.name !== fileKey,
+        );
+        updatedFiles[standardId][indicatorId] = filteredFiles;
+
+        return updatedFiles;
+      });
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'An unknown error occurred';
+      console.error('Delete file error:', errorMessage);
+      toast.error(`Failed to delete file: ${errorMessage}`);
+    }
   };
-  const [loading, setLoading] = useState<boolean>(true);
+  const fileUploadUrl = `${apiURL}/uploadS3`;
   useEffect(() => {
-    setTimeout(() => setLoading(false), 1000);
-  }, []);
+    fetchUploadedFiles();
+  }, [activeStep, standards]); // Re-fetch when these change
 
-  return loading ? (
-    <Loader />
-  ) : (
+  const nextStep = () => {
+    setActiveStep((prevStep) => prevStep + 1);
+  };
+
+  const prevStep = () => {
+    setActiveStep((prevStep) => prevStep - 1);
+  };
+
+  return (
     <DefaultLayout>
-      <Breadcrumb pageName={t('uploadEvidence')} />
-      {/* Progress bar */}
-      <div className="mb-4">
-        <div className="flex flex-col items-center justify-between mt-2">
-          <div className="flex items-center">
-            {/* Progress circles */}
-            {[1, 2, 3].map(step => (
-              <React.Fragment key={step}>
-                <div
-                  className={`flex items-center justify-center sm:m5 sm:max-w-xs sm:h-5 md:w-6 md:h-6 md:h-6 xl:w-8 xl:h-8 rounded-full ${savedSteps.includes(step) ? 'bg-green-500' : 'bg-stone-200'
-                    }`}
-                ></div>
-                {step !== 3 && (
-                  <div
-                    className={`sm:w-[30px] lg:w-[80px] h-2 ${savedSteps.includes(step) ? 'bg-green-500' : 'bg-stone-200'
-                      }`}
-                  ></div>
-                )}
-              </React.Fragment>
-            ))}
-          </div>
-          <div className="text-sm text-gray-500 mt-3"></div>
-        </div>
-      </div>
+      <Breadcrumb pageName="Upload Evidence" />
+      <MainContainer>
 
-      {/* Render content based on current step */}
-      {currentStep === 1 && (
-        <StepContent
-          stepNumber={1}
-          standardName='Standard 1: Governance and Management – 5 Indicators'
-          indicatorName='Indicator 1: Vision, Mission and Values'
-          handleFileChange={handleFileChange}
-          fileName={fileName}
-          handleSaveClick={handleSaveClick}
-        />
-      )}
-      {currentStep === 2 && savedSteps.includes(1) && (
-        <StepContent
-          stepNumber={2}
-          standardName='Standard 2: Human Resources Management – 2 Indicators'
-          indicatorName='Indicator 6 - Human Resources'
-          handleFileChange={handleFileChange}
-          fileName={fileName}
-          handleSaveClick={handleSaveClick}
-        />
-      )}
-      {currentStep === 3 && savedSteps.includes(2) && (
-        <StepContent
-          stepNumber={3}
-          standardName='Standard 3: Quality Assurance and Enhancement – 2 Indicators '
-          indicatorName='Indicator 8 - Quality Assurance System'
-          handleFileChange={handleFileChange}
-          fileName={fileName}
-          handleSaveClick={handleSaveClick}
-        />
-      )}
-      {/* Add more steps as needed */}
+        <SectionTitle>
+          {standards[activeStep]?.standardId}:{' '}
+          {standards[activeStep]?.standardName}
+        </SectionTitle>
+
+        <StepContainer>
+          {standards.map((_, index) => (
+            <StepWrapper key={index}>
+              <StepStyle completed={activeStep >= index}>
+                <StepCount>{index + 1}</StepCount>
+              </StepStyle>
+              <StepsLabelContainer></StepsLabelContainer>
+            </StepWrapper>
+          ))}
+          <ProgressLine activeStep={activeStep} totalSteps={standards.length} />
+        </StepContainer>
+        <ButtonsContainer>
+          <ButtonStyle onClick={prevStep} disabled={activeStep === 0}>
+            Previous
+          </ButtonStyle>
+          <ButtonStyle
+            onClick={nextStep}
+            disabled={isUploading || activeStep === standards.length - 1}
+          >
+            {isUploading ? 'Uploading...' : 'Next'}
+          </ButtonStyle>
+        </ButtonsContainer>
+        <br />
+
+        {standards[activeStep]?.indicators.map((indicator: any, index: any) => (
+          <div key={`${activeStep}-${index}`} className="card">
+            {/* <StandardName>{standards[activeStep].standardName}</StandardName> */}
+
+            <IndicatorName>
+              {indicator.id}: {indicator.label}
+            </IndicatorName>
+            <FileUpload
+              name={`upload-${activeStep}-${index}`}
+              url={fileUploadUrl}
+              multiple
+              accept="*"
+              auto={true}
+              maxFileSize={10000000} // 10 MB limit
+              onSelect={(e) =>
+                handleFileChange(e.files, standards[activeStep], indicator)
+              }
+              onError={(e) => {
+                console.error('Upload Error:', e);
+              }}
+              emptyTemplate={<p>Drag and drop files here to upload</p>}
+            />
+            <div style={{ marginTop: '10px' }}>
+              {(
+                uploadedFiles[standards[activeStep]?.standardId]?.[
+                  indicator.id
+                ] || []
+              ).map((file: any) => (
+                <StyledFileDisplay key={file.name}>
+                  <i className="pi pi-file" style={{ fontSize: '1.2em' }}></i>
+                  {file.name.split('/').pop()}
+                  <DeleteIcon
+                    className="pi pi-times"
+                    onClick={() =>
+                      handleFileDelete(
+                        file.name,
+                        standards[activeStep]?.standardId,
+                        indicator.id,
+                      )
+                    }
+                  />
+                </StyledFileDisplay>
+              ))}
+            </div>
+          </div>
+        ))}
+      </MainContainer>
     </DefaultLayout>
   );
 };

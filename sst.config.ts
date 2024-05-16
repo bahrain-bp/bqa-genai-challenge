@@ -8,6 +8,7 @@ import { S3Stack } from "./stacks/S3Stack"
 
 import { StandardAPIStack } from "./stacks/StandardAPIStack";
 import { EmailAPIStack } from "./stacks/EmailAPIStack";
+//import { S3Stack } from "./stacks/S3Stack"
 import { ImageBuilderForCodeCatalyst } from "./stacks/devops/ImageBuilderForCodeCatalyst";
 import { OIDCForGitHubCI } from "./stacks/devops/OIDCForGitHubCI";
 
