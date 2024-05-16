@@ -40,7 +40,7 @@ const BqaRequestPage: React.FC = () => {
       try {
         const attributes = fetchUserAttributes();
         setSourceEmail((await attributes)?.email ?? ''); // Provide a default value for setSourceEmail
-        console.log("Source Email:" + sourceEmail);
+        console.log("Source Email:" + sourceEmail); // email doesn't show in the log but is recognized
       } catch (error) {
         console.error('Failed to fetch user info:', error);
       }
@@ -106,7 +106,7 @@ const BqaRequestPage: React.FC = () => {
       // console.log(`Email: ${userEmail}, Subject: Additional Document Required, Message: ${body}`);
 
       // Invoke lambda function to send email
-      const response = await fetch('https://y68sgxxozi.execute-api.us-east-1.amazonaws.com/send-email', {
+      const response = await fetch(`${api}/send-email`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -131,7 +131,6 @@ const BqaRequestPage: React.FC = () => {
     } catch (error) {
       console.error('Network Error:', error);
       toast.error('Error Catched: Failed to send the request.', { position: 'top-right' });
-      toast.error('Failed to send the request.', { position: 'top-right' });
     }    
   };
     
