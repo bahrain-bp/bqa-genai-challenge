@@ -5,7 +5,7 @@ import UserOne from '../../images/user/UOB-Logo-Transparant.png';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import {fetchUserAttributes } from 'aws-amplify/auth';
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from 'react-i18next'; // Fix error : npm install react-i18next
 
 
 const DropdownUser = () => {
