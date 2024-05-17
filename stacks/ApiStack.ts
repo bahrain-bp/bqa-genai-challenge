@@ -29,6 +29,15 @@ export function ApiStack({ stack }: StackContext) {
       // authorizer: "jwt",
     },
     routes: {
+      // Email route
+      "POST /send-email": 
+      {
+          function:
+          {
+              handler: "packages/functions/src/send-email.sendEmail",
+              permissions: ["ses"]
+          }
+      },
       // Sample TypeScript lambda function
       "POST /": "packages/functions/src/lambda.main",
       "POST /uploadS3": {
