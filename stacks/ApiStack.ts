@@ -86,6 +86,15 @@ export function ApiStack({ stack }: StackContext) {
         },
       },
 
+        // Add the new route for retrieving files
+        "GET /count": {
+          function: {
+            handler: "packages/functions/src/filesCount.main", // Replace with your location
+            permissions: ["s3"], // Grant necessary S3 permissions
+          },
+        },
+
+
       // Add the new route for deleting files
   "DELETE /deleteFile": {
     function: {

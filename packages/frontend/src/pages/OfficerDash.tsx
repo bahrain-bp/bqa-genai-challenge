@@ -1,12 +1,6 @@
 import Breadcrumb from '../components/Breadcrumbs/Breadcrumb';
 import DefaultLayout from '../layout/DefaultLayout';
-//import CoverOne from '../images/cover/cover-01.png';
-//import userSix from '../images/user/user-06.png';
-//import { Link } from 'react-router-dom';
-//import CardDataStats from '../components/CardDataStats';
-// import { Package } from '../types/package';
 import ChartThree from '../components/Charts/ChartThree';
-// import ChartTwo from '../components/Charts/ChartTwo';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import Loader from '../common/Loader';
@@ -30,65 +24,6 @@ type FileDetail = {
   name: string;
  
 };
-// const options: ApexOptions = {
-//   colors: ['#3C50E0', '#80CAEE'],
-//   chart: {
-//     fontFamily: 'Satoshi, sans-serif',
-//     type: 'bar',
-//     height: 335,
-//     stacked: true,
-//     toolbar: {
-//       show: false,
-//     },
-//     zoom: {
-//       enabled: false,
-//     },
-//   },
-
-//   responsive: [
-//     {
-//       breakpoint: 1536,
-//       options: {
-//         plotOptions: {
-//           bar: {
-//             borderRadius: 0,
-//             columnWidth: '25%',
-//           },
-//         },
-//       },
-//     },
-//   ],
-//   plotOptions: {
-//     bar: {
-//       horizontal: false,
-//       borderRadius: 0,
-//       columnWidth: '25%',
-//       borderRadiusApplication: 'end',
-//       borderRadiusWhenStacked: 'last',
-//     },
-//   },
-//   dataLabels: {
-//     enabled: false,
-//   },
-
-//   xaxis: {
-//     categories: records.map(record => record.standardId),
-//   },
-//   legend: {
-//     position: 'top',
-//     horizontalAlign: 'left',
-//     fontFamily: 'Satoshi',
-//     fontWeight: 500,
-//     fontSize: '14px',
-
-//     markers: {
-//       radius: 99,
-//     },
-//   },
-//   fill: {
-//     opacity: 1,
-//   },
-// };
 
 interface ChartTwoState {
   series: {
@@ -104,37 +39,26 @@ interface Record {
 }
 
 
-// const packageData: Package[] = [
-//     {
-//       name: 'File 1.ppt',
-//       invoiceDate: `Jan 13,2023`,
-//       size:'56 MB',
-//       status: 'Completed',
-//     },
-
-//   ];
-
-
 const OfficerDash = () => {
   const { t } = useTranslation(); // Hook to access translation functions
     
   const [currentName, setCurrentName] = useState('');
   const [loading, setLoading] = useState<boolean>(true);
-  //const [files, setFiles] = useState({});
   const [files, setFiles] = useState<FileDetail[]>([]);
-  // const [files, setFiles] = useState<any[]>([]);
-  const [standards, setStandards] = useState<any[]>([]); // Using 'any[]' for state typing
-  const [isDownloading, setIsDownloading] = useState(false);
+  const [/*isDownloading*/, setIsDownloading] = useState(false);
   const apiURL = import.meta.env.VITE_API_URL;
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+ 
   const [records, setRecords] = useState<Record[]>([]);
 
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedIndicator, setSelectedIndicator] = useState('');
+  const [fileCount, setFileCount] = useState(0);
+  const [/*fileCountsByStandard*/, setFileCountsByStandard] = useState({});
+  const [/*fileCountz*/, setFileCountz] = useState({});
 
-
-
+  const [state, setState] = useState<ChartTwoState>({
+    series: [{ name: 'Standard', data: [] }],
+  });
   const navigate = useNavigate();
   useEffect(() => {
     setTimeout(() => setLoading(false), 1000);
@@ -144,8 +68,8 @@ const OfficerDash = () => {
     colors: ['#3C50E0', '#80CAEE'],
    
     chart: {
-      events: {
-        click: function(event, chartContext, { dataPointIndex }) {
+       events: {
+        click: function(_: any, __: any, { dataPointIndex }) {   
           const selectedStandardId = records[dataPointIndex].standardId;
           fetchUploadedFiles(selectedStandardId); // Function to fetch files based on standardId
         }
@@ -215,12 +139,7 @@ const OfficerDash = () => {
           const name:any= attributes.name;
          
           setCurrentName(name);
-          console.log(name);
-           // Call to fetch files after successful fetching of user name
-      // if (name) {
-      //   await fetchUploadedFiles(name);
-      // }
-  
+     
         } catch (error) {
           console.error('Error fetching current user info:', error);
         }
@@ -229,11 +148,52 @@ const OfficerDash = () => {
         fetchCurrentUserInfo();
       }, []);
 
+      const fetchFileCounts = async () => {
+        const url = `${apiURL}/count`; // Adjust this to your actual API endpoint
+        try {
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'bucket-name': 'uni-artifacts', // Any required headers
+                    'folder-name': currentName // Optional, adjust as needed
+                }
+            });
+            if (!response.ok) throw new Error(`HTTP status ${response.status}`);
+          
+            const counts = await response.json();
+
+            // Assume `counts` is an object like { 'Standard1': 4, 'Standard2': 5, ... }
+            const chartData = records.map(record => counts[record.standardId] || 0);
+            setState(prevState => ({
+              ...prevState,
+              series: [{
+                name: 'Standard',
+                data: chartData
+              }]
+            }));
+            setFileCountz(counts);
+            setLoading(false); 
+
+        } catch (error) {
+            console.error('Error fetching file counts:', error);
+        } 
+    };
+
+    useEffect(() => {
+      if (currentName) {
+        fetchFileCounts();
+      }
+    }, [currentName]);
+
+
       //fetch uploaded folders TRY#1
       const fetchRecords = async () => {
         try {
           // const api = import.meta.env.VITE_API_URL;
-          const response = await fetch(`https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards`);
+          // https://tds1ye78fl.execute-api.us-east-1.amazonaws.com
+          // const response = await fetch(`${apiURL}/standards`);
+           const response = await fetch(`https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards`);
+
           if (!response.ok) {
             throw new Error('Failed to fetch records');
           }
@@ -247,14 +207,7 @@ const OfficerDash = () => {
           });
           const uniqueRecords = Array.from(recordMap.values());
           setRecords(uniqueRecords);
-        //    setChartData({
-        //   series: [{
-        //     name: 'Standard',
-        //     data: uniqueRecords.map(item => item.fileCount) // Assuming you have fileCount
-        //   }]
-        // });
-          setLoading(false);; // Update state with sorted records
-         console.log("Records "+setRecords);
+          setLoading(false); // Update state with sorted records
       
         } catch (error) {
           console.error('Error fetching records:', error);
@@ -264,54 +217,7 @@ const OfficerDash = () => {
    
         fetchRecords(); // Fetch records for the extracted standard name // Fetch records when the component mounts
       }, []);
-      // useEffect(() => {
-      //   const fetchStandards = async () => {
-      //     try {
-      //       const response = await fetch(
-      //         `https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards`,
-      //       );
-      //       if (!response.ok) {
-      //         throw new Error(`HTTP status ${response.status}`);
-      //       }
-      //       const rawData = await response.json();
-      //       const standardsMap = new Map();
-      //       rawData.forEach((item: any) => {
-      //         if (item.status == 'unarchived') {
-      //           if (!standardsMap.has(item.standardId)) {
-      //             standardsMap.set(item.standardId, { ...item, indicators: [] });
-      //           }
-      //           // standardsMap.get(item.standardId).indicators.push({
-      //           //   label: item.indicatorName,
-      //           //   uploadSection: item.uploadSection,
-      //           //   id: item.indicatorId,
-      //           // });
-      //         }
-      //       });
-      //       setStandards(Array.from(standardsMap.values()));
-      //       console.log("Standardzzz"+ standards);
-      //       console.log("Standardzzz raw dat"+ rawData);
-      //       console.log("Standardzz"+ standardsMap);
-
-
-      //     } catch (error) {
-      //       // Check if error is an instance of Error
-      //       if (error instanceof Error) {
-      //         console.error('Error fetching standards:', error);
-      //         toast.error(`Error fetching standards: ${error.message}`);
-      //       } else {
-      //         // Handle cases where error is not an Error instance
-      //         console.error('An unexpected error occurred:', error);
-      //         toast.error('An unexpected error occurred');
-      //       }
-      //     }
-      //   };
     
-      //   fetchStandards();
-      // }, []);
-
-
-
-
       const fetchUploadedFiles = async (standardId: string) => {
           const url = `${apiURL}/files`;
           try {
@@ -336,8 +242,18 @@ const OfficerDash = () => {
         name: file.Key.split('/').pop(),
       }));
 
+
       setFiles(fetchedFiles);
-      console.log("Fetched files:", fetchedFiles);
+      setFileCountsByStandard(prevCounts => ({
+        ...prevCounts,
+        [standardId]: fetchedFiles.length
+    }));
+    console.log("File count for " + standardId + ":", fetchedFiles.length);
+
+      setFileCount(fetchedFiles.length);
+      // console.log("Fetched files:", fetchedFiles);
+      // console.log(" file count:", fileCount);
+
       //const indicators = [...new Set(files.map((file) => file.Key.split('/')[2]))];
       const indicators = [...new Set(fetchedFiles.map((file) => file.key.split('/')[2]))];
       setIndicators(indicators); // Make sure you have `setIndicators` defined in your state
@@ -345,33 +261,20 @@ const OfficerDash = () => {
       console.error('Expected files to be an array but got:', data.files);
       setFiles([]); // Reset or handle as needed if data is not in the expected format
     }
-//       // const files = data.files; // Ensure this matches the structure you log in Lambda
-//       // const fetchedFiles = files.map(file => ({
-//       //   key: file.name,
-//       //   name: file.name.split('/').pop()
-//       // }));
-      
-//       // files.map(file => ({ name: file.Key }))
-//          // size: 'Unknown',  Example placeholder
-//          // status: 'Completed',  Example placeholder
-//          // date:'unknown',  Example placeholder
-//       // }));
-
 
       setLoading(false);
 
-//       // setUploadedFiles(prev => ({
-//       //     ...prev,
-//       //     [currentStandard.standardId]: files.map(file => ({ name: file.Key }))
-//       // }));
   } catch (error:any) {
       console.error('Error fetching uploaded files:', error);
       // toast.error(`Error fetching uploaded files: ${error.message}`);
   }
 };
+
 useEffect(() => {
-  fetchUploadedFiles("Standard1");
-}, []);
+  if (currentName) {
+    fetchUploadedFiles('Standard1');
+  }
+}, [currentName]);
 
 
 
@@ -382,19 +285,15 @@ const handleButtonClick = async (fileKey: any) => {
   try {
     // Construct the API endpoint URL
     const apiCall = `${apiURL}/downloadFile`;
-
     // Encode the fileKey as a URL parameter
     const params = new URLSearchParams();
     params.append('data', JSON.stringify({ fileKey }));
-
     // Append the encoded parameters to the API endpoint URL
     const urlWithParams = `${apiCall}?${params.toString()}`;
-
     // Send the GET request using Axios
     const response = await axios.get(urlWithParams, {
       responseType: 'blob', // Set response type to 'blob' to receive binary data
     });
-
     // Create a temporary URL for the blob
     const url = window.URL.createObjectURL(response.data);
     // Create a link element and trigger a click to download the file
@@ -411,57 +310,8 @@ const handleButtonClick = async (fileKey: any) => {
     setIsDownloading(false);
   }
 };
- //use /files enpoint to fetch uni files --pass uniName/Standard selected
-//  useEffect(() => {
-//   const fetchUploadedFiles = async () => {
-//     try {
-//       const response = await axios.get(
-//         `${import.meta.env.VITE_API_URL}/files`,
-//         {
-//           headers: {
-//             'Content-Type': 'application/json',
-//             'bucket-name': 'uni-artifacts',
-//             'folder-name': currentName,
-//             'subfolder-name': 'Standard2',
 
-//             // 'subfolder-name': standard.replace(/\s/g, ''),
-//           },
-//         },
-//       );
-//       let filteredFiles = response.data.files;
-//       console.log('Filtered files:'+ filteredFiles) ;
-//       console.log('ceck:'+ filteredFiles.key) ;
-
-
-      // // Filter based on search term
-      // if (searchTerm.trim() !== '') {
-      //   filteredFiles = filteredFiles.filter((file: any) =>
-      //     file.Key.toLowerCase().includes(searchTerm.toLowerCase()),
-      //   );
-      // }
-
-      // // Filter based on selected indicator
-      // if (selectedIndicator !== '') {
-      //   filteredFiles = filteredFiles.filter((file: any) =>
-      //     file.Key.includes(selectedIndicator),
-      //   );
-      // }
-
-//       setFiles(filteredFiles);
-//     } catch (error) {
-//       console.error('Error fetching data:', error);
-//       // Handle error
-//     }
-//   };
-//   fetchUploadedFiles();
-// }, [/*standard, searchTerm, selectedIndicator,*/ currentName]);
-// const indexOfLastItem = currentPage * itemsPerPage;
-// const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-// const currentFiles = files.slice(indexOfFirstItem, indexOfLastItem);
-
-    
 //Chart 
-
 // Filtering files based on the selected indicator
 const filteredFiles = files.filter(file => {
   return (
@@ -470,25 +320,14 @@ const filteredFiles = files.filter(file => {
   );
 });
 
-const [state, setState] = useState<ChartTwoState>({
-  series: [
-    {
-      name: 'Standard',
-      data: [1,5,7,8,9 ], //this would be number of files in each standard
-    },
-    //{
-      //name: 'Revenue',
-      //data: [13, 23, 20, 8, 13, 27, 15,12,32],
-    //},
-  ],
-});
-const [loadings, setLoadings] = useState<boolean>(true);
+
 useEffect(() => {
-  setTimeout(() => setLoadings(false), 1000);
+  setTimeout(() => setLoading(false), 1000);
 }, []);
 
+
 const handleReset = () => {
-  setState((prevState) => ({
+  setState(prevState => ({
     ...prevState,
   }));
 };
@@ -521,49 +360,13 @@ const [indicators, setIndicators] = useState<string[]>([]);
         </div>
         <div>
 
-        {/*    
-          <div className="relative z-20 inline-block">
-
-            
-            <select
-              name="#"
-              id="#"
-              className="relative z-20 inline-flex appearance-none bg-transparent py-1 pl-3 pr-8 text-sm font-medium outline-none"
-            >
-              <option value="" className='dark:bg-boxdark'>This Week</option>
-              <option value="" className='dark:bg-boxdark'>Last Week</option>
-            </select>
-            
-
-            <span className="absolute top-1/2 right-3 z-10 -translate-y-1/2">
-              <svg
-                width="10"
-                height="6"
-                viewBox="0 0 10 6"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M0.47072 1.08816C0.47072 1.02932 0.500141 0.955772 0.54427 0.911642C0.647241 0.808672 0.809051 0.808672 0.912022 0.896932L4.85431 4.60386C4.92785 4.67741 5.06025 4.67741 5.14851 4.60386L9.09079 0.896932C9.19376 0.793962 9.35557 0.808672 9.45854 0.911642C9.56151 1.01461 9.5468 1.17642 9.44383 1.27939L5.50155 4.98632C5.22206 5.23639 4.78076 5.23639 4.51598 4.98632L0.558981 1.27939C0.50014 1.22055 0.47072 1.16171 0.47072 1.08816Z"
-                  fill="#637381"
-                />
-                <path
-                  fillRule="evenodd"
-                  clipRule="evenodd"
-                  d="M1.22659 0.546578L5.00141 4.09604L8.76422 0.557869C9.08459 0.244537 9.54201 0.329403 9.79139 0.578788C10.112 0.899434 10.0277 1.36122 9.77668 1.61224L9.76644 1.62248L5.81552 5.33722C5.36257 5.74249 4.6445 5.7544 4.19352 5.32924C4.19327 5.32901 4.19377 5.32948 4.19352 5.32924L0.225953 1.61241C0.102762 1.48922 -4.20186e-08 1.31674 -3.20269e-08 1.08816C-2.40601e-08 0.905899 0.0780105 0.712197 0.211421 0.578787C0.494701 0.295506 0.935574 0.297138 1.21836 0.539529L1.22659 0.546578ZM4.51598 4.98632C4.78076 5.23639 5.22206 5.23639 5.50155 4.98632L9.44383 1.27939C9.5468 1.17642 9.56151 1.01461 9.45854 0.911642C9.35557 0.808672 9.19376 0.793962 9.09079 0.896932L5.14851 4.60386C5.06025 4.67741 4.92785 4.67741 4.85431 4.60386L0.912022 0.896932C0.809051 0.808672 0.647241 0.808672 0.54427 0.911642C0.500141 0.955772 0.47072 1.02932 0.47072 1.08816C0.47072 1.16171 0.50014 1.22055 0.558981 1.27939L4.51598 4.98632Z"
-                  fill="#637381"
-                />
-              </svg>
-            </span>
-          </div>
-
-        */}
+  
 
         </div>
       </div>
 
       <div>
-      {loadings ? (
+      {loading ? (
       <Loader />
     ) : (
       <div id="chartTwo" className="-ml-5 -mb-8">
@@ -583,6 +386,7 @@ const [indicators, setIndicators] = useState<string[]>([]);
         <ChartThree />
         </div>
 
+    
         <div className="rounded-sm border border-stroke bg-white px-5 pt-6 pb-2.5 shadow-default dark:border-strokedark sm:px-7.5 x1:pb-1">
               <div className="flex justify-between mb-4">
                 <TextField
@@ -744,7 +548,7 @@ const [indicators, setIndicators] = useState<string[]>([]);
                               className="hover:text-primary"
                               onClick={() => handleButtonClick(file.key)}
                             >
-                                                    <svg
+                       <svg
                         className="fill-current"
                         width="18"
                         height="18"
@@ -772,29 +576,7 @@ const [indicators, setIndicators] = useState<string[]>([]);
       </div>
     </div>
 
-    {/* <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-4 2xl:gap-7.5">
-          {[
-            ...new Map(
-              records
-                .filter(record => record.status !== 'archived') // Filter based on status
-                .map(record => [record.standardId, record]) // Map each record to its standardName and the record itself
-            ),
-          ].map(([standardId], index) => (
-            <div key={index} className="record">
-              <div className="rounded-xl border border-stroke bg-white py-6 px-7.5 shadow-default dark:border-strokedark dark:bg-boxdark">
-                <div className="scard-block">
-                  
-                  {/* <a href={`PredefinedTemplate/${record.standardId}`} className="link-unstyled"> */}
-                    {/* <h6 className="m-b-20">{standardId}</h6> */}
-                    {/* <h5>{record.standardName}</h5> */}
-                  {/* </a> */}
-                  {/* Delete icon */}
-                  {/* Archive icon */}
-                {/* </div>
-              </div>
-            </div>
-          ))}
-</div> */} 
+
          
     </DefaultLayout>
   );
