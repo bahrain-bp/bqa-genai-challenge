@@ -44,33 +44,12 @@ const BqaDash1 = () => {
       } catch (error) {
         console.error('Error fetching users:', error);
       }
+      setLoading(false); //
     };
 
     fetchCognitoUsers(); // Call the fetchCognitoUsers function
 
-    // const fetchLogos = async () => {
-    //   const url = 'https://66xzg471hh.execute-api.us-east-1.amazonaws.com/files'; // Replace with your actual API Gateway URL
-    //   try {
-    //     const response = await fetch(url, {
-    //       method: 'GET',
-    //       headers: {
-    //         'bucket-name': 'uni-artifacts',
-    //         'folder-name': 'bahrainPolytechnic',// it should be user attribute name
-    //         'subfolder-name': 'logos'
-    //       }
-    //     });
-    //     if (response.ok) {
-    //       const data = await response.json();
-    //       setLogos(data.files); // Assuming the Lambda returns an array of file information
-    //       console.log('Logos fetched successfully:', data.files);
-    //     } else {
-    //       const errorData = await response.json();
-    //       console.error('Failed to fetch logos:', errorData);
-    //     }
-    //   } catch (error) {
-    //     console.error('Error fetching logos:', error);
-    //   }
-    // };
+   
   }, []);
 
   useEffect(() => {
@@ -85,58 +64,7 @@ const BqaDash1 = () => {
     return attribute ? attribute.Value : 'N/A'; // Returns 'N/A' if attribute not found
   };
 
-  //   // Function to remove query parameters from a URL
-  // const removeQueryParams = (url: string): string => {
-  //   try {
-  //     const urlObj = new URL(url);
-  //     urlObj.search = ''; // Remove query parameters
-  //     return urlObj.toString(); // Return the modified URL without query parameters
-  //   } catch (error) {
-  //     console.error('Invalid URL:', url);
-  //     return ''; // Return empty string for invalid URLs
-  //   }
-  // };
-  // // // Create an instance of the S3 service
-  //  const s3 = new AWS.S3();
-  //  useEffect(() => {
-  //   const getSignedUrl = async () => {
-  //     const params = {
-  //       Bucket: 'uni-artifacts',
-  //          Key: 'bahrainPolytechnic/logos/UOB%20LOGO.png',
-  //     };
-
-  //     try {
-  //       const signedUrl = await s3.getSignedUrlPromise('getObject', params);
-  //       setImageUrl(signedUrl);
-  //     } catch (error) {
-  //       console.error('Error generating signed URL:', error);
-  //     }
-  //   };
-
-  //   getSignedUrl(); // Generate the signed URL
-  // }, []);
-
-  // // // Parameters for getObject method
-  // const params = {
-  //   Bucket: 'uni-artifacts',
-  //   Key: 'bahrainPolytechnic/logos', // Replace with the actual key of your image in S3
-  // };
-
-  // // // Retrieve the object URL from S3
-  // s3.getObject(params, (err, data) => {
-  //   if (err) {
-  //     console.error('Error retrieving image from S3:', err);
-  //   } else {
-  //     // Construct the object URL
-  //     const objectUrl = URL.createObjectURL(new Blob([data.Body as BlobPart]));
-  //         setImageUrl(objectUrl);
-  //   }
-  // });
-
-  // // Clean up the object URL when component unmounts
-  // if (imageUrl) {
-  //   URL.revokeObjectURL(imageUrl);
-  // }
+ 
 
   return loading ? (
     <Loader />

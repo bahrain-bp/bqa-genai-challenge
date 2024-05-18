@@ -10,7 +10,7 @@ import { toast } from 'react-toastify';
 import { ApexOptions } from 'apexcharts';
 import ReactApexChart from 'react-apexcharts';
  import axios from 'axios';
-
+ 
 import {
   FormControl,
   InputLabel,
@@ -18,13 +18,15 @@ import {
   MenuItem,
   Select,
 } from '@mui/material';
-
+import { createGlobalStyle } from 'styled-components';
+ 
 type FileDetail = {
   key: string;
   name: string;
+  date: string;
  
 };
-
+ 
 interface ChartTwoState {
   series: {
     name: string;
@@ -37,11 +39,11 @@ interface Record {
   standardName: string;
   status: string;
 }
-
-
+ 
+ 
 const OfficerDash = () => {
   const { t } = useTranslation(); // Hook to access translation functions
-    
+   
   const [currentName, setCurrentName] = useState('');
   const [loading, setLoading] = useState<boolean>(true);
   const [files, setFiles] = useState<FileDetail[]>([]);
@@ -49,13 +51,13 @@ const OfficerDash = () => {
   const apiURL = import.meta.env.VITE_API_URL;
  
   const [records, setRecords] = useState<Record[]>([]);
-
+ 
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedIndicator, setSelectedIndicator] = useState('');
-  const [fileCount, setFileCount] = useState(0);
+  const [/*fileCount*/, setFileCount] = useState(0);
   const [/*fileCountsByStandard*/, setFileCountsByStandard] = useState({});
   const [/*fileCountz*/, setFileCountz] = useState({});
-
+ 
   const [state, setState] = useState<ChartTwoState>({
     series: [{ name: 'Standard', data: [] }],
   });
@@ -63,17 +65,17 @@ const OfficerDash = () => {
   useEffect(() => {
     setTimeout(() => setLoading(false), 1000);
   }, []);
-
+ 
   const options: ApexOptions = {
     colors: ['#3C50E0', '#80CAEE'],
    
     chart: {
        events: {
-        click: function(_: any, __: any, { dataPointIndex }) {   
+        click: function(_: any, __: any, { dataPointIndex }) {  
           const selectedStandardId = records[dataPointIndex].standardId;
           fetchUploadedFiles(selectedStandardId); // Function to fetch files based on standardId
         }
-  
+ 
       },
       fontFamily: 'Satoshi, sans-serif',
       type: 'bar',
@@ -86,7 +88,7 @@ const OfficerDash = () => {
         enabled: false,
       },
     },
-  
+ 
     responsive: [
       {
         breakpoint: 1536,
@@ -112,10 +114,29 @@ const OfficerDash = () => {
     dataLabels: {
       enabled: false,
     },
-  
+ 
     xaxis: {
-      categories: records.map(record => record.standardId)
-      
+      categories: records.map(record => record.standardId.replace(/\D/g, '')),
+      title: {
+        text: 'Standard Number',
+        style: {
+          fontSize: '14px',
+          fontWeight: 'bold',
+          fontFamily: 'Satoshi, sans-serif',
+          color: '#263238'
+        }
+      }
+    },
+    yaxis: {
+      title: {
+        text: 'Number of Files',
+        style: {
+          fontSize: '14px',
+          fontWeight: 'bold',
+          fontFamily: 'Satoshi, sans-serif',
+          color: '#263238'
+        }
+      }
     },
     legend: {
       position: 'top',
@@ -123,7 +144,7 @@ const OfficerDash = () => {
       fontFamily: 'Satoshi',
       fontWeight: 500,
       fontSize: '14px',
-  
+ 
       markers: {
         radius: 99,
       },
@@ -131,8 +152,16 @@ const OfficerDash = () => {
     fill: {
       opacity: 1,
     },
-  };
 
+    // tooltip: {
+    //   y: {
+    //     formatter: function (val: number) {
+    //       return `Files: ${val}`;
+    //     },
+    //   },
+    // },
+  };
+ 
       const fetchCurrentUserInfo = async () => {
         try {
           const attributes = await fetchUserAttributes();
@@ -147,7 +176,7 @@ const OfficerDash = () => {
       useEffect(() => {
         fetchCurrentUserInfo();
       }, []);
-
+ 
       const fetchFileCounts = async () => {
         const url = `${apiURL}/count`; // Adjust this to your actual API endpoint
         try {
@@ -159,33 +188,33 @@ const OfficerDash = () => {
                 }
             });
             if (!response.ok) throw new Error(`HTTP status ${response.status}`);
-          
+         
             const counts = await response.json();
-
+ 
             // Assume `counts` is an object like { 'Standard1': 4, 'Standard2': 5, ... }
             const chartData = records.map(record => counts[record.standardId] || 0);
             setState(prevState => ({
               ...prevState,
               series: [{
-                name: 'Standard',
+                name: 'Files',
                 data: chartData
               }]
             }));
             setFileCountz(counts);
-            setLoading(false); 
-
+            setLoading(false);
+ 
         } catch (error) {
             console.error('Error fetching file counts:', error);
-        } 
+        }
     };
-
+ 
     useEffect(() => {
       if (currentName) {
         fetchFileCounts();
       }
     }, [currentName]);
-
-
+ 
+ 
       //fetch uploaded folders TRY#1
       const fetchRecords = async () => {
         try {
@@ -193,14 +222,19 @@ const OfficerDash = () => {
           // https://tds1ye78fl.execute-api.us-east-1.amazonaws.com
           // const response = await fetch(`${apiURL}/standards`);
            const response = await fetch(`https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards`);
-
+ 
           if (!response.ok) {
             throw new Error('Failed to fetch records');
           }
           const data = await response.json();
-
+            // Sort the records by extracting the number from standardId
+      const sortedData = data.sort((a: Record, b: Record) => {
+        const numA = parseInt(a.standardId.replace(/\D/g, ''), 10);
+        const numB = parseInt(b.standardId.replace(/\D/g, ''), 10);
+        return numA - numB;
+      });
           const recordMap = new Map();
-          data.forEach((item: Record) => {
+          sortedData.forEach((item: Record) => {
             if (item.status !== 'archived' && !recordMap.has(item.standardId)) {
               recordMap.set(item.standardId, item);
             }
@@ -208,7 +242,7 @@ const OfficerDash = () => {
           const uniqueRecords = Array.from(recordMap.values());
           setRecords(uniqueRecords);
           setLoading(false); // Update state with sorted records
-      
+     
         } catch (error) {
           console.error('Error fetching records:', error);
         }
@@ -217,7 +251,7 @@ const OfficerDash = () => {
    
         fetchRecords(); // Fetch records for the extracted standard name // Fetch records when the component mounts
       }, []);
-    
+   
       const fetchUploadedFiles = async (standardId: string) => {
           const url = `${apiURL}/files`;
           try {
@@ -230,30 +264,33 @@ const OfficerDash = () => {
                     // 'subsubfolder-name':'Indicator7'
                 },
             });
-
+ 
       if (!response.ok) {
           throw new Error(`HTTP status ${response.status}`);
       }
-      const data = await response.json(); 
-
+      const data = await response.json();
+      console.log(data);
+ 
       if (data.files && Array.isArray(data.files)) {
       const fetchedFiles: FileDetail[] = data.files.map((file: any) => ({
         key: file.Key,
         name: file.Key.split('/').pop(),
+        date: file.Date
+ 
       }));
-
-
+ 
+      console.log(fetchedFiles)
       setFiles(fetchedFiles);
       setFileCountsByStandard(prevCounts => ({
         ...prevCounts,
         [standardId]: fetchedFiles.length
     }));
     console.log("File count for " + standardId + ":", fetchedFiles.length);
-
+ 
       setFileCount(fetchedFiles.length);
       // console.log("Fetched files:", fetchedFiles);
       // console.log(" file count:", fileCount);
-
+ 
       //const indicators = [...new Set(files.map((file) => file.Key.split('/')[2]))];
       const indicators = [...new Set(fetchedFiles.map((file) => file.key.split('/')[2]))];
       setIndicators(indicators); // Make sure you have `setIndicators` defined in your state
@@ -261,27 +298,27 @@ const OfficerDash = () => {
       console.error('Expected files to be an array but got:', data.files);
       setFiles([]); // Reset or handle as needed if data is not in the expected format
     }
-
+ 
       setLoading(false);
-
+ 
   } catch (error:any) {
       console.error('Error fetching uploaded files:', error);
       // toast.error(`Error fetching uploaded files: ${error.message}`);
   }
 };
-
+ 
 useEffect(() => {
   if (currentName) {
     fetchUploadedFiles('Standard1');
   }
 }, [currentName]);
-
-
-
+ 
+ 
+ 
 const handleButtonClick = async (fileKey: any) => {
   setIsDownloading(true);
   toast('Downloading file');
-
+ 
   try {
     // Construct the API endpoint URL
     const apiCall = `${apiURL}/downloadFile`;
@@ -310,8 +347,40 @@ const handleButtonClick = async (fileKey: any) => {
     setIsDownloading(false);
   }
 };
-
-//Chart 
+ 
+// delet file
+    const handleFileDelete = async (fileKey: string) => {
+      try {
+        const url = `${apiURL}/deleteFile`;
+ 
+        const response = await fetch(url, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            bucketName: 'uni-artifacts', // Your S3 bucket name
+            key: fileKey, // This should be the full path of the file in S3
+          }),
+        });
+ 
+        if (!response.ok) {
+          throw new Error(`HTTP status ${response.status}`);
+        }
+ 
+        toast.success('File deleted successfully');
+ 
+        // Update local state to remove the file from the list
+        setFiles((prevFiles) => prevFiles.filter((file) => file.key !== fileKey));
+      } catch (error) {
+        const errorMessage =
+          error instanceof Error ? error.message : 'An unknown error occurred';
+        console.error('Delete file error:', errorMessage);
+        toast.error(`Failed to delete file: ${errorMessage}`);
+      }
+    };
+ 
+//Chart
 // Filtering files based on the selected indicator
 const filteredFiles = files.filter(file => {
   return (
@@ -319,13 +388,13 @@ const filteredFiles = files.filter(file => {
       (searchTerm === '' || file.name.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 });
-
-
+ 
+ 
 useEffect(() => {
   setTimeout(() => setLoading(false), 1000);
 }, []);
-
-
+ 
+ 
 const handleReset = () => {
   setState(prevState => ({
     ...prevState,
@@ -333,24 +402,24 @@ const handleReset = () => {
 };
 handleReset;  
 const [indicators, setIndicators] = useState<string[]>([]);
-
-
+ 
+ 
   return  (
-    
+   
     <DefaultLayout>
-
+ 
       {loading && (
-    <Loader /> 
+    <Loader />
     )}
-        
+       
       <Breadcrumb pageName=  {t('universityOfficerDashboard')} />
-
-
+ 
+ 
       <div className="grid grid-cols-9 gap-4 md:gap-6 2xl:gap-7.5 sm:px-7.5 xl:pb-1">
        
        
         {/* <ChartTwo /> */}
-    
+   
         <div className="col-span-12 rounded-sm border border-stroke bg-white p-7.5 shadow-default dark:border-strokedark dark:bg-boxdark xl:col-span-4">
       <div className="mb-4 justify-between gap-4 sm:flex">
         <div>
@@ -359,12 +428,12 @@ const [indicators, setIndicators] = useState<string[]>([]);
           </h4>
         </div>
         <div>
-
-  
-
+ 
+ 
+ 
         </div>
       </div>
-
+ 
       <div>
       {loading ? (
       <Loader />
@@ -378,15 +447,15 @@ const [indicators, setIndicators] = useState<string[]>([]);
         />
       </div>
     )}
-
+ 
       </div>
     </div>
-
+ 
 {/* End of chart 2 */}
         <ChartThree />
         </div>
-
-    
+ 
+   
         <div className="rounded-sm border border-stroke bg-white px-5 pt-6 pb-2.5 shadow-default dark:border-strokedark sm:px-7.5 x1:pb-1">
               <div className="flex justify-between mb-4">
                 <TextField
@@ -429,7 +498,7 @@ const [indicators, setIndicators] = useState<string[]>([]);
               <th className="min-w-[150px] py-4 px-4 font-medium text-black dark:text-white">
               {t('date')}
               </th>
-              
+             
               <th className="py-4 px-4 font-medium text-black dark:text-white">
               {t('size')}
               </th>
@@ -442,36 +511,36 @@ const [indicators, setIndicators] = useState<string[]>([]);
             </tr>
           </thead>
                  <tbody>
-
+ 
                  {filteredFiles.map((file, index) => (
                     <tr key={index}>
                     <td className="border-b border-[#eee] py-5 px-4 pl-9 dark:border-strokedark xl:pl-11">
-                    <a
+                    {/* <a
                             href="#"
                             onClick={() => handleButtonClick(file.key)}
                             className="cursor-pointer text-black dark:text-white hover:underline hover:text-blue-500"
-                          >
-                        
+                          > */}
+                       
                         <h5 className="font-medium text-black dark:text-white">
                        File {file.name}
                         </h5>
-                        </a>
-
+                        {/* </a> */}
+ 
                       </td>
                       <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
-                      
+                     
                       <p className="text-black dark:text-white">
-                            {new Date(file.name).toLocaleString('en-US', {
+                            {new Date(file.date).toLocaleString('en-US', {
                               year: 'numeric',
                               month: 'short',
                               day: '2-digit',
-                              // hour: '2-digit',
-                              // minute: '2-digit',
-                              // second: '2-digit',
+                              hour: '2-digit',
+                              minute: '2-digit',
+                              second: '2-digit',
                             })}
                           </p>
                      
-
+ 
                       </td>
                       <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
                         <p className="inline-flex rounded-full bg-opacity-10 py-1 px-3 text-sm font-medium bg-success text-success">
@@ -483,10 +552,10 @@ const [indicators, setIndicators] = useState<string[]>([]);
                         Unknown
                         </p>
                       </td>
-
-                      
-                      
-                      
+ 
+                     
+                     
+                     
                       <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
                      <div className="flex items-center space-x-3.5">
                     {/**This button will take you to the summarization tex */}
@@ -494,10 +563,10 @@ const [indicators, setIndicators] = useState<string[]>([]);
                      onClick={() => navigate(`/SummaryPage`)}
                     //onClick={() => navigate(`/SummaryPage/${file.name}`)}
                     //This did not work
-
-                    
+ 
+                   
                     >
-                  
+                 
                       <svg
                         className="fill-current"
                         width="18"
@@ -516,8 +585,10 @@ const [indicators, setIndicators] = useState<string[]>([]);
                         />
                       </svg>
                     </button>
-                    <button className="hover:text-primary">
-                      
+                    {/* Delete button */}
+                    <button className="hover:text-primary"
+                    onClick={() => handleFileDelete(file.key)}>
+                     
                       <svg
                         className="fill-current"
                         width="18"
@@ -568,18 +639,18 @@ const [indicators, setIndicators] = useState<string[]>([]);
                     </button>
                   </div>
                 </td>
-
+ 
                     </tr>
                   ))}
                 </tbody>
         </table>
       </div>
     </div>
-
-
+ 
+ 
          
     </DefaultLayout>
   );
 };
-
+ 
 export default OfficerDash;
