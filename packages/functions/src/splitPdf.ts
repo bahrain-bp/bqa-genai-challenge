@@ -1,9 +1,10 @@
 import * as AWS from 'aws-sdk';
-import { PageSizes, PDFDocument, PDFPage } from 'pdf-lib';
+import { PDFDocument, PDFPage } from 'pdf-lib';
 const axios = require("axios");
 
 const s3 = new AWS.S3();
-const dynamodb = new AWS.DynamoDB.DocumentClient();
+const maxTokens = 500; // Adjust based on your SageMaker token limit
+const maxAllowedTokens = 4096; // Maximum tokens allowed by SageMaker endpoint
 
 export const handler = async (event: any) => {
   try {
@@ -56,33 +57,45 @@ export const handler = async (event: any) => {
     const splitSize = 2; // Adjust split size as needed
 
     // Process chunks sequentially
-    const extractedTexts = await processChunks(pdfDoc, totalPages, splitSize, objectKey);
+    const { extractedTexts, extractedSummaries } = await processChunks(pdfDoc, totalPages, splitSize, bucketName, folderName, subfolderName, objectKey);
 
-    // Construct the request body for the POST request to /createFileDB endpoint
-    const requestBody = {
-      fileName: key, // Original file name
-      fileURL: `s3://${bucketName}/${objectKey}`, // S3 URL of the file
-      standardName: '', // Fill with appropriate data
-      standardNumber: '', // Fill with appropriate data
-      indicatorNumber: '', // Fill with appropriate data
-      name: '', // Fill with appropriate data
-      content: extractedTexts.join('\n'), // Full extracted text
-      summary: '', // Fill with appropriate data
-      strength: '', // Fill with appropriate data
-      weakness: '', // Fill with appropriate data
-      score: '', // Fill with appropriate data
-      comments: '' // Fill with appropriate data
-    };
+    // Prepare data for DynamoDB
+    const fileName = key;
+    const fileURL = `https://${bucketName}.s3.amazonaws.com/${objectKey}`;
+    const standardName = ""; // Extracted or assigned as needed
+    const indicatorName = ""; // Extracted or assigned as needed
+    const standardNumber = 0; // Extracted or assigned as needed
+    const indicatorNumber = 0; // Extracted or assigned as needed
+    const name = ""; // Extracted or assigned as needed
+    const content = extractedTexts.join(" "); // Join all extracted texts
+    const summary = extractedSummaries.join(" "); // Generated summary as needed
+    const strength = ""; // Extracted or assigned as needed
+    const weakness = ""; // Extracted or assigned as needed
+    const score = 0; // Extracted or assigned as needed
+    const comments = ""; // Extracted or assigned as needed
 
-    // Make a POST request to the /createFileDB endpoint to insert data into DynamoDB
-    const apiResponse = await axios.post('https://qucmchgtm8.execute-api.us-east-1.amazonaws.com/createFileDB', requestBody);
+    // Insert data into DynamoDB using /createFileDb API
+    await axios.post('https://qucmchgtm8.execute-api.us-east-1.amazonaws.com/createFileDB', {
+      fileName,
+      fileURL,
+      standardName,
+      indicatorName,
+      standardNumber,
+      indicatorNumber,
+      name,
+      content,
+      summary,
+      strength,
+      weakness,
+      score,
+      comments,
+    });
 
-    // Return success response
+    // Return the extracted text chunks as response
     return {
-      statusCode: apiResponse.status,
-      body: JSON.stringify({ message: 'Full extracted text stored in DynamoDB' }),
+      statusCode: 200,
+      body: JSON.stringify({ chunks: extractedSummaries }),
     };
-
   } catch (error) {
     console.log('Error during processing:', error);
     // Return error response
@@ -93,10 +106,10 @@ export const handler = async (event: any) => {
   }
 };
 
-async function processChunks(pdfDoc: PDFDocument, totalPages: number, splitSize: number, objectKey: string, currentIndex: number = 0, extractedTexts: string[] = []): Promise<string[]> {
+async function processChunks(pdfDoc: PDFDocument, totalPages: number, splitSize: number, bucketName: string, folderName: string, subfolderName: string, objectKey: string, currentIndex: number = 0, extractedTexts: string[] = [], extractedSummaries: string[] = []): Promise<{ extractedTexts: string[], extractedSummaries: string[] }> {
   if (currentIndex >= totalPages) {
-    // All chunks processed, return the extracted texts
-    return extractedTexts;
+    // All chunks processed, return the extracted texts and summaries
+    return { extractedTexts, extractedSummaries };
   }
 
   const endPage = Math.min(currentIndex + splitSize, totalPages);
@@ -120,11 +133,18 @@ async function processChunks(pdfDoc: PDFDocument, totalPages: number, splitSize:
 
   // Upload the split PDF file to the same S3 bucket and key
   await s3.putObject({
-    Bucket: 'uni-artifacts',
+    Bucket: bucketName,
     Key: `${objectKey}-split-${currentIndex + 1}.pdf`,
     Body: splitPDFBytes,
     ContentType: 'application/pdf', // Set the content type accordingly
   }).promise();
+
+  const textractRequest = {
+    bucketName: bucketName,
+    folderName: folderName,
+    subfolderName: subfolderName,
+    fullKey: `${objectKey}-split-${currentIndex + 1}.pdf`, // Name of the uploaded chunk
+  };
 
   let textractResponse;
   let retryCount = 0;
@@ -135,15 +155,8 @@ async function processChunks(pdfDoc: PDFDocument, totalPages: number, splitSize:
   while (retryCount < maxRetries) {
     try {
       // Add a delay between Textract API requests to avoid throttling
-      await new Promise(resolve => setTimeout(resolve, delayBetweenRetries)); 
-
-      const textractRequest = {
-        bucketName: 'uni-artifacts',
-        folderName: 'bahrainPolytechnic',
-        subfolderName:'standard1',
-        fullKey: `${objectKey}-split-${currentIndex + 1}.pdf`, // Name of the uploaded chunk
-      };
-
+      await new Promise(resolve => setTimeout(resolve, delayBetweenRetries));
+     
       textractResponse = await axios.post('https://qucmchgtm8.execute-api.us-east-1.amazonaws.com/textract', textractRequest);
 
       // Break the loop if Textract call succeeds
@@ -167,11 +180,77 @@ async function processChunks(pdfDoc: PDFDocument, totalPages: number, splitSize:
 
   // Check if Textract call succeeded
   if (textractResponse) {
-    extractedTexts.push(textractResponse.data.text || '');
+    const text = textractResponse.data.text || '';
+
+    // Store the extracted text
+    extractedTexts.push(text);
+
+    // Split text into smaller parts to fit within the max token limit
+    const textParts = splitTextToFitTokenLimit(text, maxAllowedTokens - maxTokens);
+
+    // Process each text part with SageMaker
+    let combinedSummary = '';
+    for (const part of textParts) {
+      const summary = await getSummaryFromSageMaker(part);
+      console.log(`Received summary: ${summary}`);
+      combinedSummary += summary + ' ';
+    }
+
+    if (combinedSummary.trim().length > 0) {
+      extractedSummaries.push(combinedSummary.trim());
+    } else {
+      extractedSummaries.push(''); // Handle cases where combined summary is still empty
+    }
   } else {
     extractedTexts.push(''); // Push empty string if Textract call failed
+    extractedSummaries.push(''); // Push empty string if Textract call failed
   }
 
   // Process the next chunk recursively
-  return processChunks(pdfDoc, totalPages, splitSize, objectKey, currentIndex + splitSize, extractedTexts);
+  return processChunks(pdfDoc, totalPages, splitSize, bucketName, folderName, subfolderName, objectKey, currentIndex + splitSize, extractedTexts, extractedSummaries);
+}
+
+function splitTextToFitTokenLimit(text: string, maxTokens: number): string[] {
+  const words = text.split(' ');
+  const parts = [];
+  let currentPart = '';
+
+  for (const word of words) {
+    if ((currentPart + word).split(' ').length > maxTokens) {
+      parts.push(currentPart.trim());
+      currentPart = word + ' ';
+    } else {
+      currentPart += word + ' ';
+    }
+  }
+
+  if (currentPart.trim()) {
+    parts.push(currentPart.trim());
+  }
+
+  return parts;
+}
+
+async function getSummaryFromSageMaker(text: string): Promise<string> {
+  const requestBody = {
+    body: {
+      inputs: text + " Can you provide a summary about this file content? Start the summary with 'This file is about' and summarize it in a small paragraph.",
+      parameters: {
+        max_new_tokens: 500, // Reduced to ensure total tokens stay within limit
+        top_p: 0.9,
+        temperature: 0.2,
+      },
+    },
+  };
+
+  const endpoint = "https://d55gtzdu04.execute-api.us-east-1.amazonaws.com/dev-demo/sageMakerInvoke";
+
+  try {
+    const response = await axios.post(endpoint, requestBody);
+    console.log("Response from SageMaker endpoint:", response.data);
+    return response.data.body || response.data.body.outputs || '';
+  } catch (error: any) {
+    console.error("Error sending request to SageMaker endpoint:", error.message);
+    return '';
+  }
 }

@@ -32,63 +32,32 @@ export async function handler(event: SQSEvent, app: any) {
       console.log("Subfolder Name:", subfolderName);
       console.log("File Name:", fileName);
 
-      let endpointUrl: string;
-      endpointUrl =
-        "https://u1oaj2omi2.execute-api.us-east-1.amazonaws.com/textract";
-
-      const postResponse: AxiosResponse = await axios.post(endpointUrl, {
-        bucketName,
-        folderName,
-        subfolderName,
-        fileName,
-      });
-
-      // Extracted text
-      const responseData = postResponse.data;
-      var extractedText = responseData.text;
-      
-      // Check if the extracted text is a string before splitting it
-      extractedText = String(extractedText);
-
-      console.log("Extracted Text from the handler:", extractedText);
-
-      // Split the extracted text by logical boundaries
-      const chunks = splitTextByLogicalBoundaries(extractedText);
-      console.log("Text chunks:", chunks);
-
-      // Iterate over the text chunks and process each one
-      for (let i = 0; i < chunks.length; i++) {
-        const chunk = chunks[i];
-        console.log(`Processing chunk ${i + 1}/${chunks.length}: ${chunk}`);
-
-        // Construct the request payload for each chunk
-        const requestBody = {
-          body: {
-            inputs: chunk + "can you provide a summary about this file content, start the summary with This file is about and summarize it in small paragraph ",
-            parameters: {
-              max_new_tokens: 3500,
-              top_p: 0.9,
-              temperature: 0.2,
-            },
-
-          }};
-        
-        // If the response is successful (status code 200), make a POST request to the SageMaker endpoint
-        if (postResponse.status === 200) {
-          // Replace "Text" with the actual extracted text
-          const endpoint = "https://d55gtzdu04.execute-api.us-east-1.amazonaws.com/dev-demo/sageMakerInvoke";
-
-          try {
-            // Make the POST request to the endpoint for each chunk
-            const response = await axios.post(endpoint, requestBody);
-
-            // Log the response
-            console.log("Response from endpoint:", response.data);
-            // Now this needs to be saved in the database with the corresponding standard name/uni/fileURL
-          } catch (error: any) {
-            // Log any errors
-            console.error("Error sending request:", error.message);
+      // Check if the file is a PDF
+      if (fileName.endsWith(".pdf")) {
+        // Call the splitPdf API to split the PDF into chunks
+        const splitPdfResponse: AxiosResponse = await axios.post(
+          "https://qucmchgtm8.execute-api.us-east-1.amazonaws.com/splitPdf",
+          null, // pass null as the data parameter
+          {
+            headers: {
+              'Content-Type': 'application/json', // set the content type
+              'bucket-name': bucketName,
+              'file-name': fileName,
+              'folder-name': folderName,
+              'subfolder-name': subfolderName,
+            }
           }
+        );
+
+        // Get the extracted chunks from the splitPdf response
+        const chunks = splitPdfResponse.data.chunks;
+        console.log("Extracted chunks from splitPdf:", chunks);
+
+        // Process each chunk (invoke SageMaker in splitPdf)
+        for (let i = 0; i < chunks.length; i++) {
+          const chunk = chunks[i];
+          console.log(`Processing chunk ${i + 1}/${chunks.length}: ${chunk}`);
+          // Here, splitPdf should handle invoking SageMaker
         }
       }
 
@@ -121,26 +90,4 @@ async function deleteMessageFromQueue(receiptHandle: string): Promise<void> {
       ReceiptHandle: receiptHandle,
     })
     .promise();
-}
-
-function splitTextByLogicalBoundaries(text: string): string[] {
-  // This function chunks the last full stop given text to the max token size 
-  const sentences = text.split(/[.!?]/);
-  const chunks: string[] = [];
-  let currentChunk = '';
-
-  for (const sentence of sentences) {
-    if ((currentChunk.length + sentence.length) <= 4000) {
-      currentChunk += sentence + '.';
-    } else {
-      chunks.push(currentChunk.trim());
-      currentChunk = sentence + '.';
-    }
-  }
-
-  if (currentChunk) {
-    chunks.push(currentChunk.trim());
-  }
-
-  return chunks;
 }
