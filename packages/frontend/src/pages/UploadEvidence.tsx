@@ -258,7 +258,7 @@ const UploadEvidence = () => {
           headers: {
             'file-name': file.name,
             'bucket-name': 'uni-artifacts',
-            'folder-name': 'currentName',
+            'folder-name': currentName,
             'subfolder-name': `${standard.standardId}`,
             'subSubfolder-name': `${indicator.id}`,
             'content-type': 'application/pdf', // Assuming all files are PDF
