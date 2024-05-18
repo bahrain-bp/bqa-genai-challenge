@@ -43,10 +43,12 @@ const BqaDash1 = () => {
       } catch (error) {
         console.error('Error fetching users:', error);
       }
+      setLoading(false); //
     };
 
     fetchCognitoUsers();
   }, [apiUrl]);
+
 
   useEffect(() => {
     const timer = setTimeout(() => setLoading(false), 1000);
@@ -119,6 +121,7 @@ const BqaDash1 = () => {
     const attribute = attributes.find((attr) => attr.Name === attributeName);
     return attribute ? attribute.Value : 'N/A';
   };
+
 
   return loading ? (
     <Loader />

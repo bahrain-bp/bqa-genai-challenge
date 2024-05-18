@@ -22,7 +22,7 @@ const SummaryPage=() => {
     const [loading, setLoading] = useState(false);
     const apiURL = import.meta.env.VITE_API_URL;
 
-
+   
 
         const fetchFiles = async () => {
           // setLoading(true);
@@ -70,8 +70,7 @@ const SummaryPage=() => {
                         {/* <p><strong>Indicator Number:</strong> {fileData.indicatorNumber}</p> */}
                         {/* <p><strong>Summary:</strong> {fileData.summary}</p> */}
                        
-            
-                      
+        
 
                       <div 
 className="mb-5 flex flex-col gap-5 sm:flex-row ml-3 mr-3 px-7 "     >
@@ -126,6 +125,14 @@ disabled
 </div>
 
 {/* <div className="border-b border-stroke py-4 px-7 dark:border-strokedark"> */}
+
+
+</div>
+
+<div 
+className="mb-5 flex flex-col gap-5 sm:flex-row ml-3 mr-3 px-7 "     >
+
+
 <div className="w-full sm:w-1/2">
 <label
           className="mb-3 mt-4 block text-sm font-medium text-black dark:text-white"
@@ -145,12 +152,91 @@ disabled
 </input>
 </div>
 
+<div className="w-full sm:w-1/2">
+<label
+          className="mb-3 mt-4 block text-sm font-medium text-black dark:text-white"
+          htmlFor="fullName"
+        >
+         Total Score
+        </label>
+        <input 
+// className="w-full h-auto min-h-[150px] resize-y rounded border border-stroke bg-gray-100 py-3 pl-4 pr-4 text-black 
+// focus:border-primary focus-visible:outline-none dark:border-stroke-dark dark:bg-meta-4 dark:text-white dark:focus:border-primary"        
+//                           className="w-full rounded border border-stroke bg-gray py-3 pl-11.5 pr-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
+className="w-full rounded border border-stroke bg-gray py-3 pl-11.5 pr-4 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary "
+// className="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+placeholder= {fileData.score}
+disabled
+>
+</input>
+</div>
+
 
 
 </div>
 
-<div className=" py-4 px-7">
+<div className=" py-2 px-7">
+<label
+          className="mb-3 mt-4 block text-sm font-medium text-black dark:text-white"
+          htmlFor="fullName"
+        >
+         Strength
+        </label>
+        <div 
+// className="w-full h-auto min-h-[150px] resize-y rounded border border-stroke bg-gray-100 py-3 pl-4 pr-4 text-black 
+// focus:border-primary focus-visible:outline-none dark:border-stroke-dark dark:bg-meta-4 dark:text-white dark:focus:border-primary"        
+//                           className="w-full rounded border border-stroke bg-gray py-3 pl-11.5 pr-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
+className="w-full rounded border border-stroke bg-gray py-3 pl-11.5 pr-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary "
+// className="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
 
+>
+{fileData.strength}
+</div>
+</div>
+
+
+
+<div className=" py-2 px-7">
+<label
+          className="mb-3 mt-4 block text-sm font-medium text-black dark:text-white"
+          htmlFor="fullName"
+        >
+         Weaknesses
+        </label>
+        <div 
+// className="w-full h-auto min-h-[150px] resize-y rounded border border-stroke bg-gray-100 py-3 pl-4 pr-4 text-black 
+// focus:border-primary focus-visible:outline-none dark:border-stroke-dark dark:bg-meta-4 dark:text-white dark:focus:border-primary"        
+//                           className="w-full rounded border border-stroke bg-gray py-3 pl-11.5 pr-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
+className="w-full rounded border border-stroke bg-gray py-3 pl-11.5 pr-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary "
+// className="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+
+>
+{fileData.weakness}
+</div>
+</div>
+<div className=" py-2 px-7">
+<label
+          className="mb-3 mt-4 block text-sm font-medium text-black dark:text-white"
+          htmlFor="fullName"
+        >
+         Comments
+        </label>
+        <div 
+// className="w-full h-auto min-h-[150px] resize-y rounded border border-stroke bg-gray-100 py-3 pl-4 pr-4 text-black 
+// focus:border-primary focus-visible:outline-none dark:border-stroke-dark dark:bg-meta-4 dark:text-white dark:focus:border-primary"        
+//                           className="w-full rounded border border-stroke bg-gray py-3 pl-11.5 pr-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
+className="w-full rounded border border-stroke bg-gray py-3 pl-11.5 pr-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary "
+// className="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+
+>
+{fileData.comments}
+</div>
+</div>
+
+
+
+
+<div className=" py-4 px-7">
 <label
           className="mb-3 mt-4 block text-sm font-medium text-black dark:text-white"
           htmlFor="fullName"
