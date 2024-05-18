@@ -29,6 +29,9 @@ export const invokeSendEmailLambda = async (): Promise<any> => {
 
     // parameters for the send-email Lambda function
     const params = {
+        // i'm suspecting that the lambda function name is wrong but that is what i found in the management console 
+        // when i searched for the function "sendEmail" (i wanted the function name to be "sendEmail" from send-email.ts file)
+        
         FunctionName: 'imira-codecatalyst-sst-ap-signinAPILambdaPOSTsende-4P8UiYP24Y1g', // Name of the sendEmail Lambda function
         InvocationType: 'RequestResponse', // Synchronous invocation
         Payload: JSON.stringify({
