@@ -30,13 +30,11 @@ export function ApiStack({ stack }: StackContext) {
     },
     routes: {
       // Email route
-      "POST /send-email": 
-      {
-          function:
-          {
-              handler: "packages/functions/src/send-email.sendEmail",
-              permissions: ["ses"]
-          }
+      "POST /send-email": {
+        function: {
+          handler: "packages/functions/src/send-email.sendEmail",
+          permissions: ["ses"],
+        },
       },
       // Sample TypeScript lambda function
       "POST /": "packages/functions/src/lambda.main",
@@ -45,7 +43,7 @@ export function ApiStack({ stack }: StackContext) {
           handler: "packages/functions/src/s3Upload.uploadToS3",
           permissions: "*",
           bind: [documentsQueue],
-          timeout: "300 seconds"
+          timeout: "300 seconds",
         },
       },
 
@@ -87,6 +85,12 @@ export function ApiStack({ stack }: StackContext) {
           timeout: "60 seconds",
         },
       },
+      "GET /viewFile": {
+        function: {
+          handler: "packages/functions/src/viewLogo.main", // Replace with your location
+          permissions: ["s3"], // Grant necessary S3 permissions
+        },
+      },
       // Add the new route for retrieving files
       "GET /files": {
         function: {
@@ -96,12 +100,12 @@ export function ApiStack({ stack }: StackContext) {
       },
 
       // Add the new route for deleting files
-  "DELETE /deleteFile": {
-    function: {
-      handler: "packages/functions/src/deleteS3.main", // Replace with your actual handler location
-      permissions: ["s3"],
-    },
-  },
+      "DELETE /deleteFile": {
+        function: {
+          handler: "packages/functions/src/deleteS3.main", // Replace with your actual handler location
+          permissions: ["s3"],
+        },
+      },
 
       "POST /createUser": {
         function: {
@@ -149,7 +153,6 @@ export function ApiStack({ stack }: StackContext) {
       "PUT /standards/{id}": "packages/functions/src/standards/update.main",
       "DELETE /standards/{id}": "packages/functions/src/standards/delete.main",
     },
-    
   });
   const get_users_function = api.getFunction("POST /createUser");
   get_users_function?.role?.addManagedPolicy(
