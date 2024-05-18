@@ -8,13 +8,15 @@ export const invokeSendEmailLambda = async (): Promise<any> => {
     // sender email address
     const sourceEmail = 'maryamkameshki02@gmail.com';
 
+    // receiver email address replace this with the email of current user retrieved from the cognito user pool
+    const userEmail = 'maryamalsaad20@gmail.com';
+
     // getting the current user's email
     // const user = await fetchUserAttributes();
     // const userEmail = user?.email;
     // console.log("userEmail: ", userEmail);
 
-    // receiver email address
-    const userEmail = 'maryamalsaad20@gmail.com';
+    // tried this but it says Auth is not configured ( Error: Auth UserPool not configured. )
 
     // email subject
     const subject = 'Test Email';
@@ -31,7 +33,7 @@ export const invokeSendEmailLambda = async (): Promise<any> => {
     const params = {
         // i'm suspecting that the lambda function name is wrong but that is what i found in the management console 
         // when i searched for the function "sendEmail" (i wanted the function name to be "sendEmail" from send-email.ts file)
-        
+
         FunctionName: 'imira-codecatalyst-sst-ap-signinAPILambdaPOSTsende-4P8UiYP24Y1g', // Name of the sendEmail Lambda function
         InvocationType: 'RequestResponse', // Synchronous invocation
         Payload: JSON.stringify({
