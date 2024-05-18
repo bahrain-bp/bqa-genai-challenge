@@ -149,15 +149,14 @@ const BqaDash1 = () => {
                 className="rounded-xl border border-stroke bg-white p-6 shadow-default dark:border-strokedark"
                 style={{ marginBottom: '20px', height: '300px' }} // Set fixed height for each card
               >
-                <div style={{ height: '200px', overflow: 'hidden' }}>
+                <div style={{ height: '200px', width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}>
                   {' '}
                   {/* Container for fixed size image */}
                   {user.imageUrl && (
                     <img
                       src={user.imageUrl}
-                      height="65%"
-                      width="auto"
-                      style={{ objectFit: 'cover' }} // Ensure the image covers the container
+                      style={{ maxHeight: '100%', maxWidth: '100%', objectFit: 'contain' }} // Ensure the image fits within the container without being cut off
+
                       alt="S3 Image"
                     />
                   )}
