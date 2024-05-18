@@ -6,6 +6,8 @@ import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import Loader from '../common/Loader';
+import LogoIcon from '../images/user/BQA_LOGO.png';
+
 //import AWS from 'aws-sdk';
 const BqaDash1 = () => {
   const navigate = useNavigate();
@@ -150,7 +152,8 @@ const BqaDash1 = () => {
             <Link to={`/AddUni`}>{t('addUniversity')}</Link>
           </button>
         </div>
-        <div className="row">
+        {/* Remove 'row' class */}
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3 md:gap-6">
           {/* Add logo for each university */}
           {users.map((user) => (
             <div
@@ -169,11 +172,13 @@ const BqaDash1 = () => {
               }
             >
               <div
-                className="rounded-xl border border-stroke bg-white py-6 px-7.5 shadow-default dark:border-strokedark"
+                className="rounded-xl border border-stroke bg-white p-6 shadow-default dark:border-strokedark"
                 style={{ marginBottom: '20px' }}
               >
+                <img src={LogoIcon} alt="Logo" />
+
                 <div className="d-flex justify-content-between align-items-center">
-                  <h3 style={{ marginBottom: '10px' }}>
+                  <h3 className="text-lg font-semibold mb-3">
                     {getAttributeValue(user.Attributes, 'name')}
                   </h3>
                   <div className="inline-flex rounded-full bg-opacity-10 py-1 px-3 text-sm font-medium indicator bg-success text-success">
