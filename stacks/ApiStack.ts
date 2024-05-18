@@ -36,6 +36,13 @@ export function ApiStack({ stack }: StackContext) {
           permissions: ["ses"],
         },
       },
+      "POST /email": {
+        function: {
+          handler: "packages/functions/src/invokeSes.invokeSendEmailLambda",
+          permissions: "*",
+        },
+      },
+    
       // Sample TypeScript lambda function
       "POST /": "packages/functions/src/lambda.main",
       "POST /uploadS3": {
