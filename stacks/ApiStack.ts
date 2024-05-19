@@ -8,7 +8,7 @@ import * as iam from "@aws-cdk/aws-iam";
 
 export function ApiStack({ stack }: StackContext) {
   const { auth } = use(AuthStack);
-  const { table, fileTable } = use(DBStack);
+  const { table, fileTable, criteriaTable } = use(DBStack);
   const { documentsQueue } = use(S3Stack);
 
   const api = new Api(stack, "signinAPI", {
@@ -23,7 +23,7 @@ export function ApiStack({ stack }: StackContext) {
     // },
     defaults: {
       function: {
-        bind: [table, fileTable], // Bind the table name to our API
+        bind: [table, fileTable, criteriaTable], // Bind the table name to our API
       },
       // Optional: Remove authorizer from defaults if set to "jwt"
       // authorizer: "jwt",
@@ -114,6 +114,7 @@ export function ApiStack({ stack }: StackContext) {
         },
       },
 
+
       // Add the new route for deleting files
       "DELETE /deleteFile": {
         function: {
@@ -167,7 +168,17 @@ export function ApiStack({ stack }: StackContext) {
       "GET /standards": "packages/functions/src/standards/list.main",
       "PUT /standards/{id}": "packages/functions/src/standards/update.main",
       "DELETE /standards/{id}": "packages/functions/src/standards/delete.main",
+
+      "POST /criteria": "packages/functions/src/criteria/create.main",
+      "GET /criteria/{id}": "packages/functions/src/criteria/get.main",
+      "GET /criteria": "packages/functions/src/criteria/list.main",
+      "GET /criteria/{id}/{indicator}": "packages/functions/src/criteria/getByIndicator.main",
+
+
+
     },
+
+
   });
   const get_users_function = api.getFunction("POST /createUser");
   get_users_function?.role?.addManagedPolicy(
