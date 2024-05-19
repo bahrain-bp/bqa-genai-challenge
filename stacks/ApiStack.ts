@@ -114,7 +114,6 @@ export function ApiStack({ stack }: StackContext) {
         },
       },
 
-
       // Add the new route for deleting files
       "DELETE /deleteFile": {
         function: {
