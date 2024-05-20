@@ -21,7 +21,7 @@ export const handler = async (event: any) => {
     }
 
     // Construct S3 object key with optional folder/subfolder structure
-    const objectKey = `${folderName ? folderName + '/' : ''}${subfolderName ? subfolderName + '/' : ''}${subsubfolderName ? subsubfolderName +'/' : ''}${key}`;
+    const objectKey = `${folderName ? folderName + '/' : ''}${subfolderName ? subfolderName + '/' : ''}${key}`;
 
     // Download the PDF file from S3
     const response = await s3.getObject({ Bucket: bucketName, Key: objectKey }).promise();
