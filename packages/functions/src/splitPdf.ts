@@ -13,7 +13,6 @@ export const handler = async (event: any) => {
     const key = event.headers['file-name'] || 'unnamed.pdf'; // Default filename if absent
     const folderName = event.headers['folder-name'] || '';
     const subfolderName = event.headers['subfolder-name'] || '';
-    const subsubfolderName = event.headers['subsubfolder-name'] || '';
 
     // Validate required parameters
     if (!bucketName || !key) {
@@ -58,7 +57,7 @@ export const handler = async (event: any) => {
     const splitSize = 2; // Adjust split size as needed
 
     // Process chunks sequentially
-    const { extractedTexts, extractedSummaries } = await processChunks(pdfDoc, totalPages, splitSize, bucketName, folderName, subfolderName, subsubfolderName, objectKey);
+    const { extractedTexts, extractedSummaries } = await processChunks(pdfDoc, totalPages, splitSize, bucketName, folderName, subfolderName, objectKey);
 
     // Prepare data for DynamoDB
     const fileName = key;
@@ -107,7 +106,7 @@ export const handler = async (event: any) => {
   }
 };
 
-async function processChunks(pdfDoc: PDFDocument, totalPages: number, splitSize: number, bucketName: string, folderName: string, subfolderName: string,subsubfolderName: string, objectKey: string, currentIndex: number = 0, extractedTexts: string[] = [], extractedSummaries: string[] = []): Promise<{ extractedTexts: string[], extractedSummaries: string[] }> {
+async function processChunks(pdfDoc: PDFDocument, totalPages: number, splitSize: number, bucketName: string, folderName: string, subfolderName: string, objectKey: string, currentIndex: number = 0, extractedTexts: string[] = [], extractedSummaries: string[] = []): Promise<{ extractedTexts: string[], extractedSummaries: string[] }> {
   if (currentIndex >= totalPages) {
     // All chunks processed, return the extracted texts and summaries
     return { extractedTexts, extractedSummaries };
@@ -144,7 +143,6 @@ async function processChunks(pdfDoc: PDFDocument, totalPages: number, splitSize:
     bucketName: bucketName,
     folderName: folderName,
     subfolderName: subfolderName,
-    subsubfolderName: subsubfolderName,
     fullKey: `${objectKey}-split-${currentIndex + 1}.pdf`, // Name of the uploaded chunk
   };
 
@@ -209,7 +207,7 @@ async function processChunks(pdfDoc: PDFDocument, totalPages: number, splitSize:
   }
 
   // Process the next chunk recursively
-  return processChunks(pdfDoc, totalPages, splitSize, bucketName, folderName, subfolderName, subsubfolderName, objectKey, currentIndex + splitSize, extractedTexts, extractedSummaries);
+  return processChunks(pdfDoc, totalPages, splitSize, bucketName, folderName, subfolderName, objectKey, currentIndex + splitSize, extractedTexts, extractedSummaries);
 }
 
 function splitTextToFitTokenLimit(text: string, maxTokens: number): string[] {
