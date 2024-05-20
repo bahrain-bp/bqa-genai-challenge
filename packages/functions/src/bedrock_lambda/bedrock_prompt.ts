@@ -25,11 +25,13 @@ export async function handler(event: SQSEvent, app: any) {
       const bucketName = "uni-artifacts";
       const folderName = urlParts[3];
       const subfolderName = urlParts[4];
-      const fileName = urlParts[5];
+      const subsubfolderName = urlParts[5];
+      const fileName = urlParts[6];
 
       console.log("Bucket Name:", bucketName);
       console.log("Folder Name:", folderName);
       console.log("Subfolder Name:", subfolderName);
+      console.log("Subsubfolder Name:", subsubfolderName);
       console.log("File Name:", fileName);
 
       // Check if the file is a PDF
@@ -58,6 +60,7 @@ export async function handler(event: SQSEvent, app: any) {
           const chunk = chunks[i];
           console.log(`Processing chunk ${i + 1}/${chunks.length}: ${chunk}`);
           // Here, splitPdf should handle invoking SageMaker
+
         }
       }
 

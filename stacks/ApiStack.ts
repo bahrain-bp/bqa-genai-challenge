@@ -8,7 +8,7 @@ import * as iam from "@aws-cdk/aws-iam";
 
 export function ApiStack({ stack }: StackContext) {
   const { auth } = use(AuthStack);
-  const { table, fileTable } = use(DBStack);
+  const { table, fileTable, criteriaTable } = use(DBStack);
   const { documentsQueue } = use(S3Stack);
 
   const api = new Api(stack, "signinAPI", {
@@ -23,12 +23,19 @@ export function ApiStack({ stack }: StackContext) {
     // },
     defaults: {
       function: {
-        bind: [table, fileTable], // Bind the table name to our API
+        bind: [table, fileTable, criteriaTable], // Bind the table name to our API
       },
       // Optional: Remove authorizer from defaults if set to "jwt"
       // authorizer: "jwt",
     },
     routes: {
+      // Email route
+      "POST /send-email": {
+        function: {
+          handler: "packages/functions/src/send-email.sendEmail",
+          permissions: ["ses"],
+        },
+      },
       // Sample TypeScript lambda function
       "POST /": "packages/functions/src/lambda.main",
       "POST /uploadS3": {
@@ -36,6 +43,7 @@ export function ApiStack({ stack }: StackContext) {
           handler: "packages/functions/src/s3Upload.uploadToS3",
           permissions: "*",
           bind: [documentsQueue],
+          timeout: "300 seconds",
         },
       },
       "POST /splitPdf": {
@@ -52,11 +60,18 @@ export function ApiStack({ stack }: StackContext) {
           permissions: ["comprehend"],
         },
       },
+      "GET /downloadFile": {
+        function: {
+          handler: "packages/functions/src/files/downloadFile.main",
+          permissions: "*",
+        },
+      },
+
       "POST /textract": {
         function: {
           handler: "packages/functions/src/textractPdf.extractTextFromPDF",
           permissions: ["textract", "s3"],
-          timeout: "200 seconds",
+          ///timeout: "200 seconds",
           bind: [documentsQueue],
           retryAttempts: 2,
         },
@@ -78,11 +93,34 @@ export function ApiStack({ stack }: StackContext) {
           timeout: "60 seconds",
         },
       },
+      "GET /viewFile": {
+        function: {
+          handler: "packages/functions/src/viewLogo.main", // Replace with your location
+          permissions: ["s3"], // Grant necessary S3 permissions
+        },
+      },
       // Add the new route for retrieving files
       "GET /files": {
         function: {
           handler: "packages/functions/src/retrieveS3.main", // Replace with your location
           permissions: ["s3"], // Grant necessary S3 permissions
+        },
+      },
+
+      // Add the new route for retrieving files
+      "GET /count": {
+        function: {
+          handler: "packages/functions/src/filesCount.main", // Replace with your location
+          permissions: ["s3"], // Grant necessary S3 permissions
+        },
+      },
+
+
+      // Add the new route for deleting files
+      "DELETE /deleteFile": {
+        function: {
+          handler: "packages/functions/src/deleteS3.main", // Replace with your actual handler location
+          permissions: ["s3"],
         },
       },
 
@@ -96,18 +134,18 @@ export function ApiStack({ stack }: StackContext) {
       "POST /createFileDB": {
         function: {
           handler: "packages/functions/src/files/create.main",
-          permissions: "*"
-        }
+          permissions: "*",
+        },
       },
       "PUT /fileSummary/{fileName}": {
         function: {
           handler: "packages/functions/src/files/update.main",
-          permissions: "*"
-        }
+          permissions: "*",
+        },
       },
 
-
-      "GET /summarization/{fileName}": "packages/functions/src/files/retrieveSummarization.main",
+      "GET /summarization/{fileName}":
+        "packages/functions/src/files/retrieveSummarization.main",
 
       //Uploading logo to S3
       "POST /uploadLogo": {
@@ -126,7 +164,22 @@ export function ApiStack({ stack }: StackContext) {
           ],
         },
       },
+      "POST /standards": "packages/functions/src/standards/create.main",
+      "GET /standards/{id}": "packages/functions/src/standards/get.main",
+      "GET /standards": "packages/functions/src/standards/list.main",
+      "PUT /standards/{id}": "packages/functions/src/standards/update.main",
+      "DELETE /standards/{id}": "packages/functions/src/standards/delete.main",
+
+      "POST /criteria": "packages/functions/src/criteria/create.main",
+      "GET /criteria/{id}": "packages/functions/src/criteria/get.main",
+      "GET /criteria": "packages/functions/src/criteria/list.main",
+      "GET /criteria/{id}/{indicator}": "packages/functions/src/criteria/getByIndicator.main",
+
+
+
     },
+
+
   });
   const get_users_function = api.getFunction("POST /createUser");
   get_users_function?.role?.addManagedPolicy(

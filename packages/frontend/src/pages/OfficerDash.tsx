@@ -1,73 +1,492 @@
 import Breadcrumb from '../components/Breadcrumbs/Breadcrumb';
 import DefaultLayout from '../layout/DefaultLayout';
-//import CoverOne from '../images/cover/cover-01.png';
-//import userSix from '../images/user/user-06.png';
-//import { Link } from 'react-router-dom';
-//import CardDataStats from '../components/CardDataStats';
-import { Package } from '../types/package';
 import ChartThree from '../components/Charts/ChartThree';
-import ChartTwo from '../components/Charts/ChartTwo';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import Loader from '../common/Loader';
 import  {  useEffect,useState } from 'react';
-
-
-
-const packageData: Package[] = [
-    {
-      name: 'File 1.ppt',
-      invoiceDate: `Jan 13,2023`,
-      size:'56 MB',
-      status: 'Completed',
-    },
-    {
-      name: 'File 2.png',
-      invoiceDate: `Jan 13,2023`,
-      size:'45 MB' ,
-
-      status: 'In Progress',
-    },
-    {
-      name: 'File 3.tsx',
-      invoiceDate: `Jan 13,2023`,
-      size:'4 MB',
-      status: 'Completed',
-    },
-    {
-      name: 'File 4.pdf',
-      invoiceDate: `Jan 13,2023`,
-      size:'77 MB' ,
-      status: 'In Progress',
-    },
-  ];
-
-
+import { fetchUserAttributes } from 'aws-amplify/auth';
+import { toast } from 'react-toastify';
+import { ApexOptions } from 'apexcharts';
+import ReactApexChart from 'react-apexcharts';
+ import axios from 'axios';
+ 
+import {
+  FormControl,
+  InputLabel,
+  TextField,
+  MenuItem,
+  Select,
+} from '@mui/material';
+// import { createGlobalStyle } from 'styled-components';
+ 
+type FileDetail = {
+  key: string;
+  name: string;
+  date: string;
+ 
+};
+ 
+interface ChartTwoState {
+  series: {
+    name: string;
+    data: number[];
+  }[];
+}
+// Type definitions
+interface Record {
+  standardId: string;
+  standardName: string;
+  status: string;
+}
+ 
+ 
 const OfficerDash = () => {
   const { t } = useTranslation(); // Hook to access translation functions
-    
-
+   
+  const [currentName, setCurrentName] = useState('');
   const [loading, setLoading] = useState<boolean>(true);
+  const [files, setFiles] = useState<FileDetail[]>([]);
+  const [/*isDownloading*/, setIsDownloading] = useState(false);
+  const apiURL = import.meta.env.VITE_API_URL;
+ 
+  const [records, setRecords] = useState<Record[]>([]);
+ 
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedIndicator, setSelectedIndicator] = useState('');
+  const [/*fileCount*/, setFileCount] = useState(0);
+  const [/*fileCountsByStandard*/, setFileCountsByStandard] = useState({});
+  const [/*fileCountz*/, setFileCountz] = useState({});
+ 
+  const [state, setState] = useState<ChartTwoState>({
+    series: [{ name: 'Standard', data: [] }],
+  });
+  const navigate = useNavigate();
   useEffect(() => {
     setTimeout(() => setLoading(false), 1000);
   }, []);
+ 
+  const options: ApexOptions = {
+    colors: ['#3C50E0', '#80CAEE'],
+   
+    chart: {
+       events: {
+        click: function(_: any, __: any, { dataPointIndex }) {  
+          const selectedStandardId = records[dataPointIndex].standardId;
+          fetchUploadedFiles(selectedStandardId); // Function to fetch files based on standardId
+        }
+ 
+      },
+      fontFamily: 'Satoshi, sans-serif',
+      type: 'bar',
+      height: 335,
+      stacked: true,
+      toolbar: {
+        show: false,
+      },
+      zoom: {
+        enabled: false,
+      },
+    },
+ 
+    responsive: [
+      {
+        breakpoint: 1536,
+        options: {
+          plotOptions: {
+            bar: {
+              borderRadius: 0,
+              columnWidth: '25%',
+            },
+          },
+        },
+      },
+    ],
+    plotOptions: {
+      bar: {
+        horizontal: false,
+        borderRadius: 0,
+        columnWidth: '25%',
+        borderRadiusApplication: 'end',
+        borderRadiusWhenStacked: 'last',
+      },
+    },
+    dataLabels: {
+      enabled: false,
+    },
+ 
+    xaxis: {
+      categories: records.map(record => record.standardId.replace(/\D/g, '')),
+      title: {
+        text: 'Standard Number',
+        style: {
+          fontSize: '14px',
+          fontWeight: 'bold',
+          fontFamily: 'Satoshi, sans-serif',
+          color: '#263238'
+        }
+      }
+    },
+    yaxis: {
+      title: {
+        text: 'Number of Files',
+        style: {
+          fontSize: '14px',
+          fontWeight: 'bold',
+          fontFamily: 'Satoshi, sans-serif',
+          color: '#263238'
+        }
+      }
+    },
+    legend: {
+      position: 'top',
+      horizontalAlign: 'left',
+      fontFamily: 'Satoshi',
+      fontWeight: 500,
+      fontSize: '14px',
+ 
+      markers: {
+        radius: 99,
+      },
+    },
+    fill: {
+      opacity: 1,
+    },
 
+    // tooltip: {
+    //   y: {
+    //     formatter: function (val: number) {
+    //       return `Files: ${val}`;
+    //     },
+    //   },
+    // },
+  };
+ 
+      const fetchCurrentUserInfo = async () => {
+        try {
+          const attributes = await fetchUserAttributes();
+          const name:any= attributes.name;
+         
+          setCurrentName(name);
+     
+        } catch (error) {
+          console.error('Error fetching current user info:', error);
+        }
+      };
+      useEffect(() => {
+        fetchCurrentUserInfo();
+      }, []);
+ 
+      const fetchFileCounts = async () => {
+        const url = `${apiURL}/count`; // Adjust this to your actual API endpoint
+        try {
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'bucket-name': 'uni-artifacts', // Any required headers
+                    'folder-name': currentName // Optional, adjust as needed
+                }
+            });
+            if (!response.ok) throw new Error(`HTTP status ${response.status}`);
+         
+            const counts = await response.json();
+ 
+            // Assume `counts` is an object like { 'Standard1': 4, 'Standard2': 5, ... }
+            const chartData = records.map(record => counts[record.standardId] || 0);
+            setState(prevState => ({
+              ...prevState,
+              series: [{
+                name: 'Files',
+                data: chartData
+              }]
+            }));
+            setFileCountz(counts);
+            setLoading(false);
+ 
+        } catch (error) {
+            console.error('Error fetching file counts:', error);
+        }
+    };
+ 
+    useEffect(() => {
+      if (currentName) {
+        fetchFileCounts();
+      }
+    }, [currentName]);
+ 
+ 
+      //fetch uploaded folders TRY#1
+      const fetchRecords = async () => {
+        try {
+          // const api = import.meta.env.VITE_API_URL;
+          // https://tds1ye78fl.execute-api.us-east-1.amazonaws.com
+          // const response = await fetch(`${apiURL}/standards`);
+           const response = await fetch(`https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards`);
+ 
+          if (!response.ok) {
+            throw new Error('Failed to fetch records');
+          }
+          const data = await response.json();
+            // Sort the records by extracting the number from standardId
+      const sortedData = data.sort((a: Record, b: Record) => {
+        const numA = parseInt(a.standardId.replace(/\D/g, ''), 10);
+        const numB = parseInt(b.standardId.replace(/\D/g, ''), 10);
+        return numA - numB;
+      });
+          const recordMap = new Map();
+          sortedData.forEach((item: Record) => {
+            if (item.status !== 'archived' && !recordMap.has(item.standardId)) {
+              recordMap.set(item.standardId, item);
+            }
+          });
+          const uniqueRecords = Array.from(recordMap.values());
+          setRecords(uniqueRecords);
+          setLoading(false); // Update state with sorted records
+     
+        } catch (error) {
+          console.error('Error fetching records:', error);
+        }
+      };
+      useEffect(() => {
+   
+        fetchRecords(); // Fetch records for the extracted standard name // Fetch records when the component mounts
+      }, []);
+   
+      const fetchUploadedFiles = async (standardId: string) => {
+          const url = `${apiURL}/files`;
+          try {
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'bucket-name': 'uni-artifacts',
+                    'folder-name': currentName,
+                     'subfolder-name':standardId,
+                    // 'subsubfolder-name':'Indicator7'
+                },
+            });
+ 
+      if (!response.ok) {
+          throw new Error(`HTTP status ${response.status}`);
+      }
+      const data = await response.json();
+      console.log(data);
+ 
+      if (data.files && Array.isArray(data.files)) {
+      const fetchedFiles: FileDetail[] = data.files.map((file: any) => ({
+        key: file.Key,
+        name: file.Key.split('/').pop(),
+        date: file.Date
+ 
+      }));
+ 
+      console.log(fetchedFiles)
+      setFiles(fetchedFiles);
+      setFileCountsByStandard(prevCounts => ({
+        ...prevCounts,
+        [standardId]: fetchedFiles.length
+    }));
+    console.log("File count for " + standardId + ":", fetchedFiles.length);
+ 
+      setFileCount(fetchedFiles.length);
+      // console.log("Fetched files:", fetchedFiles);
+      // console.log(" file count:", fileCount);
+ 
+      //const indicators = [...new Set(files.map((file) => file.Key.split('/')[2]))];
+      const indicators = [...new Set(fetchedFiles.map((file) => file.key.split('/')[2]))];
+      setIndicators(indicators); // Make sure you have `setIndicators` defined in your state
+    } else {
+      console.error('Expected files to be an array but got:', data.files);
+      setFiles([]); // Reset or handle as needed if data is not in the expected format
+    }
+ 
+      setLoading(false);
+ 
+  } catch (error:any) {
+      console.error('Error fetching uploaded files:', error);
+      // toast.error(`Error fetching uploaded files: ${error.message}`);
+  }
+};
+ 
+useEffect(() => {
+  if (currentName) {
+    fetchUploadedFiles('Standard1');
+  }
+}, [currentName]);
+ 
+ 
+ 
+const handleButtonClick = async (fileKey: any) => {
+  setIsDownloading(true);
+  toast('Downloading file');
+ 
+  try {
+    // Construct the API endpoint URL
+    const apiCall = `${apiURL}/downloadFile`;
+    // Encode the fileKey as a URL parameter
+    const params = new URLSearchParams();
+    params.append('data', JSON.stringify({ fileKey }));
+    // Append the encoded parameters to the API endpoint URL
+    const urlWithParams = `${apiCall}?${params.toString()}`;
+    // Send the GET request using Axios
+    const response = await axios.get(urlWithParams, {
+      responseType: 'blob', // Set response type to 'blob' to receive binary data
+    });
+    // Create a temporary URL for the blob
+    const url = window.URL.createObjectURL(response.data);
+    // Create a link element and trigger a click to download the file
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileKey; // Set the filename
+    a.click();
+    // Clean up
+    window.URL.revokeObjectURL(url);
+    setIsDownloading(false);
+  } catch (error) {
+    console.error('There was a problem with the fetch operation:', error);
+    toast.error('Failed to download file');
+    setIsDownloading(false);
+  }
+};
+ 
+// delet file
+    const handleFileDelete = async (fileKey: string) => {
+      try {
+        const url = `${apiURL}/deleteFile`;
+ 
+        const response = await fetch(url, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            bucketName: 'uni-artifacts', // Your S3 bucket name
+            key: fileKey, // This should be the full path of the file in S3
+          }),
+        });
+ 
+        if (!response.ok) {
+          throw new Error(`HTTP status ${response.status}`);
+        }
+ 
+        toast.success('File deleted successfully');
+ 
+        // Update local state to remove the file from the list
+        setFiles((prevFiles) => prevFiles.filter((file) => file.key !== fileKey));
+      } catch (error) {
+        const errorMessage =
+          error instanceof Error ? error.message : 'An unknown error occurred';
+        console.error('Delete file error:', errorMessage);
+        toast.error(`Failed to delete file: ${errorMessage}`);
+      }
+    };
+ 
+//Chart
+// Filtering files based on the selected indicator
+const filteredFiles = files.filter(file => {
+  return (
+      (selectedIndicator === '' || file.key.includes(selectedIndicator)) &&
+      (searchTerm === '' || file.name.toLowerCase().includes(searchTerm.toLowerCase()))
+  );
+});
+ 
+ 
+useEffect(() => {
+  setTimeout(() => setLoading(false), 1000);
+}, []);
+ 
+ 
+const handleReset = () => {
+  setState(prevState => ({
+    ...prevState,
+  }));
+};
+handleReset;  
+const [indicators, setIndicators] = useState<string[]>([]);
+ 
+ 
   return  (
-    
+   
     <DefaultLayout>
-
+ 
       {loading && (
-    <Loader /> 
+    <Loader />
     )}
-        
+       
       <Breadcrumb pageName=  {t('universityOfficerDashboard')} />
-
-
+ 
+ 
       <div className="grid grid-cols-9 gap-4 md:gap-6 2xl:gap-7.5 sm:px-7.5 xl:pb-1">
-        <ChartTwo />
+       
+       
+        {/* <ChartTwo /> */}
+   
+        <div className="col-span-12 rounded-sm border border-stroke bg-white p-7.5 shadow-default dark:border-strokedark dark:bg-boxdark xl:col-span-4">
+      <div className="mb-4 justify-between gap-4 sm:flex">
+        <div>
+          <h4 className="text-xl font-semibold text-black dark:text-white">
+            Standards Progress
+          </h4>
+        </div>
+        <div>
+ 
+ 
+ 
+        </div>
+      </div>
+ 
+      <div>
+      {loading ? (
+      <Loader />
+    ) : (
+      <div id="chartTwo" className="-ml-5 -mb-8">
+        <ReactApexChart
+          options={options}
+          series={state.series}
+          type="bar"
+          height={350}
+        />
+      </div>
+    )}
+ 
+      </div>
+    </div>
+ 
+{/* End of chart 2 */}
         <ChartThree />
         </div>
-
-
+ 
+   
+        <div className="rounded-sm border border-stroke bg-white px-5 pt-6 pb-2.5 shadow-default dark:border-strokedark sm:px-7.5 x1:pb-1">
+              <div className="flex justify-between mb-4">
+                <TextField
+                  label="Search by File Name"
+                  variant="outlined"
+                  size="small"
+                  style={{ width: '69%' }}
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)} // Update search term state
+                />
+                <FormControl
+                  variant="outlined"
+                  size="small"
+                  style={{ width: '29%' }}
+                >
+                  <InputLabel>Indicator</InputLabel>
+                  <Select
+                    value={selectedIndicator}
+                    onChange={(e) => setSelectedIndicator(e.target.value)}
+                    label="Indicator"
+                  >
+                    <MenuItem value="">All</MenuItem>
+                    {indicators.map((indicator:any, index:any) => (
+                      <MenuItem key={index} value={indicator}>
+                        {indicator}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </div>
+            </div>
     <div className="rounded-sm border border-stroke bg-white px-5 pt-6 pb-2.5 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 x1:pb-1">
       <div className="max-w-full overflow-x-auto">
         <table className="w-full table-auto">
@@ -79,7 +498,7 @@ const OfficerDash = () => {
               <th className="min-w-[150px] py-4 px-4 font-medium text-black dark:text-white">
               {t('date')}
               </th>
-              
+             
               <th className="py-4 px-4 font-medium text-black dark:text-white">
               {t('size')}
               </th>
@@ -91,40 +510,63 @@ const OfficerDash = () => {
               </th>
             </tr>
           </thead>
-          <tbody>
-            {packageData.map((packageItem, key) => (
-              <tr key={key}>
-                <td className="border-b border-[#eee] py-5 px-4 pl-9 dark:border-strokedark xl:pl-11">
-                  <h5 className="font-medium text-black dark:text-white">
-                    {packageItem.name}
-                  </h5>
-                </td>
-                <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
-                  <p className="text-black dark:text-white">
-                    {packageItem.invoiceDate}
-                  </p>
-                </td>
-                <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
-                  <p className="text-black dark:text-white">
-                    {packageItem.size}
-                  </p>
-                  </td>
-                <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
-                  <p
-                    className={`inline-flex rounded-full bg-opacity-10 py-1 px-3 text-sm font-medium ${
-                      packageItem.status === 'Completed'
-                        ? 'bg-success text-success'
-                        : packageItem.status === 'In Progress'
-                        ? 'bg-danger text-warning'
-                        : 'bg-warning text-warning'
-                    }`}
-                  >
-                    {packageItem.status}
-                  </p>
-                </td>
-                <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
-                  <div className="flex items-center space-x-3.5">
-                    <button className="hover:text-primary">
+                 <tbody>
+ 
+                 {filteredFiles.map((file, index) => (
+                    <tr key={index}>
+                    <td className="border-b border-[#eee] py-5 px-4 pl-9 dark:border-strokedark xl:pl-11">
+                    {/* <a
+                            href="#"
+                            onClick={() => handleButtonClick(file.key)}
+                            className="cursor-pointer text-black dark:text-white hover:underline hover:text-blue-500"
+                          > */}
+                       
+                        <h5 className="font-medium text-black dark:text-white">
+                       File {file.name}
+                        </h5>
+                        {/* </a> */}
+ 
+                      </td>
+                      <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
+                     
+                      <p className="text-black dark:text-white">
+                            {new Date(file.date).toLocaleString('en-US', {
+                              year: 'numeric',
+                              month: 'short',
+                              day: '2-digit',
+                              hour: '2-digit',
+                              minute: '2-digit',
+                              second: '2-digit',
+                            })}
+                          </p>
+                     
+ 
+                      </td>
+                      <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
+                        <p className="inline-flex rounded-full bg-opacity-10 py-1 px-3 text-sm font-medium bg-success text-success">
+                        Unknown
+                        </p>
+                      </td>
+                      <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
+                        <p className="inline-flex rounded-full bg-opacity-10 py-1 px-3 text-sm font-medium bg-success text-success">
+                        Unknown
+                        </p>
+                      </td>
+ 
+                     
+                     
+                     
+                      <td className="border-b border-[#eee] py-5 px-4 dark:border-strokedark">
+                     <div className="flex items-center space-x-3.5">
+                    {/**This button will take you to the summarization tex */}
+                    <button className="hover:text-primary"
+                     onClick={() => navigate(`/SummaryPage`)}
+                    //onClick={() => navigate(`/SummaryPage/${file.name}`)}
+                    //This did not work
+ 
+                   
+                    >
+                 
                       <svg
                         className="fill-current"
                         width="18"
@@ -143,7 +585,10 @@ const OfficerDash = () => {
                         />
                       </svg>
                     </button>
-                    <button className="hover:text-primary">
+                    {/* Delete button */}
+                    <button className="hover:text-primary"
+                    onClick={() => handleFileDelete(file.key)}>
+                     
                       <svg
                         className="fill-current"
                         width="18"
@@ -170,8 +615,11 @@ const OfficerDash = () => {
                         />
                       </svg>
                     </button>
-                    <button className="hover:text-primary">
-                      <svg
+                    <button
+                              className="hover:text-primary"
+                              onClick={() => handleButtonClick(file.key)}
+                            >
+                       <svg
                         className="fill-current"
                         width="18"
                         height="18"
@@ -191,16 +639,18 @@ const OfficerDash = () => {
                     </button>
                   </div>
                 </td>
-              </tr>
-            ))}
-          </tbody>
+ 
+                    </tr>
+                  ))}
+                </tbody>
         </table>
       </div>
     </div>
-
+ 
+ 
          
     </DefaultLayout>
   );
 };
-
+ 
 export default OfficerDash;

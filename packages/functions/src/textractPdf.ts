@@ -16,6 +16,7 @@ interface TextractRequest {
   subfolderName?: string;
   fullKey?: string; // Optional parameter for full object key
   fileName: string; // Parameter for chunked file name
+
 }
 
 interface Block {
@@ -55,6 +56,7 @@ export const extractTextFromPDF = async (
     // Determine the object key based on whether fullKey is provided
     const objectKey = fullKey ? fullKey :
       `${folderName ? folderName + "/" : ""}${subfolderName ? subfolderName + "/" : ""}${fileName}`;
+
 
     console.log("Object Key:", objectKey);
 

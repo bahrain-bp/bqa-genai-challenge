@@ -2,6 +2,7 @@ import { aws_iam as iam, aws_lambda as lambda, Duration } from "aws-cdk-lib";
 import { StackContext, Queue, Function, toCdkDuration } from "sst/constructs";
 import * as AWS from "aws-sdk";
 
+
 export function S3Stack({ stack, app }: StackContext) {
   // Create the S3 bucket if it doesn't exist
   const bucketName = "uni-artifacts";
@@ -31,7 +32,7 @@ export function S3Stack({ stack, app }: StackContext) {
   const bedrock_lambda = new Function(stack, "bedrock_lambda", {
     handler: handler,
     permissions: "*",
-    timeout:"300 seconds",
+    //timeout:"300 seconds",
   });
   // Attach AmazonS3FullAccess managed policy to the role associated with the Lambda function
   bedrock_lambda.role?.addManagedPolicy(
