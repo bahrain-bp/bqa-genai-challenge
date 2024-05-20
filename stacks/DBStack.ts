@@ -61,6 +61,21 @@ export function DBStack({ stack, app }: StackContext) {
         primaryIndex: { partitionKey: "fileName" } // Assuming fileURL is unique
     });
 
+    const criteriaTable = new Table(stack, "CriteriaTable", {
+
+        fields: {
+            standardId: "string",        // Standard ID
+            standardName: "string",      // Standard Name
+            indicators: "list",          // List of indicators
+        },
+        primaryIndex: { partitionKey: "standardId" },
+    });
+
+
+
+
+
+
     // Create an RDS database
     const mainDBLogicalName = "MainDatabase";
     // Define output/export attributes names
@@ -109,6 +124,8 @@ export function DBStack({ stack, app }: StackContext) {
     return {
         bucket,
         table,
-        fileTable
+        fileTable,
+        criteriaTable
+
     };
 }

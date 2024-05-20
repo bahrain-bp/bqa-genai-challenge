@@ -5,7 +5,7 @@ import { S3 } from "aws-cdk-lib/aws-ses-actions";
 
 import { AuthStack } from "./stacks/AuthStack";
 import { ApiStack } from "./stacks/ApiStack";
-import {} from "./stacks/AuthStack";
+import { } from "./stacks/AuthStack";
 import { FrontendStack } from "./stacks/FrontendStack";
 import { DBStack } from "./stacks/DBStack";
 
@@ -32,8 +32,8 @@ export default {
       app.stack(OIDCForGitHubCI);
     } else {
       app
-        .stack(S3Stack)
         .stack(DBStack)
+        .stack(S3Stack)
         .stack(AuthStack)
         .stack(ApiStack)
         .stack(FrontendStack)

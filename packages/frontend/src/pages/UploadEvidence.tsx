@@ -182,32 +182,46 @@ const UploadEvidence = () => {
         }
         const rawData = await response.json();
         const standardsMap = new Map();
-        rawData.forEach((item: any) => {
-          if (item.status == 'unarchived') {
+       
+        rawData.forEach((item:any) => {
+          if (item.status === 'unarchived'  ) {
             if (!standardsMap.has(item.standardId)) {
               standardsMap.set(item.standardId, { ...item, indicators: [] });
             }
-            standardsMap.get(item.standardId).indicators.push({
-              label: item.indicatorName,
-              uploadSection: item.uploadSection,
-              id: item.indicatorId,
-            });
+
+            // Get the current list of indicators for this standard
+            const existingIndicators = standardsMap.get(item.standardId).indicators;
+            // Create a Set to filter out duplicate indicator IDs
+            const indicatorSet = new Set(existingIndicators.map((ind:any) => ind.id));
+            // Check if the current item's indicatorId is already in the set
+            if (!indicatorSet.has(item.indicatorId) ) {
+              existingIndicators.push({
+                label: item.indicatorName,
+                uploadSection: item.uploadSection,
+                id: item.indicatorId,
+              });
+            }
+            
           }
         });
-        setStandards(Array.from(standardsMap.values()));
+
+               // Sort indicators inside each standard
+         
+      standardsMap.forEach((standard: any) => {
+        standard.indicators.sort((a: any, b: any) => a.id.localeCompare(b.id, undefined, { numeric: true }));
+      });
+
+           // Convert the map to an array and sort standards
+           const sortedStandards = Array.from(standardsMap.values());
+           sortedStandards.sort((a: any, b: any) => a.standardId.localeCompare(b.standardId, undefined, { numeric: true }));
+
+        setStandards(sortedStandards);
       } catch (error) {
-        // Check if error is an instance of Error
-        if (error instanceof Error) {
-          console.error('Error fetching standards:', error);
-          toast.error(`Error fetching standards: ${error.message}`);
-        } else {
-          // Handle cases where error is not an Error instance
-          console.error('An unexpected error occurred:', error);
-          toast.error('An unexpected error occurred');
-        }
+        console.error('Error fetching standards:', error);
+        toast.error(`Error fetching standards: ${error instanceof Error ? error.message : 'An error occurred'}`);
       }
     };
-
+  
     fetchStandards();
   }, []);
 
@@ -244,7 +258,7 @@ const UploadEvidence = () => {
           headers: {
             'file-name': file.name,
             'bucket-name': 'uni-artifacts',
-            'folder-name': 'currentName',
+            'folder-name': currentName,
             'subfolder-name': `${standard.standardId}`,
             'subSubfolder-name': `${indicator.id}`,
             'content-type': 'application/pdf', // Assuming all files are PDF
@@ -419,12 +433,16 @@ const UploadEvidence = () => {
         <br />
 
         {standards[activeStep]?.indicators.map((indicator: any, index: any) => (
-          <div key={`${activeStep}-${index}`} className="card">
+         
+         indicator.id && indicator.label ? (
+         <div key={`${activeStep}-${index}`} className="card">
             {/* <StandardName>{standards[activeStep].standardName}</StandardName> */}
 
-            <IndicatorName>
-              {indicator.id}: {indicator.label}
-            </IndicatorName>
+           
+              <IndicatorName>
+                {indicator.id}: {indicator.label}
+              </IndicatorName>
+           
             <FileUpload
               name={`upload-${activeStep}-${index}`}
               url={fileUploadUrl}
@@ -463,6 +481,7 @@ const UploadEvidence = () => {
               ))}
             </div>
           </div>
+           ) : null
         ))}
       </MainContainer>
     </DefaultLayout>

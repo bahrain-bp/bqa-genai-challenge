@@ -6,137 +6,122 @@ import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import Loader from '../common/Loader';
-//import AWS from 'aws-sdk';
+import axios from 'axios';
+
+interface User {
+  Username: string;
+  Attributes: { Name: string; Value: string }[];
+  imageUrl: string; // Added imageUrl property
+}
+
 const BqaDash1 = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState<boolean>(true);
   const apiUrl = import.meta.env.VITE_API_URL;
-
-  /*const handleUniversitySelect = (email:any) => {
-    navigate(`/BqaDash2/${email}`);
-  };*/
-  const [users, setUsers] = useState<
-    { Username: string; Attributes: { Name: string; Value: string }[] }[]
-  >([]);
+  const [users, setUsers] = useState<User[]>([]); // Updated users type to User[]
   const { t } = useTranslation(); // Hook to access translation functions
-  //const [imageUrl, setImageUrl] = useState('');
-  //const [logos, setLogos] = useState<string[]>([]);
+  const [imagesFetched, setImagesFetched] = useState<boolean>(false); // Flag to track if images are fetched
+
   useEffect(() => {
-    //66xzg471hh
-    //prod u1oaj2omi2
     const fetchCognitoUsers = async () => {
       try {
         const response = await fetch(`${apiUrl}/getUsers`);
         const data = await response.json();
         if (response.ok) {
-          // Filter out users where the 'name' attribute is 'BQA reviewer'
           const filteredUsers = data.filter(
             (user: { Attributes: { Name: string; Value: string }[] }) => {
               const nameValue = getAttributeValue(user.Attributes, 'name');
               return nameValue !== 'BQA Reviewer';
             },
           );
-          console.log(data); // Users data
-          setUsers(filteredUsers); // Update the users state with the fetched data
+          setUsers(
+            filteredUsers.map((user: any) => ({ ...user, imageUrl: '' })),
+          );
         } else {
           console.error('Error fetching users:', data.error);
         }
       } catch (error) {
         console.error('Error fetching users:', error);
       }
+      setLoading(false); //
     };
 
-    fetchCognitoUsers(); // Call the fetchCognitoUsers function
+    fetchCognitoUsers();
+  }, [apiUrl]);
 
-    // const fetchLogos = async () => {
-    //   const url = 'https://66xzg471hh.execute-api.us-east-1.amazonaws.com/files'; // Replace with your actual API Gateway URL
-    //   try {
-    //     const response = await fetch(url, {
-    //       method: 'GET',
-    //       headers: {
-    //         'bucket-name': 'uni-artifacts',
-    //         'folder-name': 'bahrainPolytechnic',// it should be user attribute name
-    //         'subfolder-name': 'logos'
-    //       }
-    //     });
-    //     if (response.ok) {
-    //       const data = await response.json();
-    //       setLogos(data.files); // Assuming the Lambda returns an array of file information
-    //       console.log('Logos fetched successfully:', data.files);
-    //     } else {
-    //       const errorData = await response.json();
-    //       console.error('Failed to fetch logos:', errorData);
-    //     }
-    //   } catch (error) {
-    //     console.error('Error fetching logos:', error);
-    //   }
-    // };
+
+  useEffect(() => {
+    const timer = setTimeout(() => setLoading(false), 1000);
+    return () => clearTimeout(timer); // Cleanup the timeout on component unmount
   }, []);
 
   useEffect(() => {
-    setTimeout(() => setLoading(false), 1000);
-  }, []);
-  // Function to find attribute value by name
+    if (!imagesFetched && users.length > 0) {
+      const fetchImages = async () => {
+        try {
+          const imageRequests = users.map(async (user) => {
+            const uniName = getAttributeValue(user.Attributes, 'name');
+            const fileKey = `${uniName}/logos/${uniName}.png`;
+
+            const response = await axios.get(
+              `${apiUrl}/viewFile?data={"fileKey":"${fileKey}"}`,
+              { responseType: 'arraybuffer' },
+            );
+
+            if (response.status !== 200) {
+              throw new Error('Failed to fetch image');
+            }
+
+            const contentType = response.headers['content-type'];
+
+            // Check if the content type is an image
+            if (!contentType.startsWith('image/')) {
+              throw new Error('Fetched content is not an image');
+            }
+
+            const imageData = btoa(
+              new Uint8Array(response.data).reduce(
+                (data, byte) => data + String.fromCharCode(byte),
+                '',
+              ),
+            );
+
+            return {
+              username: user.Username,
+              imageUrl: `data:${contentType};base64,${imageData}`,
+            };
+          });
+
+          const imageResults = await Promise.all(imageRequests);
+
+          // Update image URLs for all users at once
+          setUsers((prevUsers) =>
+            prevUsers.map((u) => {
+              const imageResult = imageResults.find(
+                (result) => result.username === u.Username,
+              );
+              return imageResult ? { ...u, imageUrl: imageResult.imageUrl } : u;
+            }),
+          );
+
+          setImagesFetched(true); // Set flag to true after fetching images
+        } catch (error) {
+          console.error('Error fetching images:', error);
+        }
+      };
+
+      fetchImages();
+    }
+  }, [users, imagesFetched]);
+
   const getAttributeValue = (
     attributes: { Name: string; Value: string }[],
     attributeName: string,
   ): string => {
     const attribute = attributes.find((attr) => attr.Name === attributeName);
-    return attribute ? attribute.Value : 'N/A'; // Returns 'N/A' if attribute not found
+    return attribute ? attribute.Value : 'N/A';
   };
 
-  //   // Function to remove query parameters from a URL
-  // const removeQueryParams = (url: string): string => {
-  //   try {
-  //     const urlObj = new URL(url);
-  //     urlObj.search = ''; // Remove query parameters
-  //     return urlObj.toString(); // Return the modified URL without query parameters
-  //   } catch (error) {
-  //     console.error('Invalid URL:', url);
-  //     return ''; // Return empty string for invalid URLs
-  //   }
-  // };
-  // // // Create an instance of the S3 service
-  //  const s3 = new AWS.S3();
-  //  useEffect(() => {
-  //   const getSignedUrl = async () => {
-  //     const params = {
-  //       Bucket: 'uni-artifacts',
-  //          Key: 'bahrainPolytechnic/logos/UOB%20LOGO.png',
-  //     };
-
-  //     try {
-  //       const signedUrl = await s3.getSignedUrlPromise('getObject', params);
-  //       setImageUrl(signedUrl);
-  //     } catch (error) {
-  //       console.error('Error generating signed URL:', error);
-  //     }
-  //   };
-
-  //   getSignedUrl(); // Generate the signed URL
-  // }, []);
-
-  // // // Parameters for getObject method
-  // const params = {
-  //   Bucket: 'uni-artifacts',
-  //   Key: 'bahrainPolytechnic/logos', // Replace with the actual key of your image in S3
-  // };
-
-  // // // Retrieve the object URL from S3
-  // s3.getObject(params, (err, data) => {
-  //   if (err) {
-  //     console.error('Error retrieving image from S3:', err);
-  //   } else {
-  //     // Construct the object URL
-  //     const objectUrl = URL.createObjectURL(new Blob([data.Body as BlobPart]));
-  //         setImageUrl(objectUrl);
-  //   }
-  // });
-
-  // // Clean up the object URL when component unmounts
-  // if (imageUrl) {
-  //   URL.revokeObjectURL(imageUrl);
-  // }
 
   return loading ? (
     <Loader />
@@ -145,35 +130,43 @@ const BqaDash1 = () => {
       <Breadcrumb pageName={t('bqaReviewerDashboard')} />
       <div className="container">
         <div className="flex justify-end py-4">
-          {/* Add university */}
           <button className="px-5 py-2 bg-primary text-white rounded-md shadow-sm hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary-dark focus:ring-opacity-50">
             <Link to={`/AddUni`}>{t('addUniversity')}</Link>
           </button>
         </div>
-        <div className="row">
-          {/* Add logo for each university */}
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3 md:gap-6">
           {users.map((user) => (
             <div
               key={user.Username}
               className="col-md-4 col-sm-6"
               style={{ cursor: 'pointer' }}
               onClick={() =>
-                navigate(
-                  `/BqaDash2/${getAttributeValue(user.Attributes, 'name')}`,
-                  {
-                    state: {
-                      uniName: getAttributeValue(user.Attributes, 'name'),
-                    },
+                navigate(`/BqaDash2/${user.Username}`, {
+                  state: {
+                    uniName: getAttributeValue(user.Attributes, 'name'),
                   },
-                )
+                })
               }
             >
               <div
-                className="rounded-xl border border-stroke bg-white py-6 px-7.5 shadow-default dark:border-strokedark"
-                style={{ marginBottom: '20px' }}
+                className="rounded-xl border border-stroke bg-white p-6 shadow-default dark:border-strokedark"
+                style={{ marginBottom: '20px', height: '300px' }} // Set fixed height for each card
               >
+                <div style={{ height: '200px', width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}>
+                  {' '}
+                  {/* Container for fixed size image */}
+                  {user.imageUrl && (
+                    <img
+                      src={user.imageUrl}
+                      style={{ maxHeight: '100%', maxWidth: '100%', objectFit: 'contain' }} // Ensure the image fits within the container without being cut off
+
+                      alt="S3 Image"
+                    />
+                  )}
+                </div>
+
                 <div className="d-flex justify-content-between align-items-center">
-                  <h3 style={{ marginBottom: '10px' }}>
+                  <h3 className="text-lg font-semibold mb-3">
                     {getAttributeValue(user.Attributes, 'name')}
                   </h3>
                   <div className="inline-flex rounded-full bg-opacity-10 py-1 px-3 text-sm font-medium indicator bg-success text-success">

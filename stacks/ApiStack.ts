@@ -8,7 +8,7 @@ import * as iam from "@aws-cdk/aws-iam";
 
 export function ApiStack({ stack }: StackContext) {
   const { auth } = use(AuthStack);
-  const { table, fileTable } = use(DBStack);
+  const { table, fileTable, criteriaTable } = use(DBStack);
   const { documentsQueue } = use(S3Stack);
 
   const api = new Api(stack, "signinAPI", {
@@ -23,7 +23,7 @@ export function ApiStack({ stack }: StackContext) {
     // },
     defaults: {
       function: {
-        bind: [table, fileTable], // Bind the table name to our API
+        bind: [table, fileTable, criteriaTable], // Bind the table name to our API
       },
       // Optional: Remove authorizer from defaults if set to "jwt"
       // authorizer: "jwt",
@@ -45,10 +45,17 @@ export function ApiStack({ stack }: StackContext) {
           handler: "packages/functions/src/s3Upload.uploadToS3",
           permissions: "*",
           bind: [documentsQueue],
-          timeout: "300 seconds"
+          timeout: "300 seconds",
         },
       },
-
+      "POST /splitPdf": {
+        function: {
+          handler: "packages/functions/src/splitPdf.handler",
+          permissions: ["s3", "dynamodb"],
+          timeout: "900 seconds",
+          retryAttempts: 2,
+        },
+      },
       "POST /comprehend": {
         function: {
           handler: "packages/functions/src/comprehend.comprehendText",
@@ -68,6 +75,7 @@ export function ApiStack({ stack }: StackContext) {
           permissions: ["textract", "s3"],
           ///timeout: "200 seconds",
           bind: [documentsQueue],
+          retryAttempts: 2,
         },
       },
       "GET /detectFileType": {
@@ -87,6 +95,12 @@ export function ApiStack({ stack }: StackContext) {
           timeout: "60 seconds",
         },
       },
+      "GET /viewFile": {
+        function: {
+          handler: "packages/functions/src/viewLogo.main", // Replace with your location
+          permissions: ["s3"], // Grant necessary S3 permissions
+        },
+      },
       // Add the new route for retrieving files
       "GET /files": {
         function: {
@@ -95,13 +109,22 @@ export function ApiStack({ stack }: StackContext) {
         },
       },
 
+      // Add the new route for retrieving files
+      "GET /count": {
+        function: {
+          handler: "packages/functions/src/filesCount.main", // Replace with your location
+          permissions: ["s3"], // Grant necessary S3 permissions
+        },
+      },
+
+
       // Add the new route for deleting files
-  "DELETE /deleteFile": {
-    function: {
-      handler: "packages/functions/src/deleteS3.main", // Replace with your actual handler location
-      permissions: ["s3"],
-    },
-  },
+      "DELETE /deleteFile": {
+        function: {
+          handler: "packages/functions/src/deleteS3.main", // Replace with your actual handler location
+          permissions: ["s3"],
+        },
+      },
 
       "POST /createUser": {
         function: {
@@ -149,8 +172,17 @@ export function ApiStack({ stack }: StackContext) {
       "GET /standards": "packages/functions/src/standards/list.main",
       "PUT /standards/{id}": "packages/functions/src/standards/update.main",
       "DELETE /standards/{id}": "packages/functions/src/standards/delete.main",
+
+      "POST /criteria": "packages/functions/src/criteria/create.main",
+      "GET /criteria/{id}": "packages/functions/src/criteria/get.main",
+      "GET /criteria": "packages/functions/src/criteria/list.main",
+      "GET /criteria/{id}/{indicator}": "packages/functions/src/criteria/getByIndicator.main",
+
+
+
     },
-    
+
+
   });
   const get_users_function = api.getFunction("POST /createUser");
   get_users_function?.role?.addManagedPolicy(
