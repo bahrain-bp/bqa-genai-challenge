@@ -23,7 +23,7 @@ interface Block {
 const s3Client = new S3Client({ region: process.env.AWS_REGION });
 const textractClient = new TextractClient({ region: process.env.AWS_REGION });
 
-export const fetchTextFromPDF = async (event: APIGatewayEvent, context: Context) => {
+export const extractTextFromPDF = async (event: APIGatewayEvent, context: Context) => {
   try {
     const requestBody: TextractRequest = JSON.parse(event.body || "{}");
     console.log("Request Body:", requestBody);
