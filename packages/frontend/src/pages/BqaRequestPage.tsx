@@ -4,7 +4,7 @@ import DefaultLayout from '../layout/DefaultLayout';
 import { useLocation } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-// import { useTranslation } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 import { fetchUserAttributes } from 'aws-amplify/auth';
 
 
