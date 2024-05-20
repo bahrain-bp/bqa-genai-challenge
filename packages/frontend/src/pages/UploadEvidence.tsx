@@ -258,7 +258,7 @@ const UploadEvidence = () => {
           method: 'POST',
           body: formData,
           headers: {
-            'file-name': file.name,
+            'file-name': String(file.name),
             'bucket-name': 'uni-artifacts',
             'folder-name': currentName,
             'subfolder-name': `${standard.standardId}`,
