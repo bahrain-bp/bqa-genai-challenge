@@ -14,14 +14,16 @@ interface TextractRequest {
   bucketName: string;
   folderName?: string;
   subfolderName?: string;
-  subsubfolderName?: string;
-  fileName: string;
+  fullKey?: string; // Optional parameter for full object key
+  fileName: string; // Parameter for chunked file name
+
 }
 
 interface Block {
   BlockType?: string;
   Text?: string;
 }
+
 const s3Client = new S3Client({ region: process.env.AWS_REGION });
 const textractClient = new TextractClient({ region: process.env.AWS_REGION });
 
@@ -34,11 +36,11 @@ export const extractTextFromPDF = async (
     console.log("Request Body:", requestBody);
 
     // Validate parameters
-    if (!requestBody.fileName) {
+    if (!requestBody.fileName && !requestBody.fullKey) {
       return {
         statusCode: 400,
         body: JSON.stringify({
-          message: "Missing required parameter: fileName",
+          message: "Missing required parameter: fileName or fullKey",
         }),
       };
     }
@@ -47,21 +49,23 @@ export const extractTextFromPDF = async (
       bucketName,
       folderName = "",
       subfolderName = "",
-      subsubfolderName = "",
+      fullKey,
       fileName,
     } = requestBody;
 
-    // Construct the S3 object key with optional folder structure
-    const objectKey = `${folderName ? folderName + "/" : ""}${subfolderName ? subfolderName + "/" : ""}${subsubfolderName ? subsubfolderName + "/" : ""}${fileName}`;
+    // Determine the object key based on whether fullKey is provided
+    const objectKey = fullKey ? fullKey :
+      `${folderName ? folderName + "/" : ""}${subfolderName ? subfolderName + "/" : ""}${fileName}`;
+
+
     console.log("Object Key:", objectKey);
 
     // Download the PDF from S3
     const getObjectCommand = new GetObjectCommand({
       Bucket: bucketName,
-      Key: objectKey,
+      Key: objectKey, // Use objectKey instead of fullKey
     });
     const pdfData = await s3Client.send(getObjectCommand);
-    //console.log('PDF Data:', pdfData);
 
     // Read the stream and store its content in a buffer
     const buffer = await streamToBuffer(pdfData.Body as NodeJS.ReadableStream);
@@ -75,18 +79,16 @@ export const extractTextFromPDF = async (
       DocumentLocation: {
         S3Object: {
           Bucket: bucketName,
-          Name: objectKey,
+          Name: objectKey, // Use objectKey instead of fullKey
         },
       },
       FeatureTypes: ["TABLES", "FORMS"],
     });
-    //console.log('Start Document Analysis Command:', startDocumentAnalysisCommand);
 
     // Start document analysis job
     const startAnalysisResponse = await textractClient.send(
       startDocumentAnalysisCommand
     );
-    console.log(">>>>>>>>>Start Analysis Response:");
 
     // Check if the analysis job started successfully
     if (!startAnalysisResponse.JobId) {
@@ -101,14 +103,13 @@ export const extractTextFromPDF = async (
     const analysisResult = await waitForAnalysisCompletion(
       getDocumentAnalysisCommand
     );
-    console.log(">>>>>>>>Analysis Result:");
 
     // Extract text from analysis result
     let extractedText = "";
     if (analysisResult.Blocks) {
       extractedText = analysisResult.Blocks.filter(
         (block: Block) => block.BlockType === "LINE"
-      ).map((block: Block) => block.Text?.trim() || "");
+      ).map((block: Block) => block.Text?.trim() || "").join(' ');
     }
     console.log("Extracted Text:", extractedText);
 
