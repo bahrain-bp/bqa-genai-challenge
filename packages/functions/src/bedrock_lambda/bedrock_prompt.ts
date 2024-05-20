@@ -50,8 +50,8 @@ export async function handler(event: SQSEvent, app: any) {
               'file-name': fileName,
               'folder-name': folderName,
               'subfolder-name': subfolderName,
+              'subsubfolder-name': subsubfolderName, // Add subsubfolder-name header
             }
-
           }
         );
 
