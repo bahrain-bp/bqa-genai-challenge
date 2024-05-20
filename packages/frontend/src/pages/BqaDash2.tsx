@@ -7,6 +7,7 @@ import { useParams, Link } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
 import './BqaDash1.css'; // Custom CSS file for progress bars
 import { ToastContainer } from 'react-toastify';
+import { fetchUserAttributes } from 'aws-amplify/auth'; // fetching user attributes
 import Loader from '../common/Loader';
 import Pagination from '@mui/material/Pagination';
 import axios from 'axios';
@@ -19,18 +20,21 @@ import {
   Select,
 } from '@mui/material';
 
+
 const BqaDash2 = ({}) => {
   const [isDownloading, setIsDownloading] = useState(false);
   const [files, setFiles] = useState<any[]>([]);
   const [standard, setStandard] = useState<string>('Standard 1');
   const [isLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [uniEmail, setUniEmail] = useState(''); // university contact email
+  const api = import.meta.env.VITE_API_URL;
   const itemsPerPage = 10;
   const location = useLocation();
   const uniName = location.state.uniName;
   const apiURL = import.meta.env.VITE_API_URL;
 
-  console.log(uniName, 'name uni');
+  console.log(uniName, 'is the university name');
   // State for search term in the search bar
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -46,11 +50,52 @@ const BqaDash2 = ({}) => {
   //const [selectedFile, setSelectedFile] = useState(null);
   const { name } = useParams();
   console.log('name:' + name);
-  // const query = useQuery();
-  // const name = query.get('name');
+ 
+  // getting user attribute
+  const getAttributeValue = (attributes: { Name: string; Value: string }[], attributeName: string): string => {
+    const attribute = attributes.find(attr => attr.Name === attributeName);
+    return attribute ? attribute.Value : 'N/A'; // Returns 'N/A' if attribute not found
+  };
 
   //use /files enpoint to fetch uni files --pass uniName/Standard selected
   useEffect(() => {
+    // getting university user email
+    const fetchUserInfo = async () => {
+      
+      try {
+        // Assuming fetchUserAttributes takes a name parameter and fetches the corresponding user attributes
+        const response = await fetch(`${api}/getUsers`);
+
+        // const response = await fetch(`https://u1oaj2omi2.execute-api.us-east-1.amazonaws.com/getUsers`);
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+       
+          const filteredUsers = data.filter((user: { Attributes: { Name: string; Value: string; }[]; }) => {
+            const nameValue = getAttributeValue(user.Attributes, 'name');
+            return nameValue === name;
+          }).map((user: { Attributes: { Name: string; Value: string; }[]; }) => ({
+            name: getAttributeValue(user.Attributes, 'name'), // Extract name
+            email: getAttributeValue(user.Attributes, 'email') // Extract email
+        }   ));
+
+         // Check if there's a matching user and set their email
+            if (filteredUsers.length > 0) {
+              setUniEmail(filteredUsers[0].email); 
+              console.log(`Email of ${name}: ${filteredUsers[0].email}`);
+            } else {
+                console.log(`No user found with the name: ${name}`);
+                // setuserEmail(''); // Clear the email if no user is found
+            }
+         
+      } catch (error) {
+        console.error('Error fetching user info:', error);
+      }
+    };
+    fetchUserInfo();
+
     const fetchData = async () => {
       try {
         const response = await axios.get(
@@ -145,6 +190,7 @@ const BqaDash2 = ({}) => {
   //////////////////////////
   useEffect(() => {
     console.log('University name received:', name);
+    console.log('University email found:', uniEmail);
 
     // console.log("University email received:", email);
     // Fetch more data if needed using the university email
@@ -156,7 +202,14 @@ const BqaDash2 = ({}) => {
         <Breadcrumb pageName={`University Files / ${uniName}`} />
 
         {/* contact details */}
-        
+        <div>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-xl font-medium text-black dark:text-white">
+              Contact Email: {uniEmail}
+            </h3>
+          </div>
+
+        </div>
 
         <div className="flex justify-end py-4">
           {/* Request Document Button */}
