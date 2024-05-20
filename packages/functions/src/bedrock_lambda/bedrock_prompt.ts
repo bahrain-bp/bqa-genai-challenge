@@ -45,12 +45,14 @@ export async function handler(event: SQSEvent, app: any) {
           null, // pass null as the data parameter
           {
             headers: {
-              "Content-Type": "application/json", // set the content type
-              "bucket-name": bucketName,
-              "file-name": fileName,
-              "folder-name": folderName,
-              "subfolder-name": subfolderName,
-            },
+              'Content-Type': 'application/json', // set the content type
+              'bucket-name': bucketName,
+              'file-name': fileName,
+              'folder-name': folderName,
+              'subfolder-name': subfolderName,
+              'subsubfolder-name': subsubfolderName,
+            }
+
           }
         );
 
