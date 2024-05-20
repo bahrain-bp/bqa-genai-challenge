@@ -6,23 +6,22 @@ const dynamoDb = new DynamoDB.DocumentClient();
 
 export const main: APIGatewayProxyHandlerV2 = async (event) => {
     try {
-        // Get the standardId and indicatorId from the query parameters
+        // Get the standardId and indicatorId from the path parameters
         const standardId = event?.pathParameters?.id;
         const indicatorId = event?.pathParameters?.indicator;
 
         if (!standardId || !indicatorId) {
             return {
                 statusCode: 400,
-                body: JSON.stringify({ error: "Missing standardId or indicatorId in query parameters" }),
+                body: JSON.stringify({ error: "Missing standardId or indicatorId in path parameters" }),
             };
         }
 
-        // Define DynamoDB parameters to get the item
+        // Define DynamoDB parameters to get the item by standardId
         const params = {
             TableName: Table.CriteriaTable.tableName,
             Key: {
-                standardId: standardId,
-                indicatorId: indicatorId
+                standardId: standardId
             }
         };
 
@@ -32,14 +31,24 @@ export const main: APIGatewayProxyHandlerV2 = async (event) => {
         if (!result.Item) {
             return {
                 statusCode: 404,
-                body: JSON.stringify({ error: "Item not found" }),
+                body: JSON.stringify({ error: "Standard not found" }),
             };
         }
 
-        // Return success response with the retrieved item
+        // Filter the indicators array to find the specific indicatorId
+        const indicator = result.Item.indicators.find((ind) => ind.indicatorId === indicatorId);
+
+        if (!indicator) {
+            return {
+                statusCode: 404,
+                body: JSON.stringify({ error: "Indicator not found" }),
+            };
+        }
+
+        // Return success response with the retrieved indicator
         return {
             statusCode: 200,
-            body: JSON.stringify(result.Item),
+            body: JSON.stringify(indicator),
         };
     } catch (error) {
         // Return error response with status code 500
