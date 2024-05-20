@@ -7,6 +7,9 @@ import { Queue } from "sst/node/queue";
 let processedMessageIds: Set<string> = new Set();
 
 export async function handler(event: SQSEvent, app: any) {
+  const records: any[] = event.Records;
+  console.log(`Message processed: "${records[0].body}"`);
+
   try {
     for (const record of event.Records) {
       // Check if the message ID has been processed before
@@ -49,6 +52,7 @@ export async function handler(event: SQSEvent, app: any) {
               'subfolder-name': subfolderName,
               'subsubfolder-name': subsubfolderName,
             }
+
           }
         );
 
@@ -61,7 +65,6 @@ export async function handler(event: SQSEvent, app: any) {
           const chunk = chunks[i];
           console.log(`Processing chunk ${i + 1}/${chunks.length}: ${chunk}`);
           // Here, splitPdf should handle invoking SageMaker
-
         }
       }
 
