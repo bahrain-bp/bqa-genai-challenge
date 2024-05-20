@@ -141,7 +141,7 @@ const BqaDash1 = () => {
               className="col-md-4 col-sm-6"
               style={{ cursor: 'pointer' }}
               onClick={() =>
-                navigate(`/BqaDash2/${user.Username}`, {
+                navigate(`/BqaDash2/${getAttributeValue(user.Attributes, 'name')}?${user.Username}`, {
                   state: {
                     uniName: getAttributeValue(user.Attributes, 'name'),
                   },
