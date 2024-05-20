@@ -29,13 +29,15 @@ export function ApiStack({ stack }: StackContext) {
       // authorizer: "jwt",
     },
     routes: {
-      // Email route
-      "POST /send-email": {
-        function: {
-          handler: "packages/functions/src/send-email.sendEmail",
-          permissions: ["ses"],
+      //  Email API route
+        "POST /send-email": 
+        {
+            function:
+            {
+                handler: "packages/functions/src/send-email.sendEmail",
+                permissions: ["ses"]
+            }
         },
-      },
       // Sample TypeScript lambda function
       "POST /": "packages/functions/src/lambda.main",
       "POST /uploadS3": {
@@ -164,6 +166,7 @@ export function ApiStack({ stack }: StackContext) {
           ],
         },
       },
+      // Standard API route
       "POST /standards": "packages/functions/src/standards/create.main",
       "GET /standards/{id}": "packages/functions/src/standards/get.main",
       "GET /standards": "packages/functions/src/standards/list.main",
@@ -198,10 +201,11 @@ export function ApiStack({ stack }: StackContext) {
     ),
   });
 
-  // Show the API endpoint in the output
-  stack.addOutputs({
-    ApiEndpoint: api.url,
-  });
+    // Show the API endpoint in the output
+    stack.addOutputs({
+      ApiEndpoint: api.url,
+    });
+
 
   return { api, apiCachePolicy };
 }
