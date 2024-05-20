@@ -70,6 +70,7 @@ export async function uploadToS3(event: any) {
     const subsubfolderName = event.headers["subsubfolder-name"]; // New header for sub-subfolder
     const contentType = event.headers["content-type"];
 
+    console.log(fileData);
     // Check file size before upload (optional)
     const fileSize = Buffer.byteLength(fileData);
     console.log("File size:", fileSize);
