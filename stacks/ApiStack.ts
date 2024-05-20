@@ -43,7 +43,7 @@ export function ApiStack({ stack }: StackContext) {
           handler: "packages/functions/src/splitPdf.handler",
           permissions: ["s3", "dynamodb"],
           timeout: "900 seconds",
-          retryAttempts: 3,
+          retryAttempts: 2,
         },
       },
       "POST /comprehend": {
@@ -58,7 +58,7 @@ export function ApiStack({ stack }: StackContext) {
           permissions: ["textract", "s3"],
           timeout: "200 seconds",
           bind: [documentsQueue],
-          retryAttempts: 3,
+          retryAttempts: 2,
         },
       },
       "GET /detectFileType": {

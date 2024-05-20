@@ -75,7 +75,7 @@ export const handler = async (event: any) => {
     const comments = ""; // Extracted or assigned as needed
 
     // Insert data into DynamoDB using /createFileDb API
-    await axios.post('https://qucmchgtm8.execute-api.us-east-1.amazonaws.com/createFileDB', {
+    await axios.post('https://u1oaj2omi2.execute-api.us-east-1.amazonaws.com/createFileDB', {
       fileName,
       fileURL,
       standardName,
@@ -157,7 +157,7 @@ async function processChunks(pdfDoc: PDFDocument, totalPages: number, splitSize:
       // Add a delay between Textract API requests to avoid throttling
       await new Promise(resolve => setTimeout(resolve, delayBetweenRetries));
      
-      textractResponse = await axios.post('https://qucmchgtm8.execute-api.us-east-1.amazonaws.com/textract', textractRequest);
+      textractResponse = await axios.post('https://u1oaj2omi2.execute-api.us-east-1.amazonaws.com/textract', textractRequest);
 
       // Break the loop if Textract call succeeds
       break;

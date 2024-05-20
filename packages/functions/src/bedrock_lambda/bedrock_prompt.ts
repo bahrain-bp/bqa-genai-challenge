@@ -36,7 +36,7 @@ export async function handler(event: SQSEvent, app: any) {
       if (fileName.endsWith(".pdf")) {
         // Call the splitPdf API to split the PDF into chunks
         const splitPdfResponse: AxiosResponse = await axios.post(
-          "https://qucmchgtm8.execute-api.us-east-1.amazonaws.com/splitPdf",
+          "https://u1oaj2omi2.execute-api.us-east-1.amazonaws.com/splitPdf",
           null, // pass null as the data parameter
           {
             headers: {
