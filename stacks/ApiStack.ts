@@ -60,12 +60,16 @@ export function ApiStack({ stack }: StackContext) {
         function: {
           handler: "packages/functions/src/comprehend.comprehendText",
           permissions: ["comprehend"],
+          timeout: "900 seconds",
+
         },
       },
       "GET /downloadFile": {
         function: {
           handler: "packages/functions/src/files/downloadFile.main",
           permissions: "*",
+          timeout: "900 seconds",
+
         },
       },
 
@@ -73,7 +77,7 @@ export function ApiStack({ stack }: StackContext) {
         function: {
           handler: "packages/functions/src/textractPdf.extractTextFromPDF",
           permissions: ["textract", "s3"],
-          ///timeout: "200 seconds",
+          timeout: "200 seconds",
           bind: [documentsQueue],
           retryAttempts: 2,
         },
@@ -82,6 +86,7 @@ export function ApiStack({ stack }: StackContext) {
         function: {
           handler: "packages/functions/detectFileType.detect",
           permissions: ["s3"],
+          timeout: "900 seconds",
         },
       },
       "GET /private": "packages/functions/src/private.main",
@@ -137,12 +142,16 @@ export function ApiStack({ stack }: StackContext) {
         function: {
           handler: "packages/functions/src/files/create.main",
           permissions: "*",
+          timeout: "900 seconds",
+
         },
       },
       "PUT /fileSummary/{fileName}": {
         function: {
           handler: "packages/functions/src/files/update.main",
           permissions: "*",
+          timeout: "900 seconds",
+
         },
       },
 
