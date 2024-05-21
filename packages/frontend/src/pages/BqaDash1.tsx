@@ -150,7 +150,7 @@ const BqaDash1 = () => {
             >
               <div
                 className="rounded-xl border border-stroke bg-white p-6 shadow-default dark:border-strokedark"
-                style={{ marginBottom: '20px', height: '300px' }} // Set fixed height for each card
+                style={{ marginBottom: '20px', height: '350px' }} // Set fixed height for each card
               >
                 <div style={{ height: '200px', width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}>
                   {' '}
@@ -169,6 +169,9 @@ const BqaDash1 = () => {
                   <h3 className="text-lg font-semibold mb-3">
                     {getAttributeValue(user.Attributes, 'name')}
                   </h3>
+                  <h4 className="mb-3">
+                    <span className="fas fa-envelope"></span> {getAttributeValue(user.Attributes, 'email')} {/* added contact email to dash */}
+                  </h4>
                   <div className="inline-flex rounded-full bg-opacity-10 py-1 px-3 text-sm font-medium indicator bg-success text-success">
                     {t('completed')}
                   </div>

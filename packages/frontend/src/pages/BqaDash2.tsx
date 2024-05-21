@@ -204,12 +204,13 @@ const BqaDash2 = ({}) => {
         {/* contact details */}
         <div>
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xl font-medium text-black dark:text-white">
-              Contact Email: {uniEmail}
-            </h3>
+          <h3 className="text-xl font-medium text-black dark:text-white flex items-center">
+            <span className="fas fa-envelope mr-2"></span> {/* Font Awesome email icon */}
+            {uniEmail}
+          </h3>
           </div>
 
-        </div>
+        </div>  
 
         <div className="flex justify-end py-4">
           {/* Request Document Button */}

@@ -177,9 +177,6 @@ export function ApiStack({ stack }: StackContext) {
       "GET /criteria/{id}": "packages/functions/src/criteria/get.main",
       "GET /criteria": "packages/functions/src/criteria/list.main",
       "GET /criteria/{id}/{indicator}": "packages/functions/src/criteria/getByIndicator.main",
-
-
-
     },
 
 
