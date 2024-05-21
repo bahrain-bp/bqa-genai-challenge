@@ -96,7 +96,7 @@ export const createUserInCognito: APIGatewayProxyHandlerV2 = async (
       // Define the POST request function
 const createUniversity = async () => {
   try { //${apiURL}
-      const response = await axios.post(`https://66xzg471hh.execute-api.us-east-1.amazonaws.com/addUniDB`, universityData);
+      const response = await axios.post(`https://u1oaj2omi2.execute-api.us-east-1.amazonaws.com/addUniDB`, universityData);
       console.log('University created:', response.data);
   } catch (error) {
       console.error('Error creating university:', error);

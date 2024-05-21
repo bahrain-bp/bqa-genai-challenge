@@ -68,15 +68,13 @@ const BqaDash1 = () => {
             prevUsers.map((user) => {
               const uniName = getAttributeValue(user.Attributes, 'name');
               const uniStatus = statusData.find(
-                (status:{ name: string }) => status.name === uniName
+                (status: { uniName: string }) => status.uniName === uniName
               );
-              console.log("Matching user:", user.Username, "with university:", uniName, "status:", uniStatus);
-
+              console.log("Matching user:", user.Username, "with university:", uniName, "status:", uniStatus ? uniStatus.status : 'N/A');
               return { ...user, status: uniStatus ? uniStatus.status : 'N/A' };
             }),
           );
           setStatusFetched(true); // Set flag to prevent further fetching
-          console.log("Status Data:", statusData);  // After fetching status data
 
         } catch (error) {
           console.error('Error fetching university statuses:', error);
@@ -85,7 +83,7 @@ const BqaDash1 = () => {
 
       fetchStatuses();
     }
-  }, [users,statusFetched]);
+  }, [users, statusFetched, apiUrl]);
 
 
 
@@ -162,20 +160,25 @@ const BqaDash1 = () => {
     <Loader />
   ) : (
     <DefaultLayout>
-      <Breadcrumb pageName={t('bqaReviewerDashboard')} />
-      <div className="container">
-        <div className="flex justify-end py-4">
-          <button className="px-5 py-2 bg-primary text-white rounded-md shadow-sm hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary-dark focus:ring-opacity-50">
-            <Link to={`/AddUni`}>{t('addUniversity')}</Link>
-          </button>
-        </div>
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3 md:gap-6">
-          {users.map((user) => (
+    <Breadcrumb pageName={t('bqaReviewerDashboard')} />
+    <div className="container">
+      <div className="flex justify-end py-4">
+        <button className="px-5 py-2 bg-primary text-white rounded-md shadow-sm hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary-dark focus:ring-opacity-50">
+          <Link to={`/AddUni`}>{t('addUniversity')}</Link>
+        </button>
+      </div>
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3 md:gap-6">
+        {users.map((user) => {
+          const isClickable = user.status.toLowerCase() === 'completed';
+          const statusClass = isClickable ? 'bg-success text-success' : 'bg-red-500 text-red-500';
+
+          return (
             <div
               key={user.Username}
-              className="col-md-4 col-sm-6"
-              style={{ cursor: 'pointer' }}
+              className={`col-md-4 col-sm-6 ${isClickable ? '' : 'cursor-not-allowed opacity-50'}`}
+              style={{ cursor: isClickable ? 'pointer' : 'not-allowed' }}
               onClick={() =>
+                isClickable &&
                 navigate(`/BqaDash2/${getAttributeValue(user.Attributes, 'name')}?${user.Username}`, {
                   state: {
                     uniName: getAttributeValue(user.Attributes, 'name'),
@@ -194,7 +197,6 @@ const BqaDash1 = () => {
                     <img
                       src={user.imageUrl}
                       style={{ maxHeight: '100%', maxWidth: '100%', objectFit: 'contain' }} // Ensure the image fits within the container without being cut off
-
                       alt="S3 Image"
                     />
                   )}
@@ -204,16 +206,17 @@ const BqaDash1 = () => {
                   <h3 className="text-lg font-semibold mb-3">
                     {getAttributeValue(user.Attributes, 'name')}
                   </h3>
-                  <div className="inline-flex rounded-full bg-opacity-10 py-1 px-3 text-sm font-medium indicator bg-success text-success">
-                  {user.status}
+                  <div className={`inline-flex rounded-full bg-opacity-10 py-1 px-3 text-sm font-medium indicator ${statusClass}`}>
+                    {user.status}
                   </div>
                 </div>
               </div>
             </div>
-          ))}
-        </div>
+          );
+        })}
       </div>
-    </DefaultLayout>
+    </div>
+  </DefaultLayout>
   );
 };
 
