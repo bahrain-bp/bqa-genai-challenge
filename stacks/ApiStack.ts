@@ -64,7 +64,7 @@ export function ApiStack({ stack }: StackContext) {
       "GET /downloadFile": {
         function: {
           handler: "packages/functions/src/files/downloadFile.main",
-          permissions: ["s3"],
+          permissions: "*",
           timeout: "900 seconds",
         },
       },
@@ -111,13 +111,13 @@ export function ApiStack({ stack }: StackContext) {
       "POST /compareFiles": {
         function: {
           handler: "packages/functions/src/bedrock_lambda/compareFiles.handler", // Replace with your location
-          permissions: ["s3"], // Add necessary permissions here
+          permissions: "*", // Add necessary permissions here
         },
       },
       "GET /count": {
         function: {
           handler: "packages/functions/src/filesCount.main", // Replace with your location
-          permissions: ["s3"], // Grant necessary S3 permissions
+          permissions: "*", // Grant necessary S3 permissions
         },
       },
       // Add the new route for deleting files
@@ -130,27 +130,27 @@ export function ApiStack({ stack }: StackContext) {
       "POST /titan": {
         function: {
           handler: "packages/functions/src/bedrock_lambda/titanCompare.handler",
-          permissions: ["bedrock"],
+          permissions: "*",
         },
       },
       "POST /createUser": {
         function: {
           handler: "packages/functions/createUser.createUserInCognito",
-          permissions: ["cognito-idp"],
+          permissions: "*",
           //permissions will be changed
         },
       },
       "POST /createFileDB": {
         function: {
           handler: "packages/functions/src/files/create.main",
-          permissions: ["dynamodb"],
+          permissions: "*",
           timeout: "900 seconds",
         },
       },
       "PUT /fileSummary/{fileName}": {
         function: {
           handler: "packages/functions/src/files/update.main",
-          permissions: ["dynamodb"],
+          permissions: "*",
           timeout: "900 seconds",
         },
       },
