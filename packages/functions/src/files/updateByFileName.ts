@@ -1,13 +1,21 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import AWS from "aws-sdk";
+import { Table } from "sst/node/table";
 
 const dynamoDb = new AWS.DynamoDB.DocumentClient();
 
 export const handler = async (
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
-  const tableName = "FileTable";
-  const fileName = event.headers["fileName"];
+  console.log("Received event:", JSON.stringify(event, null, 2)); // Log the entire event for debugging
+
+  const tableName = Table.FileTable.tableName;
+  const fileName =
+    event.headers["fileName"] ||
+    event.headers["filename"] ||
+    event.headers["FileName"];
+
+  console.log("Extracted fileName:", fileName); // Log the extracted fileName for debugging
 
   if (!fileName) {
     return {
@@ -76,6 +84,7 @@ export const handler = async (
       }),
     };
   } catch (error) {
+    console.error("Update failed:", error); // Log the error for debugging
     return {
       statusCode: 500,
       body: JSON.stringify({ message: "Failed to update item" }),
