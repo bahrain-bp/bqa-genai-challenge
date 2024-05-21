@@ -218,7 +218,7 @@ const UploadEvidence = () => {
         setStandards(sortedStandards);
       } catch (error) {
         console.error('Error fetching standards:', error);
-        toast.error(`Error fetching standards: ${error instanceof Error ? error.message : 'An error occurred'}`);
+        //toast.error(`Error fetching standards: ${error instanceof Error ? error.message : 'An error occurred'}`);
       }
     };
   
@@ -336,7 +336,7 @@ const UploadEvidence = () => {
       const errorMessage =
         error instanceof Error ? error.message : 'An unknown error occurred';
       console.error('Error fetching uploaded files:', errorMessage);
-      toast.error(`Error fetching uploaded files: ${errorMessage}`);
+      //toast.error(`Error fetching uploaded files: ${errorMessage}`);
     }
   };
 
