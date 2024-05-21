@@ -36,6 +36,9 @@ export default {
         .stack(S3Stack)
         .stack(AuthStack)
         .stack(ApiStack)
+
+        // .stack(StandardAPIStack)
+
         .stack(FrontendStack)
     }
   },
