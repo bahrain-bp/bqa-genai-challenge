@@ -28,8 +28,8 @@ export const main: APIGatewayProxyHandlerV2 = async (event) => {
     // Filter the items based on standardId and indicatorId in the objectURL
     const filteredItems = result.Items.filter(
       (item: any) =>
-        item.objectURL.includes(`/${standardId}/`) &&
-        item.objectURL.includes(`/${indicatorId}/`)
+        item.fileURL.includes(`/${standardId}/`) &&
+        item.fileURL.includes(`/${indicatorId}/`)
     );
 
     // Check if any items were found
