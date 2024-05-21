@@ -7,6 +7,7 @@ import { FileUpload } from 'primereact/fileupload';
 //import { useTranslation } from 'react-i18next';
 //import Loader from '../common/Loader';
 import { fetchUserAttributes } from 'aws-amplify/auth';
+import Modal from 'react-modal';
 
 
 const MainContainer = styled.div`
@@ -140,12 +141,57 @@ const SectionTitle = styled.h2`
   margin-top: 20px;
   margin-bottom: 20px;
 `;
+const FinishButtonContainer = styled.div`
+  display: flex;
+  justify-content: flex-end; // Aligns the button to the right
+  margin-top: 10px;
+`;
+
+const FinishButton = styled.button`
+  padding: 10px 20px;
+  font-size: 16px;
+  color: #ffffff;
+  background-color: #2ecc71;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  &:hover {
+    background-color: #27ae60;
+  }
+`;
+
+// Custom styles for the modal
+const customStyles = {
+  content: {
+    top: '30%', // Adjusted to position the modal higher
+    left: '55%',
+    right: 'auto',
+    bottom: 'auto',
+    marginRight: '-50%',
+    transform: 'translate(-50%, -50%)',
+    width: '80%',
+    maxWidth: '400px',
+    padding: '20px',
+    borderRadius: '10px',
+  },
+  overlay: {
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+};
+const CompletionMessage = styled.div`
+  top: 10px;
+  left: 10px;
+  color: #2ecc71;
+  font-size: 18px;
+`;
 
 const UploadEvidence = () => {
   const [standards, setStandards] = useState<any[]>([]); // Using 'any[]' for state typing
   const [activeStep, setActiveStep] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState<any[]>([]);
+  const [universityStatus, setUniversityStatus] = useState('');
+  const [showModal, setShowModal] = useState(false);
 
   const [currentName, setCurrentName] = useState('');
 
@@ -153,9 +199,8 @@ const UploadEvidence = () => {
     const fetchCurrentUserInfo = async () => {
       try {
         const attributes = await fetchUserAttributes();
-        const name:any= attributes.name;
+        const name: any = attributes.name;
         setCurrentName(name);
-
       } catch (error) {
         console.error('Error fetching current user info:', error);
       }
@@ -164,12 +209,26 @@ const UploadEvidence = () => {
     fetchCurrentUserInfo();
   }, []);
 
-   
-
-
-
   const apiURL = import.meta.env.VITE_API_URL;
+  useEffect(() => {
+    const fetchUniversityStatus = async () => {
+      try {
+        const response = await fetch(`${apiURL}/uniStatus/${currentName}`);
+        if (!response.ok) {
+          throw new Error(`HTTP status ${response.status}`);
+        }
+        const data = await response.json();
+        setUniversityStatus(data.status);
+      } catch (error) {
+        console.error('Error fetching university status:', error);
+        toast.error(`Error fetching university status: ${error instanceof Error ? error.message : 'An error occurred'}`);
+      }
+    };
 
+    if (currentName) {
+      fetchUniversityStatus();
+    }
+  }, [currentName]);
 
   useEffect(() => {
     const fetchStandards = async () => {
@@ -182,38 +241,47 @@ const UploadEvidence = () => {
         }
         const rawData = await response.json();
         const standardsMap = new Map();
-       
-        rawData.forEach((item:any) => {
-          if (item.status === 'unarchived'  ) {
+
+        rawData.forEach((item: any) => {
+          if (item.status === 'unarchived') {
             if (!standardsMap.has(item.standardId)) {
               standardsMap.set(item.standardId, { ...item, indicators: [] });
             }
 
             // Get the current list of indicators for this standard
-            const existingIndicators = standardsMap.get(item.standardId).indicators;
+            const existingIndicators = standardsMap.get(
+              item.standardId,
+            ).indicators;
             // Create a Set to filter out duplicate indicator IDs
-            const indicatorSet = new Set(existingIndicators.map((ind:any) => ind.id));
+            const indicatorSet = new Set(
+              existingIndicators.map((ind: any) => ind.id),
+            );
             // Check if the current item's indicatorId is already in the set
-            if (!indicatorSet.has(item.indicatorId) ) {
+            if (!indicatorSet.has(item.indicatorId)) {
               existingIndicators.push({
                 label: item.indicatorName,
                 uploadSection: item.uploadSection,
                 id: item.indicatorId,
               });
             }
-            
           }
         });
 
-               // Sort indicators inside each standard
-         
-      standardsMap.forEach((standard: any) => {
-        standard.indicators.sort((a: any, b: any) => a.id.localeCompare(b.id, undefined, { numeric: true }));
-      });
+        // Sort indicators inside each standard
 
-           // Convert the map to an array and sort standards
-           const sortedStandards = Array.from(standardsMap.values());
-           sortedStandards.sort((a: any, b: any) => a.standardId.localeCompare(b.standardId, undefined, { numeric: true }));
+        standardsMap.forEach((standard: any) => {
+          standard.indicators.sort((a: any, b: any) =>
+            a.id.localeCompare(b.id, undefined, { numeric: true }),
+          );
+        });
+
+        // Convert the map to an array and sort standards
+        const sortedStandards = Array.from(standardsMap.values());
+        sortedStandards.sort((a: any, b: any) =>
+          a.standardId.localeCompare(b.standardId, undefined, {
+            numeric: true,
+          }),
+        );
 
         setStandards(sortedStandards);
       } catch (error) {
@@ -221,7 +289,7 @@ const UploadEvidence = () => {
         //toast.error(`Error fetching standards: ${error instanceof Error ? error.message : 'An error occurred'}`);
       }
     };
-  
+
     fetchStandards();
   }, []);
 
@@ -246,25 +314,23 @@ const UploadEvidence = () => {
         continue;
       }
 
-
       const formData = new FormData();
       formData.append('file', file);
-
 
       try {
         const response = await fetch(`${apiURL}/uploadS3`, {
           method: 'POST',
           body: formData,
           headers: {
-            'file-name': file.name,
+            'file-name': String(file.name),
             'bucket-name': 'uni-artifacts',
             'folder-name': currentName,
             'subfolder-name': `${standard.standardId}`,
-            'subSubfolder-name': `${indicator.id}`,
+            'subsubfolder-name': `${indicator.id}`,
             'content-type': 'application/pdf', // Assuming all files are PDF
           },
         });
-
+        console.log(file.name);
         if (!response.ok) {
           const errorText = await response.text();
           throw new Error(`Failed to upload file: ${errorText}`);
@@ -301,13 +367,12 @@ const UploadEvidence = () => {
 
     try {
       const response = await fetch(url, {
-          method: 'GET',
-          headers: {
-              'bucket-name': 'uni-artifacts',
-              'folder-name': currentName,
-              'subfolder-name': `${currentStandard.standardId}`,
-          },
-
+        method: 'GET',
+        headers: {
+          'bucket-name': 'uni-artifacts',
+          'folder-name': currentName,
+          'subfolder-name': `${currentStandard.standardId}`,
+        },
       });
 
       if (!response.ok) {
@@ -398,10 +463,62 @@ const UploadEvidence = () => {
     setActiveStep((prevStep) => prevStep - 1);
   };
 
+  const handleFinishUploading = async () => {
+    try {
+      const response = await fetch(`${apiURL}/updateStatus/${currentName}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ uniName: currentName }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP status ${response.status}`);
+      }
+
+      toast.success('Upload finalized successfully');
+      setUniversityStatus('completed');
+      setShowModal(false); // Close the modal after the user clicks "Yes"
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'An unknown error occurred';
+      console.error('Error finalizing upload:', errorMessage);
+      toast.error(`Failed to finalize upload: ${errorMessage}`);
+      setShowModal(false); // Ensure the modal closes even on error
+
+    }
+  };
+
+
   return (
     <DefaultLayout>
       <Breadcrumb pageName="Upload Evidence" />
+      {universityStatus === 'completed' && (
+        <CompletionMessage>
+          You have completed your upload!
+        </CompletionMessage>
+      )}
       <MainContainer>
+      {universityStatus === 'in-progress' && (
+          <FinishButtonContainer>
+            <FinishButton onClick={() => setShowModal(true)}>
+              Finish Uploading
+            </FinishButton>
+          </FinishButtonContainer>
+        )}
+        <Modal
+          isOpen={showModal}
+          onRequestClose={() => setShowModal(false)}
+          contentLabel="Confirm Finish Uploading"
+          style={customStyles} // Apply custom styles here
+        >
+          <h2>Are you sure you want to finalize your upload?</h2>
+          <ButtonsContainer>
+            <ButtonStyle onClick={() => setShowModal(false)}>Cancel</ButtonStyle>
+            <ButtonStyle onClick={handleFinishUploading}>Yes</ButtonStyle>
+          </ButtonsContainer>
+        </Modal>
 
         <SectionTitle>
           {standards[activeStep]?.standardId}:{' '}
@@ -432,57 +549,55 @@ const UploadEvidence = () => {
         </ButtonsContainer>
         <br />
 
-        {standards[activeStep]?.indicators.map((indicator: any, index: any) => (
-         
-         indicator.id && indicator.label ? (
-         <div key={`${activeStep}-${index}`} className="card">
-            {/* <StandardName>{standards[activeStep].standardName}</StandardName> */}
+        {standards[activeStep]?.indicators.map((indicator: any, index: any) =>
+          indicator.id && indicator.label ? (
+            <div key={`${activeStep}-${index}`} className="card">
+              {/* <StandardName>{standards[activeStep].standardName}</StandardName> */}
 
-           
               <IndicatorName>
                 {indicator.id}: {indicator.label}
               </IndicatorName>
-           
-            <FileUpload
-              name={`upload-${activeStep}-${index}`}
-              url={fileUploadUrl}
-              multiple
-              accept="*"
-              auto={true}
-              maxFileSize={10000000} // 10 MB limit
-              onSelect={(e) =>
-                handleFileChange(e.files, standards[activeStep], indicator)
-              }
-              onError={(e) => {
-                console.error('Upload Error:', e);
-              }}
-              emptyTemplate={<p>Drag and drop files here to upload</p>}
-            />
-            <div style={{ marginTop: '10px' }}>
-              {(
-                uploadedFiles[standards[activeStep]?.standardId]?.[
-                  indicator.id
-                ] || []
-              ).map((file: any) => (
-                <StyledFileDisplay key={file.name}>
-                  <i className="pi pi-file" style={{ fontSize: '1.2em' }}></i>
-                  {file.name.split('/').pop()}
-                  <DeleteIcon
-                    className="pi pi-times"
-                    onClick={() =>
-                      handleFileDelete(
-                        file.name,
-                        standards[activeStep]?.standardId,
-                        indicator.id,
-                      )
-                    }
-                  />
-                </StyledFileDisplay>
-              ))}
+
+              <FileUpload
+                name={`upload-${activeStep}-${index}`}
+                url={fileUploadUrl}
+                multiple
+                accept="*"
+                auto={true}
+                maxFileSize={10000000} // 10 MB limit
+                onSelect={(e) =>
+                  handleFileChange(e.files, standards[activeStep], indicator)
+                }
+                onError={(e) => {
+                  console.error('Upload Error:', e);
+                }}
+                emptyTemplate={<p>Drag and drop files here to upload</p>}
+              />
+              <div style={{ marginTop: '10px' }}>
+                {(
+                  uploadedFiles[standards[activeStep]?.standardId]?.[
+                    indicator.id
+                  ] || []
+                ).map((file: any) => (
+                  <StyledFileDisplay key={file.name}>
+                    <i className="pi pi-file" style={{ fontSize: '1.2em' }}></i>
+                    {file.name.split('/').pop()}
+                    <DeleteIcon
+                      className="pi pi-times"
+                      onClick={() =>
+                        handleFileDelete(
+                          file.name,
+                          standards[activeStep]?.standardId,
+                          indicator.id,
+                        )
+                      }
+                    />
+                  </StyledFileDisplay>
+                ))}
+              </div>
             </div>
-          </div>
-           ) : null
-        ))}
+          ) : null,
+        )}
       </MainContainer>
     </DefaultLayout>
   );

@@ -10,7 +10,7 @@ const Email: React.FC = () => {
         event.preventDefault();
         
         try {
-            const response = await fetch('https://96s5s8nyi1.execute-api.us-east-1.amazonaws.com/send-email', {
+            const response = await fetch('https://96s5s8nyi1.execute-api.us-east-1.amazonaws.com/sesLambda', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

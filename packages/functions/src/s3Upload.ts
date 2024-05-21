@@ -1,4 +1,3 @@
-
 import * as AWS from "aws-sdk";
 import { Buffer } from "buffer";
 import { Queue } from "sst/node/queue";
@@ -71,6 +70,7 @@ export async function uploadToS3(event: any) {
     const subsubfolderName = event.headers["subsubfolder-name"]; // New header for sub-subfolder
     const contentType = event.headers["content-type"];
 
+    console.log(fileData);
     // Check file size before upload (optional)
     const fileSize = Buffer.byteLength(fileData);
     console.log("File size:", fileSize);
@@ -140,12 +140,11 @@ export async function uploadToS3(event: any) {
         })
         .promise();
       console.log("SQS Response:", sqsResponse);
+      console.log("Message queued!");
     } catch (error) {
       console.error("Error sending message to SQS:", error);
       throw new Error("Failed to send message to SQS");
     }
-
-    console.log("Message queued!");
 
     // if (!response.ok) {
     //   throw new Error("Failed to upload file");
@@ -166,4 +165,3 @@ export async function uploadToS3(event: any) {
     };
   }
 }
-
