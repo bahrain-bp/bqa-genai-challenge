@@ -366,7 +366,7 @@ const OfficerDash = () => {
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : 'An unknown error occurred';
-      console.error('Delete file error:', errorMessage);
+      console.error('Delete- file error:', errorMessage);
       toast.error(`Failed to delete file: ${errorMessage}`);
     }
   };
