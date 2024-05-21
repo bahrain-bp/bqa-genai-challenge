@@ -145,6 +145,61 @@ const handler: Handler = async (event: APIGatewayProxyEvent, context: Context) =
           - Ms. Judi, Occupational Health & Safety Advisor - Mobile No. 39xxxxxx
           - Office 205 Ext 2303
         `;
+        const roomSizes = `Room #	Description	M2		ft.2
+				
+        001	Security /CCTV room	15	10.76	161.4
+        002	Furniture storage room	25.2	10.76	271.2
+        003	Maintenence storage room	40.5	10.76	435.8
+        004	Carpet storage room	40.5	10.76	435.8
+        005	AHU Room	36.2	10.76	389.5
+        006	Copy Centre	30	10.76	322.8
+        007	Exam Office File Store Room	24.5	10.76	263.6
+        008	Pump room	23.4	10.76	251.8
+        009	Spare store	10	10.76	107.6
+        010	Maintenence Office	7.75	10.76	83.4
+        011	Cleaners locker room	7	10.76	75.3
+        012	Cleaners tea room	9.5	10.76	102.2
+        013	Store room	3.75	10.76	40.4
+        014	AHU Room	16	10.76	172.2
+        015	Kitchen room	10.5	10.76	113.0
+        016	Store room	36	10.76	387.4
+        017	Electrical Switchroom	19.5	10.76	209.8
+        018	Male WCs	15.6	10.76	167.9
+        019	Female WCs	15.6	10.76	167.9
+        020	Boiler room  (Maintenance) 	57.6	10.76	619.8
+        021	Tank Room	135	10.76	1452.6
+        022	Gas storage room	15.7	10.76	168.9
+        023	Telecomms room	7.7	10.76	82.9
+        024	Driver's Office	10.2	10.76	109.8
+        025	Chilled food store	137	10.76	1474.1
+        026	Dry food store	16.5	10.76	177.5
+        027	Dry food store	16.5	10.76	177.5
+        028	Lanscaper Area	43	10.76	462.7
+        029	Compressor Room	8	10.76	86.1
+        030	LV Switchroom  (Maintenance)	57	10.76	613.3
+        031	Transformer room	75	10.76	807.0
+        032	Maintenance Workshop	45.6	10.76	490.7
+        033	Store room	7	10.76	75.3
+        034	IT Room	36.5	10.76	392.7
+        035	IT Room	23.4	10.76	251.8
+        036	Store room	42	10.76	451.9
+        037	Transformer room	66	10.76	710.2
+        038	LV Switchroom  (Maintenance)	66	10.76	710.2
+        039	Recycling Waste Area	8	10.76	86.1
+        040	Admin Store room	22.4	10.76	241.0
+        GD1	Group Study Room			
+        GD2	Group Study Room			
+        GD3	Group Study Room			
+        GD4	Group Study Room			
+        GD5	Group Study Room			
+        GD6	Group Study Room			
+        GD7	Research Room			
+        GD8	Training Room			
+        GD9	LRC Support Staff			
+        GD10	Office			
+        GD11	Meeting room			
+        TD1	Kitchen			
+        TD2	Store Room			`;
 
         const infrastructureCriteria: string[] = [
             `
@@ -164,15 +219,15 @@ const handler: Handler = async (event: APIGatewayProxyEvent, context: Context) =
 
         // for (const criterion of infrastructureCriteria) {
         const prompt = `
-                Below is the content describing the university's orientation day and the infrastructure criteria for evaluation:\n\n
-                ${orientationDayText}\n\n
+                Below is the content describing the university's room sizes and the infrastructure criteria for evaluation:\n\n
+                ${roomSizes}\n\n
                 Based on the provided evidence, evaluate the university's compliance and performance across the infrastructure indicators listed below. Provide a score from 1 to 5 for each indicator, along with specific examples or evidence supporting your assessment:\n\n
-                Infrastructure Criteria:\n
+                Below is the Infrastructure Criteria:\n
                 ${infrastructureCriteria}\n\n
                 For each indicator:\n
-                - Assign a score from 1 to 5 out of 5 based on the level of compliance and effectiveness.\n
-                - Include specific examples or practices from the orientation day text to justify your score.\n
-                - Highlight areas of strength and potential areas for improvement.\n\n
+                - Assign a score from 1 to 3 out of 3 based on the level of compliance and effectiveness.\n
+                - Include Evaluation, supporting evidence from the provided room sizes content to justify your score with examples.\n
+            
                `;
 
         logger.info(`Prompt: ${prompt}`);
@@ -189,8 +244,17 @@ const handler: Handler = async (event: APIGatewayProxyEvent, context: Context) =
 
         const responseBody = await generateText(modelId, body);
 
-        const response = { prompt, results: responseBody.results };
-        logger.info(JSON.stringify(response));
+        // const response = { prompt, results: responseBody.results };
+        // logger.info(JSON.stringify(response.results));
+
+        // Extract and join the outputText fields from the results
+        const outputTexts = responseBody.results.map((result: { outputText: any; }) => result.outputText).join('\n\n');
+
+        // Log the outputTexts in a readable format
+        logger.info(outputTexts);
+
+        const response = { prompt, results: outputTexts };
+
 
         return response;
 
