@@ -1,22 +1,18 @@
 import { APIGatewayEvent, Context } from "aws-lambda";
 import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
-import {
-  TextractClient,
-  StartDocumentAnalysisCommand,
-  GetDocumentAnalysisCommand,
-} from "@aws-sdk/client-textract";
-import { Writable } from "stream";
+import { TextractClient, StartDocumentTextDetectionCommand, GetDocumentTextDetectionCommand } from "@aws-sdk/client-textract";
 import { promisify } from "util";
 import { pipeline } from "stream";
+import { Writable } from "stream";
 
 // Interface to define expected request body structure
 interface TextractRequest {
   bucketName: string;
   folderName?: string;
   subfolderName?: string;
+  subsubfolderName?: string; // Added subsubfolderName
   fullKey?: string; // Optional parameter for full object key
   fileName: string; // Parameter for chunked file name
-
 }
 
 interface Block {
@@ -27,10 +23,7 @@ interface Block {
 const s3Client = new S3Client({ region: process.env.AWS_REGION });
 const textractClient = new TextractClient({ region: process.env.AWS_REGION });
 
-export const extractTextFromPDF = async (
-  event: APIGatewayEvent,
-  context: Context
-) => {
+export const extractTextFromPDF = async (event: APIGatewayEvent, context: Context) => {
   try {
     const requestBody: TextractRequest = JSON.parse(event.body || "{}");
     console.log("Request Body:", requestBody);
@@ -49,14 +42,14 @@ export const extractTextFromPDF = async (
       bucketName,
       folderName = "",
       subfolderName = "",
+      subsubfolderName = "", // Added subsubfolderName
       fullKey,
       fileName,
     } = requestBody;
 
     // Determine the object key based on whether fullKey is provided
     const objectKey = fullKey ? fullKey :
-      `${folderName ? folderName + "/" : ""}${subfolderName ? subfolderName + "/" : ""}${fileName}`;
-
+      `${folderName ? folderName + "/" : ""}${subfolderName ? subfolderName + "/" : ""}${subsubfolderName ? subsubfolderName + "/" : ""}${fileName}`;
 
     console.log("Object Key:", objectKey);
 
@@ -74,40 +67,35 @@ export const extractTextFromPDF = async (
       throw new Error("PDF data is empty or not a buffer.");
     }
 
-    // Use Textract to start document analysis
-    const startDocumentAnalysisCommand = new StartDocumentAnalysisCommand({
+    // Use Textract to start document text detection
+    const startDocumentTextDetectionCommand = new StartDocumentTextDetectionCommand({
       DocumentLocation: {
         S3Object: {
           Bucket: bucketName,
           Name: objectKey, // Use objectKey instead of fullKey
         },
       },
-      FeatureTypes: ["TABLES", "FORMS"],
     });
 
-    // Start document analysis job
-    const startAnalysisResponse = await textractClient.send(
-      startDocumentAnalysisCommand
-    );
+    // Start document text detection job
+    const startTextDetectionResponse = await textractClient.send(startDocumentTextDetectionCommand);
 
-    // Check if the analysis job started successfully
-    if (!startAnalysisResponse.JobId) {
-      throw new Error("Failed to start document analysis job.");
+    // Check if the text detection job started successfully
+    if (!startTextDetectionResponse.JobId) {
+      throw new Error("Failed to start document text detection job.");
     }
 
-    // Wait for analysis job to complete
-    const jobId = startAnalysisResponse.JobId;
-    const getDocumentAnalysisCommand = new GetDocumentAnalysisCommand({
+    // Wait for text detection job to complete
+    const jobId = startTextDetectionResponse.JobId;
+    const getDocumentTextDetectionCommand = new GetDocumentTextDetectionCommand({
       JobId: jobId,
     });
-    const analysisResult = await waitForAnalysisCompletion(
-      getDocumentAnalysisCommand
-    );
+    const textDetectionResult = await waitForTextDetectionCompletion(getDocumentTextDetectionCommand);
 
-    // Extract text from analysis result
+    // Extract text from text detection result
     let extractedText = "";
-    if (analysisResult.Blocks) {
-      extractedText = analysisResult.Blocks.filter(
+    if (textDetectionResult.Blocks) {
+      extractedText = textDetectionResult.Blocks.filter(
         (block: Block) => block.BlockType === "LINE"
       ).map((block: Block) => block.Text?.trim() || "").join(' ');
     }
@@ -116,15 +104,15 @@ export const extractTextFromPDF = async (
     return {
       statusCode: 200,
       body: JSON.stringify({
-        message: "Text extracted successfully",
+        message: "Text fetched successfully",
         text: extractedText,
       }),
     };
   } catch (error) {
-    console.error("Error extracting text from PDF:", error);
+    console.error("Error fetching text from PDF:", error);
     return {
       statusCode: 500,
-      body: JSON.stringify({ message: "Failed to extract text from PDF" }),
+      body: JSON.stringify({ message: "Failed to fetch text from PDF" }),
     };
   }
 };
@@ -148,10 +136,8 @@ async function streamToBuffer(stream: NodeJS.ReadableStream): Promise<Buffer> {
   return Buffer.concat(chunks);
 }
 
-// Function to wait for document analysis job completion
-async function waitForAnalysisCompletion(
-  command: GetDocumentAnalysisCommand
-): Promise<any> {
+// Function to wait for document text detection job completion
+async function waitForTextDetectionCompletion(command: GetDocumentTextDetectionCommand): Promise<any> {
   const maxRetries = 30;
   let retries = 0;
   while (retries < maxRetries) {
@@ -162,5 +148,5 @@ async function waitForAnalysisCompletion(
     await new Promise((resolve) => setTimeout(resolve, 5000)); // Wait for 5 seconds before checking again
     retries++;
   }
-  throw new Error("Analysis job did not complete within the expected time.");
+  throw new Error("Text detection job did not complete within the expected time.");
 }
