@@ -247,7 +247,6 @@ const OfficerDash = () => {
   useEffect(() => {
     fetchRecords(); // Fetch records for the extracted standard name // Fetch records when the component mounts
   }, []);
-
   const fetchUploadedFiles = async (standardId: string) => {
     const url = `${apiURL}/files`;
     try {
@@ -257,7 +256,6 @@ const OfficerDash = () => {
           'bucket-name': 'uni-artifacts',
           'folder-name': currentName,
           'subfolder-name': standardId,
-          // 'subsubfolder-name':'Indicator7'
         },
       });
 
@@ -265,41 +263,40 @@ const OfficerDash = () => {
         throw new Error(`HTTP status ${response.status}`);
       }
       const data = await response.json();
-      console.log(data);
 
       if (data.files && Array.isArray(data.files)) {
-        const fetchedFiles: FileDetail[] = data.files.map((file: any) => ({
+        // Filter out files containing "-split" in their name
+        const filteredFiles = data.files.filter(
+          (file: any) => !file.Key.includes('-split'),
+        );
+
+        const fetchedFiles: FileDetail[] = filteredFiles.map((file: any) => ({
           key: file.Key,
           name: file.Key.split('/').pop(),
           date: file.Date,
         }));
 
-        console.log(fetchedFiles);
         setFiles(fetchedFiles);
         setFileCountsByStandard((prevCounts) => ({
           ...prevCounts,
           [standardId]: fetchedFiles.length,
         }));
-        console.log('File count for ' + standardId + ':', fetchedFiles.length);
 
         setFileCount(fetchedFiles.length);
-        // console.log("Fetched files:", fetchedFiles);
-        // console.log(" file count:", fileCount);
 
-        //const indicators = [...new Set(files.map((file) => file.Key.split('/')[2]))];
-        const indicators = [
-          ...new Set(fetchedFiles.map((file) => file.key.split('/')[2])),
+        const indicators: any = [
+          ...new Set(filteredFiles.map((file: any) => file.Key.split('/')[2])),
         ];
-        setIndicators(indicators); // Make sure you have `setIndicators` defined in your state
+        setIndicators(indicators);
       } else {
         console.error('Expected files to be an array but got:', data.files);
-        setFiles([]); // Reset or handle as needed if data is not in the expected format
+        setFiles([]);
       }
 
       setLoading(false);
     } catch (error: any) {
       console.error('Error fetching uploaded files:', error);
-      // toast.error(`Error fetching uploaded files: ${error.message}`);
+      // Handle error
     }
   };
 
