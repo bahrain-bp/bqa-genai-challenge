@@ -121,6 +121,7 @@ export function ApiStack({ stack }: StackContext) {
           permissions: ["s3"],
         },
       },
+      "POST /titan": "packages/functions/src/bedrock_lambda/titanCompare.handler",
 
       "POST /createUser": {
         function: {
