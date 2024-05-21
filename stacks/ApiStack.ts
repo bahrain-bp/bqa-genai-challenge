@@ -121,7 +121,8 @@ export function ApiStack({ stack }: StackContext) {
           permissions: ["s3"],
         },
       },
-      "POST /titan": "packages/functions/src/bedrock_lambda/titanCompare.handler",
+      "POST /titan":
+        "packages/functions/src/bedrock_lambda/titanCompare.handler",
 
       "POST /createUser": {
         function: {
@@ -153,6 +154,13 @@ export function ApiStack({ stack }: StackContext) {
           permissions: "*",
         },
       },
+      //Uploading logo to S3
+      "GET /files/{standardId}/{indicatorId}": {
+        function: {
+          handler: "packages/functions/src/fetchContentIndicator.main",
+          permissions: "*",
+        },
+      },
 
       //Fetching all users in cognito
       "GET /getUsers": {
@@ -172,17 +180,18 @@ export function ApiStack({ stack }: StackContext) {
       "POST /criteria": "packages/functions/src/criteria/create.main",
       "GET /criteria/{id}": "packages/functions/src/criteria/get.main",
       "GET /criteria": "packages/functions/src/criteria/list.main",
-      "GET /criteria/{id}/{indicator}": "packages/functions/src/criteria/getByIndicator.main",
-
-
-
+      "GET /criteria/{id}/{indicator}":
+        "packages/functions/src/criteria/getByIndicator.main",
     },
-
-
   });
   const get_users_function = api.getFunction("POST /createUser");
   get_users_function?.role?.addManagedPolicy(
     iam.ManagedPolicy.fromAwsManagedPolicyName("AmazonCognitoPowerUser")
+  );
+
+  const titan_function = api.getFunction("POST /titan");
+  titan_function?.role?.addManagedPolicy(
+    iam.ManagedPolicy.fromAwsManagedPolicyName("AmazonBedrockFullAccess")
   );
 
   // Define cache policy for the API
