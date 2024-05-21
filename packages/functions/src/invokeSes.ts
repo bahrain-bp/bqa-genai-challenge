@@ -1,10 +1,12 @@
 import axios from 'axios';
 import { fetchUserAttributes } from 'aws-amplify/auth';
 
+// Define the UserAttributes interface 
 interface UserAttributes {
     email?: string;
 }
 
+// Method to retrieve the current user's email
 const fetchCurrentUserEmail = async (): Promise<string> => {
     try {
         const attributes: UserAttributes = await fetchUserAttributes();

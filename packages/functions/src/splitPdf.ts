@@ -1,9 +1,23 @@
 import * as AWS from 'aws-sdk';
 import { PDFDocument, PDFPage } from 'pdf-lib'; // fix: npm install pdf-lib
 const axios = require("axios");
+import { fetchUserAttributes } from 'aws-amplify/auth';
+
+interface UserAttributes {
+    email?: string;
+}
+
+const fetchCurrentUserEmail = async (): Promise<string> => {
+    try {
+        const attributes: UserAttributes = await fetchUserAttributes();
+        return attributes?.email ?? '';
+    } catch (error) {
+        console.error('Failed to fetch user info:', error);
+        throw error;
+    }
+};
 
 const s3 = new AWS.S3();
-const lambda = new AWS.Lambda(); // Initialize AWS Lambda
 const maxTokens = 500; // Adjust based on your SageMaker token limit
 const maxAllowedTokens = 4096; // Maximum tokens allowed by SageMaker endpoint
 
