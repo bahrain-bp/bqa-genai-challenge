@@ -29,13 +29,15 @@ export function ApiStack({ stack }: StackContext) {
       // authorizer: "jwt",
     },
     routes: {
-      // Email route
-      "POST /send-email": {
-        function: {
-          handler: "packages/functions/src/send-email.sendEmail",
-          permissions: ["ses"],
+      //  Email API route
+        "POST /send-email": 
+        {
+            function:
+            {
+                handler: "packages/functions/src/send-email.sendEmail",
+                permissions: ["ses"]
+            }
         },
-      },
       // Sample TypeScript lambda function
       "POST /": "packages/functions/src/lambda.main",
       "POST /uploadS3": {
@@ -46,17 +48,28 @@ export function ApiStack({ stack }: StackContext) {
           timeout: "300 seconds",
         },
       },
-
+      "POST /splitPdf": {
+        function: {
+          handler: "packages/functions/src/splitPdf.handler",
+          permissions: ["s3", "dynamodb"],
+          timeout: "900 seconds",
+          retryAttempts: 2,
+        },
+      },
       "POST /comprehend": {
         function: {
           handler: "packages/functions/src/comprehend.comprehendText",
           permissions: ["comprehend"],
+          timeout: "900 seconds",
+
         },
       },
       "GET /downloadFile": {
         function: {
           handler: "packages/functions/src/files/downloadFile.main",
           permissions: "*",
+          timeout: "900 seconds",
+
         },
       },
 
@@ -64,14 +77,16 @@ export function ApiStack({ stack }: StackContext) {
         function: {
           handler: "packages/functions/src/textractPdf.extractTextFromPDF",
           permissions: ["textract", "s3"],
-          ///timeout: "200 seconds",
+          timeout: "200 seconds",
           bind: [documentsQueue],
+          retryAttempts: 2,
         },
       },
       "GET /detectFileType": {
         function: {
           handler: "packages/functions/detectFileType.detect",
           permissions: ["s3"],
+          timeout: "900 seconds",
         },
       },
       "GET /private": "packages/functions/src/private.main",
@@ -127,6 +142,8 @@ export function ApiStack({ stack }: StackContext) {
         function: {
           handler: "packages/functions/src/files/create.main",
           permissions: "*",
+          timeout: "900 seconds",
+
         },
       },
 
@@ -135,6 +152,8 @@ export function ApiStack({ stack }: StackContext) {
         function: {
           handler: "packages/functions/src/files/update.main",
           permissions: "*",
+          timeout: "900 seconds",
+
         },
       },
 
@@ -185,6 +204,7 @@ export function ApiStack({ stack }: StackContext) {
           ],
         },
       },
+      // Standard API route
       "POST /standards": "packages/functions/src/standards/create.main",
       "GET /standards/{id}": "packages/functions/src/standards/get.main",
       "GET /standards": "packages/functions/src/standards/list.main",
@@ -218,6 +238,12 @@ export function ApiStack({ stack }: StackContext) {
       "Referer"
     ),
   });
+
+    // Show the API endpoint in the output
+    stack.addOutputs({
+      ApiEndpoint: api.url,
+    });
+
 
   return { api, apiCachePolicy };
 }

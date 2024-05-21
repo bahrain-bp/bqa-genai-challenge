@@ -36,7 +36,7 @@ export async function main(event: any) {
         // Return the attributes
         return {
             statusCode: 200,
-            body: JSON.stringify({ fileName, fileURL, standardName, standardNumber, indicatorNumber, name, content, summary, strength, weakness, score, comments }),
+            body: JSON.stringify({ summary}),
         };
     } catch (error) {
         // Handle errors
