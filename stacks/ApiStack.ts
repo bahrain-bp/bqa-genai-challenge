@@ -33,8 +33,8 @@ export function ApiStack({ stack }: StackContext) {
       "POST /send-email": {
         function: {
           handler: "packages/functions/src/send-email.sendEmail",
-          permissions: ["ses"]
-        }
+          permissions: ["ses"],
+        },
       },
       // Sample TypeScript lambda function
       "POST /": "packages/functions/src/lambda.main",
@@ -171,7 +171,14 @@ export function ApiStack({ stack }: StackContext) {
       "GET /files/{standardId}/{indicatorId}": {
         function: {
           handler: "packages/functions/src/fetchContentIndicator.main",
-          permissions: ["dynamodb"],
+          permissions: "*",
+        },
+      },
+      //Uploading logo to S3
+      "POST /updateFileDB": {
+        function: {
+          handler: "packages/functions/src/files/updateByFileName.handler",
+          permissions: "*",
         },
       },
       //Fetching all users in cognito
@@ -192,7 +199,8 @@ export function ApiStack({ stack }: StackContext) {
       "POST /criteria": "packages/functions/src/criteria/create.main",
       "GET /criteria/{id}": "packages/functions/src/criteria/get.main",
       "GET /criteria": "packages/functions/src/criteria/list.main",
-      "GET /criteria/{id}/{indicator}": "packages/functions/src/criteria/getByIndicator.main",
+      "GET /criteria/{id}/{indicator}":
+        "packages/functions/src/criteria/getByIndicator.main",
     },
   });
 
