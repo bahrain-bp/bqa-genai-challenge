@@ -1,61 +1,38 @@
-// Function to invoke SES to send an email
-import { fetchUserAttributes } from 'aws-amplify/auth';
-const AWS = require('aws-sdk');
-const lambda = new AWS.Lambda();
+const axios = require('axios');
 
 export const invokeSendEmailLambda = async (): Promise<any> => {
-
-    // sender email address
-    const sourceEmail = 'maryamkameshki02@gmail.com';
-
-    // receiver email address replace this with the email of current user retrieved from the cognito user pool
-    const userEmail = 'maryamalsaad20@gmail.com';
-
-    // getting the current user's email
-    // const user = await fetchUserAttributes();
-    // const userEmail = user?.email;
-    // console.log("userEmail: ", userEmail);
-
-    // tried this but it says Auth is not configured ( Error: Auth UserPool not configured. )
-
-    // email subject
-    const subject = 'Test Email';
-
-    // file name that was uploaded
-    const fileName = 'test.txt';
-
-    // message to be sent
-    const body = `This is a test email. ${fileName}`; 
-
-    // note: current user and source email both need to be verified in SES to send the email
-
-    // parameters for the send-email Lambda function
-    const params = {
-        // i'm suspecting that the lambda function name is wrong but that is what i found in the management console 
-        // when i searched for the function "sendEmail" (i wanted the function name to be "sendEmail" from send-email.ts file)
-
-        FunctionName: 'imira-codecatalyst-sst-ap-signinAPILambdaPOSTsende-4P8UiYP24Y1g', // Name of the sendEmail Lambda function
-        InvocationType: 'RequestResponse', // Synchronous invocation
-        Payload: JSON.stringify({
-            sourceEmail: sourceEmail,
-            userEmail: userEmail,
-            subject: subject,
-            body: body
-        })
-    };
-
     try {
-        // invoke the Lambda function and pass the parameters
-        const response = await lambda.invoke(params).promise();
+        // Send email confirmation that processing is complete
+        // Prepare email parameters
+        const sourceEmail = 'noreplyeduscribeai@gmail.com'; // sender email address
+        const userEmail = 'maryamkameshki02@gmail.com'; // receiver email address replace this with the email of current user retrieved from the cognito user pool
+        const subject = 'Processing Complete';
+        const fileName = 'test.txt'; // file name that was uploaded
+        const fileURL = 'https://s3.amazonaws.com/bucket/test.txt'; // URL of the file that was processed by the Lambda function
+        const body = `The processing of your file ${fileName} is complete. You can access it at ${fileURL}.`;
+
+        // Invoke the email sending Lambda function
+        const response = await axios.post('https://u1oaj2omi2.execute-api.us-east-1.amazonaws.com/send-email', {
+            sourceEmail,
+            userEmail, // recipient
+            subject,
+            body
+        }, {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
         console.log(response);
 
         // check if the response is successful
-        if(response.StatusCode !== 200){
-            throw new Error('Failed to get response from lambda function')
-          }
+        if (response.status !== 200) {
+            console.log('Failed to get response from lambda function');
+            throw new Error('Failed to get response from lambda function');
+        }
 
-        // return the response
-        return JSON.parse(response.Payload);
+        // return the response data
+        return response.data;
 
     } catch (error) {
         console.error(error);

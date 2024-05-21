@@ -1,8 +1,9 @@
 import * as AWS from 'aws-sdk';
-import { PDFDocument, PDFPage } from 'pdf-lib';
+import { PDFDocument, PDFPage } from 'pdf-lib'; // fix: npm install pdf-lib
 const axios = require("axios");
 
 const s3 = new AWS.S3();
+const lambda = new AWS.Lambda(); // Initialize AWS Lambda
 const maxTokens = 500; // Adjust based on your SageMaker token limit
 const maxAllowedTokens = 4096; // Maximum tokens allowed by SageMaker endpoint
 
@@ -92,17 +93,49 @@ export const handler = async (event: any) => {
       comments,
     });
 
+    // Send email confirmation that processing is complete
+
+
+        // Prepare email parameters
+        const sourceEmail = 'noreplyeduscribeai@gmail.com'; // sender email address
+        const userEmail = 'maryamkameshki02@gmail.com'; // receiver email address replace this with the email of current user retrieved from the cognito user pool
+        const subject = 'Processing Complete';
+        const body = `The processing of your file ${fileName} is complete. You can access it at ${fileURL}.`;
+
+        // Invoke the email sending Lambda function
+        const Emailresponse = await axios.post('https://u1oaj2omi2.execute-api.us-east-1.amazonaws.com/send-email', {
+            sourceEmail,
+            userEmail, // recipient
+            subject,
+            body
+        }, {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        console.log(Emailresponse);
+
+        // check if the response is successful
+        if (Emailresponse.status !== 200) {
+          console.log('Failed to get response from lambda function');
+          throw new Error('Failed to get response from lambda function');
+        }
+
+        // return the response data
+        return Emailresponse.data;
+
     // Return the extracted text chunks as response
     return {
       statusCode: 200,
       body: JSON.stringify({ chunks: extractedSummaries }),
     };
   } catch (error) {
-    console.log('Error during processing:', error);
+    console.log('Error during processing, email not sent:', error);
     // Return error response
     return {
       statusCode: 500,
-      body: JSON.stringify({ message: 'Error processing request' }),
+      body: JSON.stringify({ message: 'Error processing request, email not sent' }),
     };
   }
 };
