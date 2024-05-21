@@ -23,31 +23,29 @@ const BqaRequestPage: React.FC = () => {
   // const { t } = useTranslation(); // Hook to access translation functions
   const api = import.meta.env.VITE_API_URL;
 
-  //const [user, setUsers] = useState<{ Username: string; Attributes: { Name: string; Value: string }[] }[]>([]);
 
   const query = useQuery();
   const name = query.get('name');
   
-  // const [currentEmail, setCurrentEmail] = useState('');
+  // getting user attribute
   const getAttributeValue = (attributes: { Name: string; Value: string }[], attributeName: string): string => {
     const attribute = attributes.find(attr => attr.Name === attributeName);
     return attribute ? attribute.Value : 'N/A'; // Returns 'N/A' if attribute not found
   };
 
   useEffect(() => {
-    // Fetch sourceEmail info
+    // getting current user email
     const getCurrentUserInfo = async () => {
       try {
         const attributes = fetchUserAttributes();
         setSourceEmail((await attributes)?.email ?? ''); // Provide a default value for setSourceEmail
-        console.log("Source Email:" + sourceEmail); // email doesn't show in the log but is recognized
+        console.log("Source Email:" + (await attributes)?.email ?? ''); // email doesn't show in the log but is recognized
       } catch (error) {
         console.error('Failed to fetch user info:', error);
       }
     };
 
-    getCurrentUserInfo();
-
+    // getting university user email
     const fetchUserInfo = async () => {
 
       if (!name) {
@@ -78,7 +76,7 @@ const BqaRequestPage: React.FC = () => {
          // Check if there's a matching user and set their email
             if (filteredUsers.length > 0) {
               setUserEmail(filteredUsers[0].email); 
-              console.log(`Email of the user ${name}: ${filteredUsers[0].email}`);
+              console.log(`Email of ${name}: ${filteredUsers[0].email}`);
             } else {
                 console.log(`No user found with the name: ${name}`);
                 // setuserEmail(''); // Clear the email if no user is found
@@ -89,6 +87,7 @@ const BqaRequestPage: React.FC = () => {
       }
     };
 
+    getCurrentUserInfo();
     fetchUserInfo();
   }, [name]);
 
