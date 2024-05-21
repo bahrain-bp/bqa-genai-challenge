@@ -1,8 +1,6 @@
 import Breadcrumb from '../components/Breadcrumbs/Breadcrumb';
 import DefaultLayout from '../layout/DefaultLayout';
 import  { useState, useEffect } from 'react';
-// import { useParams } from 'react-router-dom';
-
 
 // Define a type for the expected file data
 // type FileData = {
@@ -23,7 +21,6 @@ const SummaryPage=() => {
     const apiURL = import.meta.env.VITE_API_URL;
 
    
-
         const fetchFiles = async () => {
           // setLoading(true);
 
