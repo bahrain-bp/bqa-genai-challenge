@@ -1,11 +1,31 @@
-const axios = require('axios');
+import axios from 'axios';
+import { fetchUserAttributes } from 'aws-amplify/auth';
+
+interface UserAttributes {
+    email?: string;
+}
+
+const fetchCurrentUserEmail = async (): Promise<string> => {
+    try {
+        const attributes: UserAttributes = await fetchUserAttributes();
+        return attributes?.email ?? '';
+    } catch (error) {
+        console.error('Failed to fetch user info:', error);
+        throw error;
+    }
+};
 
 export const invokeSendEmailLambda = async (): Promise<any> => {
     try {
-        // Send email confirmation that processing is complete
+        // Fetch current logged-in user email from Cognito
+        const currentEmail = await fetchCurrentUserEmail();
+
+        if (!currentEmail) {
+            throw new Error('User email is not available.');
+        }
+
         // Prepare email parameters
         const sourceEmail = 'noreplyeduscribeai@gmail.com'; // sender email address
-        const userEmail = 'maryamkameshki02@gmail.com'; // receiver email address replace this with the email of current user retrieved from the cognito user pool
         const subject = 'Processing Complete';
         const fileName = 'test.txt'; // file name that was uploaded
         const fileURL = 'https://s3.amazonaws.com/bucket/test.txt'; // URL of the file that was processed by the Lambda function
@@ -14,7 +34,7 @@ export const invokeSendEmailLambda = async (): Promise<any> => {
         // Invoke the email sending Lambda function
         const response = await axios.post('https://u1oaj2omi2.execute-api.us-east-1.amazonaws.com/send-email', {
             sourceEmail,
-            userEmail, // recipient
+            userEmail: currentEmail, // recipient
             subject,
             body
         }, {
@@ -25,13 +45,13 @@ export const invokeSendEmailLambda = async (): Promise<any> => {
 
         console.log(response);
 
-        // check if the response is successful
+        // Check if the response is successful
         if (response.status !== 200) {
             console.log('Failed to get response from lambda function');
             throw new Error('Failed to get response from lambda function');
         }
 
-        // return the response data
+        // Return the response data
         return response.data;
 
     } catch (error) {
