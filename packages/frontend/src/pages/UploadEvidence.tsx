@@ -7,6 +7,8 @@ import { FileUpload } from 'primereact/fileupload';
 //import { useTranslation } from 'react-i18next';
 //import Loader from '../common/Loader';
 import { fetchUserAttributes } from 'aws-amplify/auth';
+import Modal from 'react-modal';
+
 
 const MainContainer = styled.div`
   width: 100%;
@@ -139,12 +141,57 @@ const SectionTitle = styled.h2`
   margin-top: 20px;
   margin-bottom: 20px;
 `;
+const FinishButtonContainer = styled.div`
+  display: flex;
+  justify-content: flex-end; // Aligns the button to the right
+  margin-top: 10px;
+`;
+
+const FinishButton = styled.button`
+  padding: 10px 20px;
+  font-size: 16px;
+  color: #ffffff;
+  background-color: #2ecc71;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  &:hover {
+    background-color: #27ae60;
+  }
+`;
+
+// Custom styles for the modal
+const customStyles = {
+  content: {
+    top: '30%', // Adjusted to position the modal higher
+    left: '55%',
+    right: 'auto',
+    bottom: 'auto',
+    marginRight: '-50%',
+    transform: 'translate(-50%, -50%)',
+    width: '80%',
+    maxWidth: '400px',
+    padding: '20px',
+    borderRadius: '10px',
+  },
+  overlay: {
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+};
+const CompletionMessage = styled.div`
+  top: 10px;
+  left: 10px;
+  color: #2ecc71;
+  font-size: 18px;
+`;
 
 const UploadEvidence = () => {
   const [standards, setStandards] = useState<any[]>([]); // Using 'any[]' for state typing
   const [activeStep, setActiveStep] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState<any[]>([]);
+  const [universityStatus, setUniversityStatus] = useState('');
+  const [showModal, setShowModal] = useState(false);
 
   const [currentName, setCurrentName] = useState('');
 
@@ -163,6 +210,25 @@ const UploadEvidence = () => {
   }, []);
 
   const apiURL = import.meta.env.VITE_API_URL;
+  useEffect(() => {
+    const fetchUniversityStatus = async () => {
+      try {
+        const response = await fetch(`${apiURL}/uniStatus/${currentName}`);
+        if (!response.ok) {
+          throw new Error(`HTTP status ${response.status}`);
+        }
+        const data = await response.json();
+        setUniversityStatus(data.status);
+      } catch (error) {
+        console.error('Error fetching university status:', error);
+        toast.error(`Error fetching university status: ${error instanceof Error ? error.message : 'An error occurred'}`);
+      }
+    };
+
+    if (currentName) {
+      fetchUniversityStatus();
+    }
+  }, [currentName]);
 
   useEffect(() => {
     const fetchStandards = async () => {
@@ -337,7 +403,7 @@ const UploadEvidence = () => {
       const errorMessage =
         error instanceof Error ? error.message : 'An unknown error occurred';
       console.error('Error fetching uploaded files:', errorMessage);
-      toast.error(`Error fetching uploaded files: ${errorMessage}`);
+      // toast.error(`Error fetching uploaded files: ${errorMessage}`);
     }
   };
 
@@ -399,10 +465,63 @@ const UploadEvidence = () => {
     setActiveStep((prevStep) => prevStep - 1);
   };
 
+  const handleFinishUploading = async () => {
+    try {
+      const response = await fetch(`${apiURL}/updateStatus/${currentName}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ uniName: currentName }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP status ${response.status}`);
+      }
+
+      toast.success('Upload finalized successfully');
+      setUniversityStatus('completed');
+      setShowModal(false); // Close the modal after the user clicks "Yes"
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'An unknown error occurred';
+      console.error('Error finalizing upload:', errorMessage);
+      toast.error(`Failed to finalize upload: ${errorMessage}`);
+      setShowModal(false); // Ensure the modal closes even on error
+
+    }
+  };
+
+
   return (
     <DefaultLayout>
       <Breadcrumb pageName="Upload Evidence" />
+      {universityStatus === 'completed' && (
+        <CompletionMessage>
+          You have completed your upload!
+        </CompletionMessage>
+      )}
       <MainContainer>
+      {universityStatus === 'in-progress' && (
+          <FinishButtonContainer>
+            <FinishButton onClick={() => setShowModal(true)}>
+              Finish Uploading
+            </FinishButton>
+          </FinishButtonContainer>
+        )}
+        <Modal
+          isOpen={showModal}
+          onRequestClose={() => setShowModal(false)}
+          contentLabel="Confirm Finish Uploading"
+          style={customStyles} // Apply custom styles here
+        >
+          <h2>Are you sure you want to finalize your upload?</h2>
+          <ButtonsContainer>
+            <ButtonStyle onClick={() => setShowModal(false)}>Cancel</ButtonStyle>
+            <ButtonStyle onClick={handleFinishUploading}>Yes</ButtonStyle>
+          </ButtonsContainer>
+        </Modal>
+
         <SectionTitle>
           {standards[activeStep]?.standardId}:{' '}
           {standards[activeStep]?.standardName}
