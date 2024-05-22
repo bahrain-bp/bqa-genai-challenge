@@ -9,6 +9,8 @@ import {fetchUserAttributes } from 'aws-amplify/auth';
 import Loader from '../common/Loader';
 import { toast } from 'react-toastify'; // Import toast from react-toastify
 import 'react-toastify/dist/ReactToastify.css'; // Import the CSS for react-toastify
+import { toast } from 'react-toastify'; // Import toast from react-toastify
+import 'react-toastify/dist/ReactToastify.css'; // Import the CSS for react-toastify
 
 const Standards: React.FC = () => {
 
@@ -28,8 +30,8 @@ const Standards: React.FC = () => {
   
       // Delete each record
       await Promise.all(recordsToDelete.map(async record => {
-        const api = import.meta.env.VITE_API_URL; 
-        const apiUrl = `${api}/standards/${record.entityId}`;
+        // const api = import.meta.env.VITE_API_URL;
+        const apiUrl = `https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards/${record.entityId}`;
         const response = await fetch(apiUrl, {
           method: 'DELETE',
         });
@@ -42,8 +44,10 @@ const Standards: React.FC = () => {
       setRecords(records.filter(record => !recordsToDelete.includes(record)));
       console.log('Records deleted successfully');
       toast.success('Records deleted successfully');
+      toast.success('Records deleted successfully');
     } catch (error) {
       console.error('Error deleting records:', error);
+      toast.error('Error deleting records:');
       toast.error('Error deleting records:');
     }
   };
@@ -60,8 +64,8 @@ const Standards: React.FC = () => {
   
       // Update status to 'archived' for each record
       await Promise.all(recordsToArchive.map(async record => {
-        const api = import.meta.env.VITE_API_URL; 
-        const apiUrl = `${api}/standards/${record.entityId}`;
+        // const api = import.meta.env.VITE_API_URL;
+        const apiUrl = `https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards/${record.entityId}`;
         const response = await fetch(apiUrl, {
           method: 'PUT', // Use PUT method to update the record
           headers: {
@@ -77,8 +81,10 @@ const Standards: React.FC = () => {
       // Fetch records again to reflect the changes
       fetchRecords();
       toast.success('Records archived successfully');
+      toast.success('Records archived successfully');
     } catch (error) {
       console.error('Error archiving records:', error);
+      toast.error('Error archiving records:');
       toast.error('Error archiving records:');
     }
   };
@@ -128,6 +134,8 @@ const Standards: React.FC = () => {
     try {
       // const api = import.meta.env.VITE_API_URL;
       const response = await fetch(`https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards`);
+      // const api = import.meta.env.VITE_API_URL;
+      const response = await fetch(`https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards`);
       if (!response.ok) {
         throw new Error('Failed to fetch records');
       }
@@ -159,6 +167,8 @@ const Standards: React.FC = () => {
       };
       // const api = import.meta.env.VITE_API_URL;
       const response = await fetch(`https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards`, {
+      // const api = import.meta.env.VITE_API_URL;
+      const response = await fetch(`https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -187,8 +197,11 @@ const Standards: React.FC = () => {
       });
       toast.success('Standard created successfully');
 
+      toast.success('Standard created successfully');
+
     } catch (error) {
       console.error('Error creating Standard:', error);
+      toast.error('Failed to create Standard');
       toast.error('Failed to create Standard');
     }
   };
@@ -222,6 +235,8 @@ const Standards: React.FC = () => {
 {/*Until here  */}
 {isAdmin?(       
    <div>
+{isAdmin?(       
+   <div>
         <div className="button-container">
           <button
             className={`flex justify-center rounded bg-primary py-2 px-6 font-medium text-gray hover:bg-opacity-90 mr-4`}
@@ -233,8 +248,15 @@ const Standards: React.FC = () => {
         </div>
         {showForm && (
           
+          
           <div className="modal-overlay">
             <div className="modal-content">
+            <h1 style={{ fontWeight: 'bold', fontSize: '24px' }}>Create New Standard</h1><br></br>
+          
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700"> {t('standardId')}</label>
+                <input type="text"  placeholder="Enter new standardId"  name="standardId" value={recordData.standardId} onChange={handleChange}  className="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+ />
             <h1 style={{ fontWeight: 'bold', fontSize: '24px' }}>Create New Standard</h1><br></br>
           
               <div className="mb-4">
@@ -245,12 +267,14 @@ const Standards: React.FC = () => {
               <br />
               <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700"> {t('standardName')}</label>
-                <input type="text"  placeholder="Enter new standardName" name="standardName" value={recordData.standardName} onChange={handleChange} className="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3 
-                focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" />
+                <input type="text"  placeholder="Enter new standardName" name="standardName" value={recordData.standardName} onChange={handleChange} className="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" />
               </div>
               <br />
               <div className="form-buttons">
                 <button
+                 className="bg-blue-500 flex rounded border border-stroke py-2 px-6 font-medium text-black hover:shadow-1 dark:border-strokedark dark:text-white mr-4"
+       
+                 type="button"
                  className="bg-blue-500 flex rounded border border-stroke py-2 px-6 font-medium text-black hover:shadow-1 dark:border-strokedark dark:text-white mr-4"
        
                  type="button"
@@ -259,7 +283,10 @@ const Standards: React.FC = () => {
                   {t('cancel')}
                 </button>
                 
+                
                 <button
+                 className="bg-blue-500 flex rounded border border-stroke py-2 px-6 font-medium text-black hover:shadow-1 dark:border-strokedark dark:text-white mr-4"
+                 type="button" // Change type to "button"
                  className="bg-blue-500 flex rounded border border-stroke py-2 px-6 font-medium text-black hover:shadow-1 dark:border-strokedark dark:text-white mr-4"
                  type="button" // Change type to "button"
                   onClick={createRecord} // Add onClick handler
@@ -269,6 +296,12 @@ const Standards: React.FC = () => {
               </div>
             </div>
           </div>
+
+
+
+
+
+
 
 
 

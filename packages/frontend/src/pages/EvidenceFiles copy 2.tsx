@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import React, { useState, useEffect } from 'react';
 import DefaultLayout from '../layout/DefaultLayout';
-import './PredefinedTemplate.css'; // Importing CSS file
 import './PredefinedTemplate.css'; // Importing CSS file
 import '@fortawesome/fontawesome-free/css/all.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -290,7 +288,7 @@ const [/*currentName*/, setCurrentName] = useState('');
   };
   
   useEffect(() => {
-  
+    
     const indicatorId = window.location.pathname.split('/').pop();
     
  // Fetch indicators based on the standardId
@@ -299,15 +297,7 @@ const [/*currentName*/, setCurrentName] = useState('');
  fetchStandardName(indicatorId);
     fetchIndicators(indicatorId);
     fetchRecords(indicatorId); 
-    
- // Fetch indicators based on the standardId
- fetchIndicatorName(indicatorId);
- fetchStandardId(indicatorId);
- fetchStandardName(indicatorId);
-    fetchIndicators(indicatorId);
-    fetchRecords(indicatorId); 
   }, []);
-
 
   useEffect(() => {
     const fetchCurrentUserInfo = async () => {
@@ -564,14 +554,10 @@ return loading ? (
                             </div>
                           </div>
                         </a>
-                        {isAdmin && (
-        <>
                         {/* Delete icon */}
                         <FontAwesomeIcon icon={faTrash} className="delete-icon" onClick={() => handleDelete(record.documentURL)} />
                         {/* Archive icon */}
                         <FontAwesomeIcon icon={faArchive} className="archive-icon" onClick={() => handleArchive(record.documentURL)} />
-                        </>
-      )}
                       </div>
                     </div>
                 
