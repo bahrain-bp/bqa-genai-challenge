@@ -178,16 +178,16 @@ const customStyles = {
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
 };
-const CompletionMessage = styled.div`
-  top: 10px;
-  left: 10px;
-  color: #2ecc71;
-  font-size: 20px;
-  background-color: white;
-  padding: 5px 10px; // Adds
-  display: inline-block;
+// const CompletionMessage = styled.div`
+//   top: 10px;
+//   left: 10px;
+//   color: #2ecc71;
+//   font-size: 20px;
+//   background-color: white;
+//   padding: 5px 10px; // Adds
+//   display: inline-block;
 
-`;
+// `;
 
 const UploadEvidence = () => {
   const [standards, setStandards] = useState<any[]>([]); // Using 'any[]' for state typing

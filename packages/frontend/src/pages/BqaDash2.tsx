@@ -10,6 +10,8 @@ import { ToastContainer } from 'react-toastify';
 import Loader from '../common/Loader';
 import Pagination from '@mui/material/Pagination';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+
 // import MultiSelect from '../components/Forms/MultiSelect';
 import {
   FormControl,
@@ -18,7 +20,12 @@ import {
   MenuItem,
   Select,
 } from '@mui/material';
-
+// Type definitions
+interface Record {
+  standardId: string;
+  standardName: string;
+  status: string;
+}
 const BqaDash2 = ({}) => {
   const [isDownloading, setIsDownloading] = useState(false);
   const [files, setFiles] = useState<any[]>([]);
@@ -29,6 +36,10 @@ const BqaDash2 = ({}) => {
   const location = useLocation();
   const uniName = location.state.uniName;
   const apiURL = import.meta.env.VITE_API_URL;
+  const navigate = useNavigate();
+  const [records, setRecords] = useState<Record[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+
 
   console.log(uniName, 'name uni');
   // State for search term in the search bar
@@ -64,14 +75,21 @@ const BqaDash2 = ({}) => {
             },
           },
         );
-        let filteredFiles = response.data.files;
-
+        let filteredFiles = response.data.files.map((file: any) => ({
+          ...file,
+          name: file.Key.split('/').pop() // Add filename property to each file object
+        }));
+         // Filter out files containing "-split" in their name
+      filteredFiles = filteredFiles.filter(
+        (file: any) => !file.Key.includes('-split'),
+      );
         // Filter based on search term
         if (searchTerm.trim() !== '') {
           filteredFiles = filteredFiles.filter((file: any) =>
             file.Key.toLowerCase().includes(searchTerm.toLowerCase()),
           );
         }
+
 
         // Filter based on selected indicator
         if (selectedIndicator !== '') {
@@ -101,8 +119,10 @@ const BqaDash2 = ({}) => {
     setStandard(standardName);
   };
 
-  const handleStandardClick = (standardName: string) => {
-    fetchDataForStandard(standardName);
+  const handleStandardClick = (standardId: string) => {
+    setStandard(standardId);
+    setCurrentPage(1);  // Reset to the first page when changing standards
+    fetchDataForStandard(standardId);
   };
 
   const handleButtonClick = async (fileKey: any) => {
@@ -149,6 +169,56 @@ const BqaDash2 = ({}) => {
     // console.log("University email received:", email);
     // Fetch more data if needed using the university email
   }, []);
+   //fetch uploaded folders TRY#1
+   const fetchRecords = async () => {
+    try {
+      // const api = import.meta.env.VITE_API_URL;
+      // https://tds1ye78fl.execute-api.us-east-1.amazonaws.com
+      // const response = await fetch(`${apiURL}/standards`);
+      const response = await fetch(
+        `https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards`,
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch records');
+      }
+      const data = await response.json();
+      // Sort the records by extracting the number from standardId
+      const sortedData = data.sort((a: Record, b: Record) => {
+        const numA = parseInt(a.standardId.replace(/\D/g, ''), 10);
+        const numB = parseInt(b.standardId.replace(/\D/g, ''), 10);
+        return numA - numB;
+      });
+      const recordMap = new Map();
+      sortedData.forEach((item: Record) => {
+        if (item.status !== 'archived' && !recordMap.has(item.standardId)) {
+          recordMap.set(item.standardId, item);
+        }
+      });
+      const uniqueRecords = Array.from(recordMap.values());
+      setRecords(uniqueRecords);
+      setLoading(false); // Update state with sorted records
+    } catch (error) {
+      console.error('Error fetching records:', error);
+    }
+  };
+  useEffect(() => {
+    fetchRecords(); // Fetch records for the extracted standard name // Fetch records when the component mounts
+  }, []);
+  
+  //Chart
+  // Filtering files based on the selected indicator
+  // const filteredFiles = files.filter((file) => {
+  //   return (
+  //     (selectedIndicator === '' || file.key.includes(selectedIndicator)) &&
+  //     (searchTerm === '' ||
+  //       file.name.toLowerCase().includes(searchTerm.toLowerCase()))
+  //   );
+  // });
+
+  useEffect(() => {
+    setTimeout(() => setLoading(false), 1000);
+  }, []);
 
   return (
     <>
@@ -161,18 +231,18 @@ const BqaDash2 = ({}) => {
             <Link to={`/BqaRequestPage?name=${name}`}>Request Documents</Link>
           </button>
         </div>
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-4 2xl:gap-7.5">
+        {/* <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-4 2xl:gap-7.5">
           {/* Standard cards */}
           {/* Standard cards */}
-          <div
+          
+          {/* <div
             className="rounded-xl border border-stroke bg-white py-6 px-7.5 shadow-default dark:border-strokedark"
             style={{ marginBottom: '20px', cursor: 'pointer' }}
             onClick={() => handleStandardClick('Standard 1')}
-          >
-            <h3 style={{ marginBottom: '10px', cursor: 'pointer' }}>
-              Standard 1
-            </h3>
-            <div className="progress blue">
+          > */}
+            {/* <h3 style={{ marginBottom: '10px', cursor: 'pointer' }}>  */}
+            {/* </h3> */} 
+            {/* <div className="progress blue">
               <span className="progress-left">
                 <span className="progress-bar"></span>
               </span>
@@ -180,15 +250,15 @@ const BqaDash2 = ({}) => {
                 <span className="progress-bar"></span>
               </span>
               <div className="progress-value">90%</div>
-            </div>
-          </div>
-          <div
+            </div> */}
+          {/* </div> */}
+          {/* <div
             className="rounded-xl border border-stroke bg-white py-6 px-7.5 shadow-default dark:border-strokedark"
             style={{ marginBottom: '20px', cursor: 'pointer' }}
-            onClick={() => handleStandardClick('Standard 2')}
+            onClick={() => handleStandardClick('')}
           >
-            <h3 style={{ marginBottom: '10px' }}>Standard 2</h3>
-            <div className="progress yellow">
+            <h3 style={{ marginBottom: '10px' }}></h3>
+            {/* <div className="progress yellow">
               <span className="progress-left">
                 <span className="progress-bar"></span>
               </span>
@@ -196,9 +266,24 @@ const BqaDash2 = ({}) => {
                 <span className="progress-bar"></span>
               </span>
               <div className="progress-value">65%</div>
-            </div>
-          </div>
-        </div>
+            </div> */}
+          {/* </div> */} 
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4 2xl:gap-7.5">
+  {records.map((record) => (
+    <div
+      key={record.standardId}
+      className={`rounded-xl border border-stroke bg-white py-6 px-7.5 shadow-default dark:border-strokedark ${standard === record.standardId ? 'bg-green-200' : ''}`}
+      style={{ marginBottom: '20px', cursor: 'pointer' }}
+      onClick={() => handleStandardClick(record.standardId)}
+    >
+      <h3 style={{ marginBottom: '10px' }}>
+        {record.standardName}
+      </h3>
+    </div>
+  ))}
+</div>
+
+    
         {/* Add more standard cards as needed */}
 
         {/* Table */}
@@ -266,7 +351,7 @@ const BqaDash2 = ({}) => {
                             className="cursor-pointer text-black dark:text-white hover:underline hover:text-blue-500"
                           >
                             <h5 className="font-medium hover:text-blue-500 hover:underline">
-                              {file.Key}
+                              {file.name}
                             </h5>
                           </a>
                         </td>
@@ -306,11 +391,40 @@ const BqaDash2 = ({}) => {
                                 />
                               </svg>
                             </button>
+                             {/**This button will take you to the summarization tex */}
+                      <button
+                        className="hover:text-primary"
+                        onClick={() =>
+                          navigate('/SummaryPage', {
+                            state: {
+                              fileName: file.name,
+                            },
+                          })
+                        }
+                      >
+                        <svg
+                          className="fill-current"
+                          width="18"
+                          height="18"
+                          viewBox="0 0 18 18"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M8.99981 14.8219C3.43106 14.8219 0.674805 9.50624 0.562305 9.28124C0.47793 9.11249 0.47793 8.88749 0.562305 8.71874C0.674805 8.49374 3.43106 3.20624 8.99981 3.20624C14.5686 3.20624 17.3248 8.49374 17.4373 8.71874C17.5217 8.88749 17.5217 9.11249 17.4373 9.28124C17.3248 9.50624 14.5686 14.8219 8.99981 14.8219ZM1.85605 8.99999C2.4748 10.0406 4.89356 13.5562 8.99981 13.5562C13.1061 13.5562 15.5248 10.0406 16.1436 8.99999C15.5248 7.95936 13.1061 4.44374 8.99981 4.44374C4.89356 4.44374 2.4748 7.95936 1.85605 8.99999Z"
+                            fill=""
+                          />
+                          <path
+                            d="M9 11.3906C7.67812 11.3906 6.60938 10.3219 6.60938 9C6.60938 7.67813 7.67812 6.60938 9 6.60938C10.3219 6.60938 11.3906 7.67813 11.3906 9C11.3906 10.3219 10.3219 11.3906 9 11.3906ZM9 7.875C8.38125 7.875 7.875 8.38125 7.875 9C7.875 9.61875 8.38125 10.125 9 10.125C9.61875 10.125 10.125 9.61875 10.125 9C10.125 8.38125 9.61875 7.875 9 7.875Z"
+                            fill=""
+                          />
+                        </svg>
+                      </button>
                           </div>
+
+
                         </td>
-                        <td>
-                          ggg
-                        </td>
+                        
                       </tr>
                     ))}
                   </tbody>
