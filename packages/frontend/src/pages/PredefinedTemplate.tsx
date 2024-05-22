@@ -508,12 +508,14 @@ return loading ? (
 
     <h6 className="m-b-20">{indicatorId}</h6>
     <h5>{record.indicatorName}</h5></a>
-
+    {isAdmin && (
+        <>
        {/* Delete icon */}
        <FontAwesomeIcon icon={faTrash} className="delete-icon" onClick={() => handleDelete(record.indicatorId)} />
                         {/* Archive icon */}
                         <FontAwesomeIcon icon={faArchive} className="archive-icon" onClick={() => handleArchive(record.indicatorId)} />
-                 
+                        </>
+      )}       
       </div>
         </div>
 

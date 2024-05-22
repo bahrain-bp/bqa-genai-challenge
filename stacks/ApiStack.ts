@@ -8,7 +8,7 @@ import * as iam from "@aws-cdk/aws-iam";
 
 export function ApiStack({ stack }: StackContext) {
   const { auth } = use(AuthStack);
-  const { table, fileTable, criteriaTable } = use(DBStack);
+  const { table, fileTable, criteriaTable, universityTable } = use(DBStack);
   const { documentsQueue } = use(S3Stack);
 
   const api = new Api(stack, "signinAPI", {
@@ -23,7 +23,7 @@ export function ApiStack({ stack }: StackContext) {
     // },
     defaults: {
       function: {
-        bind: [table, fileTable, criteriaTable], // Bind the table name to our API
+        bind: [table, fileTable, criteriaTable,universityTable], // Bind the table name to our API
       },
       // Optional: Remove authorizer from defaults if set to "jwt"
       // authorizer: "jwt",
@@ -33,8 +33,8 @@ export function ApiStack({ stack }: StackContext) {
       "POST /send-email": {
         function: {
           handler: "packages/functions/src/send-email.sendEmail",
-          permissions: ["ses"]
-        }
+          permissions: ["ses"],
+        },
       },
       "POST /email": {
         function: {
@@ -157,6 +157,8 @@ export function ApiStack({ stack }: StackContext) {
           timeout: "900 seconds",
         },
       },
+
+
       "PUT /fileSummary/{fileName}": {
         function: {
           handler: "packages/functions/src/files/update.main",
@@ -181,9 +183,46 @@ export function ApiStack({ stack }: StackContext) {
       "GET /files/{standardId}/{indicatorId}": {
         function: {
           handler: "packages/functions/src/fetchContentIndicator.main",
-          permissions: ["dynamodb"],
+          permissions: "*",
         },
       },
+      //Uploading logo to S3
+      "POST /updateFileDB": {
+        function: {
+          handler: "packages/functions/src/files/updateByFileName.handler",
+          permissions: "*",
+        },
+      },
+
+
+      "POST /addUniDB": {
+        function: {
+          handler: "packages/functions/createUserDB.main",
+          permissions: "*",
+        },
+      },
+
+      "PUT /updateStatus/{uniName}": {
+        function: {
+          handler: "packages/functions/src/universities/updateStatus.main",
+          permissions: "*",
+        },
+      },
+      
+      "GET /uniStatus/{uniName}": {
+        function: {
+          handler: "packages/functions/src/universities/getUniStatus.main",
+          permissions: "*",
+        },
+      },
+      //list universities with their status from the dynamoDB
+      "GET /listUni": {
+        function: {
+          handler: "packages/functions/src/universities/listUnis.main",
+          permissions: "*",
+        },
+      },
+
       //Fetching all users in cognito
       "GET /getUsers": {
         function: {
@@ -202,7 +241,8 @@ export function ApiStack({ stack }: StackContext) {
       "POST /criteria": "packages/functions/src/criteria/create.main",
       "GET /criteria/{id}": "packages/functions/src/criteria/get.main",
       "GET /criteria": "packages/functions/src/criteria/list.main",
-      "GET /criteria/{id}/{indicator}": "packages/functions/src/criteria/getByIndicator.main",
+      "GET /criteria/{id}/{indicator}":
+        "packages/functions/src/criteria/getByIndicator.main",
     },
   });
 
