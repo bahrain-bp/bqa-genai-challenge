@@ -126,8 +126,8 @@ const Standards: React.FC = () => {
 
   const fetchRecords = async () => {
     try {
-      // const api = import.meta.env.VITE_API_URL;
-      const response = await fetch(`https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards`);
+      const api = import.meta.env.VITE_API_URL;
+      const response = await fetch(`${api}/standards`);
       if (!response.ok) {
         throw new Error('Failed to fetch records');
       }

@@ -6,7 +6,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash, faArchive } from '@fortawesome/free-solid-svg-icons';
 import Loader from '../common/Loader';
 import {fetchUserAttributes } from 'aws-amplify/auth';
-import * as AWS from 'aws-sdk';
+import AWS from 'aws-sdk';
 
 
 import { useTranslation } from 'react-i18next';
@@ -77,66 +77,63 @@ const [/*currentName*/, setCurrentName] = useState('');
     }
   };
   
-  const handleDelete = async (indicatorId: string) => {
+  const handleDelete = async (documentURL: string) => {
     try {
-      // Fetch records with the matching standardId
-      const recordsToDelete = records.filter(record => record.indicatorId === indicatorId);
-      if (recordsToDelete.length === 0) {
-        throw new Error('No records found for the given standardId');
+      // Find the record with the matching documentURL
+      const recordToDelete = records.find(record => record.documentURL === documentURL);
+      if (!recordToDelete) {
+        throw new Error('Record not found for the given document URL');
+      }
+      // const api = import.meta.env.VITE_API_URL;
+      const apiUrl = `https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards/${recordToDelete.entityId}`;
+      const response = await fetch(apiUrl, {
+        method: 'DELETE',
+      });
+      if (!response.ok) {
+        throw new Error('Failed to delete record');
       }
   
-      // Delete each record
-      await Promise.all(recordsToDelete.map(async record => {
-        // const api = import.meta.env.VITE_API_URL;
-        const apiUrl = `https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards/${record.entityId}`;
-        const response = await fetch(apiUrl, {
-          method: 'DELETE',
-        });
-        if (!response.ok) {
-          throw new Error(`Failed to delete record with entityId: ${record.entityId}`);
-        }
-      }));
-  
-      // Remove the deleted records from the state
-      setRecords(records.filter(record => !recordsToDelete.includes(record)));
-      console.log('Records deleted successfully');
+      // Remove the deleted record from the state
+      setRecords(records.filter(record => record.entityId !== recordToDelete.entityId));
+      console.log('Record deleted successfully');
     } catch (error) {
-      console.error('Error deleting records:', error);
+      console.error('Error deleting record:', error);
     }
   };
-  
 
-  const handleArchive = async (indicatorId: string) => {
+  const handleArchive = async (documentURL: string) => {
     try {
-      // Fetch records with the matching standardId
-      const recordsToArchive = records.filter(record => record.indicatorId === indicatorId);
-      if (recordsToArchive.length === 0) {
-        throw new Error('No records found for the given standardId');
+      // Find the record with the matching documentURL
+      const recordToArchive = records.find(record => record.documentURL === documentURL);
+      if (!recordToArchive) {
+        throw new Error('Record not found for the given document URL');
       }
-  
-      // Update status to 'archived' for each record
-      await Promise.all(recordsToArchive.map(async record => {
-        // const api = import.meta.env.VITE_API_URL;
-        const apiUrl = `https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards/${record.entityId}`;
-        const response = await fetch(apiUrl, {
-          method: 'PUT', // Use PUT method to update the record
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ ...record, status: 'archived' }), // Update the status field to 'archived'
-        });
-        if (!response.ok) {
-          throw new Error(`Failed to archive record with entityId: ${record.entityId}`);
-        }
-      }));
+          // Print the record to be updated in the console
+    console.log('Record to be archived:', recordToArchive);
+
+    // const api = import.meta.env.VITE_API_URL;
+      const apiUrl = `https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards/${recordToArchive.entityId}`;
+      const response = await fetch(apiUrl, {
+        method: 'PUT', // Use PUT method to update the record
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ ...recordToArchive, status: 'archived' }), // Update the status field to 'archived'
+      });
+      if (!response.ok) {
+        throw new Error('Failed to archive record');
+      }
   
       // Fetch records again to reflect the changes
-      fetchRecords(indicatorId);
-      console.log('Records archived successfully');
+      fetchRecords(recordToArchive.indicatorId);
+      console.log('Record archived successfully');
+      console.log('Record to be archived:', recordToArchive);
+
     } catch (error) {
-      console.error('Error archiving records:', error);
+      console.error('Error archiving record:', error);
     }
   };
+  
   
   const toggleForm = () => {
     setShowForm(!showForm);
@@ -323,16 +320,17 @@ const [/*currentName*/, setCurrentName] = useState('');
 
   async function uploadToS3Evidence(fileData: Blob | File, fileName: string, folderName: string) {
     try {
-      const response = await fetch(`https://dlmhd9r2jc.execute-api.us-east-1.amazonaws.com/uploadS3`, {
-        method: 'POST',
-        body: fileData,
-        headers: {
-          'file-name': fileName,
-          'bucket-name': 'bqa-standards-upload',
-          'folder-name': folderName,
-          'content-type': 'application/pdf', // Assuming all files are PDF
-        },
-      });
+      const response = await fetch(`https://30fuaz2c4c.execute-api.us-east-1.amazonaws.com/uploadS3`, {
+  method: 'POST',
+  body: fileData,
+  headers: {
+    'file-name': fileName,
+    'bucket-name': 'bqa-standards-upload',
+    'folder-name': folderName,
+    'content-type': 'application/pdf', // Assuming all files are PDF
+  },
+});
+
       if (!response.ok) {
         const errorText = await response.text();
         throw new Error(`Failed to upload file: ${errorText}`);
@@ -601,3 +599,18 @@ return loading ? (
 };
 
 export default EvidenceFiles;
+
+
+
+
+
+// AuthStack
+// S3Stack
+// DBStack
+// EmailAPIStack
+// ApiEndpoint: https://dlmhd9r2jc.execute-api.us-east-1.amazonaws.com
+// StandardAPIStack
+// ApiEndpoint: https://dm76cqml3a.execute-api.us-east-1.amazonaws.com
+// ApiStack
+// FrontendStack
+// ApiEndpoint: https://30fuaz2c4c.execute-api.us-east-1.amazonaws.com
