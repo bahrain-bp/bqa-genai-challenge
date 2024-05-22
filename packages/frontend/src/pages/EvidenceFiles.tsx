@@ -321,21 +321,7 @@ const [/*currentName*/, setCurrentName] = useState('');
     fetchCurrentUserInfo();
   }, []);
 
-  useEffect(() => {
-    const fetchCurrentUserInfo = async () => {
-      try {
-        const attributes = await fetchUserAttributes();
-        const name:any= attributes.name;
-        setCurrentName(name);
-        setIsAdmin(name.endsWith("BQA Reviewer") || false);
 
-      } catch (error) {
-        console.error('Error fetching current user info:', error);
-      }
-    };
-
-    fetchCurrentUserInfo();
-  }, []);
 
   useEffect(() => {
     setTimeout(() => setLoading(false), 1000);
