@@ -6,7 +6,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash, faArchive } from '@fortawesome/free-solid-svg-icons';
 import Loader from '../common/Loader';
 import {fetchUserAttributes } from 'aws-amplify/auth';
-import * as AWS from 'aws-sdk';
+// import * as AWS from 'aws-sdk';
+import { toast } from 'react-toastify'; // Import toast from react-toastify
+import 'react-toastify/dist/ReactToastify.css'; // Import the CSS for react-toastify
 
 
 import { useTranslation } from 'react-i18next';
@@ -76,64 +78,62 @@ const [/*currentName*/, setCurrentName] = useState('');
     }
   };
   
-  const handleDelete = async (indicatorId: string) => {
+  const handleDelete = async (documentURL: string) => {
     try {
-      // Fetch records with the matching standardId
-      const recordsToDelete = records.filter(record => record.indicatorId === indicatorId);
-      if (recordsToDelete.length === 0) {
-        throw new Error('No records found for the given standardId');
+      // Find the record with the matching documentURL
+      const recordToDelete = records.find(record => record.documentURL === documentURL);
+      if (!recordToDelete) {
+        throw new Error('Record not found for the given document URL');
+      }
+      const api = import.meta.env.VITE_API_URL;
+      const apiUrl = `${api}/standards/${recordToDelete.entityId}`;
+      const response = await fetch(apiUrl, {
+        method: 'DELETE',
+      });
+      if (!response.ok) {
+        throw new Error('Failed to delete record');
       }
   
-      // Delete each record
-      await Promise.all(recordsToDelete.map(async record => {
-        // const api = import.meta.env.VITE_API_URL;
-        const apiUrl = `https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards/${record.entityId}`;
-        const response = await fetch(apiUrl, {
-          method: 'DELETE',
-        });
-        if (!response.ok) {
-          throw new Error(`Failed to delete record with entityId: ${record.entityId}`);
-        }
-      }));
-  
-      // Remove the deleted records from the state
-      setRecords(records.filter(record => !recordsToDelete.includes(record)));
-      console.log('Records deleted successfully');
+      // Remove the deleted record from the state
+      setRecords(records.filter(record => record.entityId !== recordToDelete.entityId));
+     
+      toast.success('File deleted successfully');
     } catch (error) {
-      console.error('Error deleting records:', error);
+      console.error('Error deleting record:', error);
+      toast.error('Failed to delete file');
     }
   };
-  
 
-  const handleArchive = async (indicatorId: string) => {
+  const handleArchive = async (documentURL: string) => {
     try {
-      // Fetch records with the matching standardId
-      const recordsToArchive = records.filter(record => record.indicatorId === indicatorId);
-      if (recordsToArchive.length === 0) {
-        throw new Error('No records found for the given standardId');
+      // Find the record with the matching documentURL
+      const recordToArchive = records.find(record => record.documentURL === documentURL);
+      if (!recordToArchive) {
+        throw new Error('Record not found for the given document URL');
+      }
+          // Print the record to be updated in the console
+    console.log('Record to be archived:', recordToArchive);
+
+    const api = import.meta.env.VITE_API_URL;
+      const apiUrl = `${api}/standards/${recordToArchive.entityId}`;
+      const response = await fetch(apiUrl, {
+        method: 'PUT', // Use PUT method to update the record
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ ...recordToArchive, status: 'archived' }), // Update the status field to 'archived'
+      });
+      if (!response.ok) {
+        throw new Error('Failed to archive record');
       }
   
-      // Update status to 'archived' for each record
-      await Promise.all(recordsToArchive.map(async record => {
-        // const api = import.meta.env.VITE_API_URL;
-        const apiUrl = `https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards/${record.entityId}`;
-        const response = await fetch(apiUrl, {
-          method: 'PUT', // Use PUT method to update the record
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ ...record, status: 'archived' }), // Update the status field to 'archived'
-        });
-        if (!response.ok) {
-          throw new Error(`Failed to archive record with entityId: ${record.entityId}`);
-        }
-      }));
-  
       // Fetch records again to reflect the changes
-      fetchRecords(indicatorId);
-      console.log('Records archived successfully');
+      fetchRecords(recordToArchive.indicatorId);
+      console.log('Record to be archived:', recordToArchive);
+      toast.success('File archived successfully');
     } catch (error) {
-      console.error('Error archiving records:', error);
+      console.error('Error archiving record:', error);
+      toast.error('Failed to archive file');
     }
   };
   
@@ -172,8 +172,8 @@ const [/*currentName*/, setCurrentName] = useState('');
         indicatorId: indicatorId, // Ensure standardId is included in the record data
         indicatorName: indicatorName, // Include standardName in recordData
       };
-      // const api = import.meta.env.VITE_API_URL;
-      const response = await fetch(`https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards`, {
+      const api = import.meta.env.VITE_API_URL;
+      const response = await fetch(`${api}/standards`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -199,17 +199,16 @@ const [/*currentName*/, setCurrentName] = useState('');
         dateCreated: '',
         status: 'unarchived',
       });
-      alert('Record created successfully!');
     } catch (error) {
       console.error('Error creating record:', error);
-      alert('Failed to create record');
+      toast.error('Failed to create record');
     }
   };
   const fetchStandardId = async (indicatorId: string | undefined) => {
     try {
       // Make API call to fetch standard name based on standardId
-      // const api = import.meta.env.VITE_API_URL;
-      const response = await fetch(`https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards?indicatorId=${indicatorId}`);
+      const api = import.meta.env.VITE_API_URL;
+      const response = await fetch(`${api}/standards?indicatorId=${indicatorId}`);
       if (!response.ok) {
         throw new Error('Failed to fetch standardId');
       }
@@ -231,8 +230,8 @@ const [/*currentName*/, setCurrentName] = useState('');
   const fetchStandardName = async (indicatorId: string | undefined) => {
     try {
       // Make API call to fetch standard name based on standardId
-      // const api = import.meta.env.VITE_API_URL;
-      const response = await fetch(`https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards?indicatorId=${indicatorId}`);
+      const api = import.meta.env.VITE_API_URL;
+      const response = await fetch(`${api}/standards?indicatorId=${indicatorId}`);
       if (!response.ok) {
         throw new Error('Failed to fetch standards');
       }
@@ -253,8 +252,8 @@ const [/*currentName*/, setCurrentName] = useState('');
 
   const fetchIndicators = async (standardId: string | undefined) => {
     try {
-      // const api = import.meta.env.VITE_API_URL;
-      const response = await fetch(`https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards?standardId=${standardId}`);
+      const api = import.meta.env.VITE_API_URL;
+      const response = await fetch(`${api}/standards?standardId=${standardId}`);
       if (!response.ok) {
         throw new Error('Failed to fetch indicators');
       }
@@ -270,8 +269,8 @@ const [/*currentName*/, setCurrentName] = useState('');
   const fetchRecords = async (indicatorId: string | undefined) => {
     try {
       // Constructing URL with standard name
-      // const api = import.meta.env.VITE_API_URL;
-      const apiUrl = `https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards?standard=${indicatorId}`;
+      const api = import.meta.env.VITE_API_URL;
+      const apiUrl = `${api}/standards?standard=${indicatorId}`;
 
       const response = await fetch(apiUrl);
       if (!response.ok) {
@@ -288,7 +287,7 @@ const [/*currentName*/, setCurrentName] = useState('');
   };
   
   useEffect(() => {
-  
+   
     const indicatorId = window.location.pathname.split('/').pop();
     
  // Fetch indicators based on the standardId
@@ -320,69 +319,59 @@ const [/*currentName*/, setCurrentName] = useState('');
   }, []);
 
 
-  async function uploadToS3Evidence(fileData: Blob | File, fileName: string, folderName: string) {
-    try {
-      var upload = new AWS.S3.ManagedUpload({
-        params: {
-          Bucket:  'bqa-standards-upload',
-          Key: folderName + '/' + fileName,
-          Body: fileData
-        },
-      });
-    
-      var promise = upload.promise();
-
-      promise.then(
-        function () {
-          alert("Successfully uploaded photo.");
-        },
-        function () {
-          return alert("There was an error uploading your photo: ");
-        }
-      );
-      // var newS3 = new AWS.S3();
-
-      // const params = {
-      //   Bucket: 'bqa-standards-upload',
-      //   Key: folderName + '/' + fileName,
-      //   Body: fileData
-      // };
-
-      //  const uploadResult = await newS3.upload(params).promise();
-
-      return { message: 'File uploaded successfully'};
-    } catch (error) {
-      console.error('Error uploading file:', error);
-      throw new Error('Failed to upload file');
-    }
-  }
-
   // async function uploadToS3Evidence(fileData: Blob | File, fileName: string, folderName: string) {
   //   try {
-  //     const AWS = require('aws-sdk');
-  //     const s3 = new AWS.S3();
+  //     var upload = new AWS.S3.ManagedUpload({
+  //       params: {
+  //         Bucket:  'bqa-standards-upload',
+  //         Key: folderName + '/' + fileName,
+  //         Body: fileData
+  //       },
+  //     });
+    
+  //     var promise = upload.promise();
 
-  //   const uploadParams = {
-  //     Bucket: 'bqa-standards-upload',
-  //     Key: folderName + '/' + fileName,
-  //     Body: fileData
-  //   };
-
-  //   const upload = s3.upload(uploadParams);
-
-  //   upload.promise()
-  // .then(function() {
-  //   alert("Successfully uploaded file.");
-  // })
-  // .catch(function() {
-  //   alert("There was an error uploading your file: ");
-  // });
+  //     promise.then(
+  //       function () {
+  //         console.log("Successfully uploaded file.");
+  //       },
+  //       function () {
+  //         return  console.log("There was an error uploading your file: ");
+  //       }
+  //     );
   //     return { message: 'File uploaded successfully'};
   //   } catch (error) {
   //     console.error('Error uploading file:', error);
   //     throw new Error('Failed to upload file');
   //   }
   // }
+
+  async function uploadToS3Evidence(fileData: Blob | File, fileName: string, folderName: string) {
+    try {
+      const AWS = require('aws-sdk');
+      const s3 = new AWS.S3();
+
+    const uploadParams = {
+      Bucket: 'bqa-standards-upload',
+      Key: folderName + '/' + fileName,
+      Body: fileData
+    };
+
+    const upload = s3.upload(uploadParams);
+
+    upload.promise()
+  .then(function() {
+    alert("Successfully uploaded file.");
+  })
+  .catch(function() {
+    alert("There was an error uploading your file: ");
+  });
+      return { message: 'File uploaded successfully'};
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      throw new Error('Failed to upload file');
+    }
+  }
 
   async function handleFileSelect(file: File, selectedFolder: string) {
     const fileReader = new FileReader();
@@ -400,14 +389,11 @@ const [/*currentName*/, setCurrentName] = useState('');
         uploadToS3Evidence(uploadParams.body, uploadParams.headers['file-name'], selectedFolder)
           .then(response => {
             console.log(response);
-            alert('File uploaded successfully!');
+            toast.success('File uploaded successfully!');
           })
           .catch(error => {
             console.error('Error uploading file:', error);
 
-            // alert('Failed to upload file');
-
-            alert('Failed to upload file!');
 
           });
       }
@@ -419,8 +405,8 @@ const [/*currentName*/, setCurrentName] = useState('');
 const fetchIndicatorName = async (indicatorId: string | undefined) => {
   try {
     // Make API call to fetch standard name based on standardId
-    // const api = import.meta.env.VITE_API_URL;
-    const response = await fetch(`https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards?indicatorId=${indicatorId}`);
+    const api = import.meta.env.VITE_API_URL;
+    const response = await fetch(`${api}/standards?indicatorId=${indicatorId}`);
     if (!response.ok) {
       throw new Error('Failed to fetch standards');
     }
@@ -461,47 +447,31 @@ return loading ? (
       </button>
       
       </div>
-):null}
+ ):null}
       {showForm && (
         
           <div className="modal-overlay">
             <div className="modal-content">
-            <div className="form-group">
-
-
-            <div className="form-group">
-              <label>{t('indicatorId')}</label>
-              <input type="text" name="indicatorId" value={indicatorId} onChange={handleChange} className="white-background" />
-            </div><br />
-              <label>{t('indicatorName')}</label>
-              <input type="text" name="indicatorName" value={indicatorName} onChange={handleChange} className="white-background" />
-            </div><br />
-            <div className="form-group">
-
-              <label>{t('standardName')}</label>
-              <input type="text" name="standardName" value={standardName} onChange={handleChange} className="white-background" />
-            </div><br />
-            <div className="form-group">
-              <label>{t('standardId')}</label>
-              <input type="text" name="standardId" value={standardId} onChange={handleChange} className="white-background" />
-            </div><br />
             
            
-            <div className="form-group">
-              <label>{t('uploadDocument')}</label>
-              <input type="file" name="documentName" value={recordData.documentName} onChange={handleChange} className="white-background" />
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700">{t('uploadDocument')}</label>
+              <input type="file" name="documentName" value={recordData.documentName} onChange={handleChange}className="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3 
+                focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" />
             </div><br />
-            <div className="form-group">
-              <label>{t('documentDescription')}</label>
-              <input type="text" name="description" value={recordData.description} onChange={handleChange} className="white-background" />
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700">{t('documentDescription')}</label>
+              <input type="text" name="description" value={recordData.description} onChange={handleChange} className="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3 
+                focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" />
             </div><br />
-            <div className="form-group">
-              <label>{t('status')}</label>
-              <input type="text" name="status" value={recordData.status} onChange={handleChange} className="white-background" readOnly />
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700">{t('status')}</label>
+              <input type="text" name="status" value={recordData.status} onChange={handleChange} className="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3 
+                focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" readOnly />
             </div><br />
             <div className="form-buttons">
             <button
-        className="flex rounded border border-stroke py-2 px-6 font-medium text-black hover:shadow-1 dark:border-strokedark dark:text-white mr-4"
+        className="bg-blue-500 flex rounded border border-stroke py-2 px-6 font-medium text-white hover:shadow-1 dark:border-strokedark dark:text-white mr-4"
         type="button"
         onClick={handleCancel}
       >
@@ -511,8 +481,8 @@ return loading ? (
 
       </button>
       <button
-        className={`flex rounded bg-primary py-2 px-6 font-medium text-gray hover:bg-opacity-90 mr-4`}
-        type="button" // Change type to "button"
+         className="bg-blue-500 flex rounded border border-stroke py-2 px-6 font-medium text-white hover:shadow-1 dark:border-strokedark dark:text-white mr-4"
+           type="button" // Change type to "button"
         onClick={createRecord} // Add onClick handler
       >
 
