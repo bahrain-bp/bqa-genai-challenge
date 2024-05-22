@@ -28,10 +28,10 @@ const SummaryPage = () => {
 
   const fetchFiles = async () => {
     // setLoading(true);
-
-    try {
+//return the apiURL
+    try { // Changed the apiurl to prod 
       // const response = await fetch('https://66xzg471hh.execute-api.us-east-1.amazonaws.com/summarization/BusinessPlan.pdf');
-      const response = await fetch(`${apiURL}/summarization/BusinessPlan.pdf`);
+      const response = await fetch(`${apiURL}/summarization/${fileName}`);
 
       const data = await response.json();
       setFileData(data);
@@ -136,7 +136,7 @@ const SummaryPage = () => {
                 ></input>
               </div>
 
-              <div className="w-full sm:w-1/2">
+              {/* <div className="w-full sm:w-1/2">
                 <label
                   className="mb-3 mt-4 block text-sm font-medium text-black dark:text-white"
                   htmlFor="fullName"
@@ -152,10 +152,10 @@ const SummaryPage = () => {
                   placeholder={fileData.score}
                   disabled
                 ></input>
-              </div>
+              </div> */}
             </div>
 
-            <div className=" py-2 px-7">
+            {/* <div className=" py-2 px-7">
               <label
                 className="mb-3 mt-4 block text-sm font-medium text-black dark:text-white"
                 htmlFor="fullName"
@@ -171,8 +171,8 @@ const SummaryPage = () => {
               >
                 {fileData.strength}
               </div>
-            </div>
-
+            </div> */}
+{/* 
             <div className=" py-2 px-7">
               <label
                 className="mb-3 mt-4 block text-sm font-medium text-black dark:text-white"
@@ -189,8 +189,8 @@ const SummaryPage = () => {
               >
                 {fileData.weakness}
               </div>
-            </div>
-            <div className=" py-2 px-7">
+            </div> */}
+            {/* <div className=" py-2 px-7">
               <label
                 className="mb-3 mt-4 block text-sm font-medium text-black dark:text-white"
                 htmlFor="fullName"
@@ -206,7 +206,7 @@ const SummaryPage = () => {
               >
                 {fileData.comments}
               </div>
-            </div>
+            </div> */}
 
             <div className=" py-4 px-7">
               <label
