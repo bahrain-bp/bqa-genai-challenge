@@ -13,7 +13,9 @@
   },
   "devDependencies": {
     "@tsconfig/node18": "^18.2.1",
+    "@types/axios": "^0.14.0",
     "@types/react": "^18.3.1",
+    "@types/react-modal": "^3.16.3",
     "@vitejs/plugin-react": "^4.2.1",
     "aws-cdk-lib": "^2.132.0",
     "constructs": "^10.3.0",
@@ -28,6 +30,7 @@
     "@aws-amplify/auth": "^6.0.25",
     "@aws-amplify/ui-react": "^6.1.6",
     "@aws-cdk/aws-iam": "^1.204.0",
+    "@aws-sdk/client-bedrock-runtime": "^3.577.0",
     "@aws-sdk/client-cognito-identity-provider": "^3.564.0",
     "@aws-sdk/client-textract": "^3.568.0",
     "@coreui/icons": "^3.0.1",
@@ -42,6 +45,7 @@
     "awesome-unoconv": "^1.0.1",
     "aws-amplify": "^6.3.2",
     "aws-sdk": "^2.1606.0",
+    "axios": "^1.7.0",
     "bootstrap": "^5.3.3",
     "bootstrap-icons": "^1.11.3",
     "i18n": "^0.15.1",
@@ -55,8 +59,10 @@
     "proxy-agent": "^6.4.0",
     "react": "^18.2.0",
     "react-i18next": "^14.1.1",
+    "react-modal": "^3.16.1",
     "react-router-dom": "^6.23.0",
     "react-toastify": "^10.0.5",
-    "react-transition-group": "^4.4.5"
+    "react-transition-group": "^4.4.5",
+    "winston": "^3.13.0"
   }
 }
