@@ -5,7 +5,6 @@ import '@fortawesome/fontawesome-free/css/all.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash, faArchive } from '@fortawesome/free-solid-svg-icons';
 import Loader from '../common/Loader';
-import {fetchUserAttributes } from 'aws-amplify/auth';
 // import * as AWS from 'aws-sdk';
 import { toast } from 'react-toastify'; // Import toast from react-toastify
 import 'react-toastify/dist/ReactToastify.css'; // Import the CSS for react-toastify
@@ -24,10 +23,7 @@ const EvidenceFiles: React.FC = () => {
  
 const indicatorId = window.location.pathname.split('/').pop();
 
-  const [records, setRecords] = useState<any[]>([]);
   const { t } = useTranslation(); // Hook to access translation functions
-  const [isAdmin, setIsAdmin] = useState<boolean>(false);
-  const [/*currentName*/, setCurrentName] = useState('');
 
     
 
@@ -305,7 +301,7 @@ const [/*currentName*/, setCurrentName] = useState('');
     fetchIndicators(indicatorId);
     fetchRecords(indicatorId); 
   }, []);
-  
+
   useEffect(() => {
     const fetchCurrentUserInfo = async () => {
       try {
