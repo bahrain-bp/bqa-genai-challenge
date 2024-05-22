@@ -205,8 +205,8 @@ const [/*currentName*/, setCurrentName] = useState('');
 
   const fetchIndicators = async (standardId: string | undefined) => {
     try {
-      // const api = import.meta.env.VITE_API_URL;
-      const response = await fetch(`https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards?standardId=${standardId}`);
+      const api = import.meta.env.VITE_API_URL;
+      const response = await fetch(`${api}/standards?standardId=${standardId}`);
       if (!response.ok) {
         throw new Error('Failed to fetch indicators');
       }
@@ -221,8 +221,8 @@ const [/*currentName*/, setCurrentName] = useState('');
 
   const fetchRecords = async (standardId: string | undefined) => {
     try {
-      // const api = import.meta.env.VITE_API_URL;
-      const response = await fetch(`https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards?standard=${standardId}`);
+      const api = import.meta.env.VITE_API_URL;
+      const response = await fetch(`${api}/standards?standard=${standardId}`);
       if (!response.ok) {
         throw new Error('Failed to fetch records');
       }
