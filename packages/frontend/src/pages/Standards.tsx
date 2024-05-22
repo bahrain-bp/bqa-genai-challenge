@@ -155,7 +155,7 @@ const Standards: React.FC = () => {
        const newRecordData = {
         ...recordData,
       };
-      const api = import.meta.env.VITE_API_URL;
+      // const api = import.meta.env.VITE_API_URL;
       const response = await fetch(`https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards`, {
         method: 'POST',
         headers: {
