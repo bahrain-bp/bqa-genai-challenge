@@ -29,9 +29,9 @@ const SummaryPage = () => {
   const fetchFiles = async () => {
     // setLoading(true);
 
-    try {
+    try { // Changed the apiurl to prod 
       // const response = await fetch('https://66xzg471hh.execute-api.us-east-1.amazonaws.com/summarization/BusinessPlan.pdf');
-      const response = await fetch(`${apiURL}/summarization/BusinessPlan.pdf`);
+      const response = await fetch(`https://u1oaj2omi2.execute-api.us-east-1.amazonaws.com/summarization/${fileName}`);
 
       const data = await response.json();
       setFileData(data);
