@@ -251,7 +251,7 @@ const BqaDash2 = ({}) => {
                         Date
                       </th>
                       <th className="py-6 px-3 font-medium text-black dark:text-white">
-                        Download
+                        Actions
                       </th>
                     </tr>
                   </thead>
@@ -307,6 +307,9 @@ const BqaDash2 = ({}) => {
                               </svg>
                             </button>
                           </div>
+                        </td>
+                        <td>
+                          ggg
                         </td>
                       </tr>
                     ))}
