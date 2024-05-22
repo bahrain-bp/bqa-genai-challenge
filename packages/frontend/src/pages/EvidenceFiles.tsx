@@ -12,6 +12,8 @@ import 'react-toastify/dist/ReactToastify.css'; // Import the CSS for react-toas
 
 
 import { useTranslation } from 'react-i18next';
+import {fetchUserAttributes } from 'aws-amplify/auth';
+
 
 
 //INDICATORS FILE **
@@ -21,7 +23,12 @@ const EvidenceFiles: React.FC = () => {
  // Get the standardId from the URL
  
 const indicatorId = window.location.pathname.split('/').pop();
-const { t } = useTranslation(); // Hook to access translation functions
+
+  const [records, setRecords] = useState<any[]>([]);
+  const { t } = useTranslation(); // Hook to access translation functions
+  const [isAdmin, setIsAdmin] = useState<boolean>(false);
+  const [/*currentName*/, setCurrentName] = useState('');
+
     
 
 // Set the value of the input field if it exists
@@ -298,6 +305,21 @@ const [/*currentName*/, setCurrentName] = useState('');
     fetchIndicators(indicatorId);
     fetchRecords(indicatorId); 
   }, []);
+  useEffect(() => {
+    const fetchCurrentUserInfo = async () => {
+      try {
+        const attributes = await fetchUserAttributes();
+        const name:any= attributes.name;
+        setCurrentName(name);
+        setIsAdmin(name.endsWith("BQA Reviewer") || false);
+
+      } catch (error) {
+        console.error('Error fetching current user info:', error);
+      }
+    };
+
+    fetchCurrentUserInfo();
+  }, []);
 
   useEffect(() => {
     const fetchCurrentUserInfo = async () => {
@@ -527,10 +549,14 @@ return loading ? (
                             </div>
                           </div>
                         </a>
+                        {isAdmin && (
+        <>
                         {/* Delete icon */}
                         <FontAwesomeIcon icon={faTrash} className="delete-icon" onClick={() => handleDelete(record.documentURL)} />
                         {/* Archive icon */}
                         <FontAwesomeIcon icon={faArchive} className="archive-icon" onClick={() => handleArchive(record.documentURL)} />
+                        </>
+      )}
                       </div>
                     </div>
                 

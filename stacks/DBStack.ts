@@ -72,6 +72,16 @@ export function DBStack({ stack, app }: StackContext) {
     });
 
 
+    const universityTable = new Table(stack, "UniversityTable", {
+
+        fields: {
+            uniName: "string",      // University Name
+            status: "string",          // in progress=false, completed=true
+        },
+        primaryIndex: { partitionKey: "uniName" },
+    });
+
+
 
 
 
@@ -125,7 +135,8 @@ export function DBStack({ stack, app }: StackContext) {
         bucket,
         table,
         fileTable,
-        criteriaTable
+        criteriaTable,
+        universityTable
 
     };
 }

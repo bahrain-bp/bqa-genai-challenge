@@ -28,7 +28,7 @@ const Standards: React.FC = () => {
   
       // Delete each record
       await Promise.all(recordsToDelete.map(async record => {
-        const api = import.meta.env.VITE_API_URL;
+        const api = import.meta.env.VITE_API_URL; 
         const apiUrl = `${api}/standards/${record.entityId}`;
         const response = await fetch(apiUrl, {
           method: 'DELETE',
@@ -60,7 +60,7 @@ const Standards: React.FC = () => {
   
       // Update status to 'archived' for each record
       await Promise.all(recordsToArchive.map(async record => {
-        const api = import.meta.env.VITE_API_URL;
+        const api = import.meta.env.VITE_API_URL; 
         const apiUrl = `${api}/standards/${record.entityId}`;
         const response = await fetch(apiUrl, {
           method: 'PUT', // Use PUT method to update the record
@@ -126,8 +126,8 @@ const Standards: React.FC = () => {
 
   const fetchRecords = async () => {
     try {
-      const api = import.meta.env.VITE_API_URL;
-      const response = await fetch(`${api}/standards`);
+      // const api = import.meta.env.VITE_API_URL;
+      const response = await fetch(`https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards`);
       if (!response.ok) {
         throw new Error('Failed to fetch records');
       }
@@ -157,8 +157,8 @@ const Standards: React.FC = () => {
        const newRecordData = {
         ...recordData,
       };
-      const api = import.meta.env.VITE_API_URL;
-      const response = await fetch(`${api}/standards`, {
+      // const api = import.meta.env.VITE_API_URL;
+      const response = await fetch(`https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -320,10 +320,14 @@ const Standards: React.FC = () => {
                     <h6 className="m-b-20">{standardId}</h6>
                     <h5>{record.standardName}</h5>
                   </a>
+                  {isAdmin && (
+                    <>
                   {/* Delete icon */}
                   <FontAwesomeIcon icon={faTrash} className="delete-icon" onClick={() => handleDelete(record.standardId)} />
                   {/* Archive icon */}
                   <FontAwesomeIcon icon={faArchive} className="archive-icon" onClick={() => handleArchive(record.standardId)} />
+                  </>
+                   )}
                 </div>
               </div>
             </div>

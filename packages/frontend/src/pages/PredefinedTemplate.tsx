@@ -197,8 +197,8 @@ const [indicators, setIndicators] = useState<any[]>([]); // State variable to st
 
   const fetchIndicators = async (standardId: string | undefined) => {
     try {
-      const api = import.meta.env.VITE_API_URL;
-      const response = await fetch(`${api}/standards?standardId=${standardId}`);
+      // const api = import.meta.env.VITE_API_URL;
+      const response = await fetch(`https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards?standardId=${standardId}`);
       if (!response.ok) {
         throw new Error('Failed to fetch indicators');
       }
@@ -213,8 +213,8 @@ const [indicators, setIndicators] = useState<any[]>([]); // State variable to st
 
   const fetchRecords = async (standardId: string | undefined) => {
     try {
-      const api = import.meta.env.VITE_API_URL;
-      const response = await fetch(`${api}/standards?standard=${standardId}`);
+      // const api = import.meta.env.VITE_API_URL;
+      const response = await fetch(`https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards?standard=${standardId}`);
       if (!response.ok) {
         throw new Error('Failed to fetch records');
       }
@@ -409,12 +409,14 @@ return loading ? (
 
     <h6 className="m-b-20">{indicatorId}</h6>
     <h5>{record.indicatorName}</h5></a>
-
+    {isAdmin && (
+        <>
        {/* Delete icon */}
        <FontAwesomeIcon icon={faTrash} className="delete-icon" onClick={() => handleDelete(record.indicatorId)} />
                         {/* Archive icon */}
                         <FontAwesomeIcon icon={faArchive} className="archive-icon" onClick={() => handleArchive(record.indicatorId)} />
-                 
+                        </>
+      )}       
       </div>
         </div>
 

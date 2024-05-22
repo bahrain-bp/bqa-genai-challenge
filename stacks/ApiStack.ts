@@ -8,7 +8,7 @@ import * as iam from "@aws-cdk/aws-iam";
 
 export function ApiStack({ stack }: StackContext) {
   const { auth } = use(AuthStack);
-  const { table, fileTable, criteriaTable } = use(DBStack);
+  const { table, fileTable, criteriaTable, universityTable } = use(DBStack);
   const { documentsQueue } = use(S3Stack);
 
   const api = new Api(stack, "signinAPI", {
@@ -23,27 +23,25 @@ export function ApiStack({ stack }: StackContext) {
     // },
     defaults: {
       function: {
-        bind: [table, fileTable, criteriaTable], // Bind the table name to our API
+        bind: [table, fileTable, criteriaTable,universityTable], // Bind the table name to our API
       },
       // Optional: Remove authorizer from defaults if set to "jwt"
       // authorizer: "jwt",
     },
     routes: {
-      //  Email API route
-        "POST /send-email": 
-        {
-            function:
-            {
-                handler: "packages/functions/src/send-email.sendEmail",
-                permissions: ["ses"]
-            }
+      // Email API route
+      "POST /send-email": {
+        function: {
+          handler: "packages/functions/src/send-email.sendEmail",
+          permissions: ["ses"],
         },
+      },
       // Sample TypeScript lambda function
       "POST /": "packages/functions/src/lambda.main",
       "POST /uploadS3": {
         function: {
           handler: "packages/functions/src/s3Upload.uploadToS3",
-          permissions: "*",
+          permissions: ["s3"],
           bind: [documentsQueue],
           timeout: "300 seconds",
         },
@@ -61,7 +59,6 @@ export function ApiStack({ stack }: StackContext) {
           handler: "packages/functions/src/comprehend.comprehendText",
           permissions: ["comprehend"],
           timeout: "900 seconds",
-
         },
       },
       "GET /downloadFile": {
@@ -69,10 +66,8 @@ export function ApiStack({ stack }: StackContext) {
           handler: "packages/functions/src/files/downloadFile.main",
           permissions: "*",
           timeout: "900 seconds",
-
         },
       },
-
       "POST /textract": {
         function: {
           handler: "packages/functions/src/textractPdf.extractTextFromPDF",
@@ -113,16 +108,18 @@ export function ApiStack({ stack }: StackContext) {
           permissions: ["s3"], // Grant necessary S3 permissions
         },
       },
-
-      // Add the new route for retrieving files
+      "POST /compareFiles": {
+        function: {
+          handler: "packages/functions/src/bedrock_lambda/compareFiles.handler", // Replace with your location
+          permissions: "*", // Add necessary permissions here
+        },
+      },
       "GET /count": {
         function: {
           handler: "packages/functions/src/filesCount.main", // Replace with your location
-          permissions: ["s3"], // Grant necessary S3 permissions
+          permissions: "*", // Grant necessary S3 permissions
         },
       },
-
-
       // Add the new route for deleting files
       "DELETE /deleteFile": {
         function: {
@@ -130,12 +127,17 @@ export function ApiStack({ stack }: StackContext) {
           permissions: ["s3"],
         },
       },
-
+      "POST /titan": {
+        function: {
+          handler: "packages/functions/src/bedrock_lambda/titanCompare.handler",
+          permissions: "*",
+        },
+      },
       "POST /createUser": {
         function: {
           handler: "packages/functions/createUser.createUserInCognito",
           permissions: "*",
-          //permissions wil be changed
+          //permissions will be changed
         },
       },
       "POST /createFileDB": {
@@ -143,25 +145,70 @@ export function ApiStack({ stack }: StackContext) {
           handler: "packages/functions/src/files/create.main",
           permissions: "*",
           timeout: "900 seconds",
-
         },
       },
+
+
       "PUT /fileSummary/{fileName}": {
         function: {
           handler: "packages/functions/src/files/update.main",
           permissions: "*",
           timeout: "900 seconds",
-
         },
       },
-
-      "GET /summarization/{fileName}":
-        "packages/functions/src/files/retrieveSummarization.main",
-
+      "GET /summarization/{fileName}": {
+        function: {
+          handler: "packages/functions/src/files/retrieveSummarization.main",
+          permissions: ["s3"],
+        },
+      },
       //Uploading logo to S3
       "POST /uploadLogo": {
         function: {
           handler: "packages/functions/src/uploadLogo.uploadLogoToS3",
+          permissions: ["s3"],
+        },
+      },
+      //Uploading logo to S3
+      "GET /files/{standardId}/{indicatorId}": {
+        function: {
+          handler: "packages/functions/src/fetchContentIndicator.main",
+          permissions: "*",
+        },
+      },
+      //Uploading logo to S3
+      "POST /updateFileDB": {
+        function: {
+          handler: "packages/functions/src/files/updateByFileName.handler",
+          permissions: "*",
+        },
+      },
+
+
+      "POST /addUniDB": {
+        function: {
+          handler: "packages/functions/createUserDB.main",
+          permissions: "*",
+        },
+      },
+
+      "PUT /updateStatus/{uniName}": {
+        function: {
+          handler: "packages/functions/src/universities/updateStatus.main",
+          permissions: "*",
+        },
+      },
+      
+      "GET /uniStatus/{uniName}": {
+        function: {
+          handler: "packages/functions/src/universities/getUniStatus.main",
+          permissions: "*",
+        },
+      },
+      //list universities with their status from the dynamoDB
+      "GET /listUni": {
+        function: {
+          handler: "packages/functions/src/universities/listUnis.main",
           permissions: "*",
         },
       },
@@ -181,21 +228,22 @@ export function ApiStack({ stack }: StackContext) {
       "GET /standards": "packages/functions/src/standards/list.main",
       "PUT /standards/{id}": "packages/functions/src/standards/update.main",
       "DELETE /standards/{id}": "packages/functions/src/standards/delete.main",
-
       "POST /criteria": "packages/functions/src/criteria/create.main",
       "GET /criteria/{id}": "packages/functions/src/criteria/get.main",
       "GET /criteria": "packages/functions/src/criteria/list.main",
-      "GET /criteria/{id}/{indicator}": "packages/functions/src/criteria/getByIndicator.main",
-
-
-
+      "GET /criteria/{id}/{indicator}":
+        "packages/functions/src/criteria/getByIndicator.main",
     },
-
-
   });
+
   const get_users_function = api.getFunction("POST /createUser");
   get_users_function?.role?.addManagedPolicy(
     iam.ManagedPolicy.fromAwsManagedPolicyName("AmazonCognitoPowerUser")
+  );
+
+  const titan_function = api.getFunction("POST /titan");
+  titan_function?.role?.addManagedPolicy(
+    iam.ManagedPolicy.fromAwsManagedPolicyName("AmazonBedrockFullAccess")
   );
 
   // Define cache policy for the API
@@ -210,11 +258,10 @@ export function ApiStack({ stack }: StackContext) {
     ),
   });
 
-    // Show the API endpoint in the output
-    stack.addOutputs({
-      ApiEndpoint: api.url,
-    });
-
+  // Show the API endpoint in the output
+  stack.addOutputs({
+    ApiEndpoint: api.url,
+  });
 
   return { api, apiCachePolicy };
 }
