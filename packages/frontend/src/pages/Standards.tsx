@@ -124,8 +124,8 @@ const Standards: React.FC = () => {
 
   const fetchRecords = async () => {
     try {
-      const api = import.meta.env.VITE_API_URL;
-      const response = await fetch(`${api}/standards`);
+      // const api = import.meta.env.VITE_API_URL;
+      const response = await fetch(`https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards`);
       if (!response.ok) {
         throw new Error('Failed to fetch records');
       }
@@ -156,7 +156,7 @@ const Standards: React.FC = () => {
         ...recordData,
       };
       const api = import.meta.env.VITE_API_URL;
-      const response = await fetch(`${api}/standards`, {
+      const response = await fetch(`https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
