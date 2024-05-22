@@ -10,6 +10,7 @@ import * as AWS from 'aws-sdk';
 
 
 import { useTranslation } from 'react-i18next';
+import { toast } from 'react-toastify';
 
 
 //INDICATORS FILE **
@@ -288,7 +289,7 @@ const [/*currentName*/, setCurrentName] = useState('');
   };
   
   useEffect(() => {
-  
+   
     const indicatorId = window.location.pathname.split('/').pop();
     
  // Fetch indicators based on the standardId
@@ -322,39 +323,68 @@ const [/*currentName*/, setCurrentName] = useState('');
 
   async function uploadToS3Evidence(fileData: Blob | File, fileName: string, folderName: string) {
     try {
-      var upload = new AWS.S3.ManagedUpload({
-        params: {
-          Bucket:  'bqa-standards-upload',
-          Key: folderName + '/' + fileName,
-          Body: fileData
+      const response = await fetch(`https://dlmhd9r2jc.execute-api.us-east-1.amazonaws.com/uploadS3`, {
+        method: 'POST',
+        body: fileData,
+        headers: {
+          'file-name': fileName,
+          'bucket-name': 'bqa-standards-upload',
+          'folder-name': folderName,
+          'content-type': 'application/pdf', // Assuming all files are PDF
         },
       });
-    
-      var promise = upload.promise();
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to upload file: ${errorText}`);
+      }
 
-      promise.then(
-        function () {
-          alert("Successfully uploaded photo.");
-        },
-        function () {
-          return alert("There was an error uploading your photo: ");
-        }
-      );
-      // var newS3 = new AWS.S3();
-
-      // const params = {
-      //   Bucket: 'bqa-standards-upload',
-      //   Key: folderName + '/' + fileName,
-      //   Body: fileData
-      // };
-
-      //  const uploadResult = await newS3.upload(params).promise();
-
-      return { message: 'File uploaded successfully'};
+      // Log file info and refresh file list
+      console.log('Uploaded file:', fileName);
+      // fetchUploadedFiles(); // Assuming this fetches and logs files
+      toast.success('File uploaded successfully');
     } catch (error) {
-      console.error('Error uploading file:', error);
-      throw new Error('Failed to upload file');
+      const message =
+        error instanceof Error
+          ? error.message
+          : 'An unexpected error occurred';
+      console.error('Upload error:', message);
+      toast.error(`Upload error: ${message}`);
     }
+    
+    // try {
+    //   var upload = new AWS.S3.ManagedUpload({
+    //     params: {
+    //       Bucket:  'bqa-standards-upload',
+    //       Key: folderName + '/' + fileName,
+    //       Body: fileData
+    //     },
+    //   });
+    
+    //   var promise = upload.promise();
+
+    //   promise.then(
+    //     function () {
+    //       alert("Successfully uploaded photo.");
+    //     },
+    //     function () {
+    //       return alert("There was an error uploading your photo: ");
+    //     }
+    //   );
+    //   // var newS3 = new AWS.S3();
+
+    //   // const params = {
+    //   //   Bucket: 'bqa-standards-upload',
+    //   //   Key: folderName + '/' + fileName,
+    //   //   Body: fileData
+    //   // };
+
+    //   //  const uploadResult = await newS3.upload(params).promise();
+
+    //   return { message: 'File uploaded successfully'};
+    // } catch (error) {
+    //   console.error('Error uploading file:', error);
+    //   throw new Error('Failed to upload file');
+    // }
   }
 
   // async function uploadToS3Evidence(fileData: Blob | File, fileName: string, folderName: string) {

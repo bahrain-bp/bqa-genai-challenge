@@ -5,7 +5,7 @@ import '@fortawesome/fontawesome-free/css/all.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash, faArchive } from '@fortawesome/free-solid-svg-icons';
 import Loader from '../common/Loader';
-import {fetchUserAttributes } from 'aws-amplify/auth';
+// import {fetchUserAttributes } from 'aws-amplify/auth';
 
 
 
@@ -31,13 +31,14 @@ const [showForm, setShowForm] = useState(false); // State variable to toggle for
 const [standardName, setStandardName] = useState('');
 // const [standardName, setStandardName] = useState<any[]>([]);
 const [indicators, setIndicators] = useState<any[]>([]); // State variable to store indicators
-const [isAdmin, setIsAdmin] = useState<boolean>(false);
-const [/*currentName*/, setCurrentName] = useState('');
+// const [isAdmin, setIsAdmin] = useState<boolean>(false);
+// const [/*currentName*/, setCurrentName] = useState('');
 
 
   const [recordData, setRecordData] = useState({
     entityType: '',
     entityId: '',
+    standardId: '',
     standardName: '',
     indicatorId: '',
     indicatorName: '',
@@ -85,8 +86,8 @@ const [/*currentName*/, setCurrentName] = useState('');
   
       // Delete each record
       await Promise.all(recordsToDelete.map(async record => {
-        const api = import.meta.env.VITE_API_URL;
-        const apiUrl = `${api}/standards/${record.entityId}`;
+        // const api = import.meta.env.VITE_API_URL;
+        const apiUrl = `https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards/${record.entityId}`;
         const response = await fetch(apiUrl, {
           method: 'DELETE',
         });
@@ -114,8 +115,8 @@ const [/*currentName*/, setCurrentName] = useState('');
   
       // Update status to 'archived' for each record
       await Promise.all(recordsToArchive.map(async record => {
-        const api = import.meta.env.VITE_API_URL;
-        const apiUrl = `${api}/standards/${record.entityId}`;
+        // const api = import.meta.env.VITE_API_URL;
+        const apiUrl = `https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards/${record.entityId}`;
         const response = await fetch(apiUrl, {
           method: 'PUT', // Use PUT method to update the record
           headers: {
@@ -145,32 +146,78 @@ const [/*currentName*/, setCurrentName] = useState('');
     // Reset recordData if needed
   };
 
+  // const createRecord = async () => {
+  //   try {
+  //     const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+  //     if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
+  //       throw new Error('Please select a file.');
+  //     }
+  //     const file = fileInput.files[0];
+  
+  //     // Get the standardId from the URL
+  //     const standardId = window.location.pathname.split('/').pop();
+  
+  //     // Handle file upload
+  //     const selectedStandard = `${standardId}/${recordData.indicatorId}`;// Get the selected standard value
+  //     await handleFileSelect(file, selectedStandard);
+  
+  //     // Create record in DynamoDB
+  //     const documentURL = `https://d2qvr68pyo44tt.cloudfront.net/${selectedStandard}/${file.name}`;
+  //     const newRecordData = {
+  //       ...recordData,
+  //       documentName: file.name,
+  //       documentURL,
+  //       standardId: standardId, // Ensure standardId is included in the record data
+  //       standardName: standardName // Include standardName in recordData
+  //     };
+  //     // const api = import.meta.env.VITE_API_URL;
+  //     const response = await fetch(`https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards`, {
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: JSON.stringify(newRecordData),
+  //     });
+  //     if (!response.ok) {
+  //       throw new Error('Failed to create record');
+  //     }
+  //     const data = await response.json();
+  //     console.log('New record created:', data);
+  //     setShowForm(false);
+  //     fetchRecords(standardId); // Fetch records for the extracted standard name
+  //     setRecordData({
+  //       entityType: '',
+  //       entityId: '',
+  //       standardName: '',
+  //       indicatorId: '',
+  //       indicatorName: '',
+  //       description: '',
+  //       documentName: '',
+  //       documentURL: '',
+  //       dateCreated: '',
+  //       status: 'unarchived',
+  //     });
+  //     alert('Record created successfully!');
+  //   } catch (error) {
+  //     console.error('Error creating record:', error);
+  //     alert('Failed to create record');
+  //   }
+  // };
+
+
   const createRecord = async () => {
     try {
-      const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
-      if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
-        throw new Error('Please select a file.');
-      }
-      const file = fileInput.files[0];
-  
-      // Get the standardId from the URL
-      const standardId = window.location.pathname.split('/').pop();
-  
-      // Handle file upload
-      const selectedStandard = `${standardId}/${recordData.indicatorId}`;// Get the selected standard value
-      await handleFileSelect(file, selectedStandard);
+    // Get the standardId from the URL
+   const standardId = window.location.pathname.split('/').pop();
   
       // Create record in DynamoDB
-      const documentURL = `https://d2qvr68pyo44tt.cloudfront.net/${selectedStandard}/${file.name}`;
-      const newRecordData = {
+       const newRecordData = {
         ...recordData,
-        documentName: file.name,
-        documentURL,
         standardId: standardId, // Ensure standardId is included in the record data
-        standardName: standardName // Include standardName in recordData
+      standardName: standardName // Include standardName in recordData
       };
-      const api = import.meta.env.VITE_API_URL;
-      const response = await fetch(`${api}/standards`, {
+      // const api = import.meta.env.VITE_API_URL;
+      const response = await fetch(`https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -178,15 +225,17 @@ const [/*currentName*/, setCurrentName] = useState('');
         body: JSON.stringify(newRecordData),
       });
       if (!response.ok) {
-        throw new Error('Failed to create record');
+        throw new Error('Failed to create Indicator');
       }
       const data = await response.json();
-      console.log('New record created:', data);
+      console.log('New Indicator created:', data);
       setShowForm(false);
+     
       fetchRecords(standardId); // Fetch records for the extracted standard name
       setRecordData({
         entityType: '',
         entityId: '',
+        standardId: '',
         standardName: '',
         indicatorId: '',
         indicatorName: '',
@@ -196,17 +245,17 @@ const [/*currentName*/, setCurrentName] = useState('');
         dateCreated: '',
         status: 'unarchived',
       });
-      alert('Record created successfully!');
+      alert('Indicator created successfully!');
     } catch (error) {
-      console.error('Error creating record:', error);
-      alert('Failed to create record');
+      console.error('Error creating Indicator:', error);
+      alert('Failed to create Indicator');
     }
   };
 
   const fetchIndicators = async (standardId: string | undefined) => {
     try {
-      const api = import.meta.env.VITE_API_URL;
-      const response = await fetch(`${api}/standards?standardId=${standardId}`);
+      // const api = import.meta.env.VITE_API_URL;
+      const response = await fetch(`https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards?standardId=${standardId}`);
       if (!response.ok) {
         throw new Error('Failed to fetch indicators');
       }
@@ -221,8 +270,8 @@ const [/*currentName*/, setCurrentName] = useState('');
 
   const fetchRecords = async (standardId: string | undefined) => {
     try {
-      const api = import.meta.env.VITE_API_URL;
-      const response = await fetch(`${api}/standards?standard=${standardId}`);
+      // const api = import.meta.env.VITE_API_URL;
+      const response = await fetch(`https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards?standard=${standardId}`);
       if (!response.ok) {
         throw new Error('Failed to fetch records');
       }
@@ -230,7 +279,7 @@ const [/*currentName*/, setCurrentName] = useState('');
       
       // Sort records based on the numeric value in the standardId
       const sortedRecords = data
-        .filter((record: any) => record.documentURL && record.status !== 'archived') // Filter based on documentURL and status
+        .filter((record: any) =>  record.status !== 'archived') // Filter based on documentURL and status
         .sort((a: any, b: any) => {
           const indicatorIdA = parseInt(a.indicatorId.replace('Indicator', ''));
           const indicatorIdB = parseInt(b.indicatorId.replace('Indicator', ''));
@@ -248,6 +297,8 @@ const [/*currentName*/, setCurrentName] = useState('');
     }
   };
   
+
+
   useEffect(() => {
     const standardId = window.location.pathname.split('/').pop();
     
@@ -257,21 +308,21 @@ const [/*currentName*/, setCurrentName] = useState('');
     fetchRecords(standardId); 
   }, []);
 
-  useEffect(() => {
-    const fetchCurrentUserInfo = async () => {
-      try {
-        const attributes = await fetchUserAttributes();
-        const name:any= attributes.name;
-        setCurrentName(name);
-        setIsAdmin(name.endsWith("BQA Reviewer") || false);
+  // useEffect(() => {
+  //   const fetchCurrentUserInfo = async () => {
+  //     try {
+  //       const attributes = await fetchUserAttributes();
+  //       const name:any= attributes.name;
+  //       setCurrentName(name);
+  //       setIsAdmin(name.endsWith("BQA Reviewer") || false);
 
-      } catch (error) {
-        console.error('Error fetching current user info:', error);
-      }
-    };
+  //     } catch (error) {
+  //       console.error('Error fetching current user info:', error);
+  //     }
+  //   };
 
-    fetchCurrentUserInfo();
-  }, []);
+  //   fetchCurrentUserInfo();
+  // }, []);
 
   useEffect(() => {
     setTimeout(() => setLoading(false), 1000);
@@ -279,70 +330,70 @@ const [/*currentName*/, setCurrentName] = useState('');
 
 
   
-  async function uploadToS3Evidence(fileData: Blob | File, fileName: string, folderName: string) {
-    try {
-      const AWS = require('aws-sdk');
-      const s3 = new AWS.S3();
+  // async function uploadToS3Evidence(fileData: Blob | File, fileName: string, folderName: string) {
+  //   try {
+  //     const AWS = require('aws-sdk');
+  //     const s3 = new AWS.S3();
 
-    const uploadParams = {
-      Bucket: 'bqa-standards-upload',
-      Key: folderName + '/' + fileName,
-      Body: fileData
-    };
+  //   const uploadParams = {
+  //     Bucket: 'bqa-standards-upload',
+  //     Key: folderName + '/' + fileName,
+  //     Body: fileData
+  //   };
 
-    const upload = s3.upload(uploadParams);
+  //   const upload = s3.upload(uploadParams);
 
-    upload.promise()
-  .then(function() {
-    alert("Successfully uploaded file.");
-  })
-  .catch(function() {
-    alert("There was an error uploading your file: ");
-  });
-      return { message: 'File uploaded successfully'};
-    } catch (error) {
-      console.error('Error uploading file:', error);
-      throw new Error('Failed to upload file');
-    }
-  }
+  //   upload.promise()
+  // .then(function() {
+  //   alert("Successfully uploaded file.");
+  // })
+  // .catch(function() {
+  //   alert("There was an error uploading your file: ");
+  // });
+  //     return { message: 'File uploaded successfully'};
+  //   } catch (error) {
+  //     console.error('Error uploading file:', error);
+  //     throw new Error('Failed to upload file');
+  //   }
+  // }
 
-  async function handleFileSelect(file: File, selectedFolder: string) {
-    const fileReader = new FileReader();
-    fileReader.onload = function (e) {
-      if (e.target) {
-        const fileContent = e.target.result as string;
+  // async function handleFileSelect(file: File, selectedFolder: string) {
+  //   const fileReader = new FileReader();
+  //   fileReader.onload = function (e) {
+  //     if (e.target) {
+  //       const fileContent = e.target.result as string;
   
-        const uploadParams = {
-          body: new Blob([fileContent], { type: file.type }),
-          headers: {
-            'Content-Type': file.type,
-            'file-name': file.name
-          }
-        };
-        uploadToS3Evidence(uploadParams.body, uploadParams.headers['file-name'], selectedFolder)
-          .then(response => {
-            console.log(response);
-            alert('File uploaded successfully!');
-          })
-          .catch(error => {
-            console.error('Error uploading file:', error);
+  //       const uploadParams = {
+  //         body: new Blob([fileContent], { type: file.type }),
+  //         headers: {
+  //           'Content-Type': file.type,
+  //           'file-name': file.name
+  //         }
+  //       };
+  //       uploadToS3Evidence(uploadParams.body, uploadParams.headers['file-name'], selectedFolder)
+  //         .then(response => {
+  //           console.log(response);
+  //           alert('File uploaded successfully!');
+  //         })
+  //         .catch(error => {
+  //           console.error('Error uploading file:', error);
 
-            // alert('Failed to upload file');
+  //           // alert('Failed to upload file');
 
-            alert('Failed to upload file!');
+  //           alert('Failed to upload file!');
 
-          });
-      }
-    };
+  //         });
+  //     }
+  //   };
   
-    fileReader.readAsBinaryString(file);
-  }
+  //   fileReader.readAsBinaryString(file);
+  // }
 
 const fetchStandardName = async (standardId: string | undefined) => {
   try {
     // Make API call to fetch standard name based on standardId
-    const api = import.meta.env.VITE_API_URL;
-    const response = await fetch(`${api}/standards?standardId=${standardId}`);
+    // const api = import.meta.env.VITE_API_URL;
+    const response = await fetch(`https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards?standardId=${standardId}`);
     if (!response.ok) {
       throw new Error('Failed to fetch standards');
     }
@@ -368,7 +419,7 @@ return loading ? (
      
 
 <div>
-{isAdmin?(  
+{/* {isAdmin?(   */}
 
 <div className="button-container">
 
@@ -383,12 +434,12 @@ return loading ? (
       </button>
       
       </div>
-):null}
+{/* ):null} */}
       {showForm && (
         
           <div className="modal-overlay">
             <div className="modal-content">
-            <div className="form-group">
+            {/* <div className="form-group">
 
               <label>  {t('chooseIndicator')}</label>
 
@@ -414,7 +465,7 @@ return loading ? (
   })}
 
               </select>
-            </div><br />
+            </div><br /> */}
 
             <div className="form-group">
 
@@ -425,7 +476,8 @@ return loading ? (
               <label>{t('indicatorId')}</label>
               <input type="text" name="indicatorId" value={recordData.indicatorId} onChange={handleChange} className="white-background" />
             </div><br />
-            <div className="form-group">
+        
+            {/* <div className="form-group">
               <label>{t('uploadDocument')}</label>
               <input type="file" name="documentName" value={recordData.documentName} onChange={handleChange} className="white-background" />
             </div><br />
@@ -436,7 +488,7 @@ return loading ? (
             <div className="form-group">
               <label>{t('status')}</label>
               <input type="text" name="status" value={recordData.status} onChange={handleChange} className="white-background" readOnly />
-            </div><br />
+            </div><br /> */}
             <div className="form-buttons">
             <button
         className="flex rounded border border-stroke py-2 px-6 font-medium text-black hover:shadow-1 dark:border-strokedark dark:text-white mr-4"
@@ -477,7 +529,7 @@ return loading ? (
        
         {[...new Map(
           records
-            .filter(record => record.documentURL && record.status !== 'archived') // Filter based on documentURL and status
+            .filter(record => record.status !== 'archived') // Filter based on documentURL and status
             .map(record => [record.indicatorId, record]) // Map each record to its standardName and the record itself
         )].map(([indicatorId, record], index) => (
           <div key={index} className="record">

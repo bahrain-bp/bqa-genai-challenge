@@ -288,7 +288,7 @@ const [/*currentName*/, setCurrentName] = useState('');
   };
   
   useEffect(() => {
-  
+    
     const indicatorId = window.location.pathname.split('/').pop();
     
  // Fetch indicators based on the standardId
