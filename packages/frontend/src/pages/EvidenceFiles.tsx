@@ -305,6 +305,7 @@ const [/*currentName*/, setCurrentName] = useState('');
     fetchIndicators(indicatorId);
     fetchRecords(indicatorId); 
   }, []);
+  
   useEffect(() => {
     const fetchCurrentUserInfo = async () => {
       try {
