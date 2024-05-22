@@ -1,6 +1,6 @@
 import Breadcrumb from '../components/Breadcrumbs/Breadcrumb';
 import DefaultLayout from '../layout/DefaultLayout';
-import ChartThree from '../components/Charts/ChartThree';
+// import ChartThree from '../components/Charts/ChartThree';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import Loader from '../common/Loader';

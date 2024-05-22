@@ -38,7 +38,7 @@ const BqaDash2 = ({}) => {
   const apiURL = import.meta.env.VITE_API_URL;
   const navigate = useNavigate();
   const [records, setRecords] = useState<Record[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [/*loading */ , setLoading] = useState<boolean>(true);
 
 
   console.log(uniName, 'name uni');
