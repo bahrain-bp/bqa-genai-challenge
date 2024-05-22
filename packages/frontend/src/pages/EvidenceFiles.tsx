@@ -187,6 +187,7 @@ const [/*currentName*/, setCurrentName] = useState('');
       }
       const data = await response.json();
       console.log('New record created:', data);
+      toast.success('New file Added successfully');
       setShowForm(false);
       fetchRecords(indicatorId); // Fetch records for the extracted standard name
       setRecordData({
@@ -289,7 +290,7 @@ const [/*currentName*/, setCurrentName] = useState('');
   };
   
   useEffect(() => {
-   
+    //add credentials for demo
     const indicatorId = window.location.pathname.split('/').pop();
     
  // Fetch indicators based on the standardId
@@ -329,6 +330,7 @@ const [/*currentName*/, setCurrentName] = useState('');
   }, []);
 
 
+  //uncomment this for demo*
   // async function uploadToS3Evidence(fileData: Blob | File, fileName: string, folderName: string) {
   //   try {
   //     var upload = new AWS.S3.ManagedUpload({
@@ -355,6 +357,7 @@ const [/*currentName*/, setCurrentName] = useState('');
   //     throw new Error('Failed to upload file');
   //   }
   // }
+  //uncomment this for demo*
 
   async function uploadToS3Evidence(fileData: Blob | File, fileName: string, folderName: string) {
     try {
