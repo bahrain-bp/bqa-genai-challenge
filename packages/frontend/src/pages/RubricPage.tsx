@@ -1,32 +1,60 @@
-import React, { useState, ChangeEvent } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import DefaultLayout from '../layout/DefaultLayout';
+import { getCurrentUser } from '@aws-amplify/auth';
 
 interface Criterion {
   id: number;
   name: string;
   maxScore: number;
+  comment: string; // Adding the comment property to Criterion
+  outputText: string; // Adding the outputText property to Criterion
 }
 
-const criteria: Criterion[] = [
-  { id: 1, name: 'Criterion 1 bhb hbyubuh vyuub byububiu bubububu buhbubububuyb njibnijbi bnuibiu hibuibiubiubibibiu hniubiu', maxScore: 5 },
-  { id: 2, name: 'Criterion 2', maxScore: 10 },
-  { id: 3, name: 'Criterion 3', maxScore: 15 },
-  { id: 4, name: 'Criterion 4', maxScore: 7 },
-  { id: 5, name: 'Criterion 5', maxScore: 12 },
-  { id: 6, name: 'Criterion 6', maxScore: 8 },
-  { id: 7, name: 'Criterion 7', maxScore: 20 },
-  { id: 8, name: 'Criterion 8', maxScore: 10 },
-  { id: 9, name: 'Criterion 9', maxScore: 15 },
-  { id: 10, name: 'Criterion 10', maxScore: 13 },
-];
-
-const itemsPerPage = 5; // Number of items per page
+const itemsPerPage = 2; // Number of items per page
 
 const RubricPage: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<number>(1);
+  const [criteria, setCriteria] = useState<Criterion[]>([]);
+  const apiURL = import.meta.env.VITE_API_URL;
+  const uniName = getCurrentUser();
+  console.log(uniName, 'name');
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(`${apiURL}/compareResult/BUB/4/10`);
+        setCriteria(
+          response.data.map((item: any) => ({
+            // Mapping over response data to format it properly
+            id: item.comparisonId, // Assuming comparisonId can be used as id
+            name: item.indicatorName,
+            maxScore: 0, // Setting maxScore to 0 for now as it's not provided in the response
+            comment: item.comment,
+            outputText: item.outputText,
+          })),
+        );
+        console.log('comp results', response.data);
+      } catch (error) {
+        console.error('Error fetching criteria:', error);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const handlePageChange = (pageNumber: number) => {
     setCurrentPage(pageNumber);
+  };
+
+  const formatOutputText = (text: string) => {
+    // Split the text at periods followed by a space to create new lines
+    return text.split('. ').map((sentence, index) => (
+      <span key={index}>
+        {sentence}
+        <br />
+        <br />
+      </span>
+    ));
   };
 
   const paginatedCriteria = criteria.slice(
@@ -37,54 +65,51 @@ const RubricPage: React.FC = () => {
   return (
     <DefaultLayout>
       <div className="p-4">
-        <h1 className="text-2xl font-bold mb-4 text-center">
+        <h1 className="text-4xl font-semibold mb-8 text-center text-blue-600">
           Assessment Rubric
         </h1>
-        <table className="min-w-full bg-white border border-gray-200">
-          <thead>
-            <tr>
-              <th className="py-2 px-4 border-b text-center" colSpan={3}>
-                Standard Name
-              </th>
-            </tr>
-            <tr>
-              <th className="py-2 px-4 border-b text-center" colSpan={3}>
-                Indicator Name
-              </th>
-            </tr>
-            <tr>
-              <th className="py-2 px-4 border-b text-center">Criterion</th>
-              <th className="py-2 px-4 border-b text-center">Generated Text</th>
-              <th className="py-2 px-4 border-b text-center">Score</th>
-            </tr>
-          </thead>
-          <tbody>
-            {paginatedCriteria.map((criterion, index) => (
-              <tr key={criterion.id}>
-                <td className="py-2 px-4 border-b border-r text-center">
-                  {criterion.name}
-                </td>
-                <td className="py-2 px-4 border-b border-r text-center">
-                  Blah blah yuygu yubybybyuuybybybyby ybbybybybbuybu ubbubbbuy bubbbububbbubu ubbbu
-                </td>
-                <td className="py-2 px-4 border-b text-center">
-                  {criterion.maxScore}
-                </td>
+        <div className="overflow-x-auto">
+          <table className="w-full bg-white border border-gray-200 rounded-lg shadow">
+            <thead>
+              <tr className="bg-blue-600 text-white">
+                <th className="py-3 px-4 text-left font-bold">Comment</th>
+                <th className="py-3 px-4 text-left">Generated Text</th>
+                <th className="py-3 px-4 text-center">Score</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {paginatedCriteria.map((criterion, index) => (
+                <tr
+                  key={criterion.id}
+                  className={index % 2 === 0 ? 'bg-gray-100' : ''}
+                >
+                  <td className="py-4 px-6 border-b border-gray-200 font-bold">
+                    {criterion.comment}
+                  </td>
+                  <td className="py-4 px-6 border-b border-gray-200">
+                    <span className="text-gray-800 font-medium">
+                      {formatOutputText(criterion.outputText)}
+                    </span>
+                  </td>
+                  <td className="py-4 px-6 border-b border-gray-200 text-center">
+                    {criterion.maxScore}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
 
-        <div className="flex justify-center mt-4">
+        <div className="flex justify-center mt-8">
           <button
-            className="mr-2 px-4 py-2 bg-gray-200 rounded"
+            className="mr-4 px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 focus:outline-none"
             onClick={() => handlePageChange(currentPage - 1)}
             disabled={currentPage === 1}
           >
             Previous
           </button>
           <button
-            className="px-4 py-2 bg-gray-200 rounded"
+            className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 focus:outline-none"
             onClick={() => handlePageChange(currentPage + 1)}
             disabled={currentPage === Math.ceil(criteria.length / itemsPerPage)}
           >
