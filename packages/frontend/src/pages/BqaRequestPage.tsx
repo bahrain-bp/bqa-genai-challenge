@@ -8,6 +8,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { fetchUserAttributes } from 'aws-amplify/auth';
 
 
+
 function useQuery() {
   return new URLSearchParams(useLocation().search);
 }
