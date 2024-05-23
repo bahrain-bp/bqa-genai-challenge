@@ -8,8 +8,9 @@ import * as iam from "@aws-cdk/aws-iam";
 
 export function ApiStack({ stack }: StackContext) {
   const { auth } = use(AuthStack);
-  const { table, fileTable, criteriaTable, comparisonResultTable } =
-    use(DBStack);
+
+  const { table, fileTable, criteriaTable, universityTable,comparisonResultTable } = use(DBStack);
+
   const { documentsQueue } = use(S3Stack);
 
   const api = new Api(stack, "signinAPI", {
@@ -24,7 +25,9 @@ export function ApiStack({ stack }: StackContext) {
     // },
     defaults: {
       function: {
-        bind: [table, fileTable, criteriaTable, comparisonResultTable], // Bind the table name to our API
+
+       bind: [table, fileTable, criteriaTable,universityTable,comparisonResultTable], // Bind the table name to our API
+
       },
       // Optional: Remove authorizer from defaults if set to "jwt"
       // authorizer: "jwt",
@@ -148,6 +151,8 @@ export function ApiStack({ stack }: StackContext) {
           timeout: "900 seconds",
         },
       },
+
+
       "PUT /fileSummary/{fileName}": {
         function: {
           handler: "packages/functions/src/files/update.main",
@@ -182,6 +187,36 @@ export function ApiStack({ stack }: StackContext) {
           permissions: "*",
         },
       },
+
+
+      "POST /addUniDB": {
+        function: {
+          handler: "packages/functions/createUserDB.main",
+          permissions: "*",
+        },
+      },
+
+      "PUT /updateStatus/{uniName}": {
+        function: {
+          handler: "packages/functions/src/universities/updateStatus.main",
+          permissions: "*",
+        },
+      },
+      
+      "GET /uniStatus/{uniName}": {
+        function: {
+          handler: "packages/functions/src/universities/getUniStatus.main",
+          permissions: "*",
+        },
+      },
+      //list universities with their status from the dynamoDB
+      "GET /listUni": {
+        function: {
+          handler: "packages/functions/src/universities/listUnis.main",
+          permissions: "*",
+        },
+      },
+
       //Fetching all users in cognito
       "GET /getUsers": {
         function: {

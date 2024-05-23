@@ -1,6 +1,6 @@
 import Breadcrumb from '../components/Breadcrumbs/Breadcrumb';
 import DefaultLayout from '../layout/DefaultLayout';
-import ChartThree from '../components/Charts/ChartThree';
+// import ChartThree from '../components/Charts/ChartThree';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import Loader from '../common/Loader';
@@ -399,10 +399,10 @@ const OfficerDash = () => {
 
       <Breadcrumb pageName={t('universityOfficerDashboard')} />
 
-      <div className="grid grid-cols-9 gap-4 md:gap-6 2xl:gap-7.5 sm:px-7.5 xl:pb-1">
+      <div className="grid grid-cols gap-4 md:gap-6 2xl:gap-7.5 sm:px-7.5 xl:pb-1">
         {/* <ChartTwo /> */}
 
-        <div className="col-span-12 rounded-sm border border-stroke bg-white p-7.5 shadow-default dark:border-strokedark dark:bg-boxdark xl:col-span-4">
+        <div className="col-span-full rounded-sm border border-stroke bg-white p-7.5 shadow-default dark:border-strokedark dark:bg-boxdark xl:col-span-4">
           <div className="mb-4 justify-between gap-4 sm:flex">
             <div>
               <h4 className="text-xl font-semibold text-black dark:text-white">
@@ -429,7 +429,7 @@ const OfficerDash = () => {
         </div>
 
         {/* End of chart 2 */}
-        <ChartThree />
+        {/* <ChartThree /> */}
       </div>
 
       <div className="rounded-sm border border-stroke bg-white px-5 pt-6 pb-2.5 shadow-default dark:border-strokedark sm:px-7.5 x1:pb-1">

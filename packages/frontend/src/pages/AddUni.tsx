@@ -94,7 +94,7 @@ const AddUni = () => {
       toast.success('User and logo added successfully!');
     } catch (error) {
       console.error('Error:', error);
-      toast.error('Error, please try again.');
+      toast.error('The email you enterd is already use.');
     }
   }
 
@@ -148,8 +148,9 @@ const AddUni = () => {
       toast.error('Please select a logo to upload.');
       return;
     }
-    const url =
-      'https://u1oaj2omi2.execute-api.us-east-1.amazonaws.com/uploadLogo'; // This will be replaced with the main api
+    const url =`${apiUrl}/uploadLogo`;
+
+      // 'https://u1oaj2omi2.execute-api.us-east-1.amazonaws.com/uploadLogo'; // This will be replaced with the main api
     /////
     const formData = new FormData();
     formData.append('logo', logo, logo.name); // Append the file to FormData
@@ -197,6 +198,8 @@ const AddUni = () => {
       }
     } catch (error) {
       console.error('Error uploading logo:', error);
+      toast.error('The email you enterd is already used.');
+
       // Handle error (e.g., display error message to the user)
     }
   };

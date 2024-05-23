@@ -5,11 +5,16 @@ import '@fortawesome/fontawesome-free/css/all.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash, faArchive } from '@fortawesome/free-solid-svg-icons';
 import { useTranslation } from 'react-i18next';
+import {fetchUserAttributes } from 'aws-amplify/auth';
+
 
 
 const EvidenceFiles: React.FC = () => {
   const [records, setRecords] = useState<any[]>([]);
   const { t } = useTranslation(); // Hook to access translation functions
+  const [isAdmin, setIsAdmin] = useState<boolean>(false);
+  const [/*currentName*/, setCurrentName] = useState('');
+
     
 
   const fetchRecords = async (indicatorId: string | undefined) => {
@@ -95,6 +100,21 @@ const EvidenceFiles: React.FC = () => {
     const indicatorId = window.location.pathname.split('/').pop();
     fetchRecords(indicatorId); // Fetch records for the extracted standard name
   }, []);
+  useEffect(() => {
+    const fetchCurrentUserInfo = async () => {
+      try {
+        const attributes = await fetchUserAttributes();
+        const name:any= attributes.name;
+        setCurrentName(name);
+        setIsAdmin(name.endsWith("BQA Reviewer") || false);
+
+      } catch (error) {
+        console.error('Error fetching current user info:', error);
+      }
+    };
+
+    fetchCurrentUserInfo();
+  }, []);
 
   return (
     <DefaultLayout>
@@ -124,10 +144,14 @@ const EvidenceFiles: React.FC = () => {
                             </div>
                           </div>
                         </a>
+                        {isAdmin && (
+        <>
                         {/* Delete icon */}
                         <FontAwesomeIcon icon={faTrash} className="delete-icon" onClick={() => handleDelete(record.documentURL)} />
                         {/* Archive icon */}
                         <FontAwesomeIcon icon={faArchive} className="archive-icon" onClick={() => handleArchive(record.documentURL)} />
+                        </>
+      )}
                       </div>
                     </div>
                 

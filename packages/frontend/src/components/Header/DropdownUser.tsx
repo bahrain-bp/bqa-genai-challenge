@@ -1,12 +1,19 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { signOut } from 'aws-amplify/auth';
-import UserOne from '../../images/user/UOB-Logo-Transparant.png';
+import UserOne from '../../images/user/BQA.jpg';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import {fetchUserAttributes } from 'aws-amplify/auth';
 import { useTranslation } from 'react-i18next'; // Fix error : npm install react-i18next
+import axios from 'axios';
 
+// interface User {
+//   Username: string;
+//   Attributes: { Name: string; Value: string }[];
+//   imageUrl: string; // Added imageUrl property
+//   status:string;
+// }
 
 const DropdownUser = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -15,7 +22,10 @@ const DropdownUser = () => {
   const [currentEmail, setCurrentEmail] = useState('');
   const [currentName, setCurrentName] = useState('');
   const { t } = useTranslation(); // Hook to access translation functions
-    
+  const [currentLogo, setCurrentLogo] = useState('');
+  const [imagesFetched, setImagesFetched] = useState<boolean>(false); // Flag to track if images are fetched
+  const apiUrl = import.meta.env.VITE_API_URL;
+
   //const [users, setUsers] = useState<{ Username: string; Attributes: { Name: string; Value: string }[] }[]>([]);
 
 
@@ -67,7 +77,6 @@ const DropdownUser = () => {
         const name:any= attributes.name;
         setCurrentEmail(email);
         setCurrentName(name);
-
       } catch (error) {
         console.error('Error fetching current user info:', error);
       }
@@ -76,6 +85,36 @@ const DropdownUser = () => {
     fetchCurrentUserInfo();
   }, []);
 
+  useEffect(() => {
+    if (!imagesFetched && currentName) {
+        const fetchImage = async () => {
+            try {
+                const fileKey = `${currentName}/logos/${currentName}.png`;
+                const response = await axios.get(`${apiUrl}/viewFile?data={"fileKey":"${fileKey}"}`, {
+                    responseType: 'arraybuffer',
+                });
+
+                if (response.status === 200 && response.headers['content-type'].startsWith('image/')) {
+                    const imageData = btoa(
+                        new Uint8Array(response.data).reduce(
+                            (data, byte) => data + String.fromCharCode(byte),
+                            '',
+                        ),
+                    );
+                    setCurrentLogo(`data:${response.headers['content-type']};base64,${imageData}`);
+                } else {
+                    throw new Error('Failed to fetch image');
+                }
+            } catch (error) {
+                console.error('Error fetching images:', error);
+                setCurrentLogo(UserOne); // Set to default image on error
+            }
+        };
+
+        fetchImage();
+        setImagesFetched(true);
+    }
+}, [currentName, imagesFetched]);
 
   
     
@@ -102,7 +141,7 @@ const DropdownUser = () => {
         </span>
 
         <span className="h-12 w-12 rounded-full">
-          <img src={UserOne} alt="User" />
+        <img src={currentLogo}  />
         </span>
 
         <svg
