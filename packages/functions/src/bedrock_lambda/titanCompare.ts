@@ -3,6 +3,12 @@ import { APIGatewayProxyEvent, Context, Handler } from "aws-lambda";
 import * as winston from "winston";
 import { Logger } from "winston";
 import axios from "axios";
+import { DynamoDB } from "aws-sdk";
+import { Table } from "sst/node/table";
+import { randomUUID } from "crypto";
+
+// Create an instance of DynamoDB DocumentClient
+const dynamoDb = new DynamoDB.DocumentClient();
 const logger: Logger = winston.createLogger({
     level: "info",
     format: winston.format.combine(
@@ -211,6 +217,28 @@ const handler: Handler = async (
             logger.info(`Output Text for comment ${c.commentId}: ${outputText}`);
 
             results.push({ commentId: c.commentId, outputText });
+
+            try {
+                const params = {
+                    TableName: Table.ComparisonResult_Table.tableName,
+                    Item: {
+                        comparisonId:Math.random(),
+                        standardNumber: standardNumber,
+                        standardName: "test", // Update as needed
+                        indicatorNumber: parseInt(indicatorNumber), // Assuming indicatorNumber is a number
+                        indicatorName: indicatorName,
+                        comment: c.comment, // Store the actual comment
+                        outputText: outputText,
+                        timestamp: new Date().toISOString(),
+                    }
+                };
+                console.log(`saved in db comment ${c.comment} `)
+
+                await dynamoDb.put(params).promise();
+            } catch (error) {
+                logger.error(`Error saving to DynamoDB for comment ${c.commentId}: ${(error as Error).message}`);
+            }
+        
         }
 
         const response = {

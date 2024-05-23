@@ -72,6 +72,20 @@ export function DBStack({ stack, app }: StackContext) {
     });
 
 
+    const comparisonResultTable = new Table(stack, "ComparisonResult_Table", {
+        fields: {
+            comparisonId: "number", // Unique comparison ID
+
+            standardNumber: "string",
+            standardName: "string",
+            indicatorNumber: "number",
+            indicatorName: "string",
+            comment: "string", // ID of the comment being evaluated
+            outputText: "string", // Result of the comparison
+            timestamp: "string", // Timestamp of when the comparison was made
+        },
+        primaryIndex: { partitionKey: "comparisonId" } // Assuming comparisonId is unique
+    });
 
 
 
@@ -125,7 +139,8 @@ export function DBStack({ stack, app }: StackContext) {
         bucket,
         table,
         fileTable,
-        criteriaTable
+        criteriaTable,
+        comparisonResultTable
 
     };
 }
