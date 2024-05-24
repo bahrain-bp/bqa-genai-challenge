@@ -186,31 +186,47 @@ const generateText = async (modelId: string, body: string): Promise<any> => {
 };
 
 const handler: Handler = async (
-  event: APIGatewayProxyEvent,
+  event: any,
   context: Context
 ) => {
   try {
-    const fileName = "BUB/Standard2/Indicator6/Health_Saftey.pdf";
+    // const fileName = "BUB/Standard2/Indicator6/Health_Saftey.pdf";
+ // Extract uniName, standardNumber, and indicatorNumber from the headers
+ const uniName = event.headers["uni-name"];;
+ const standardNum = event.headers["standard-number"];
+ const indicatorNum = event.headers["indicator-number"];
+ 
 
-    const { standardNumber, indicatorNumber } =
-      extractStandardAndIndicator(fileName);
+ if (!uniName || !standardNum || !indicatorNum) {
+   const errorMsg =
+     "Missing required headers: uniName, standardNumber, or indicatorNumber";
+   logger.error(errorMsg);
+   return {
+     statusCode: 400,
+     body: JSON.stringify({ error: errorMsg }),
+   };
+ }
+ logger.info(`Uni name: ${uniName}`);
+    logger.info(`Standard Number: ${standardNum}`);
+    logger.info(`Indicator Number: ${indicatorNum}`);
 
-    logger.info(`Standard Number: ${standardNumber}`);
-    logger.info(`Indicator Number: ${indicatorNumber}`);
+    // const { standardNumber, indicatorNumber } =
+    //   extractStandardAndIndicator(fileName);
 
-    if (!standardNumber || !indicatorNumber) {
-      const errorMsg =
-        "Failed to extract standard number or indicator number from the file path";
-      logger.error(errorMsg);
-      return {
-        statusCode: 400,
-        body: JSON.stringify({ error: errorMsg }),
-      };
-    }
+
+    // if (!standardNumber || !indicatorNumber) {
+    //   const errorMsg =
+    //     "Failed to extract standard number or indicator number from the file path";
+    //   logger.error(errorMsg);
+    //   return {
+    //     statusCode: 400,
+    //     body: JSON.stringify({ error: errorMsg }),
+    //   };
+    // }
  // Call other functions using standardNumber and indicatorNumber
  const criteriaResponse: CriteriaResponse | undefined = await getIndicatorData(
-    standardNumber,
-    indicatorNumber
+    standardNum,
+    indicatorNum
   );
   
   if (!criteriaResponse || !criteriaResponse.indicators || !Array.isArray(criteriaResponse.indicators)) {
@@ -231,7 +247,7 @@ const handler: Handler = async (
   
   
 
-    const allContent = await fetchAllContents(standardNumber, indicatorNumber);
+    const allContent = await fetchAllContents(standardNum, indicatorNum);
     console.log(allContent, "all content const");
 
     //logger.info("Handler invoked");
@@ -283,10 +299,10 @@ const handler: Handler = async (
           TableName: Table.ComparisonResult_Table.tableName,
           Item: {
             comparisonId: Math.random(),
-            standardNumber: standardNumber,
+            standardNumber: standardNum,
             standardName: standardName, // Update as needed
             uniName: "BUB",
-            indicatorNumber: parseInt(indicatorNumber), // Assuming indicatorNumber is a number
+            indicatorNumber: parseInt(indicatorNum), // Assuming indicatorNumber is a number
             indicatorName: indicatorName,
             comment: c.comment, // Store the actual comment
             outputText: outputText,
