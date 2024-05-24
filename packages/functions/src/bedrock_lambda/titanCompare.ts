@@ -26,15 +26,33 @@ class ImageError extends Error {
 }
 
 interface Comment {
-  commentId: string;
-  comment: string;
-}
-
-interface Indicator {
-  indicatorId: string;
-  indicatorName: string;
-  comments: Comment[];
-}
+    commentId: string;
+    comment: string;
+  }
+  
+  interface Indicator {
+    indicatorId: string;
+    indicatorName: string;
+    comments: Comment[];
+  }
+  
+  interface CriteriaResponse {
+    standardId: string;
+    standardName: string;
+    indicators: Indicator[];
+  }
+  
+  interface ComparisonResult {
+    comparisonId: number; // Adjust as needed
+    standardNumber: string;
+    standardName: string;
+    uniName: string;
+    indicatorNumber: number; // Assuming indicatorNumber is a number
+    indicatorName: string;
+    comment: string;
+    outputText: string;
+    timestamp: string;
+  }
 
 const extractStandardAndIndicator = (
   filePath: string
@@ -56,22 +74,46 @@ const extractStandardAndIndicator = (
 };
 
 const getIndicatorData = async (
-  standardNumber: string,
-  indicatorNumber: string
-): Promise<void> => {
-  try {
-    const response = await axios.get(
-      `https://u1oaj2omi2.execute-api.us-east-1.amazonaws.com/criteria/${standardNumber}/${indicatorNumber}`
-    );
-    // logger.info(
-    //     `Criteria for standard ${standardNumber}, indicator ${indicatorNumber}:`,
-    //     response.data
-    // );
-    return response.data;
-  } catch (error) {
-    logger.error(`Error fetching indicator data: ${(error as Error).message}`);
-  }
-};
+    standardNumber: string,
+    indicatorNumber: string
+  ): Promise<CriteriaResponse | undefined> => {
+    try {
+      const apiURL = `https://4seh85138j.execute-api.us-east-1.amazonaws.com/criteria/${standardNumber}/${indicatorNumber}`;
+      const response = await axios.get(apiURL);
+      const data = response.data;
+  
+      // Check if the response contains all required properties
+      if (
+        data &&
+        data.standardId &&
+        data.standardName &&
+        data.indicator &&
+        data.indicator.indicatorId &&
+        data.indicator.indicatorName &&
+        Array.isArray(data.indicator.comments)
+      ) {
+        return {
+          standardId: data.standardId,
+          standardName: data.standardName,
+          indicators: [
+            {
+              indicatorId: data.indicator.indicatorId,
+              indicatorName: data.indicator.indicatorName,
+              comments: data.indicator.comments,
+            },
+          ],
+        };
+      } else {
+        logger.error("Invalid data structure in API response");
+        return undefined;
+      }
+    } catch (error) {
+      logger.error(`Error fetching indicator data: ${(error as Error).message}`);
+      return undefined;
+    }
+  };
+  
+  
 
 const fetchAllContents = async (
   standardNumber: string,
@@ -80,8 +122,9 @@ const fetchAllContents = async (
   // Adjust the return type as needed
   try {
     const apiUrl = `https://u1oaj2omi2.execute-api.us-east-1.amazonaws.com/files/Standard${standardNumber}/Indicator${indicatorNumber}`;
+    console.log("apiURL Content",apiUrl)
     const apiResponse = await axios.get(apiUrl);
-
+    console.log("API Response:", apiResponse.data);
     if (Array.isArray(apiResponse.data) && apiResponse.data.length > 0) {
       // Extract only the content fields
       const contentArray = apiResponse.data.map((item) => item.content);
@@ -147,7 +190,7 @@ const handler: Handler = async (
   context: Context
 ) => {
   try {
-    const fileName = "BUB/Standard4/Indicator10/Health_Saftey.pdf";
+    const fileName = "BUB/Standard2/Indicator6/Health_Saftey.pdf";
 
     const { standardNumber, indicatorNumber } =
       extractStandardAndIndicator(fileName);
@@ -164,15 +207,29 @@ const handler: Handler = async (
         body: JSON.stringify({ error: errorMsg }),
       };
     }
-    // Call other functions using standardNumber and indicatorNumber
-    const criteria: Indicator = await getIndicatorData(
-      standardNumber,
-      indicatorNumber
-    );
-    //console.log(criteria, "criteria const");
-    const indicatorName = criteria.indicatorName;
-    const comments = criteria.comments;
-    const results = [];
+ // Call other functions using standardNumber and indicatorNumber
+ const criteriaResponse: CriteriaResponse | undefined = await getIndicatorData(
+    standardNumber,
+    indicatorNumber
+  );
+  
+  if (!criteriaResponse || !criteriaResponse.indicators || !Array.isArray(criteriaResponse.indicators)) {
+    logger.error("Failed to fetch criteria data or invalid data structure");
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ error: "Failed to fetch criteria data or invalid data structure" }),
+    };
+  }
+  
+  const { standardName, indicators } = criteriaResponse;
+  const results = [];
+  
+  for (const indicator of indicators) {
+    const indicatorName = indicator.indicatorName;
+    const comments = indicator.comments;
+    // Other logic remains the same
+  
+  
 
     const allContent = await fetchAllContents(standardNumber, indicatorNumber);
     console.log(allContent, "all content const");
@@ -182,7 +239,7 @@ const handler: Handler = async (
     const modelId = "amazon.titan-text-express-v1";
     for (const c of comments) {
       const prompt = `
-            Below is the evidence submitted by the university under the indicator "${criteria.indicatorName}":
+            Below is the evidence submitted by the university under the indicator "${indicatorName}":
             ${JSON.stringify(allContent)}
             
             Analyze and evaluate the university's compliance and performance based on the provided rubric criteria:
@@ -227,7 +284,7 @@ const handler: Handler = async (
           Item: {
             comparisonId: Math.random(),
             standardNumber: standardNumber,
-            standardName: "test", // Update as needed
+            standardName: standardName, // Update as needed
             uniName: "BUB",
             indicatorNumber: parseInt(indicatorNumber), // Assuming indicatorNumber is a number
             indicatorName: indicatorName,
@@ -246,17 +303,19 @@ const handler: Handler = async (
       }
     }
 
+
     const response = {
-      indicatorName: criteria.indicatorName,
+      indicatorName: indicatorName,
       results,
     };
-
+  
     logger.info(JSON.stringify(response));
 
     return {
       statusCode: 200,
       body: JSON.stringify(response),
     };
+}
   } catch (err) {
     if (err instanceof Error) {
       logger.error(`An error occurred: ${err.message}`);
