@@ -174,7 +174,7 @@ export function ApiStack({ stack }: StackContext) {
         },
       },
       //Uploading logo to S3
-      "GET /files/{standardId}/{indicatorId}": {
+      "GET /files/{uniName}/{standardId}/{indicatorId}": {
         function: {
           handler: "packages/functions/src/fetchContentIndicator.main",
           permissions: "*",

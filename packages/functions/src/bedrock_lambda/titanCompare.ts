@@ -78,7 +78,7 @@ const getIndicatorData = async (
     indicatorNumber: string
   ): Promise<CriteriaResponse | undefined> => {
     try {
-      const apiURL = `https://4seh85138j.execute-api.us-east-1.amazonaws.com/criteria/${standardNumber}/${indicatorNumber}`;
+      const apiURL = `https://u1oaj2omi2.execute-api.us-east-1.amazonaws.com/criteria/${standardNumber}/${indicatorNumber}`;
       const response = await axios.get(apiURL);
       const data = response.data;
   
@@ -116,12 +116,13 @@ const getIndicatorData = async (
   
 
 const fetchAllContents = async (
+    uniName:string,
   standardNumber: string,
   indicatorNumber: string
 ): Promise<any> => {
   // Adjust the return type as needed
   try {
-    const apiUrl = `https://u1oaj2omi2.execute-api.us-east-1.amazonaws.com/files/Standard${standardNumber}/Indicator${indicatorNumber}`;
+    const apiUrl = `https://u1oaj2omi2.execute-api.us-east-1.amazonaws.com/files/${uniName}/Standard${standardNumber}/Indicator${indicatorNumber}`;
     console.log("apiURL Content",apiUrl)
     const apiResponse = await axios.get(apiUrl);
     console.log("API Response:", apiResponse.data);
@@ -247,7 +248,7 @@ const handler: Handler = async (
   
   
 
-    const allContent = await fetchAllContents(standardNum, indicatorNum);
+    const allContent = await fetchAllContents(uniName,standardNum, indicatorNum);
     console.log(allContent, "all content const");
 
     //logger.info("Handler invoked");
