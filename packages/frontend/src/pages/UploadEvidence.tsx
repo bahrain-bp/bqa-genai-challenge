@@ -4,6 +4,7 @@ import DefaultLayout from '../layout/DefaultLayout';
 import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { FileUpload } from 'primereact/fileupload';
+import Loading from '../hooks/loadingIndicator';
 //import { useTranslation } from 'react-i18next';
 //import Loader from '../common/Loader';
 import { fetchUserAttributes } from 'aws-amplify/auth';
@@ -504,6 +505,7 @@ const UploadEvidence = () => {
 
   return (
     <DefaultLayout>
+      <Loading/>
       <Breadcrumb pageName="Upload Evidence" />
       {/* {universityStatus === 'completed' && (
         <CompletionMessage>
