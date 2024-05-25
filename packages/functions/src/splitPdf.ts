@@ -61,7 +61,7 @@ export const handler = async (event: any) => {
     const { extractedTexts, extractedSummaries } = await processChunks(pdfDoc, totalPages, splitSize, bucketName, folderName, subfolderName, subsubfolderName, objectKey);
 
     // Prepare data for DynamoDB
-    const fileName = key;
+    const fileName = objectKey;
     const fileURL = `https://${bucketName}.s3.amazonaws.com/${objectKey}`;
     const standardName = ""; // Extracted or assigned as needed
     const indicatorName = ""; // Extracted or assigned as needed
