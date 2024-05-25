@@ -195,8 +195,41 @@ const chunkContent = (contentArray: string[], chunkSize: number): string[][] => 
 
   return chunks;
 };
+const updateComparisonStatus = async (
+  processId: string,
+  status: string,
+  processName: string,
+  uniName: string,
+  standardNumber: string,
+  indicatorNumber: string
+) => {
+    const combinedKey = `${uniName}-${standardNumber}-${indicatorNumber}`; // Concatenate standardNumber and indicatorNumber
+
+  const params: DynamoDB.DocumentClient.PutItemInput = {
+    TableName: Table.statusTable.tableName,
+    Item: {
+      processId,
+      status,
+      processName,
+      uniName,
+      standardNumber,
+      indicatorNumber,
+      timestamp: new Date().toISOString(), // Optional: Add a timestamp
+      combinedKey:combinedKey,
+    },
+  };
+
+  try {
+    await dynamoDb.put(params).promise();
+    logger.info(`Inserted/Updated status to ${status} for processId ${processId}`);
+  } catch (error) {
+    logger.error(`Failed to insert/update status for processId ${processId}: ${(error as Error).message}`);
+  }
+};
 
 const handler: Handler = async (event: any, context: Context) => {
+
+
   try {
     const uniName = event.headers["uni-name"];
     const standardNum = event.headers["standard-number"];
@@ -210,7 +243,8 @@ const handler: Handler = async (event: any, context: Context) => {
         body: JSON.stringify({ error: errorMsg }),
       };
     }
-
+    const processId = randomUUID();
+    await updateComparisonStatus(processId, "Processing","Comparing Process",uniName,standardNum,indicatorNum);
     logger.info(`Uni name: ${uniName}`);
     logger.info(`Standard Number: ${standardNum}`);
     logger.info(`Indicator Number: ${indicatorNum}`);
@@ -218,6 +252,8 @@ const handler: Handler = async (event: any, context: Context) => {
     const criteriaResponse: CriteriaResponse | undefined = await getIndicatorData(standardNum, indicatorNum);
 
     if (!criteriaResponse || !criteriaResponse.indicators || !Array.isArray(criteriaResponse.indicators)) {
+      await updateComparisonStatus(processId, "Failed","Comparing Process",uniName,standardNum,indicatorNum);
+
       logger.error("Failed to fetch criteria data or invalid data structure");
       return {
         statusCode: 500,
@@ -234,6 +270,8 @@ const handler: Handler = async (event: any, context: Context) => {
 
       const allContent = await fetchAllContents(uniName, standardNum, indicatorNum);
       if (!allContent) {
+        await updateComparisonStatus(processId, "Failed","Comparing Process",uniName,standardNum,indicatorNum);
+
         logger.error("No content found for the given standard and indicator");
         continue;
       }
@@ -303,9 +341,12 @@ const handler: Handler = async (event: any, context: Context) => {
 
           await dynamoDb.put(params).promise();
         } catch (error) {
+          await updateComparisonStatus(processId, "Failed","Comparing Process",uniName,standardNum,indicatorNum);
+
           logger.error(`Error saving to DynamoDB for comment ${c.commentId}: ${(error as Error).message}`);
         }
       }
+      await updateComparisonStatus(processId, "Completed","Comparing Process",uniName,standardNum,indicatorNum);
 
       const response = {
         indicatorName: indicatorName,
