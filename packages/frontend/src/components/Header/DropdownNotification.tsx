@@ -1,37 +1,56 @@
-import { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useRef, useState } from 'react';
+import { Link, json } from 'react-router-dom';
 
-const DropdownNotification = () => {
-  const [dropdownOpen, setDropdownOpen] = useState(false);
+interface Notification {
+  title: string;
+  content: string;
+  date: string;
+}
+
+const DropdownNotification: React.FC = () => {
+  const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
   const [notifying, setNotifying] = useState(true);
 
+  const ws = useRef<WebSocket | null>(null);
   const trigger = useRef<any>(null);
   const dropdown = useRef<any>(null);
-
   useEffect(() => {
-    const clickHandler = ({ target }: MouseEvent) => {
-      if (!dropdown.current) return;
-      if (
-        !dropdownOpen ||
-        dropdown.current.contains(target) ||
-        trigger.current.contains(target)
-      )
-        return;
-      setDropdownOpen(false);
-    };
-    document.addEventListener('click', clickHandler);
-    return () => document.removeEventListener('click', clickHandler);
-  });
+    ws.current = new WebSocket('wss://jz0nfo5dck.execute-api.us-east-1.amazonaws.com/fatemasa');
 
-  // close if the esc key is pressed
-  useEffect(() => {
-    const keyHandler = ({ keyCode }: KeyboardEvent) => {
-      if (!dropdownOpen || keyCode !== 27) return;
-      setDropdownOpen(false);
+    ws.current.onopen = () => {
+      console.log('WebSocket connected');
     };
-    document.addEventListener('keydown', keyHandler);
-    return () => document.removeEventListener('keydown', keyHandler);
-  });
+
+  ws.current.onmessage = (event: MessageEvent) => {
+  const message = event.data;
+  try {
+    const jsonData = JSON.parse(message);
+    // If the message is valid JSON, treat it as a notification
+    const newNotification: Notification = message;
+    setNotifications((prevNotifications) => [newNotification, ...prevNotifications]);
+  } catch (error) {
+    console.error('Error parsing WebSocket message:', error);
+    // If the message is not valid JSON, handle it differently
+    // For example, you can log it as a simple string message
+    console.log("notifica",notifications);
+
+    console.log('Received non-JSON message:', message);
+    // Or you can ignore it
+  }
+};
+    
+
+    ws.current.onclose = () => {
+      console.log('WebSocket disconnected');
+    };
+
+    return () => {
+      if (ws.current) {
+        ws.current.close();
+      }
+    };
+  }, []);
 
   return (
     <li className="relative">
@@ -51,7 +70,7 @@ const DropdownNotification = () => {
         >
           <span className="absolute -z-1 inline-flex h-full w-full animate-ping rounded-full bg-meta-1 opacity-75"></span>
         </span>
-
+  
         <svg
           className="fill-current duration-300 ease-in-out"
           width="18"
@@ -66,7 +85,7 @@ const DropdownNotification = () => {
           />
         </svg>
       </Link>
-
+  
       <div
         ref={dropdown}
         onFocus={() => setDropdownOpen(true)}
@@ -78,75 +97,24 @@ const DropdownNotification = () => {
         <div className="px-4.5 py-3">
           <h5 className="text-sm font-medium text-bodydark2">Notification</h5>
         </div>
-
+  
         <ul className="flex h-auto flex-col overflow-y-auto">
-          <li>
-            <Link
-              className="flex flex-col gap-2.5 border-t border-stroke px-4.5 py-3 hover:bg-gray-2 dark:border-strokedark dark:hover:bg-meta-4"
-              to="#"
-            >
-              <p className="text-sm">
-                <span className="text-black dark:text-white">
-                  Edit your information in a swipe
-                </span>{' '}
-                Sint occaecat cupidatat non proident, sunt in culpa qui officia
-                deserunt mollit anim.
-              </p>
-
-              <p className="text-xs">12 May, 2025</p>
-            </Link>
-          </li>
-          <li>
-            <Link
-              className="flex flex-col gap-2.5 border-t border-stroke px-4.5 py-3 hover:bg-gray-2 dark:border-strokedark dark:hover:bg-meta-4"
-              to="#"
-            >
-              <p className="text-sm">
-                <span className="text-black dark:text-white">
-                  It is a long established fact
-                </span>{' '}
-                that a reader will be distracted by the readable.
-              </p>
-
-              <p className="text-xs">24 Feb, 2025</p>
-            </Link>
-          </li>
-          <li>
-            <Link
-              className="flex flex-col gap-2.5 border-t border-stroke px-4.5 py-3 hover:bg-gray-2 dark:border-strokedark dark:hover:bg-meta-4"
-              to="#"
-            >
-              <p className="text-sm">
-                <span className="text-black dark:text-white">
-                  There are many variations
-                </span>{' '}
-                of passages of Lorem Ipsum available, but the majority have
-                suffered
-              </p>
-
-              <p className="text-xs">04 Jan, 2025</p>
-            </Link>
-          </li>
-          <li>
-            <Link
-              className="flex flex-col gap-2.5 border-t border-stroke px-4.5 py-3 hover:bg-gray-2 dark:border-strokedark dark:hover:bg-meta-4"
-              to="#"
-            >
-              <p className="text-sm">
-                <span className="text-black dark:text-white">
-                  There are many variations
-                </span>{' '}
-                of passages of Lorem Ipsum available, but the majority have
-                suffered
-              </p>
-
-              <p className="text-xs">01 Dec, 2024</p>
-            </Link>
-          </li>
+          {notifications.map((notification, index) => (
+            <li key={index}>
+              <Link
+                className="flex flex-col gap-2.5 border-t border-stroke px-4.5 py-3 hover:bg-gray-2 dark:border-strokedark dark:hover:bg-meta-4"
+                to="#"
+              >
+                <p className="text-sm">
+                  <span className="text-black dark:text-white">{notification.title}</span> { notification.content}
+                </p>
+                <p className="text-xs">{notification.date}</p>
+              </Link>
+            </li>
+          ))}
         </ul>
       </div>
     </li>
   );
-};
-
+}
 export default DropdownNotification;

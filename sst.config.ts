@@ -8,7 +8,7 @@ import { ApiStack } from "./stacks/ApiStack";
 import { } from "./stacks/AuthStack";
 import { FrontendStack } from "./stacks/FrontendStack";
 import { DBStack } from "./stacks/DBStack";
-
+import { WebSocketStack } from "./stacks/WebSocketStack";
 //import { S3Stack } from "./stacks/S3Stack"
 import { ImageBuilderForCodeCatalyst } from "./stacks/devops/ImageBuilderForCodeCatalyst";
 import { OIDCForGitHubCI } from "./stacks/devops/OIDCForGitHubCI";
@@ -40,6 +40,7 @@ export default {
         // .stack(StandardAPIStack)
 
         .stack(FrontendStack)
+        .stack(WebSocketStack)
     }
   },
 } satisfies SSTConfig;
