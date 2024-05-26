@@ -112,7 +112,7 @@ export const handler = async (event: any) => {
 
         // Prepare email parameters
         const sourceEmail = 'noreplyeduscribeai@gmail.com'; // sender email address
-        const userEmail = 'maryamkameshki02@gmail.com'; // receiver email address replace this with the email of current user retrieved from the cognito user pool
+        const userEmail = await fetchCurrentUserEmail(); // receiver email address replace this with the email of current user retrieved from the cognito user pool
         const subject = 'Processing Complete';
         const body = `The processing of your file ${fileName} is complete. You can access it at ${fileURL}.`;
 

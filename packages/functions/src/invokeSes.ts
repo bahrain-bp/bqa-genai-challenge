@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { fetchUserAttributes } from 'aws-amplify/auth';
 
+
 // Define the UserAttributes interface 
 interface UserAttributes {
     email?: string;
