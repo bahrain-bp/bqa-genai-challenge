@@ -97,7 +97,26 @@ const RubricPage: React.FC = () => {
       })
       .catch((error) => {
         console.error('Error:', error);
-        alert('An error occurred. Please try again.');
+        if (error.response) {
+          // The request was made and the server responded with a status code
+          if (error.response.status === 404) {
+            alert('The requested resource was not found.');
+          } else if (error.response.status === 500) {
+            alert('An internal server error occurred. Please try again later.');
+          } else {
+            alert(
+              `Server responded with status code: ${error.response.status}`,
+            );
+          }
+        } else if (error.request) {
+          // The request was made but no response was received
+          alert(
+            'No response received from the server. Please try again later.',
+          );
+        } else {
+          // Something happened in setting up the request that triggered an error
+          alert('An unexpected error occurred. Please try again later.');
+        }
       });
   };
 

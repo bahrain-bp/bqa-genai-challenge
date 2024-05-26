@@ -53,9 +53,6 @@ interface ComparisonResult {
   outputText: string;
   timestamp: string;
 }
-  commentId: string;
-  comment: string;
-}
 
 interface Indicator {
   indicatorId: string;
@@ -157,12 +154,21 @@ const fetchAllContents = async (
       logger.info("Content found:", contentArray);
       return contentArray;
     } else {
-      logger.error("No content found or response data is not in the expected format.");
-      return null;
+      return {
+        statusCode: 404, // Set status code to 204 (No Content)
+        body: JSON.stringify({
+          message: "No content found for the specified standard and indicator.",
+        }),
+      };
     }
   } catch (error) {
-    logger.error(`Error fetching contents: ${(error as Error).message}`);
-    throw error;
+    return {
+      statusCode: 500, // Set status code to 204 (No Content)
+      body: JSON.stringify({
+
+        message: (`Error fetching contents: ${(error as Error).message}`),
+      }),
+    };
   }
 };
 
@@ -198,7 +204,10 @@ const generateText = async (modelId: string, body: string): Promise<any> => {
   }
 };
 
-const chunkContent = (contentArray: string[], chunkSize: number): string[][] => {
+const chunkContent = (
+  contentArray: string[],
+  chunkSize: number
+): string[][] => {
   const chunks: string[][] = [];
   let currentChunk: string[] = [];
   let currentSize = 0;
@@ -230,7 +239,7 @@ const updateComparisonStatus = async (
   standardNumber: string,
   indicatorNumber: string
 ) => {
-    const combinedKey = `${uniName}-${standardNumber}-${indicatorNumber}`; // Concatenate standardNumber and indicatorNumber
+  const combinedKey = `${uniName}-${standardNumber}-${indicatorNumber}`; // Concatenate standardNumber and indicatorNumber
 
   const params: DynamoDB.DocumentClient.PutItemInput = {
     TableName: Table.statusTable.tableName,
@@ -242,28 +251,31 @@ const updateComparisonStatus = async (
       standardNumber,
       indicatorNumber,
       timestamp: new Date().toISOString(), // Optional: Add a timestamp
-      combinedKey:combinedKey,
+      combinedKey: combinedKey,
     },
   };
 
   try {
     await dynamoDb.put(params).promise();
-    logger.info(`Inserted/Updated status to ${status} for processId ${processId}`);
+    logger.info(
+      `Inserted/Updated status to ${status} for processId ${processId}`
+    );
   } catch (error) {
-    logger.error(`Failed to insert/update status for processId ${processId}: ${(error as Error).message}`);
+    logger.error(
+      `Failed to insert/update status for processId ${processId}: ${(error as Error).message}`
+    );
   }
 };
 
 const handler: Handler = async (event: any, context: Context) => {
-
-
   try {
     const uniName = event.headers["uni-name"];
     const standardNum = event.headers["standard-number"];
     const indicatorNum = event.headers["indicator-number"];
 
     if (!uniName || !standardNum || !indicatorNum) {
-      const errorMsg = "Missing required headers: uniName, standardNumber, or indicatorNumber";
+      const errorMsg =
+        "Missing required headers: uniName, standardNumber, or indicatorNumber";
       logger.error(errorMsg);
       return {
         statusCode: 400,
@@ -271,20 +283,41 @@ const handler: Handler = async (event: any, context: Context) => {
       };
     }
     const processId = randomUUID();
-    await updateComparisonStatus(processId, "Processing","Comparing Process",uniName,standardNum,indicatorNum);
+    await updateComparisonStatus(
+      processId,
+      "Processing",
+      "Comparing Process",
+      uniName,
+      standardNum,
+      indicatorNum
+    );
     logger.info(`Uni name: ${uniName}`);
     logger.info(`Standard Number: ${standardNum}`);
     logger.info(`Indicator Number: ${indicatorNum}`);
 
-    const criteriaResponse: CriteriaResponse | undefined = await getIndicatorData(standardNum, indicatorNum);
+    const criteriaResponse: CriteriaResponse | undefined =
+      await getIndicatorData(standardNum, indicatorNum);
 
-    if (!criteriaResponse || !criteriaResponse.indicators || !Array.isArray(criteriaResponse.indicators)) {
-      await updateComparisonStatus(processId, "Failed","Comparing Process",uniName,standardNum,indicatorNum);
+    if (
+      !criteriaResponse ||
+      !criteriaResponse.indicators ||
+      !Array.isArray(criteriaResponse.indicators)
+    ) {
+      await updateComparisonStatus(
+        processId,
+        "Failed",
+        "Comparing Process",
+        uniName,
+        standardNum,
+        indicatorNum
+      );
 
       logger.error("Failed to fetch criteria data or invalid data structure");
       return {
         statusCode: 500,
-        body: JSON.stringify({ error: "Failed to fetch criteria data or invalid data structure" }),
+        body: JSON.stringify({
+          error: "Failed to fetch criteria data or invalid data structure",
+        }),
       };
     }
 
@@ -295,11 +328,28 @@ const handler: Handler = async (event: any, context: Context) => {
       const indicatorName = indicator.indicatorName;
       const comments = indicator.comments;
 
-      const allContent = await fetchAllContents(uniName, standardNum, indicatorNum);
+      const allContent = await fetchAllContents(
+        uniName,
+        standardNum,
+        indicatorNum
+      );
       if (!allContent) {
-        await updateComparisonStatus(processId, "Failed","Comparing Process",uniName,standardNum,indicatorNum);
+        await updateComparisonStatus(
+          processId,
+          "Failed",
+          "Comparing Process",
+          uniName,
+          standardNum,
+          indicatorNum
+        );
 
         logger.error("No content found for the given standard and indicator");
+        return {
+          statusCode: 404,
+          body: JSON.stringify({
+            error: "No content found for the given standard and indicator",
+          }),
+        };
         continue;
       }
 
@@ -336,7 +386,10 @@ const handler: Handler = async (event: any, context: Context) => {
             },
           });
 
-          const responseBody = await generateText("amazon.titan-text-express-v1", body);
+          const responseBody = await generateText(
+            "amazon.titan-text-express-v1",
+            body
+          );
           const outputText = responseBody.results
             .map((result: { outputText: string }) => result.outputText)
             .join("\n\n");
@@ -346,7 +399,9 @@ const handler: Handler = async (event: any, context: Context) => {
 
         const finalOutputText = aggregatedOutput.join("\n\n");
 
-        logger.info(`Output Text for comment ${c.commentId}: ${finalOutputText}`);
+        logger.info(
+          `Output Text for comment ${c.commentId}: ${finalOutputText}`
+        );
 
         results.push({ commentId: c.commentId, outputText: finalOutputText });
 
@@ -368,12 +423,28 @@ const handler: Handler = async (event: any, context: Context) => {
 
           await dynamoDb.put(params).promise();
         } catch (error) {
-          await updateComparisonStatus(processId, "Failed","Comparing Process",uniName,standardNum,indicatorNum);
+          await updateComparisonStatus(
+            processId,
+            "Failed",
+            "Comparing Process",
+            uniName,
+            standardNum,
+            indicatorNum
+          );
 
-          logger.error(`Error saving to DynamoDB for comment ${c.commentId}: ${(error as Error).message}`);
+          logger.error(
+            `Error saving to DynamoDB for comment ${c.commentId}: ${(error as Error).message}`
+          );
         }
       }
-      await updateComparisonStatus(processId, "Completed","Comparing Process",uniName,standardNum,indicatorNum);
+      await updateComparisonStatus(
+        processId,
+        "Completed",
+        "Comparing Process",
+        uniName,
+        standardNum,
+        indicatorNum
+      );
 
       const response = {
         indicatorName: indicatorName,
@@ -389,17 +460,20 @@ const handler: Handler = async (event: any, context: Context) => {
     }
   } catch (err) {
     if (err instanceof Error) {
-      logger.error(`An error occurred: ${err.message}`);
+      logger.error(
+        `An error occurred: ${"No content for this standard and indicator"}`
+      );
       return {
-        statusCode: 500,
-        body: JSON.stringify({ success: false, message: err.message }),
+        statusCode: 404,
+        body: JSON.stringify({
+          message: "No content for this standard and indicator",
+        }),
       };
     } else {
       logger.error("An unexpected error occurred");
       return {
         statusCode: 500,
         body: JSON.stringify({
-          success: false,
           message: "An unexpected error occurred",
         }),
       };
