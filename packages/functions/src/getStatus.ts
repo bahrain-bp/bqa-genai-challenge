@@ -25,12 +25,20 @@ const getStatusByFileNameHandler: Handler = async (event: APIGatewayProxyEvent, 
 
     const params = {
         TableName: Table.statusTable.tableName,
-        IndexName: "fileName-index", // Assuming a secondary index on fileName
-        KeyConditionExpression: "fileName = :fileName",
+        // IndexName: "fileName-index", // Assuming a secondary index on fileName
+
+        KeyConditionExpression: "#processName = :processName",
+        FilterExpression: "#fileName = :fileName",
+        ExpressionAttributeNames: {
+            "#processName": "processName",
+            "#fileName": "fileName"
+        },
         ExpressionAttributeValues: {
+            ":processName": "File Processing",
             ":fileName": fileName
         }
     };
+
 
     try {
         const result = await dynamoDb.query(params).promise();
