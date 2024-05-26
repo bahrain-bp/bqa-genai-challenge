@@ -53,6 +53,33 @@ interface ComparisonResult {
   outputText: string;
   timestamp: string;
 }
+  commentId: string;
+  comment: string;
+}
+
+interface Indicator {
+  indicatorId: string;
+  indicatorName: string;
+  comments: Comment[];
+}
+
+interface CriteriaResponse {
+  standardId: string;
+  standardName: string;
+  indicators: Indicator[];
+}
+
+interface ComparisonResult {
+  comparisonId: number; // Adjust as needed
+  standardNumber: string;
+  standardName: string;
+  uniName: string;
+  indicatorNumber: number; // Assuming indicatorNumber is a number
+  indicatorName: string;
+  comment: string;
+  outputText: string;
+  timestamp: string;
+}
 
 const CHUNK_SIZE = 4096; // Token limit for each chunk
 
@@ -365,13 +392,16 @@ const handler: Handler = async (event: any, context: Context) => {
       logger.error(`An error occurred: ${err.message}`);
       return {
         statusCode: 500,
-        body: JSON.stringify({ error: err.message }),
+        body: JSON.stringify({ success: false, message: err.message }),
       };
     } else {
       logger.error("An unexpected error occurred");
       return {
         statusCode: 500,
-        body: JSON.stringify({ error: "An unexpected error occurred" }),
+        body: JSON.stringify({
+          success: false,
+          message: "An unexpected error occurred",
+        }),
       };
     }
   }
