@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Link, json } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 interface Notification {
   title: string;
@@ -16,30 +16,35 @@ const DropdownNotification: React.FC = () => {
   const trigger = useRef<any>(null);
   const dropdown = useRef<any>(null);
   useEffect(() => {
-    ws.current = new WebSocket('wss://jz0nfo5dck.execute-api.us-east-1.amazonaws.com/fatemasa');
+    ws.current = new WebSocket(
+      'wss://jz0nfo5dck.execute-api.us-east-1.amazonaws.com/fatemasa',
+    );
 
     ws.current.onopen = () => {
       console.log('WebSocket connected');
     };
 
-  ws.current.onmessage = (event: MessageEvent) => {
-  const message = event.data;
-  try {
-    const jsonData = JSON.parse(message);
-    // If the message is valid JSON, treat it as a notification
-    const newNotification: Notification = message;
-    setNotifications((prevNotifications) => [newNotification, ...prevNotifications]);
-  } catch (error) {
-    console.error('Error parsing WebSocket message:', error);
-    // If the message is not valid JSON, handle it differently
-    // For example, you can log it as a simple string message
-    console.log("notifica",notifications);
+    ws.current.onmessage = (event: MessageEvent) => {
+      const message = event.data;
+      try {
+        const jsonData = JSON.parse(message);
+        console.log(jsonData);
+        // If the message is valid JSON, treat it as a notification
+        const newNotification: Notification = message;
+        setNotifications((prevNotifications) => [
+          newNotification,
+          ...prevNotifications,
+        ]);
+      } catch (error) {
+        console.error('Error parsing WebSocket message:', error);
+        // If the message is not valid JSON, handle it differently
+        // For example, you can log it as a simple string message
+        console.log('notifica', notifications);
 
-    console.log('Received non-JSON message:', message);
-    // Or you can ignore it
-  }
-};
-    
+        console.log('Received non-JSON message:', message);
+        // Or you can ignore it
+      }
+    };
 
     ws.current.onclose = () => {
       console.log('WebSocket disconnected');
@@ -70,7 +75,7 @@ const DropdownNotification: React.FC = () => {
         >
           <span className="absolute -z-1 inline-flex h-full w-full animate-ping rounded-full bg-meta-1 opacity-75"></span>
         </span>
-  
+
         <svg
           className="fill-current duration-300 ease-in-out"
           width="18"
@@ -85,7 +90,7 @@ const DropdownNotification: React.FC = () => {
           />
         </svg>
       </Link>
-  
+
       <div
         ref={dropdown}
         onFocus={() => setDropdownOpen(true)}
@@ -97,7 +102,7 @@ const DropdownNotification: React.FC = () => {
         <div className="px-4.5 py-3">
           <h5 className="text-sm font-medium text-bodydark2">Notification</h5>
         </div>
-  
+
         <ul className="flex h-auto flex-col overflow-y-auto">
           {notifications.map((notification, index) => (
             <li key={index}>
@@ -106,7 +111,10 @@ const DropdownNotification: React.FC = () => {
                 to="#"
               >
                 <p className="text-sm">
-                  <span className="text-black dark:text-white">{notification.title}</span> { notification.content}
+                  <span className="text-black dark:text-white">
+                    {notification.title}
+                  </span>{' '}
+                  {notification.content}
                 </p>
                 <p className="text-xs">{notification.date}</p>
               </Link>
@@ -116,5 +124,5 @@ const DropdownNotification: React.FC = () => {
       </div>
     </li>
   );
-}
+};
 export default DropdownNotification;
