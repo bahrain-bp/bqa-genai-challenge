@@ -227,7 +227,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                 </NavLink>
               </li>
               {/* <!-- Menu Item Profile --> */}
-              {(!isAdmin) && (
+              {(isAdmin) && (
               <li>
                 <NavLink
                   to="/Archived"
