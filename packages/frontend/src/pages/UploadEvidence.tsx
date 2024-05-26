@@ -4,6 +4,7 @@ import DefaultLayout from '../layout/DefaultLayout';
 import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { FileUpload } from 'primereact/fileupload';
+import Loading from '../hooks/loadingIndicator';
 //import { useTranslation } from 'react-i18next';
 //import Loader from '../common/Loader';
 import { fetchUserAttributes } from 'aws-amplify/auth';
@@ -178,12 +179,16 @@ const customStyles = {
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
 };
-const CompletionMessage = styled.div`
-  top: 10px;
-  left: 10px;
-  color: #2ecc71;
-  font-size: 18px;
-`;
+// const CompletionMessage = styled.div`
+//   top: 10px;
+//   left: 10px;
+//   color: #2ecc71;
+//   font-size: 20px;
+//   background-color: white;
+//   padding: 5px 10px; // Adds
+//   display: inline-block;
+
+// `;
 
 const UploadEvidence = () => {
   const [standards, setStandards] = useState<any[]>([]); // Using 'any[]' for state typing
@@ -380,8 +385,13 @@ const UploadEvidence = () => {
       }
       const data = await response.json();
       const files = data.files; // Ensure this matches the structure you log in Lambda
-
-      const filesByIndicator = files.reduce((acc: any, file: any) => {
+        
+      // Filter out files containing "-split" in their name
+    const filteredFiles = files.filter(
+      (file: any) => !file.Key.includes('-split')
+    );
+      
+      const filesByIndicator = filteredFiles.reduce((acc: any, file: any) => {
         // Path structure: 'BUB/StandardID/IndicatorID/filename'
         const parts = file.Key.split('/');
         const indicatorId = parts[2]; // This assumes the indicator ID is the third part
@@ -493,17 +503,18 @@ const UploadEvidence = () => {
 
   return (
     <DefaultLayout>
+      <Loading/>
       <Breadcrumb pageName="Upload Evidence" />
-      {universityStatus === 'completed' && (
+      {/* {universityStatus === 'completed' && (
         <CompletionMessage>
-          You have completed your upload!
+          You have submited The final vesion to BQA
         </CompletionMessage>
-      )}
+      )} */}
       <MainContainer>
       {universityStatus === 'in-progress' && (
           <FinishButtonContainer>
             <FinishButton onClick={() => setShowModal(true)}>
-              Finish Uploading
+              Submit Final Version
             </FinishButton>
           </FinishButtonContainer>
         )}

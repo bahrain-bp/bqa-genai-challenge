@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next';
 import { fetchUserAttributes } from 'aws-amplify/auth';
 
 
+
 function useQuery() {
   return new URLSearchParams(useLocation().search);
 }

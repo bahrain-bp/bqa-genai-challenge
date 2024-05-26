@@ -4,9 +4,14 @@ import './PredefinedTemplate.css'; // Importing CSS file
 import '@fortawesome/fontawesome-free/css/all.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {  faUndo } from '@fortawesome/free-solid-svg-icons';
-
+import { useTranslation } from 'react-i18next';
+import { toast } from 'react-toastify'; // Import toast from react-toastify
+import 'react-toastify/dist/ReactToastify.css'; // Import the CSS for react-toastify
 
 const Archived: React.FC = () => {
+
+  const { t } = useTranslation(); // Hook to access translation functions
+   
   const handleArchiveStandard = async (standardId: string) => {
     try {
       // Fetch records with the matching standardId
@@ -100,6 +105,7 @@ const Archived: React.FC = () => {
       // Fetch records again to reflect the changes
       fetchFileRecords();
       console.log('Record archived successfully');
+      toast.success('Records unarchived successfully');
       console.log('Record to be archived:', recordToArchive);
 
     } catch (error) {
@@ -197,7 +203,7 @@ const Archived: React.FC = () => {
 
       <div>
       <div className="predefined-header">
-        <h2>Archived Standards</h2>
+        <h2>{t('archivedStandards')}</h2>
       </div>
    
         {/* Get data from DB */}
@@ -247,7 +253,7 @@ const Archived: React.FC = () => {
        ))}
 </div>
 <div className="predefined-header">
-        <h2>Archived Indicators</h2>
+        <h2>{t('archivedIndicators')}</h2>
           </div>
 <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-4 2xl:gap-7.5">
        
@@ -294,7 +300,7 @@ const Archived: React.FC = () => {
        ))}
      </div>
      <div className="predefined-header">
-        <h2>Archived Files</h2>
+        <h2>{t('archivedFiles')}</h2>
           </div>
      {records
         .filter(record => record.documentURL && record.status == 'archived') // Filter based on documentURL and status

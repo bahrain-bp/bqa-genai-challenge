@@ -40,9 +40,12 @@ export async function main(
                 Prefix: standardPrefix
             }).promise();
 
-            const fileCount = standardFilesResponse.Contents ? 
-                standardFilesResponse.Contents.filter(content => content.Key && !content.Key.endsWith('/')).length 
-                : 0;
+              // Filter out files containing "-split" in their name
+              const filteredFiles = standardFilesResponse.Contents?.filter(
+                content => content.Key && !content.Key.includes('-split') && !content.Key.endsWith('/')
+            ) || [];
+
+            const fileCount = filteredFiles.length;
             const standardName = standardPrefix.replace(prefix, '').replace('/', '');
             fileCounts[standardName] = fileCount;
         }
