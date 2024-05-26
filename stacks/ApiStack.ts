@@ -9,7 +9,7 @@ import * as iam from "@aws-cdk/aws-iam";
 export function ApiStack({ stack }: StackContext) {
   const { auth } = use(AuthStack);
 
-  const { table, fileTable, criteriaTable, universityTable,comparisonResultTable } = use(DBStack);
+  const { table, fileTable, criteriaTable, universityTable,comparisonResultTable,statusTable } = use(DBStack);
 
   const { documentsQueue } = use(S3Stack);
 
@@ -26,7 +26,7 @@ export function ApiStack({ stack }: StackContext) {
     defaults: {
       function: {
 
-       bind: [table, fileTable, criteriaTable,universityTable,comparisonResultTable], // Bind the table name to our API
+       bind: [table, fileTable, criteriaTable,universityTable,comparisonResultTable,statusTable], // Bind the table name to our API
 
       },
       // Optional: Remove authorizer from defaults if set to "jwt"
@@ -231,6 +231,11 @@ export function ApiStack({ stack }: StackContext) {
           handler: "packages/functions/src/results/getGeneratedResults.main",
         },
       },
+      //get by file name
+      "GET /status/{fileName}": "packages/functions/src/getStatus.getStatusByFileNameHandler",
+//get by uni/standard/indicator
+"GET /status": "packages/functions/src/getStatus.getStatusByUniStandardIndicatorHandler",
+
       // Standard API route
       "POST /standards": "packages/functions/src/standards/create.main",
       "GET /standards/{id}": "packages/functions/src/standards/get.main",
