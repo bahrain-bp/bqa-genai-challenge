@@ -317,7 +317,7 @@ function App() {
           </>
         )}
         <Route
-          path="RubricPage"
+          path="RubricPage/:standardId/:indicatorId"
           element={
             <>
               <PageTitle title="Rubric Page | EduScribe" />

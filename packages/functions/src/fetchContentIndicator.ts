@@ -38,7 +38,7 @@ export const main: APIGatewayProxyHandlerV2 = async (event) => {
     if (filteredItems.length === 0) {
       return {
         statusCode: 404,
-        body: JSON.stringify({ error: "No matching items found" }),
+        body: JSON.stringify({ error: "No content found" }),
       };
     }
 
