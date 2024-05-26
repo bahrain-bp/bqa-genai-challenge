@@ -117,7 +117,7 @@ export const handler = async (event: any) => {
 
     // Insert data into DynamoDB using /createFileDb API
     await axios.post(
-      "https://0uct7th5qi.execute-api.us-east-1.amazonaws.com/createFileDB",
+      "https://u1oaj2omi2.execute-api.us-east-1.amazonaws.com/createFileDB",
       {
         fileName,
         fileURL,
