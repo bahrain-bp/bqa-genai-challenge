@@ -6,17 +6,20 @@ const dynamoDb = new DynamoDB.DocumentClient();
 // Define the handler function
 export async function main(event: any) {
   try {
-    // Extract fileName from the request path parameters
-    const fileName = event?.pathParameters?.fileName;
+    // Extract fileName from the request headers
+    const fileName = event?.headers?.['file-name'];
 
     // Ensure fileName is provided
     if (!fileName) {
-      throw new Error("File name is required.");
+      return {
+        statusCode: 400, // Bad Request
+        body: JSON.stringify({ message: "File name header is required." })
+      };
     }
 
     // Define DynamoDB parameters
     const params = {
-      TableName: Table.FileTable.tableName, // Updated to use the correct table
+      TableName: Table.FileTable.tableName, // Ensure this is the correct table name
       Key: {
         fileName: fileName,
       },
@@ -27,7 +30,10 @@ export async function main(event: any) {
 
     // Check if the item exists
     if (!result.Item) {
-      throw new Error("File not found.");
+      return {
+        statusCode: 404, // Not Found
+        body: JSON.stringify({ message: "File not found." })
+      };
     }
 
     // Extract the attributes from the retrieved item
@@ -49,6 +55,7 @@ export async function main(event: any) {
     return {
       statusCode: 200,
       body: JSON.stringify({
+        fileName,
         fileURL,
         standardName,
         standardNumber,
@@ -62,11 +69,11 @@ export async function main(event: any) {
         comments,
       }),
     };
-  } catch (error) {
+  } catch (error:any) {
     // Handle errors
     return {
       statusCode: 500,
-      body: JSON.stringify({ message: "Error retrieving file", error: error }),
+      body: JSON.stringify({ message: "Error retrieving file", error: error.toString() }),
     };
   }
 }

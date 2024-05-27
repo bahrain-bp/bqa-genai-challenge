@@ -4,12 +4,11 @@ import DefaultLayout from '../layout/DefaultLayout';
 import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { FileUpload } from 'primereact/fileupload';
-import Loading from '../hooks/loadingIndicator';
+
 //import { useTranslation } from 'react-i18next';
 //import Loader from '../common/Loader';
 import { fetchUserAttributes } from 'aws-amplify/auth';
 import Modal from 'react-modal';
-
 
 const MainContainer = styled.div`
   width: 100%;
@@ -226,7 +225,9 @@ const UploadEvidence = () => {
         setUniversityStatus(data.status);
       } catch (error) {
         console.error('Error fetching university status:', error);
-        toast.error(`Error fetching university status: ${error instanceof Error ? error.message : 'An error occurred'}`);
+        toast.error(
+          `Error fetching university status: ${error instanceof Error ? error.message : 'An error occurred'}`,
+        );
       }
     };
 
@@ -272,13 +273,6 @@ const UploadEvidence = () => {
           }
         });
 
-        // Sort indicators inside each standard
-
-        standardsMap.forEach((standard: any) => {
-          standard.indicators.sort((a: any, b: any) =>
-            a.id.localeCompare(b.id, undefined, { numeric: true }),
-          );
-        });
 
         // Convert the map to an array and sort standards
         const sortedStandards = Array.from(standardsMap.values());
@@ -287,6 +281,16 @@ const UploadEvidence = () => {
             numeric: true,
           }),
         );
+
+          // Sort indicators inside each standard
+      standardsMap.forEach((standard: any) => {
+        standard.indicators.sort((a: any, b: any) => {
+          const idA = a.id ?? ''; // Fallback to empty string if null
+          const idB = b.id ?? ''; // Fallback to empty string if null
+          return idA.localeCompare(idB, undefined, { numeric: true });
+        });
+      });
+
 
         setStandards(sortedStandards);
       } catch (error) {
@@ -387,12 +391,12 @@ const UploadEvidence = () => {
       }
       const data = await response.json();
       const files = data.files; // Ensure this matches the structure you log in Lambda
-        
+
       // Filter out files containing "-split" in their name
-    const filteredFiles = files.filter(
-      (file: any) => !file.Key.includes('-split')
-    );
-      
+      const filteredFiles = files.filter(
+        (file: any) => !file.Key.includes('-split'),
+      );
+
       const filesByIndicator = filteredFiles.reduce((acc: any, file: any) => {
         // Path structure: 'BUB/StandardID/IndicatorID/filename'
         const parts = file.Key.split('/');
@@ -498,14 +502,12 @@ const UploadEvidence = () => {
       console.error('Error finalizing upload:', errorMessage);
       toast.error(`Failed to finalize upload: ${errorMessage}`);
       setShowModal(false); // Ensure the modal closes even on error
-
     }
   };
 
-
   return (
     <DefaultLayout>
-      <Loading/>
+      {/* <Loading/> */}
       <Breadcrumb pageName="Upload Evidence" />
       {/* {universityStatus === 'completed' && (
         <CompletionMessage>
@@ -513,7 +515,7 @@ const UploadEvidence = () => {
         </CompletionMessage>
       )} */}
       <MainContainer>
-      {universityStatus === 'in-progress' && (
+        {universityStatus === 'in-progress' && (
           <FinishButtonContainer>
             <FinishButton onClick={() => setShowModal(true)}>
               Submit Final Version
@@ -528,7 +530,9 @@ const UploadEvidence = () => {
         >
           <h2>Are you sure you want to finalize your upload?</h2>
           <ButtonsContainer>
-            <ButtonStyle onClick={() => setShowModal(false)}>Cancel</ButtonStyle>
+            <ButtonStyle onClick={() => setShowModal(false)}>
+              Cancel
+            </ButtonStyle>
             <ButtonStyle onClick={handleFinishUploading}>Yes</ButtonStyle>
           </ButtonsContainer>
         </Modal>
