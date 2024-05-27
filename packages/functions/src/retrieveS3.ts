@@ -21,8 +21,6 @@ export async function main(
       };
     }
 
-    // Combine folder and subfolder name if subfolder is provided
-
     // Combine folder, subfolder, and sub-subfolder names if provided
     let folderPath = folderName + "/";
     if (subfolderName) {
@@ -31,6 +29,7 @@ export async function main(
     if (subsubfolderName) {
       folderPath += subsubfolderName + "/";
     }
+
     // Get list of objects in the specified folder
     const params = {
       Bucket: bucketName,
@@ -49,8 +48,8 @@ export async function main(
     }
 
     const files = data.Contents.filter(
-      (obj) => obj.Key && !obj.Key.endsWith("/")
-    ) // Filter out directory (prefix) objects
+      (obj) => obj.Key && !obj.Key.endsWith("/") && !obj.Key.includes("split")
+    ) 
       .map((obj) => {
         return {
           Key: obj.Key!,
@@ -64,7 +63,7 @@ export async function main(
       statusCode: 200,
       headers: {
         "Access-Control-Allow-Origin": "*", // Adjust in production
-        "Access-Control-Allow-Methods": "GET, HEAD, PUT, POST,DELETE",
+        "Access-Control-Allow-Methods": "GET, HEAD, PUT, POST, DELETE",
         "Access-Control-Allow-Headers": "*",
       },
       body: JSON.stringify({ files }),
