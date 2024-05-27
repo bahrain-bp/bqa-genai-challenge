@@ -1,5 +1,5 @@
-import * as AWS from 'aws-sdk';
-import { PDFDocument, PDFPage } from 'pdf-lib'; // fix: npm install pdf-lib
+import * as AWS from "aws-sdk";
+import { PDFDocument, PDFPage } from "pdf-lib";
 const axios = require("axios");
 import { DynamoDB } from "aws-sdk";
 import { Table } from "sst/node/table";
