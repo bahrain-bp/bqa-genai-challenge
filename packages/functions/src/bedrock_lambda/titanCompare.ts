@@ -412,7 +412,7 @@ const handler: Handler = async (event: any, context: Context) => {
               comparisonId: Math.random(),
               standardNumber: standardNum,
               standardName: standardName,
-              uniName: "BUB",
+              uniName: uniName,
               indicatorNumber: parseInt(indicatorNum),
               indicatorName: indicatorName,
               comment: c.comment,
