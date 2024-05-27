@@ -506,7 +506,7 @@ const OfficerDash = () => {
                           > */}
 
                     <h5 className="font-medium text-black dark:text-white">
-                      {file.name}
+                      {file.key}
                     </h5>
                     {/* </a> */}
                   </td>
@@ -531,7 +531,7 @@ const OfficerDash = () => {
                         onClick={() =>
                           navigate('/SummaryPage', {
                             state: {
-                              fileName: file.name,
+                              fileName: file.key,
                             },
                           })
                         }

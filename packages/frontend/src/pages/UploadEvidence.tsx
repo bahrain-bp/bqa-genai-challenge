@@ -4,7 +4,7 @@ import DefaultLayout from '../layout/DefaultLayout';
 import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { FileUpload } from 'primereact/fileupload';
-import Loading from '../hooks/loadingIndicator';
+//import Loading from '../hooks/loadingIndicator';
 //import { useTranslation } from 'react-i18next';
 //import Loader from '../common/Loader';
 import { fetchUserAttributes } from 'aws-amplify/auth';
@@ -272,14 +272,7 @@ const UploadEvidence = () => {
           }
         });
 
-        // Sort indicators inside each standard
-
-        standardsMap.forEach((standard: any) => {
-          standard.indicators.sort((a: any, b: any) =>
-            a.id.localeCompare(b.id, undefined, { numeric: true }),
-          );
-        });
-
+       
         // Convert the map to an array and sort standards
         const sortedStandards = Array.from(standardsMap.values());
         sortedStandards.sort((a: any, b: any) =>
@@ -287,6 +280,14 @@ const UploadEvidence = () => {
             numeric: true,
           }),
         );
+          // Sort indicators inside each standard
+      standardsMap.forEach((standard: any) => {
+        standard.indicators.sort((a: any, b: any) => {
+          const idA = a.id ?? ''; // Fallback to empty string if null
+          const idB = b.id ?? ''; // Fallback to empty string if null
+          return idA.localeCompare(idB, undefined, { numeric: true });
+        });
+      });
 
         setStandards(sortedStandards);
       } catch (error) {
@@ -505,7 +506,7 @@ const UploadEvidence = () => {
 
   return (
     <DefaultLayout>
-      <Loading/>
+      {/* <Loading/> */}
       <Breadcrumb pageName="Upload Evidence" />
       {/* {universityStatus === 'completed' && (
         <CompletionMessage>

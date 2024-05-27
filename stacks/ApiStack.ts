@@ -161,7 +161,7 @@ export function ApiStack({ stack }: StackContext) {
           timeout: "900 seconds",
         },
       },
-      "GET /summarization/{fileName}": {
+      "GET /summarization": {
         function: {
           handler: "packages/functions/src/files/retrieveSummarization.main",
           permissions: ["s3"],
