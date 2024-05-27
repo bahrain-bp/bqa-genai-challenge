@@ -10,6 +10,7 @@ import { toast } from 'react-toastify';
 import { ApexOptions } from 'apexcharts';
 import ReactApexChart from 'react-apexcharts';
 import axios from 'axios';
+import ModalComponent from '../components/Modal';
 
 import {
   FormControl,
@@ -55,6 +56,7 @@ const OfficerDash = () => {
   const [, /*fileCount*/ setFileCount] = useState(0);
   const [, /*fileCountsByStandard*/ setFileCountsByStandard] = useState({});
   const [, /*fileCountz*/ setFileCountz] = useState({});
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const [state, setState] = useState<ChartTwoState>({
     series: [{ name: 'Standard', data: [] }],
@@ -398,6 +400,23 @@ const OfficerDash = () => {
       {loading && <Loader />}
 
       <Breadcrumb pageName={t('universityOfficerDashboard')} />
+      <div className="flex justify-end py-4 items-center">
+          {/* View Generated AI Comments Button */}
+          <div className="ml-4">
+            <button
+              type="button"
+              className="text-white bg-gradient-to-r from-purple-500 to-pink-500 hover:bg-gradient-to-l focus:ring-4 focus:outline-none focus:ring-purple-200 dark:focus:ring-purple-800 font-regular rounded-lg text-sm px-5 py-3"
+              onClick={() => setIsModalOpen(true)}
+            >
+              View Generated AI Comments
+            </button>
+          </div>
+          </div>
+
+          <ModalComponent
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+        />
 
       <div className="grid grid-cols gap-4 md:gap-6 2xl:gap-7.5 sm:px-7.5 xl:pb-1">
         {/* <ChartTwo /> */}
