@@ -1,12 +1,12 @@
 import { Bucket, Table, StackContext, RDS } from "sst/constructs";
 import * as rds from "aws-cdk-lib/aws-rds";
 import * as secretsManager from "aws-cdk-lib/aws-secretsmanager";
-import * as path from 'path';
+import * as path from "path";
 import { Fn } from "aws-cdk-lib";
-import * as cdk from 'aws-cdk-lib';
-import * as s3 from 'aws-cdk-lib/aws-s3';
-import * as cloudfront from 'aws-cdk-lib/aws-cloudfront';
-import * as origins from 'aws-cdk-lib/aws-cloudfront-origins';
+import * as cdk from "aws-cdk-lib";
+import * as s3 from "aws-cdk-lib/aws-s3";
+import * as cloudfront from "aws-cdk-lib/aws-cloudfront";
+import * as origins from "aws-cdk-lib/aws-cloudfront-origins";
 
 export function DBStack({ stack, app }: StackContext) {
 
@@ -62,6 +62,67 @@ export function DBStack({ stack, app }: StackContext) {
         primaryIndex: { partitionKey: "fileName" } // Assuming fileURL is unique
     });
 
+    const criteriaTable = new Table(stack, "CriteriaTable", {
+
+        fields: {
+            standardId: "string",        // Standard ID
+            standardName: "string",      // Standard Name
+            indicators: "list",          // List of indicators
+        },
+        primaryIndex: { partitionKey: "standardId" },
+    });
+
+    const statusTable = new Table(stack, "statusTable", {
+
+        fields: {
+            processId: "string",       
+            processName:"string",
+            status: "string",  
+            fileName: "string",         // For file processing
+            uniName: "string",          // For comparison process
+            standardNumber: "string",   // For comparison process
+            indicatorNumber: "string", // For comparison process  
+            combinedKey:"string"
+
+        },
+        primaryIndex: { partitionKey: "processName" },
+    });
+
+    const universityTable = new Table(stack, "UniversityTable", {
+
+        fields: {
+            uniName: "string",      // University Name
+            status: "string",          // in progress=false, completed=true
+        },
+        primaryIndex: { partitionKey: "uniName" },
+    });
+  
+    const comparisonResultTable = new Table(stack, "ComparisonResult_Table", {
+    fields: {
+      comparisonId: "number", // Unique comparison ID
+      uniName: "string",
+      standardNumber: "string",
+      standardName: "string",
+      indicatorNumber: "number",
+      indicatorName: "string",
+      comment: "string", // ID of the comment being evaluated
+      outputText: "string", // Result of the comparison
+      timestamp: "string", // Timestamp of when the comparison was made
+    },
+    primaryIndex: { partitionKey: "comparisonId" }, // Assuming comparisonId is unique
+    globalIndexes: {
+      StandardIndicatorIndex: {
+        partitionKey: "standardNumber",
+        sortKey: "indicatorNumber",
+      },
+    },
+  });
+
+
+
+
+
+
     // Create an RDS database
     const mainDBLogicalName = "MainDatabase";
     // Define output/export attributes names
@@ -110,6 +171,12 @@ export function DBStack({ stack, app }: StackContext) {
     return {
         bucket,
         table,
-        fileTable
+        fileTable,
+        criteriaTable,
+        universityTable,
+      comparisonResultTable,
+      statusTable
+
     };
+
 }

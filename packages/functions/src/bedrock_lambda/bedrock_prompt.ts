@@ -2,10 +2,14 @@ import { SQSEvent } from "aws-lambda";
 import axios, { AxiosResponse } from "axios";
 import * as AWS from "aws-sdk";
 import { Queue } from "sst/node/queue";
+
 // Variable to store processed message IDs
 let processedMessageIds: Set<string> = new Set();
 const sqs = new AWS.SQS();
 export async function handler(event: SQSEvent, app: any) {
+  const records: any[] = event.Records;
+  console.log(`Message processed: "${records[0].body}"`);
+
   try {
     for (const record of event.Records) {
       // Check if the message ID has been processed before
@@ -24,11 +28,13 @@ export async function handler(event: SQSEvent, app: any) {
       const bucketName = "uni-artifacts";
       const folderName = urlParts[3];
       const subfolderName = urlParts[4];
-      const fileName = urlParts[5];
+      const subsubfolderName = urlParts[5];
+      const fileName = urlParts[6];
 
       console.log("Bucket Name:", bucketName);
       console.log("Folder Name:", folderName);
       console.log("Subfolder Name:", subfolderName);
+      console.log("Subsubfolder Name:", subsubfolderName);
       console.log("File Name:", fileName);
 
       let endpointUrl: string;
@@ -91,6 +97,35 @@ export async function handler(event: SQSEvent, app: any) {
         } catch (error: any) {
           // Log any errors
           console.error("Error sending request:", error.message);
+
+      // Check if the file is a PDF
+      if (fileName.endsWith(".pdf")) {
+        // Call the splitPdf API to split the PDF into chunks
+        const splitPdfResponse: AxiosResponse = await axios.post(
+          "https://u1oaj2omi2.execute-api.us-east-1.amazonaws.com/splitPdf",
+          null, // pass null as the data parameter
+          {
+            headers: {
+              "Content-Type": "application/json", // set the content type
+              "bucket-name": bucketName,
+              "file-name": fileName,
+              "folder-name": folderName,
+              "subfolder-name": subfolderName,
+              "subsubfolder-name": subsubfolderName, // Add subsubfolder-name header
+            },
+          }
+        );
+
+        // Get the extracted chunks from the splitPdf response
+        const chunks = splitPdfResponse.data.chunks;
+        console.log("Extracted chunks from splitPdf:", chunks);
+
+        // Process each chunk (invoke SageMaker in splitPdf)
+        for (let i = 0; i < chunks.length; i++) {
+          const chunk = chunks[i];
+          console.log(`Processing chunk ${i + 1}/${chunks.length}: ${chunk}`);
+          // Here, splitPdf should handle invoking SageMaker
+
         }
         // Send message to SQS
       }

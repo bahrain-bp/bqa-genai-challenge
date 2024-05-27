@@ -1,6 +1,7 @@
-import { aws_iam as iam, aws_lambda as lambda } from "aws-cdk-lib";
-import { StackContext, Queue, Function } from "sst/constructs";
+import { aws_iam as iam, aws_lambda as lambda, Duration } from "aws-cdk-lib";
+import { StackContext, Queue, Function, toCdkDuration } from "sst/constructs";
 import * as AWS from "aws-sdk";
+
 
 export function S3Stack({ stack, app }: StackContext) {
   // Create the S3 bucket if it doesn't exist
@@ -31,7 +32,7 @@ export function S3Stack({ stack, app }: StackContext) {
   const bedrock_lambda = new Function(stack, "bedrock_lambda", {
     handler: handler,
     permissions: "*",
-    //timeout: "900 seconds",
+
   });
   // Attach AmazonS3FullAccess managed policy to the role associated with the Lambda function
   bedrock_lambda.role?.addManagedPolicy(
@@ -63,6 +64,7 @@ export function S3Stack({ stack, app }: StackContext) {
         // contentBasedDeduplication: true,
         queueName: stack.stage + "-analysis-queue.fifo",
         contentBasedDeduplication: true,
+        visibilityTimeout: toCdkDuration('301 seconds'),
       },
     },
   });
@@ -76,5 +78,6 @@ export function S3Stack({ stack, app }: StackContext) {
   ): Promise<void> {
     // Your bucket policy configuration logic here, to only allow cognito users to upload into the bucket
   }
-  return { documentsQueue, analysisQueue };
+
+  return { documentsQueue, analysisQueue  };
 }

@@ -1,11 +1,16 @@
-
 import * as AWS from "aws-sdk";
 import { Buffer } from "buffer";
 import { Queue } from "sst/node/queue";
-
+import { DynamoDB } from "aws-sdk";
+import { Table } from "sst/node/table";
+import { randomUUID } from "crypto";
 const s3 = new AWS.S3();
 const sqs = new AWS.SQS();
 const axios = require("axios");
+
+
+// Create an instance of DynamoDB DocumentClient
+const dynamoDb = new DynamoDB.DocumentClient();
 
 async function createFolder(bucketName: string, folderPath: string) {
   try {
@@ -61,6 +66,32 @@ async function generatePresignedUrl(
   }
 }
 
+const updateProcessStatus = async (
+  processId: string,
+  status: string,
+  processName: string,
+  fileName: string // Only fileName as the unique identifier
+) => {
+  const params: AWS.DynamoDB.DocumentClient.PutItemInput = {
+      TableName: Table.statusTable.tableName,
+      Item: {
+          processId,
+          status,
+          processName,
+          fileName, // Use fileName as the unique identifier
+          timestamp: new Date().toISOString(), // Optional: Add a timestamp
+      },
+  };
+
+  try {
+      await dynamoDb.put(params).promise();
+      console.log(`Inserted/Updated status to ${status} for processId ${processId}`);
+  } catch (error) {
+      console.error(`Failed to insert/update status for processId ${processId}: ${(error as Error).message}`);
+  }
+};
+
+
 export async function uploadToS3(event: any) {
   try {
     const fileData = event.body;
@@ -68,8 +99,10 @@ export async function uploadToS3(event: any) {
     const bucketName = event.headers["bucket-name"];
     const folderName = event.headers["folder-name"];
     const subfolderName = event.headers["subfolder-name"];
+    const subsubfolderName = event.headers["subsubfolder-name"]; // New header for sub-subfolder
     const contentType = event.headers["content-type"];
 
+    console.log(fileData);
     // Check file size before upload (optional)
     const fileSize = Buffer.byteLength(fileData);
     console.log("File size:", fileSize);
@@ -86,10 +119,14 @@ export async function uploadToS3(event: any) {
       throw new Error("Folder name not provided");
     }
 
-    // Combine folder and subfolder name if subfolder is provided
-    const folderPath = subfolderName
-      ? `${folderName}/${subfolderName}`
-      : folderName;
+    // Combine folder, subfolder, and subsubfolder names if provided
+    let folderPath = folderName;
+    if (subfolderName) {
+      folderPath += `/${subfolderName}`;
+    }
+    if (subsubfolderName) {
+      folderPath += `/${subsubfolderName}`; // Append the subsubfolder to the path
+    }
 
     // Create folder if it doesn't exist
     await createFolder(bucketName, folderPath);
@@ -123,6 +160,7 @@ export async function uploadToS3(event: any) {
     console.log("S3 Object URL:", s3ObjectUrl);
 
     console.log("signedurl", signedUrl);
+    const processId = randomUUID();
 
     try {
       // Send message to SQS
@@ -131,20 +169,25 @@ export async function uploadToS3(event: any) {
           QueueUrl: Queue["Document-Queue"].queueUrl,
           MessageBody: s3ObjectUrl,
           MessageGroupId: "file", // Use fileName as MessageGroupId
-          MessageDeduplicationId: `${fileName}-${Date.now()}`,
+          //MessageDeduplicationId: `${fileName}-${Date.now()}`,
         })
         .promise();
       console.log("SQS Response:", sqsResponse);
+      console.log("Message queued!");
+
+      await updateProcessStatus(processId, "Processing", "File Processing", fileName);
+
     } catch (error) {
+      await updateProcessStatus(processId, "Failed", "File Processing", fileName);
+
       console.error("Error sending message to SQS:", error);
       throw new Error("Failed to send message to SQS");
     }
 
-    console.log("Message queued!");
-
     // if (!response.ok) {
     //   throw new Error("Failed to upload file");
     // }
+    await updateProcessStatus(processId, "Processing", "File Processing", fileName);
 
     return {
       statusCode: 200,
@@ -154,11 +197,12 @@ export async function uploadToS3(event: any) {
       }),
     };
   } catch (error) {
+    
     console.error("Error uploading file:", error);
     return {
       statusCode: 500,
       body: JSON.stringify({ message: "Failed to upload file" }),
     };
   }
+  
 }
-

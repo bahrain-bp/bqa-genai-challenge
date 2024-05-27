@@ -29,6 +29,8 @@ import ForgotPassword from './pages/Auth/ForgotPassword';
 import BqaRequestPage from './pages/BqaRequestPage';
 import { getCurrentUser, fetchUserAttributes } from 'aws-amplify/auth';
 import { ToastContainer } from 'react-toastify';
+import SummaryPage from './pages/summaryPage';
+import RubricPage from './pages/RubricPage';
 
 function App() {
   const [user, setUser] = useState<any | null>(null);
@@ -37,65 +39,49 @@ function App() {
   const [loading, setLoading] = useState<boolean>(true);
   const { pathname } = useLocation();
 
- 
-
   // Check if there's any user on mount
   useEffect(() => {
+    const getCurrentUserInfo = async () => {
+      try {
+        //Auth.currentAuthenticatedUser();  this is old version
+        const { username, userId: id } = await getCurrentUser();
 
- const getCurrentUserInfo = async () => {
-  try{
-      //Auth.currentAuthenticatedUser();  this is old version
-      const { username, userId: id } = await getCurrentUser();
-  
-      const attributes = fetchUserAttributes();
-      console.log((await attributes).email);
-      //console.log((await attributes).name);
-       const names=(await fetchUserAttributes()).name;
-       console.log(names);
-      return {
-        id,
-        username,
-        attributes,
-        names
-      };
-    } catch (error) {
-    console.error('Failed to fetch user info:', error);
-
-    }
-
+        const attributes = fetchUserAttributes();
+        console.log((await attributes).email);
+        //console.log((await attributes).name);
+        const names = (await fetchUserAttributes()).name;
+        //  console.log(names);
+        return {
+          id,
+          username,
+          attributes,
+          names,
+        };
+      } catch (error) {
+        console.error('Failed to fetch user info:', error);
+      }
     };
 
-
-     // Get the current logged in user info 
-  const getUser = async () => {
-    const userInfo = await getCurrentUserInfo();
-    if (userInfo){
-       setUser(userInfo);
-       setIsAdmin(userInfo.names?.startsWith("BQA") || false);
-
-    }
-    setLoading(false);
-
-  };
- 
-
-   
-
-
+    // Get the current logged in user info
+    const getUser = async () => {
+      const userInfo = await getCurrentUserInfo();
+      if (userInfo) {
+        setUser(userInfo);
+        setIsAdmin(userInfo.names?.startsWith('BQA') || false);
+      }
+      setLoading(false);
+    };
 
     getUser();
-    if(isAdmin){
-      console.log("This is BQA Reviewer ");   
-    }   
-    else{
-      console.log("UNIIIII ");
-    };
-
+    if (isAdmin) {
+      console.log('This is BQA Reviewer ');
+    } else {
+      console.log('UNIIIII ');
+    }
   }, []);
 
-
   ///
- 
+
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [pathname]);
@@ -109,7 +95,7 @@ function App() {
   ) : (
     <>
       <ToastContainer position="top-right" />
-              {/* Route Available to all */}
+      {/* Route Available to all */}
 
       <Routes>
         {/* Route to SignInPage */}
@@ -127,7 +113,17 @@ function App() {
             </>
           }
         />
-         <Route
+        <Route
+          path="/SummaryPage"
+          element={
+            <>
+              <PageTitle title="Bqa Reviewer Add University | EduScribe" />
+              <SummaryPage />
+            </>
+          }
+        />
+
+        <Route
           path="/forms/form-elements"
           element={
             <>
@@ -190,17 +186,8 @@ function App() {
             </>
           }
         />
-                <Route
-          path="/ChangePassword"
-          element={
-            <>
-              <PageTitle title="Change Password | EduScribe" />
-              <ChangePassword />
-            </>
-          }
-        />
-       
-         <Route
+
+        <Route
           path="/ForgotPassword"
           element={
             <>
@@ -209,7 +196,7 @@ function App() {
             </>
           }
         />
-              <Route
+        <Route
           path="/PredefinedTemplate/:standardName"
           element={
             <>
@@ -218,18 +205,17 @@ function App() {
             </>
           }
         />
-       
+
         <Route
           path="EvidenceFiles/:indicatorName"
           element={
-           <>
-  
-             <PageTitle title="Evidence Files | EduScribe" />
-             <EvidenceFiles />
+            <>
+              <PageTitle title="Evidence Files | EduScribe" />
+              <EvidenceFiles />
             </>
-        }
+          }
         />
-        
+
         <Route
           path="/Standards"
           element={
@@ -240,77 +226,67 @@ function App() {
           }
         />
 
+        {/*===================================================================================================================================*/}
+        {/* Route Available to BQA Reviewer Only */}
 
+        {isAdmin && (
+          <>
+            <Route
+              path="/Archived"
+              element={
+                <>
+                  <PageTitle title="Archived | EduScribe" />
+                  <Archived />
+                </>
+              }
+            />
 
+            <Route
+              path="/BqaDash1"
+              element={
+                <>
+                  <PageTitle title="Bqa Reviewer Dashboard | EduScribe" />
+                  <BqaDash1 />
+                </>
+              }
+            />
 
-{/*===================================================================================================================================*/ }
-    {/* Route Available to BQA Reviewer Only */}
-  
+            <Route
+              path="/AddUni"
+              element={
+                <>
+                  <PageTitle title="Bqa Reviewer Add University | EduScribe" />
+                  <AddUni />
+                </>
+              }
+            />
 
-    {isAdmin && ( 
-      <>
-         <Route
-          path="/Archived"
-          element={
-            <>
-              <PageTitle title="Archived | EduScribe" />
-              <Archived />
-            </>
-          }
-        />
-  
-        
+            <Route
+              path="/BqaRequestPage"
+              element={
+                <>
+                  <PageTitle title="Bqa Reviewer Request Additional Documents Page | EduScribe" />
+                  <BqaRequestPage />
+                </>
+              }
+            />
 
-        <Route
-          path="/BqaDash1"
-          element={
-            <>
-              <PageTitle title="Bqa Reviewer Dashboard | EduScribe" />
-              <BqaDash1 />
-            </>
-          }
-        />
-         
-
-<Route
-          path="/AddUni"
-          element={
-            <>
-              <PageTitle title="Bqa Reviewer Add University | EduScribe" />
-              <AddUni />
-            </>
-          }
-        />
-
-        
-
-        <Route
-          path="/BqaRequestPage"
-          element={
-            <>
-              <PageTitle title="Bqa Reviewer Request Additional Documents Page | EduScribe" />
-              <BqaRequestPage />
-            </>
-          }
-        />
-
-
-        <Route
-          path="/BqaDash2/:email"
-          element={
-            <>
-              <PageTitle title="Bqa Reviewer Dashboard (University Details)| EduScribe" />
-              <BqaDash2 />
-            </>
-          }
-        />
-        </>
-         )}
-{/**-------------------------------------------------------------------------------------------------------------------- */}
-{/* Route Available to University Officer Only */}
-{!isAdmin && (
-  <>
-{/* <Route
+            <Route
+              path="/BqaDash2/:name"
+              element={
+                <>
+                  <PageTitle title="Bqa Reviewer Dashboard (University Details)| EduScribe" />
+                  <BqaDash2 />
+                </>
+              }
+            />
+          </>
+        )}
+        {/**-------------------------------------------------------------------------------------------------------------------- */}
+        {/* Route Available to University Officer Only */}
+        {!isAdmin && (
+          <>
+            {/* <Route
           path="/Dashboard"
           element={
             <>
@@ -320,29 +296,36 @@ function App() {
           }
         />  */}
 
+            <Route
+              path="/OfficerDash"
+              element={
+                <>
+                  <PageTitle title="Officer Dashboard | EduScribe" />
+                  <OfficerDash />
+                </>
+              }
+            />
+            <Route
+              path="/UploadEvidence"
+              element={
+                <>
+                  <PageTitle title="Upload Evidence | EduScribe" />
+                  <UploadEvidence />
+                </>
+              }
+            />
+          </>
+        )}
         <Route
-          path="/OfficerDash"
+          path="RubricPage/:standardId/:indicatorId"
           element={
             <>
-              <PageTitle title="Officer Dashboard | EduScribe" />
-              <OfficerDash />
+              <PageTitle title="Rubric Page | EduScribe" />
+              <RubricPage />
             </>
           }
         />
-            <Route
-          path="/UploadEvidence"
-          element={
-            <>
-              <PageTitle title="Upload Evidence | EduScribe" />
-              <UploadEvidence />
-            </>
-          }
-          />
-          </>
-)}
-
-         </Routes>
-
+      </Routes>
     </>
   );
 }
