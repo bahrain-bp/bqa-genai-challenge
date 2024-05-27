@@ -135,6 +135,7 @@ export function ApiStack({ stack }: StackContext) {
         function: {
           handler: "packages/functions/src/bedrock_lambda/titanCompare.handler",
           permissions: "*",
+          timeout: "900 seconds",
         },
       },
       "POST /createUser": {
