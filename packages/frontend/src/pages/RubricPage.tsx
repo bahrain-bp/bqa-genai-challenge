@@ -3,8 +3,8 @@ import axios from 'axios';
 import DefaultLayout from '../layout/DefaultLayout';
 import { useParams, useLocation } from 'react-router-dom';
 import ConfirmationDialog from '../components/Forms/ConfirmDialog';
-import Loader from '../common/Loader';
 import Breadcrumb from '../components/Breadcrumbs/Breadcrumb';
+import Loader from '../common/Loader';
 import { toast } from 'react-toastify';
 
 interface Criterion {
@@ -23,6 +23,7 @@ const RubricPage: React.FC = () => {
   const [isConfirmationDialogOpen, setIsConfirmationDialogOpen] =
     useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [status, setStatus] = useState<string | null>(null);
   const { standardId, indicatorId } = useParams<{
     standardId: string;
     indicatorId: string;
@@ -30,36 +31,79 @@ const RubricPage: React.FC = () => {
   const location = useLocation();
   const standardName = location.state?.standardName || '';
   const indicatorName = location.state?.indicatorName || '';
+  const apiURL = import.meta.env.VITE_API_URL
+
+  async function getStatus() {
+    try {
+      const response = await axios.get(
+        `${apiURL}/status`,
+        {
+          headers: {
+            'combined-key': `BUB-${standardId}-${indicatorId}`,
+          },
+        },
+      );
+      return response.data[0].status;
+    } catch (error) {
+      console.error('Error fetching status:', error);
+      return null;
+    }
+  }
+
+  const fetchData = async () => {
+    try {
+      const response = await axios.get(
+        `${apiURL}/compareResult/BUB/${standardId}/${indicatorId}`,
+      );
+      if (response.data.length === 0) {
+        setIsConfirmationDialogOpen(true);
+      } else {
+        setCriteria(
+          response.data.map((item: any) => ({
+            id: item.comparisonId,
+            name: item.indicatorName,
+            maxScore: 0,
+            comment: item.comment,
+            outputText: item.outputText,
+          })),
+        );
+      }
+    } catch (error) {
+      console.error('Error fetching results:', error);
+      setIsConfirmationDialogOpen(true);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const fetchStatusAndData = async () => {
+    const status = await getStatus();
+    setStatus(status);
+    if (status !== 'Processing') {
+      fetchData();
+    } else {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get(
-          `https://u1oaj2omi2.execute-api.us-east-1.amazonaws.com/compareResult/BUB/${standardId}/${indicatorId}`,
-        );
-        if (response.data.length === 0) {
-          setIsConfirmationDialogOpen(true);
-        } else {
-          setCriteria(
-            response.data.map((item: any) => ({
-              id: item.comparisonId,
-              name: item.indicatorName,
-              maxScore: 0,
-              comment: item.comment,
-              outputText: item.outputText,
-            })),
-          );
-        }
-      } catch (error) {
-        console.error('Error fetching results:', error);
-        setIsConfirmationDialogOpen(true);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchData();
+    fetchStatusAndData();
   }, [standardId, indicatorId]);
+
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      const status = await getStatus();
+      setStatus(status);
+      if (status === 'Completed') {
+        clearInterval(interval);
+        if (criteria.length === 0) {
+          fetchData();
+        }
+      }
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [standardId, indicatorId, criteria.length]);
 
   const handleYesAIComment = () => {
     const headers = {
@@ -70,13 +114,11 @@ const RubricPage: React.FC = () => {
 
     axios
       .post(
-        'https://u1oaj2omi2.execute-api.us-east-1.amazonaws.com/titan',
+        `${apiURL}/titan`,
         {},
         { headers },
       )
       .then((response) => {
-        console.log('Response:', response.data);
-
         if (!response.data.success) {
           if (response.data.message === 'No content found') {
             toast('No content found');
@@ -89,32 +131,27 @@ const RubricPage: React.FC = () => {
             alert(`An error occurred: ${response.data.message}`);
           }
         } else {
-          // Handle and display the content if there are no errors
           console.log('Content:', response.data.data);
-          // Assuming you reload to update the content, adjust as needed
-          window.location.reload();
+          setStatus('Done');
         }
       })
       .catch((error) => {
         console.error('Error:', error);
         if (error.response) {
-          // The request was made and the server responded with a status code
           if (error.response.status === 404) {
             alert('The requested resource was not found.');
           } else if (error.response.status === 500) {
-            alert('An internal server error occurred. Please try again later.');
+            //alert('An internal server error occurred. Please try again later.');
           } else {
             alert(
               `Server responded with status code: ${error.response.status}`,
             );
           }
         } else if (error.request) {
-          // The request was made but no response was received
           alert(
             'No response received from the server. Please try again later.',
           );
         } else {
-          // Something happened in setting up the request that triggered an error
           alert('An unexpected error occurred. Please try again later.');
         }
       });
@@ -125,13 +162,15 @@ const RubricPage: React.FC = () => {
   };
 
   const formatOutputText = (text: string) => {
-    return text.split('. ').map((sentence, index) => (
-      <span key={index}>
-        {sentence}
-        <br />
-        <br />
-      </span>
-    ));
+    const formattedText = text.replace(/(?<=\S)- /g, '\n-');
+
+    return (
+      <ul>
+        {formattedText.split('\n\n').map((sentence, index) => (
+          <li key={index}>{sentence}</li>
+        ))}
+      </ul>
+    );
   };
 
   const paginatedCriteria = criteria.slice(
@@ -142,10 +181,13 @@ const RubricPage: React.FC = () => {
   return (
     <DefaultLayout>
       <Breadcrumb pageName="Assessment Rubric" />
-
       <div className="p-4">
         {isLoading ? (
           <Loader />
+        ) : status === 'Processing' ? (
+          <div className="text-center text-lg text-gray-700">
+            The data is currently being processed. Please wait...
+          </div>
         ) : (
           <>
             <div className="text-center mb-8">
@@ -153,7 +195,6 @@ const RubricPage: React.FC = () => {
                 {standardName} / {indicatorName}
               </h2>
             </div>
-
             <div>
               <ConfirmationDialog
                 isOpen={isConfirmationDialogOpen}
@@ -183,12 +224,10 @@ const RubricPage: React.FC = () => {
                       {paginatedCriteria.map((criterion, index) => (
                         <tr
                           key={criterion.id}
-                          className={`${
-                            index % 2 === 0 ? 'bg-gray-100' : 'bg-white'
-                          }`}
+                          className={`${index % 2 === 0 ? 'bg-gray-100' : 'bg-white'}`}
                         >
                           <td className="py-4 px-6 border-b border-r border-gray-300 font-medium">
-                            <div className=" p-4 rounded">
+                            <div className="p-4 rounded">
                               {criterion.comment}
                             </div>
                           </td>

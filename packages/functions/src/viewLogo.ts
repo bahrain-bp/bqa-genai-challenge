@@ -66,7 +66,7 @@ export const main: APIGatewayProxyHandlerV2 = async (
 
       return response;
     } catch (error) {
-      console.error("Error retrieving file from S3:", error);
+      //console.error("Error retrieving file from S3:", error);
       return {
         statusCode: 500,
         body: JSON.stringify({ message: "Internal Server Error" }),
