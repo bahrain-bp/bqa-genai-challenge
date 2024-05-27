@@ -292,7 +292,6 @@ const [/*currentName*/, setCurrentName] = useState('');
   
   useEffect(() => {
     //add credentials for demo
-   
     const indicatorId = window.location.pathname.split('/').pop();
     
  // Fetch indicators based on the standardId
