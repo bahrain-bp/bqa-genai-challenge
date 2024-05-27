@@ -48,11 +48,12 @@ const RubricPage: React.FC = () => {
     };
 
     fetchCurrentUserInfo();
-  }, []);
+  }, [currentName]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
+        console.log(currentName,"current name")
         const response = await axios.get(
           `https://u1oaj2omi2.execute-api.us-east-1.amazonaws.com/compareResult/${currentName}/${standardId}/${indicatorId}`,
         );
@@ -78,7 +79,7 @@ const RubricPage: React.FC = () => {
     };
 
     fetchData();
-  }, [standardId, indicatorId]);
+  }, [standardId, indicatorId,currentName]);
 
   const handleYesAIComment = () => {
     const headers = {
