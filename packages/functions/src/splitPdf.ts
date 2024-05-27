@@ -1,21 +1,6 @@
 import * as AWS from 'aws-sdk';
 import { PDFDocument, PDFPage } from 'pdf-lib'; // fix: npm install pdf-lib
 const axios = require("axios");
-import { fetchUserAttributes } from 'aws-amplify/auth';
-
-interface UserAttributes {
-    email?: string;
-}
-
-const fetchCurrentUserEmail = async (): Promise<string> => {
-    try {
-        const attributes: UserAttributes = await fetchUserAttributes();
-        return attributes?.email ?? '';
-    } catch (error) {
-        console.error('Failed to fetch user info:', error);
-        throw error;
-    }
-};
 
 const s3 = new AWS.S3();
 const maxTokens = 500; // Adjust based on your SageMaker token limit
@@ -107,14 +92,13 @@ export const handler = async (event: any) => {
       comments,
     });
 
-    // Send email confirmation that processing is complete
-
+    // Send email confirmation when processing is complete
 
         // Prepare email parameters
         const sourceEmail = 'noreplyeduscribeai@gmail.com'; // sender email address
-        const userEmail = await fetchCurrentUserEmail(); // receiver email address replace this with the email of current user retrieved from the cognito user pool
+        const userEmail = ''; // receiver email address replace this with the email of university that uploaded the file
         const subject = 'Processing Complete';
-        const body = `The processing of your file ${fileName} is complete. You can access it at ${fileURL}.`;
+        const body = `The processing of your file '${fileName}' is complete. You can access it at ${fileURL}.`;
 
         // Invoke the email sending Lambda function
         const Emailresponse = await axios.post('https://u1oaj2omi2.execute-api.us-east-1.amazonaws.com/send-email', {
