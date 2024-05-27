@@ -5,7 +5,7 @@ import { Queue } from "sst/node/queue";
 
 // Variable to store processed message IDs
 let processedMessageIds: Set<string> = new Set();
-
+const sqs = new AWS.SQS();
 export async function handler(event: SQSEvent, app: any) {
   const records: any[] = event.Records;
   console.log(`Message processed: "${records[0].body}"`);
@@ -37,6 +37,67 @@ export async function handler(event: SQSEvent, app: any) {
       console.log("Subsubfolder Name:", subsubfolderName);
       console.log("File Name:", fileName);
 
+      let endpointUrl: string;
+      endpointUrl =
+        "https://4qzn87j7l2.execute-api.us-east-1.amazonaws.com/textract";
+
+      const postResponse: AxiosResponse = await axios.post(endpointUrl, {
+        bucketName,
+        folderName,
+        subfolderName,
+        fileName,
+      });
+      const sqsResponse = await sqs
+        .sendMessage({
+          QueueUrl: Queue["analysis-Queue"].queueUrl,
+          MessageBody: "invoked",
+          MessageGroupId: "file", // Use fileName as MessageGroupId
+          //MessageDeduplicationId: `${fileName}-${Date.now()}`,
+        })
+        .promise();
+
+      // Extracted text
+      const responseData = postResponse.data;
+      const extractedText = responseData.text;
+      console.log("Extracted Text from the handler:", extractedText);
+
+
+
+      // Construct the request payload to match the provided structure
+      const requestBody = {
+        body: {
+          inputs:
+            extractedText +
+            "can you provide a summary about this file content, start the summary with This file is about and summarize it in 5 bullet points ",
+          parameters: {
+            max_new_tokens: 3000,
+            top_p: 0.9,
+            temperature: 0.2,
+          },
+        },
+      };
+      await deleteMessageFromQueue(record.receiptHandle);
+
+      // If the response is successful (status code 200), make a POST request to the SageMaker endpoint
+      if (postResponse.status === 200) {
+        // Replace "Text" with the actual extracted text
+        const endpoint =
+          "https://d55gtzdu04.execute-api.us-east-1.amazonaws.com/dev-demo/sageMakerInvoke";
+
+        try {
+          // Make the POST request to the endpoint
+          const response = await axios.post(endpoint, requestBody);
+
+          // Log the response
+          console.log("Response from endpoint:", response.data);
+
+          //console.log("SQS Response:", sqsResponse);
+
+          // Now this needs to be saved in the database with the corresponding standard name/uni/fileURL
+        } catch (error: any) {
+          // Log any errors
+          console.error("Error sending request:", error.message);
+
       // Check if the file is a PDF
       if (fileName.endsWith(".pdf")) {
         // Call the splitPdf API to split the PDF into chunks
@@ -64,7 +125,9 @@ export async function handler(event: SQSEvent, app: any) {
           const chunk = chunks[i];
           console.log(`Processing chunk ${i + 1}/${chunks.length}: ${chunk}`);
           // Here, splitPdf should handle invoking SageMaker
+
         }
+        // Send message to SQS
       }
 
       // Delete the message from the SQS queue to avoid processing it again

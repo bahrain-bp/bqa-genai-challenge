@@ -56,7 +56,8 @@ export function DBStack({ stack, app }: StackContext) {
             strength: "string",
             weakness: "string",
             score: "number",
-            comments: "string"
+            comments: "string",
+            comparisonResponse: "string",
         },
         primaryIndex: { partitionKey: "fileName" } // Assuming fileURL is unique
     });

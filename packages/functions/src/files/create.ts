@@ -29,7 +29,8 @@ export const main: APIGatewayProxyHandlerV2 = async (event: any) => {
                 strength: data.strength,
                 weakness: data.weakness,
                 score: data.score,
-                comments: data.comments
+                comments: data.comments,
+                comparisonResponse: data.comparisonResponse,
             },
         };
 

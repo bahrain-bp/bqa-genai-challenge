@@ -9,9 +9,11 @@ import * as iam from "@aws-cdk/aws-iam";
 export function ApiStack({ stack }: StackContext) {
   const { auth } = use(AuthStack);
 
+
   const { table, fileTable, criteriaTable, universityTable,comparisonResultTable,statusTable } = use(DBStack);
 
-  const { documentsQueue } = use(S3Stack);
+  const { documentsQueue, analysisQueue } = use(S3Stack);
+
 
   const api = new Api(stack, "signinAPI", {
     // Commented out the authorizers section
@@ -45,8 +47,9 @@ export function ApiStack({ stack }: StackContext) {
       "POST /uploadS3": {
         function: {
           handler: "packages/functions/src/s3Upload.uploadToS3",
+
           permissions: ["s3"],
-          bind: [documentsQueue],
+          bind: [documentsQueue,, analysisQueue],
           timeout: "300 seconds",
         },
       },
@@ -56,6 +59,7 @@ export function ApiStack({ stack }: StackContext) {
           permissions: ["s3", "dynamodb"],
           timeout: "900 seconds",
           retryAttempts: 2,
+
         },
       },
       "POST /comprehend": {
@@ -72,13 +76,21 @@ export function ApiStack({ stack }: StackContext) {
           timeout: "900 seconds",
         },
       },
+      "POST /compare": {
+        function: {
+          handler: "packages/functions/src/standards/compareStandards.handler",
+          permissions: "*",
+        },
+      },
       "POST /textract": {
         function: {
           handler: "packages/functions/src/textractPdf.extractTextFromPDF",
           permissions: ["textract", "s3"],
           timeout: "200 seconds",
-          bind: [documentsQueue],
+
+          bind: [documentsQueue,, analysisQueue],
           retryAttempts: 2,
+
         },
       },
       "GET /detectFileType": {
