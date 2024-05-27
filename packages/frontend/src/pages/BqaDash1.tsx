@@ -18,7 +18,7 @@ interface User {
 const BqaDash1 = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState<boolean>(true);
-  const apiUrl = import.meta.env.VITE_API_URL;
+  const apiUrl = 'https://u1oaj2omi2.execute-api.us-east-1.amazonaws.com';
   const [users, setUsers] = useState<User[]>([]); // Updated users type to User[]
   const { t } = useTranslation(); // Hook to access translation functions
   const [imagesFetched, setImagesFetched] = useState<boolean>(false); // Flag to track if images are fetched
