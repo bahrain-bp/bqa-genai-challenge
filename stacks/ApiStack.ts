@@ -135,6 +135,7 @@ export function ApiStack({ stack }: StackContext) {
         function: {
           handler: "packages/functions/src/bedrock_lambda/titanCompare.handler",
           permissions: "*",
+          timeout: "900 seconds",
         },
       },
       "POST /createUser": {
@@ -160,7 +161,7 @@ export function ApiStack({ stack }: StackContext) {
           timeout: "900 seconds",
         },
       },
-      "GET /summarization/{fileName}": {
+      "GET /summarization": {
         function: {
           handler: "packages/functions/src/files/retrieveSummarization.main",
           permissions: ["s3"],

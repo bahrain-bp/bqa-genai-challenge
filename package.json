@@ -44,7 +44,7 @@
     "@nextui-org/table": "^2.0.33",
     "@shelf/aws-lambda-libreoffice": "^7.0.0",
     "awesome-unoconv": "^1.0.1",
-    "aws-amplify": "^6.0.26",
+    "aws-amplify": "^6.3.2",
     "aws-sdk": "^2.1606.0",
     "axios": "^1.7.0",
     "axios-retry": "^4.3.0",
