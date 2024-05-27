@@ -96,7 +96,7 @@ const SummaryPage = () => {
                 </h3> */}
               {/* </div> */}
               {/* <div className="border-b border-stroke py-4 px-7 dark:border-strokedark"> */}
-              <div className="w-full sm:w-1/2">
+              {/* <div className="w-full sm:w-1/2">
                 <label
                   className="mb-3 mt-4 block text-sm font-medium text-black dark:text-white"
                   htmlFor="fullName"
@@ -112,10 +112,10 @@ const SummaryPage = () => {
                   placeholder={fileData.standardName}
                   disabled
                 ></input>
-              </div>
+              </div> */}
 
               {/* <div className="border-b border-stroke py-4 px-7 dark:border-strokedark"> */}
-            </div>
+            {/* </div>
 
             <div className="mb-5 flex flex-col gap-5 sm:flex-row ml-3 mr-3 px-7 ">
               <div className="w-full sm:w-1/2">
@@ -134,7 +134,7 @@ const SummaryPage = () => {
                   placeholder={fileData.indicatorNumber}
                   disabled
                 ></input>
-              </div>
+              </div> */}
 
               {/* <div className="w-full sm:w-1/2">
                 <label
