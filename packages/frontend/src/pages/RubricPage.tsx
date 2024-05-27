@@ -104,7 +104,7 @@ const RubricPage: React.FC = () => {
         `${apiURL}/status`,
         {
           headers: {
-            'combined-key': `BUB-${standardId}-${indicatorId}`,
+            'combined-key': `${currentName}-${standardId}-${indicatorId}`,
           },
         }
       );
