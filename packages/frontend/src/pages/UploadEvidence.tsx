@@ -194,6 +194,7 @@ const UploadEvidence = () => {
   const [showModal, setShowModal] = useState(false);
 
   const [currentName, setCurrentName] = useState('');
+  const [userEmail, setUserEmail] = useState('');
 
   useEffect(() => {
     const fetchCurrentUserInfo = async () => {
@@ -201,6 +202,8 @@ const UploadEvidence = () => {
         const attributes = await fetchUserAttributes();
         const name: any = attributes.name;
         setCurrentName(name);
+        const email: any = attributes.email;
+        setUserEmail(email);
       } catch (error) {
         console.error('Error fetching current user info:', error);
       }
@@ -269,11 +272,11 @@ const UploadEvidence = () => {
 
         // Sort indicators inside each standard
 
-        standardsMap.forEach((standard: any) => {
-          standard.indicators.sort((a: any, b: any) =>
-            a.id.localeCompare(b.id, undefined, { numeric: true }),
-          );
-        });
+        // standardsMap.forEach((standard: any) => {
+        //   standard.indicators.sort((a: any, b: any) =>
+        //     a.id.localeCompare(b.id, undefined, { numeric: true }),
+        //   );
+        // });
 
         // Convert the map to an array and sort standards
         const sortedStandards = Array.from(standardsMap.values());
@@ -319,24 +322,41 @@ const UploadEvidence = () => {
       const formData = new FormData();
       formData.append('file', file);
 
+      // try {
+      //   const response = await fetch(`${apiURL}/uploadS3`, {
+      //     method: 'POST',
+      //     body: formData,
+      //     headers: {
+      //       'user-email': userEmail, // Add the user's email to the headers
+      //       'file-name': String(file.name),
+      //       'bucket-name': 'uni-artifacts',
+      //       'folder-name': currentName,
+      //       'subfolder-name': `${standard.standardId}`,
+      //       'subsubfolder-name': `${indicator.id}`,
+      //       'content-type': 'application/pdf', // Assuming all files are PDF
+      //     },
+      //   });
+      //   console.log(file.name);
+      //   if (!response.ok) {
+      //     const errorText = await response.text();
+      //     throw new Error(`Failed to upload file: ${errorText}`);
+      //   } 
+
+      // Testing if the email gets sent when uploading
       try {
-        const response = await fetch(`${apiURL}/uploadS3`, {
+        const response = await fetch(`${apiURL}/email`, {
           method: 'POST',
           body: formData,
           headers: {
+            'user-email': userEmail, // Add the user's email to the headers
             'file-name': String(file.name),
-            'bucket-name': 'uni-artifacts',
-            'folder-name': currentName,
-            'subfolder-name': `${standard.standardId}`,
-            'subsubfolder-name': `${indicator.id}`,
-            'content-type': 'application/pdf', // Assuming all files are PDF
           },
         });
         console.log(file.name);
         if (!response.ok) {
           const errorText = await response.text();
           throw new Error(`Failed to upload file: ${errorText}`);
-        }
+        } 
 
         // Log file info and refresh file list
         console.log('Uploaded file:', file.name);
@@ -353,6 +373,7 @@ const UploadEvidence = () => {
     }
     setIsUploading(false);
   };
+
 
   //fetch uploaded folders TRY#1
   const fetchUploadedFiles = async () => {

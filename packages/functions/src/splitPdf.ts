@@ -9,6 +9,7 @@ const maxAllowedTokens = 4096; // Maximum tokens allowed by SageMaker endpoint
 export const handler = async (event: any) => {
   try {
     // Extract parameters from event headers with meaningful names
+    const userEmail = event.headers['user-email'];
     const bucketName = event.headers['bucket-name'];
     const key = event.headers['file-name'] || 'unnamed.pdf'; // Default filename if absent
     const folderName = event.headers['folder-name'] || '';
@@ -96,7 +97,7 @@ export const handler = async (event: any) => {
 
         // Prepare email parameters
         const sourceEmail = 'noreplyeduscribeai@gmail.com'; // sender email address
-        const userEmail = ''; // receiver email address replace this with the email of university that uploaded the file
+        // const userEmail = ''; // already retrieved from headers receiver email address replace this with the email of university that uploaded the file
         const subject = 'Processing Complete';
         const body = `The processing of your file '${fileName}' is complete. You can access it at ${fileURL}.`;
 
