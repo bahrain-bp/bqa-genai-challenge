@@ -227,6 +227,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                 </NavLink>
               </li>
               {/* <!-- Menu Item Profile --> */}
+              {(isAdmin) && (
               <li>
                 <NavLink
                   to="/Archived"
@@ -246,6 +247,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                   {t('archivedTemplates')}
                 </NavLink>
               </li>
+              )}
               {/* <!-- Menu Item Profile --> */}
               {(!isAdmin) && (
                 <li>

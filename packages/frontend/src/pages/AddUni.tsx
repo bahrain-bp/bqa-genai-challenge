@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import Breadcrumb from '../components/Breadcrumbs/Breadcrumb';
 import DefaultLayout from '../layout/DefaultLayout';
 import './PredefinedTemplate.css'; // Importing CSS file
+import { useNavigate } from 'react-router-dom';
+
 //import { aws_cognito as cognito } from 'aws-cdk-lib';
 //import { env } from 'process';
 //import { signUp, confirmSignUp } from 'aws-amplify/auth';
@@ -58,6 +60,7 @@ const AddUni = () => {
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
   const [logo, setLogo] = useState<File | null>(null);
+  const navigate = useNavigate();
 
   const getMimeType = (filename: any) => {
     const extension = filename.split('.').pop();
@@ -92,6 +95,8 @@ const AddUni = () => {
       await uploadLogo(logo, name); //
 
       toast.success('User and logo added successfully!');
+      navigate('/BqaDash1'); // Redirect to bqadash1 page
+
     } catch (error) {
       console.error('Error:', error);
       toast.error('The email you enterd is already use.');
