@@ -6,6 +6,7 @@ import ConfirmationDialog from '../components/Forms/ConfirmDialog';
 import Loader from '../common/Loader';
 import Breadcrumb from '../components/Breadcrumbs/Breadcrumb';
 import { toast } from 'react-toastify';
+import {fetchUserAttributes } from 'aws-amplify/auth';
 
 interface Criterion {
   id: number;
@@ -18,6 +19,8 @@ interface Criterion {
 const itemsPerPage = 2;
 
 const RubricPage: React.FC = () => {
+  const [currentEmail, setCurrentEmail] = useState('');
+  const [currentName, setCurrentName] = useState('');
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [criteria, setCriteria] = useState<Criterion[]>([]);
   const [isConfirmationDialogOpen, setIsConfirmationDialogOpen] =
@@ -32,10 +35,26 @@ const RubricPage: React.FC = () => {
   const indicatorName = location.state?.indicatorName || '';
 
   useEffect(() => {
+    const fetchCurrentUserInfo = async () => {
+      try {
+        const attributes = await fetchUserAttributes();
+        const email:any = attributes.email;
+        const name:any= attributes.name;
+        setCurrentEmail(email);
+        setCurrentName(name);
+      } catch (error) {
+        console.error('Error fetching current user info:', error);
+      }
+    };
+
+    fetchCurrentUserInfo();
+  }, []);
+
+  useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await axios.get(
-          `https://u1oaj2omi2.execute-api.us-east-1.amazonaws.com/compareResult/BUB/${standardId}/${indicatorId}`,
+          `https://u1oaj2omi2.execute-api.us-east-1.amazonaws.com/compareResult/${currentName}/${standardId}/${indicatorId}`,
         );
         if (response.data.length === 0) {
           setIsConfirmationDialogOpen(true);
@@ -63,7 +82,7 @@ const RubricPage: React.FC = () => {
 
   const handleYesAIComment = () => {
     const headers = {
-      'uni-name': 'BUB',
+      'uni-name': `${currentName}`,
       'standard-number': standardId,
       'indicator-number': indicatorId,
     };
