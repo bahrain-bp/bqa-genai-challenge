@@ -50,6 +50,7 @@ export function S3Stack({ stack, app }: StackContext) {
         queueName: stack.stage + "-documents-queue.fifo",
         contentBasedDeduplication: true,
         visibilityTimeout: toCdkDuration('1 hour')
+        //testing timeout
       },
     },
   });
