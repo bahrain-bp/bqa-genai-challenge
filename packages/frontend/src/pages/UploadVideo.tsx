@@ -37,12 +37,12 @@ const UploadVideo: React.FC = () => {
       // Ensure selectedVideo is always a string
       const videoPath = String(selectedVideo);
       console.log('Submitting video:', videoPath);
-      
+      console.log(JSON.stringify({
+        bucketName: 'uni-artifacts',
+        filePath: videoPath, 
+      }))
       const response = await fetch('https://u1oaj2omi2.execute-api.us-east-1.amazonaws.com/videoFlow', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify({
           bucketName: 'uni-artifacts',
           filePath: videoPath, // Use videoPath instead of selectedVideo
