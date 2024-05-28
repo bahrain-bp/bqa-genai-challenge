@@ -14,7 +14,7 @@ const UploadVideo: React.FC = () => {
 
   const fetchVideos = async () => {
     try {
-      const response = await fetch('/videosGET');
+      const response = await fetch('/videoList');
       if (!response.ok) {
         throw new Error('Failed to fetch video list');
       }
@@ -91,7 +91,7 @@ const UploadVideo: React.FC = () => {
               onClick={handleSubmit}
               disabled={!selectedVideo}
             >
-              Submit
+              Analyze
             </button>
             {responseMessage && (
               <div className="text-sm text-black mt-2">
