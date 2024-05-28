@@ -31,7 +31,8 @@ import { getCurrentUser, fetchUserAttributes } from 'aws-amplify/auth';
 import { ToastContainer } from 'react-toastify';
 import SummaryPage from './pages/summaryPage';
 import RubricPage from './pages/RubricPage';
-import UploadLogo from './pages/UploadVideo';
+import UploadVideo from './pages/UploadVideo';
+
 
 function App() {
   const [user, setUser] = useState<any | null>(null);
@@ -232,7 +233,7 @@ function App() {
           element={
             <>
               <PageTitle title="Analyze Videos With AI | EduScribe" />
-              <UploadLogo />
+              <UploadVideo />
             </>
           }
         />
