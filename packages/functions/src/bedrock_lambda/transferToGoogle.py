@@ -33,6 +33,7 @@ def get_secret():
     return json.loads(secret)
 
 def handler(event, context):
+    
     # Define AWS and Google Cloud clients
     s3_client = boto3.client('s3')
     decodedData = base64.b64decode(event['body']).decode('utf-8')
