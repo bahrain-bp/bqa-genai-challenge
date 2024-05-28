@@ -5,26 +5,22 @@ import '@fortawesome/fontawesome-free/css/all.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash, faArchive } from '@fortawesome/free-solid-svg-icons';
 import Loader from '../common/Loader';
-// import * as AWS from 'aws-sdk';
-import { toast } from 'react-toastify'; // Import toast from react-toastify
-import 'react-toastify/dist/ReactToastify.css'; // Import the CSS for react-toastify
-
-
-import { useTranslation } from 'react-i18next';
 import {fetchUserAttributes } from 'aws-amplify/auth';
 
 
 
-//INDICATORS FILE **
+import { useTranslation } from 'react-i18next';
+import { toast } from 'react-toastify';
+
+
+//FATIMA INDICATORS FILE **
 
 
 const EvidenceFiles: React.FC = () => {
  // Get the standardId from the URL
  
 const indicatorId = window.location.pathname.split('/').pop();
-
-  const { t } = useTranslation(); // Hook to access translation functions
-
+const { t } = useTranslation(); // Hook to access translation functions
     
 
 // Set the value of the input field if it exists
@@ -99,11 +95,9 @@ const [/*currentName*/, setCurrentName] = useState('');
   
       // Remove the deleted record from the state
       setRecords(records.filter(record => record.entityId !== recordToDelete.entityId));
-     
-      toast.success('File deleted successfully');
+      console.log('Record deleted successfully');
     } catch (error) {
       console.error('Error deleting record:', error);
-      toast.error('Failed to delete file');
     }
   };
 
@@ -132,13 +126,14 @@ const [/*currentName*/, setCurrentName] = useState('');
   
       // Fetch records again to reflect the changes
       fetchRecords(recordToArchive.indicatorId);
+      console.log('Record archived successfully');
       console.log('Record to be archived:', recordToArchive);
-      toast.success('File archived successfully');
+
     } catch (error) {
       console.error('Error archiving record:', error);
-      toast.error('Failed to archive file');
     }
   };
+  
   
   const toggleForm = () => {
     setShowForm(!showForm);
@@ -188,7 +183,6 @@ const [/*currentName*/, setCurrentName] = useState('');
       }
       const data = await response.json();
       console.log('New record created:', data);
-      toast.success('New file Added successfully');
       setShowForm(false);
       fetchRecords(indicatorId); // Fetch records for the extracted standard name
       setRecordData({
@@ -203,9 +197,10 @@ const [/*currentName*/, setCurrentName] = useState('');
         dateCreated: '',
         status: 'unarchived',
       });
+      alert('Record created successfully!');
     } catch (error) {
       console.error('Error creating record:', error);
-      toast.error('Failed to create record');
+      alert('Failed to create record');
     }
   };
   const fetchStandardId = async (indicatorId: string | undefined) => {
@@ -291,7 +286,6 @@ const [/*currentName*/, setCurrentName] = useState('');
   };
   
   useEffect(() => {
-    //add credentials for demo
    
     const indicatorId = window.location.pathname.split('/').pop();
     
@@ -319,68 +313,108 @@ const [/*currentName*/, setCurrentName] = useState('');
     fetchCurrentUserInfo();
   }, []);
 
-
-
   useEffect(() => {
     setTimeout(() => setLoading(false), 1000);
   }, []);
 
 
-  //uncomment this for demo*
+  async function uploadToS3Evidence(fileData: Blob | File, fileName: string, folderName: string) {
+    try {
+
+      const formData = new FormData();
+      formData.append('file', fileData);
+
+      const response = await fetch(`https://30fuaz2c4c.execute-api.us-east-1.amazonaws.com/uploadS3File`, {
+  method: 'POST',
+  body: formData,
+  headers: {
+    'file-name': fileName,
+    'bucket-name': 'bqa-standards-upload',
+    'folder-name': folderName,
+    'content-type': 'application/pdf', // Assuming all files are PDF
+  },
+});
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to upload file: ${errorText}`);
+      }
+
+      // Log file info and refresh file list
+      console.log('Uploaded file:', fileName);
+      // fetchUploadedFiles(); // Assuming this fetches and logs files
+      toast.success('File uploaded successfully');
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : 'An unexpected error occurred';
+      console.error('Upload error:', message);
+      toast.error(`Upload error: ${message}`);
+    }
+    
+    // try {
+    //   var upload = new AWS.S3.ManagedUpload({
+    //     params: {
+    //       Bucket:  'bqa-standards-upload',
+    //       Key: folderName + '/' + fileName,
+    //       Body: fileData
+    //     },
+    //   });
+    
+    //   var promise = upload.promise();
+
+    //   promise.then(
+    //     function () {
+    //       alert("Successfully uploaded photo.");
+    //     },
+    //     function () {
+    //       return alert("There was an error uploading your photo: ");
+    //     }
+    //   );
+    //   // var newS3 = new AWS.S3();
+
+    //   // const params = {
+    //   //   Bucket: 'bqa-standards-upload',
+    //   //   Key: folderName + '/' + fileName,
+    //   //   Body: fileData
+    //   // };
+
+    //   //  const uploadResult = await newS3.upload(params).promise();
+
+    //   return { message: 'File uploaded successfully'};
+    // } catch (error) {
+    //   console.error('Error uploading file:', error);
+    //   throw new Error('Failed to upload file');
+    // }
+  }
+
   // async function uploadToS3Evidence(fileData: Blob | File, fileName: string, folderName: string) {
   //   try {
-  //     var upload = new AWS.S3.ManagedUpload({
-  //       params: {
-  //         Bucket:  'bqa-standards-upload',
-  //         Key: folderName + '/' + fileName,
-  //         Body: fileData
-  //       },
-  //     });
-    
-  //     var promise = upload.promise();
+  //     const AWS = require('aws-sdk');
+  //     const s3 = new AWS.S3();
 
-  //     promise.then(
-  //       function () {
-  //         console.log("Successfully uploaded file.");
-  //       },
-  //       function () {
-  //         return  console.log("There was an error uploading your file: ");
-  //       }
-  //     );
+  //   const uploadParams = {
+  //     Bucket: 'bqa-standards-upload',
+  //     Key: folderName + '/' + fileName,
+  //     Body: fileData
+  //   };
+
+  //   const upload = s3.upload(uploadParams);
+
+  //   upload.promise()
+  // .then(function() {
+  //   alert("Successfully uploaded file.");
+  // })
+  // .catch(function() {
+  //   alert("There was an error uploading your file: ");
+  // });
   //     return { message: 'File uploaded successfully'};
   //   } catch (error) {
   //     console.error('Error uploading file:', error);
   //     throw new Error('Failed to upload file');
   //   }
   // }
-  //uncomment this for demo*
-
-  async function uploadToS3Evidence(fileData: Blob | File, fileName: string, folderName: string) {
-    try {
-      const AWS = require('aws-sdk');
-      const s3 = new AWS.S3();
-
-    const uploadParams = {
-      Bucket: 'bqa-standards-upload',
-      Key: folderName + '/' + fileName,
-      Body: fileData
-    };
-
-    const upload = s3.upload(uploadParams);
-
-    upload.promise()
-  .then(function() {
-    alert("Successfully uploaded file.");
-  })
-  .catch(function() {
-    alert("There was an error uploading your file: ");
-  });
-      return { message: 'File uploaded successfully'};
-    } catch (error) {
-      console.error('Error uploading file:', error);
-      throw new Error('Failed to upload file');
-    }
-  }
 
   async function handleFileSelect(file: File, selectedFolder: string) {
     const fileReader = new FileReader();
@@ -398,11 +432,14 @@ const [/*currentName*/, setCurrentName] = useState('');
         uploadToS3Evidence(uploadParams.body, uploadParams.headers['file-name'], selectedFolder)
           .then(response => {
             console.log(response);
-            toast.success('File uploaded successfully!');
+            alert('File uploaded successfully!');
           })
           .catch(error => {
             console.error('Error uploading file:', error);
 
+            // alert('Failed to upload file');
+
+            alert('Failed to upload file!');
 
           });
       }
@@ -456,31 +493,47 @@ return loading ? (
       </button>
       
       </div>
- ):null}
+):null}
       {showForm && (
         
           <div className="modal-overlay">
             <div className="modal-content">
+            <div className="form-group">
+
+
+            <div className="form-group">
+              <label>{t('indicatorId')}</label>
+              <input type="text" name="indicatorId" value={indicatorId} onChange={handleChange} className="white-background" />
+            </div><br />
+              <label>{t('indicatorName')}</label>
+              <input type="text" name="indicatorName" value={indicatorName} onChange={handleChange} className="white-background" />
+            </div><br />
+            <div className="form-group">
+
+              <label>{t('standardName')}</label>
+              <input type="text" name="standardName" value={standardName} onChange={handleChange} className="white-background" />
+            </div><br />
+            <div className="form-group">
+              <label>{t('standardId')}</label>
+              <input type="text" name="standardId" value={standardId} onChange={handleChange} className="white-background" />
+            </div><br />
             
            
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700">{t('uploadDocument')}</label>
-              <input type="file" name="documentName" value={recordData.documentName} onChange={handleChange}className="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3 
-                focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" />
+            <div className="form-group">
+              <label>{t('uploadDocument')}</label>
+              <input type="file" name="documentName" value={recordData.documentName} onChange={handleChange} className="white-background" />
             </div><br />
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700">{t('documentDescription')}</label>
-              <input type="text" name="description" value={recordData.description} onChange={handleChange} className="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3 
-                focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" />
+            <div className="form-group">
+              <label>{t('documentDescription')}</label>
+              <input type="text" name="description" value={recordData.description} onChange={handleChange} className="white-background" />
             </div><br />
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700">{t('status')}</label>
-              <input type="text" name="status" value={recordData.status} onChange={handleChange} className="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3 
-                focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" readOnly />
+            <div className="form-group">
+              <label>{t('status')}</label>
+              <input type="text" name="status" value={recordData.status} onChange={handleChange} className="white-background" readOnly />
             </div><br />
             <div className="form-buttons">
             <button
-        className="bg-blue-500 flex rounded border border-stroke py-2 px-6 font-medium text-white hover:shadow-1 dark:border-strokedark dark:text-white mr-4"
+        className="flex rounded border border-stroke py-2 px-6 font-medium text-black hover:shadow-1 dark:border-strokedark dark:text-white mr-4"
         type="button"
         onClick={handleCancel}
       >
@@ -490,8 +543,8 @@ return loading ? (
 
       </button>
       <button
-         className="bg-blue-500 flex rounded border border-stroke py-2 px-6 font-medium text-white hover:shadow-1 dark:border-strokedark dark:text-white mr-4"
-           type="button" // Change type to "button"
+        className={`flex rounded bg-primary py-2 px-6 font-medium text-gray hover:bg-opacity-90 mr-4`}
+        type="button" // Change type to "button"
         onClick={createRecord} // Add onClick handler
       >
 
@@ -533,14 +586,10 @@ return loading ? (
                             </div>
                           </div>
                         </a>
-                        {isAdmin && (
-        <>
                         {/* Delete icon */}
                         <FontAwesomeIcon icon={faTrash} className="delete-icon" onClick={() => handleDelete(record.documentURL)} />
                         {/* Archive icon */}
                         <FontAwesomeIcon icon={faArchive} className="archive-icon" onClick={() => handleArchive(record.documentURL)} />
-                        </>
-      )}
                       </div>
                     </div>
                 
@@ -554,3 +603,18 @@ return loading ? (
 };
 
 export default EvidenceFiles;
+
+
+
+
+
+// AuthStack
+// S3Stack
+// DBStack
+// EmailAPIStack
+// ApiEndpoint: https://dlmhd9r2jc.execute-api.us-east-1.amazonaws.com
+// StandardAPIStack
+// ApiEndpoint: https://dm76cqml3a.execute-api.us-east-1.amazonaws.com
+// ApiStack
+// FrontendStack
+// ApiEndpoint: https://30fuaz2c4c.execute-api.us-east-1.amazonaws.com

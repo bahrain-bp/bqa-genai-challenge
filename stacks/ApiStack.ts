@@ -46,6 +46,14 @@ export function ApiStack({ stack }: StackContext) {
           timeout: "300 seconds",
         },
       },
+
+      "POST /uploadS3File": {
+        function: {
+          handler: "packages/functions/src/s3UploadFile.main",
+          permissions: ["s3"],
+          timeout: "300 seconds",
+        },
+      },
       "POST /splitPdf": {
         function: {
           handler: "packages/functions/src/splitPdf.handler",
