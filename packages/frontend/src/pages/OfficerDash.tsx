@@ -11,6 +11,8 @@ import { ApexOptions } from 'apexcharts';
 import ReactApexChart from 'react-apexcharts';
 import axios from 'axios';
 import ModalComponent from '../components/Modal';
+import { confirmAlert } from 'react-confirm-alert';
+import 'react-confirm-alert/src/react-confirm-alert.css'; // Import CSS
 
 import {
   FormControl,
@@ -344,32 +346,58 @@ const OfficerDash = () => {
   // delet file
   const handleFileDelete = async (fileKey: string) => {
     try {
-      const url = `${apiURL}/deleteFile`;
-
-      const response = await fetch(url, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          bucketName: 'uni-artifacts', // Your S3 bucket name
-          key: fileKey, // This should be the full path of the file in S3
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP status ${response.status}`);
-      }
-
-      toast.success('File deleted successfully');
-
-      // Update local state to remove the file from the list
-      setFiles((prevFiles) => prevFiles.filter((file) => file.key !== fileKey));
+      // Define the confirmation dialog options
+      const confirmationOptions = {
+        title: 'Confirm Deletion',
+        message: 'Are you sure you want to delete this file?',
+        buttons: [
+          {
+            label: 'Yes',
+            onClick: async () => {
+              try {
+                const url = `${apiURL}/deleteFile`;
+  
+                const response = await fetch(url, {
+                  method: 'DELETE',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({
+                    bucketName: 'uni-artifacts', // Your S3 bucket name
+                    key: fileKey, // This should be the full path of the file in S3
+                  }),
+                });
+  
+                if (!response.ok) {
+                  throw new Error(`HTTP status ${response.status}`);
+                }
+  
+                toast.success('File deleted successfully');
+  
+                // Update local state to remove the file from the list
+                setFiles((prevFiles) => prevFiles.filter((file) => file.key !== fileKey));
+              } catch (error) {
+                const errorMessage =
+                  error instanceof Error ? error.message : 'An unknown error occurred';
+                console.error('Delete-file error:', errorMessage);
+                toast.error(`Failed to delete file: ${errorMessage}`);
+              }
+            },
+          },
+          {
+            label: 'No',
+            onClick: () => {}, // Do nothing if "No" is clicked
+          },
+        ],
+      };
+  
+      // Show the confirmation dialog
+      confirmAlert(confirmationOptions);
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : 'An unknown error occurred';
-      console.error('Delete-file error:', errorMessage);
-      toast.error(`Failed to delete file: ${errorMessage}`);
+      console.error('Confirmation error:', errorMessage);
+      toast.error(`Failed to confirm deletion: ${errorMessage}`);
     }
   };
 
