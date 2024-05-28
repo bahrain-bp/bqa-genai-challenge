@@ -152,6 +152,13 @@ export function ApiStack({ stack }: StackContext) {
           timeout: "900 seconds"
         },
       },
+      "POST /videoUpload": {
+        function: {
+          handler: "packages/functions/src/videoUpload.handler",
+          permissions: "*",
+          timeout: "900 seconds"
+        },
+      },
       "POST /transferToGoogle": {
         function: {
           handler: "packages/functions/src/bedrock_lambda/transferToGoogle.handler",
