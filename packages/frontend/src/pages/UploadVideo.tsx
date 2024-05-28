@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import DefaultLayout from '../layout/DefaultLayout';
 import Breadcrumb from '../components/Breadcrumbs/Breadcrumb';
 import { FaGem, FaGoogle } from 'react-icons/fa';
+import axios from 'axios';
 
 const UploadVideo: React.FC = () => {
   const [videoList, setVideoList] = useState<string[]>([]);
@@ -24,42 +25,34 @@ const UploadVideo: React.FC = () => {
       console.error('Error fetching video list:', error);
     }
   };
-  
-  
 
   const handleSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedVideo(event.target.value);
-    console.log(event.target.value);
   };
 
   const handleSubmit = async () => {
     try {
-      // Ensure selectedVideo is always a string
       const videoPath = String(selectedVideo);
       console.log('Submitting video:', videoPath);
-      console.log(JSON.stringify({
+
+      const response = await axios.post('https://u1oaj2omi2.execute-api.us-east-1.amazonaws.com/videoFlow', {
         bucketName: 'uni-artifacts',
-        filePath: videoPath, 
-      }))
-      const response = await fetch('https://u1oaj2omi2.execute-api.us-east-1.amazonaws.com/videoFlow', {
-        method: 'POST',
-        body: JSON.stringify({
-          bucketName: 'uni-artifacts',
-          filePath: videoPath, // Use videoPath instead of selectedVideo
-        }),
+        filePath: videoPath,
+      }, {
+        headers: {
+          'Content-Type': 'application/json',
+        }
       });
-      
-      if (!response.ok) {
+
+      if (response.status !== 200) {
         throw new Error('Failed to submit video flow');
       }
-      
-      const data = await response.json();
-      setResponseMessage(data.message);
+
+      setResponseMessage(response.data.message);
     } catch (error) {
       console.error('Error submitting video flow:', error);
     }
   };
-  
 
   return (
     <DefaultLayout>
