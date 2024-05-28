@@ -89,6 +89,13 @@ export function ApiStack({ stack }: StackContext) {
           timeout: "900 seconds",
         },
       },
+      "GET /videoList": {
+        function: {
+          handler: "packages/functions/src/retrieveVideos.handler",
+          permissions: "*",
+          timeout: "900 seconds",
+        },
+      },
       "GET /private": "packages/functions/src/private.main",
       // Another sample TypeScript lambda function
       "POST /private": "packages/functions/src/private.main",
