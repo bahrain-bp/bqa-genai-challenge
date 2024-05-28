@@ -29,10 +29,15 @@ const UploadVideo: React.FC = () => {
 
   const handleSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedVideo(event.target.value);
+    console.log(event.target.value);
   };
 
   const handleSubmit = async () => {
     try {
+      // Ensure selectedVideo is always a string
+      const videoPath = String(selectedVideo);
+      console.log('Submitting video:', videoPath);
+      
       const response = await fetch('https://u1oaj2omi2.execute-api.us-east-1.amazonaws.com/videoFlow', {
         method: 'POST',
         headers: {
@@ -40,18 +45,21 @@ const UploadVideo: React.FC = () => {
         },
         body: JSON.stringify({
           bucketName: 'uni-artifacts',
-          filePath: selectedVideo,
+          filePath: videoPath, // Use videoPath instead of selectedVideo
         }),
       });
+      
       if (!response.ok) {
         throw new Error('Failed to submit video flow');
       }
+      
       const data = await response.json();
       setResponseMessage(data.message);
     } catch (error) {
       console.error('Error submitting video flow:', error);
     }
   };
+  
 
   return (
     <DefaultLayout>
