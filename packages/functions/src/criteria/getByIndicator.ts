@@ -35,8 +35,11 @@ export const main: APIGatewayProxyHandlerV2 = async (event) => {
             };
         }
 
+        // Extract the standard name
+        const standardName = result.Item.standardName;
+
         // Filter the indicators array to find the specific indicatorId
-        const indicator = result.Item.indicators.find((ind) => ind.indicatorId === indicatorId);
+        const indicator = result.Item.indicators.find((ind: { indicatorId: string; }) => ind.indicatorId === indicatorId);
 
         if (!indicator) {
             return {
@@ -45,16 +48,27 @@ export const main: APIGatewayProxyHandlerV2 = async (event) => {
             };
         }
 
-        // Return success response with the retrieved indicator
+        // Return success response with the retrieved standard name and indicator
         return {
             statusCode: 200,
-            body: JSON.stringify(indicator),
+            body: JSON.stringify({
+                standardId: standardId,
+                standardName: standardName,
+                indicator: indicator
+            }),
         };
     } catch (error) {
-        // Return error response with status code 500
+       // Return error response with status code 500
+    if (error instanceof Error) {
         return {
             statusCode: 500,
             body: JSON.stringify({ error: error.message }),
         };
+    } else {
+        return {
+            statusCode: 500,
+            body: JSON.stringify({ error: "An unknown error occurred" }),
+        };
+    }
     }
 };

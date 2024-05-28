@@ -27,9 +27,9 @@ const SignInPage = ({
       setUser(user);
       toast.success(t('welcomeMessage'), { position: 'top-right' });
       navigate('/Standards'); // Redirect to dashboard after successful sign-in
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error signing in', error);
-      toast.error(t('error'), { position: 'top-right' });
+      toast.error(( "Incorrect username or password."), { position: 'top-right' });
       
     }
   };

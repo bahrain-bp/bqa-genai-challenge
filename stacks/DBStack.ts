@@ -71,6 +71,21 @@ export function DBStack({ stack, app }: StackContext) {
         primaryIndex: { partitionKey: "standardId" },
     });
 
+    const statusTable = new Table(stack, "statusTable", {
+
+        fields: {
+            processId: "string",       
+            processName:"string",
+            status: "string",  
+            fileName: "string",         // For file processing
+            uniName: "string",          // For comparison process
+            standardNumber: "string",   // For comparison process
+            indicatorNumber: "string", // For comparison process  
+            combinedKey:"string"
+
+        },
+        primaryIndex: { partitionKey: "processName" },
+    });
 
     const universityTable = new Table(stack, "UniversityTable", {
 
@@ -158,7 +173,8 @@ export function DBStack({ stack, app }: StackContext) {
         fileTable,
         criteriaTable,
         universityTable,
-      comparisonResultTable
+      comparisonResultTable,
+      statusTable
 
     };
 
