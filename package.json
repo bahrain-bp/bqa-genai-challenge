@@ -50,6 +50,7 @@
     "base64-js": "^1.5.1",
     "bootstrap": "^5.3.3",
     "bootstrap-icons": "^1.11.3",
+    "get-video-duration": "^4.1.0",
     "i18n": "^0.15.1",
     "i18next": "^23.11.3",
     "immer": "^9.0.21",
