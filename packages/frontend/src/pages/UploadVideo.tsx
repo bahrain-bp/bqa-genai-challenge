@@ -14,20 +14,17 @@ const UploadVideo: React.FC = () => {
 
   const fetchVideos = async () => {
     try {
-      const response = await fetch('/videoList');
+      const response = await fetch('https://u1oaj2omi2.execute-api.us-east-1.amazonaws.com/videoList');
       if (!response.ok) {
         throw new Error('Failed to fetch video list');
       }
-      const contentType = response.headers.get('content-type');
-      const responseData = contentType && contentType.includes('application/json')
-        ? await response.json()
-        : await response.text();
-      console.log('Response data:', responseData); // Log the response data
-      setVideoList(responseData);
+      const data = await response.json();
+      setVideoList(data);
     } catch (error) {
       console.error('Error fetching video list:', error);
     }
   };
+  
   
 
   const handleSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
@@ -36,7 +33,7 @@ const UploadVideo: React.FC = () => {
 
   const handleSubmit = async () => {
     try {
-      const response = await fetch('/videoFlow', {
+      const response = await fetch('https://u1oaj2omi2.execute-api.us-east-1.amazonaws.com/videoFlow', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
