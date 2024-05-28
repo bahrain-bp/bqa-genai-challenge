@@ -138,6 +138,37 @@ export function ApiStack({ stack }: StackContext) {
           timeout: "900 seconds",
         },
       },
+      "POST /gemini": {
+        function: {
+          handler: "packages/functions/src/bedrock_lambda/videoAnalyze.handler",
+          runtime: "python3.11",
+          permissions: "*",
+          timeout: "900 seconds"
+        },
+      },
+      "POST /videoFlow": {
+        function: {
+          handler: "packages/functions/src/bedrock_lambda/videoFlow.handler",
+          permissions: "*",
+          timeout: "900 seconds"
+        },
+      },
+      "POST /videoUpload": {
+        function: {
+          handler: "packages/functions/src/videoUpload.handler",
+          permissions: "*",
+          timeout: "900 seconds"
+        },
+      },
+      "POST /transferToGoogle": {
+        function: {
+          handler: "packages/functions/src/bedrock_lambda/transferToGoogle.handler",
+          runtime: "python3.11",
+          permissions: "*",
+          timeout: "900 seconds"
+        },
+      },
+      
       "POST /createUser": {
         function: {
           handler: "packages/functions/createUser.createUserInCognito",
