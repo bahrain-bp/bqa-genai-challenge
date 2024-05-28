@@ -227,7 +227,27 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                 </NavLink>
               </li>
               {/* <!-- Menu Item Profile --> */}
+              {(isAdmin) && (
+              <li>
+                <NavLink
+                  to="/Archived"
+                  className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${pathname.includes('profile') && 'bg-graydark dark:bg-meta-4'
+                    }`}
+                >
 
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M19 21H5C3.89543 21 3 20.1046 3 19V5C3 3.89543 3.89543 3 5 3H19C20.1046 3 21 3.89543 21 5V19C21 20.1046 20.1046 21 19 21Z"></path>
+                    <path d="M16 3V9H8V3"></path>
+                    <path d="M16 15H8"></path>
+                    <path d="M16 21H8"></path>
+                  </svg>
+
+
+
+                  {t('archivedTemplates')}
+                </NavLink>
+              </li>
+              )}
               {/* <!-- Menu Item Profile --> */}
               {(!isAdmin) && (
                 <li>

@@ -4,11 +4,13 @@ import DefaultLayout from '../layout/DefaultLayout';
 import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { FileUpload } from 'primereact/fileupload';
+import 'react-confirm-alert/src/react-confirm-alert.css'; // Import CSS
+import { confirmAlert } from 'react-confirm-alert';
+
 //import { useTranslation } from 'react-i18next';
 //import Loader from '../common/Loader';
 import { fetchUserAttributes } from 'aws-amplify/auth';
 import Modal from 'react-modal';
-
 
 const MainContainer = styled.div`
   width: 100%;
@@ -225,7 +227,9 @@ const UploadEvidence = () => {
         setUniversityStatus(data.status);
       } catch (error) {
         console.error('Error fetching university status:', error);
-        toast.error(`Error fetching university status: ${error instanceof Error ? error.message : 'An error occurred'}`);
+        toast.error(
+          `Error fetching university status: ${error instanceof Error ? error.message : 'An error occurred'}`,
+        );
       }
     };
 
@@ -271,14 +275,6 @@ const UploadEvidence = () => {
           }
         });
 
-        // Sort indicators inside each standard
-
-        standardsMap.forEach((standard: any) => {
-          standard.indicators.sort((a: any, b: any) =>
-            a.id.localeCompare(b.id, undefined, { numeric: true }),
-          );
-        });
-
         // Convert the map to an array and sort standards
         const sortedStandards = Array.from(standardsMap.values());
         sortedStandards.sort((a: any, b: any) =>
@@ -286,6 +282,15 @@ const UploadEvidence = () => {
             numeric: true,
           }),
         );
+
+        // Sort indicators inside each standard
+        standardsMap.forEach((standard: any) => {
+          standard.indicators.sort((a: any, b: any) => {
+            const idA = a.id ?? ''; // Fallback to empty string if null
+            const idB = b.id ?? ''; // Fallback to empty string if null
+            return idA.localeCompare(idB, undefined, { numeric: true });
+          });
+        });
 
         setStandards(sortedStandards);
       } catch (error) {
@@ -386,12 +391,12 @@ const UploadEvidence = () => {
       }
       const data = await response.json();
       const files = data.files; // Ensure this matches the structure you log in Lambda
-        
+
       // Filter out files containing "-split" in their name
-    const filteredFiles = files.filter(
-      (file: any) => !file.Key.includes('-split')
-    );
-      
+      const filteredFiles = files.filter(
+        (file: any) => !file.Key.includes('-split'),
+      );
+
       const filesByIndicator = filteredFiles.reduce((acc: any, file: any) => {
         // Path structure: 'BUB/StandardID/IndicatorID/filename'
         const parts = file.Key.split('/');
@@ -421,45 +426,64 @@ const UploadEvidence = () => {
     standardId: any,
     indicatorId: any,
   ) => {
-    try {
-      // Construct the API endpoint URL
-      const url = `${apiURL}/deleteFile`; // Replace with your actual endpoint URL
+    confirmAlert({
+      title: 'Confirm deletion',
+      message: 'Are you sure you want to delete this file?',
+      buttons: [
+        {
+          label: 'Yes',
+          onClick: async () => {
+            try {
+              // Construct the API endpoint URL
+              const url = `${apiURL}/deleteFile`; // Replace with your actual endpoint URL
 
-      const response = await fetch(url, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
+              const response = await fetch(url, {
+                method: 'DELETE',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  bucketName: 'uni-artifacts', // Your S3 bucket name
+                  key: fileKey, // This should be the full path of the file in S3
+                }),
+              });
+
+              if (!response.ok) {
+                throw new Error(`HTTP status ${response.status}`);
+              }
+
+              // Parse JSON response if necessary
+              //const result = await response.json();
+              toast.success('File deleted successfully');
+
+              // Update local state to remove the file from the list
+              setUploadedFiles((prevFiles: any) => {
+                const updatedFiles = { ...prevFiles };
+                const filteredFiles = updatedFiles[standardId][
+                  indicatorId
+                ].filter((file: any) => file.name !== fileKey);
+                // Assuming setUploadedFiles is a state setter function
+                // Replace it with the appropriate state setter function from your component
+                updatedFiles[standardId][indicatorId] = filteredFiles;
+
+                return updatedFiles;
+              });
+            } catch (error) {
+              const errorMessage =
+                error instanceof Error
+                  ? error.message
+                  : 'An unknown error occurred';
+              console.error('Delete file error:', errorMessage);
+              toast.error(`Failed to delete file: ${errorMessage}`);
+            }
+          },
         },
-        body: JSON.stringify({
-          bucketName: 'uni-artifacts', // Your S3 bucket name
-          key: fileKey, // This should be the full path of the file in S3
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP status ${response.status}`);
-      }
-
-      // Parse JSON response if necessary
-      //const result = await response.json();
-      toast.success('File deleted successfully');
-
-      // Update local state to remove the file from the list
-      setUploadedFiles((prevFiles) => {
-        const updatedFiles = { ...prevFiles } as any;
-        const filteredFiles = updatedFiles[standardId][indicatorId].filter(
-          (file: any) => file.name !== fileKey,
-        );
-        updatedFiles[standardId][indicatorId] = filteredFiles;
-
-        return updatedFiles;
-      });
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : 'An unknown error occurred';
-      console.error('Delete file error:', errorMessage);
-      toast.error(`Failed to delete file: ${errorMessage}`);
-    }
+        {
+          label: 'No',
+          onClick: () => {},
+        },
+      ],
+    });
   };
   const fileUploadUrl = `${apiURL}/uploadS3`;
   useEffect(() => {
@@ -497,13 +521,12 @@ const UploadEvidence = () => {
       console.error('Error finalizing upload:', errorMessage);
       toast.error(`Failed to finalize upload: ${errorMessage}`);
       setShowModal(false); // Ensure the modal closes even on error
-
     }
   };
 
-
   return (
     <DefaultLayout>
+      {/* <Loading/> */}
       <Breadcrumb pageName="Upload Evidence" />
       {/* {universityStatus === 'completed' && (
         <CompletionMessage>
@@ -511,7 +534,7 @@ const UploadEvidence = () => {
         </CompletionMessage>
       )} */}
       <MainContainer>
-      {universityStatus === 'in-progress' && (
+        {universityStatus === 'in-progress' && (
           <FinishButtonContainer>
             <FinishButton onClick={() => setShowModal(true)}>
               Submit Final Version
@@ -526,7 +549,9 @@ const UploadEvidence = () => {
         >
           <h2>Are you sure you want to finalize your upload?</h2>
           <ButtonsContainer>
-            <ButtonStyle onClick={() => setShowModal(false)}>Cancel</ButtonStyle>
+            <ButtonStyle onClick={() => setShowModal(false)}>
+              Cancel
+            </ButtonStyle>
             <ButtonStyle onClick={handleFinishUploading}>Yes</ButtonStyle>
           </ButtonsContainer>
         </Modal>
