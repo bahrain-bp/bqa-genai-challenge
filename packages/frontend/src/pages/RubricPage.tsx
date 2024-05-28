@@ -19,7 +19,6 @@ interface Criterion {
 const itemsPerPage = 2;
 
 const RubricPage: React.FC = () => {
-  // const [currentEmail, setCurrentEmail] = useState('');
   const [currentName, setCurrentName] = useState('');
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [criteria, setCriteria] = useState<Criterion[]>([]);
@@ -40,9 +39,7 @@ const RubricPage: React.FC = () => {
     const fetchCurrentUserInfo = async () => {
       try {
         const attributes = await fetchUserAttributes();
-        // const email:any = attributes.email;
-        const name:any= attributes.name;
-        // setCurrentEmail(email);
+        const name: any = attributes.name;
         setCurrentName(name);
       } catch (error) {
         console.error('Error fetching current user info:', error);
@@ -52,11 +49,17 @@ const RubricPage: React.FC = () => {
     fetchCurrentUserInfo();
   }, []);
 
+  useEffect(() => {
+    if (currentName) {
+      fetchData();
+    }
+  }, [currentName, standardId, indicatorId]);
+
   const fetchData = async () => {
     try {
-      console.log(currentName, "current name");
+      console.log(currentName, 'current name');
       const response = await axios.get(
-        `https://u1oaj2omi2.execute-api.us-east-1.amazonaws.com/compareResult/${currentName}/${standardId}/${indicatorId}`
+        `https://u1oaj2omi2.execute-api.us-east-1.amazonaws.com/compareResult/${currentName}/${standardId}/${indicatorId}`,
       );
       if (response.data.length === 0) {
         setIsConfirmationDialogOpen(true);
@@ -68,7 +71,7 @@ const RubricPage: React.FC = () => {
             maxScore: 0,
             comment: item.comment,
             outputText: item.outputText,
-          }))
+          })),
         );
       }
     } catch (error) {
@@ -76,42 +79,6 @@ const RubricPage: React.FC = () => {
       setIsConfirmationDialogOpen(true);
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchData();
-  }, [standardId, indicatorId, currentName]);
-
-  useEffect(() => {
-    const interval = setInterval(async () => {
-      const status = await getStatus();
-      setStatus(status);
-      if (status === 'Completed') {
-        clearInterval(interval);
-        if (criteria.length === 0) {
-          fetchData();
-        }
-      }
-    }, 5000);
-
-    return () => clearInterval(interval);
-  }, [standardId, indicatorId, criteria.length]);
-
-  const getStatus = async () => {
-    try {
-      const response = await axios.get(
-        `${apiURL}/status`,
-        {
-          headers: {
-            'combined-key': `${currentName}-${standardId}-${indicatorId}`,
-          },
-        }
-      );
-      return response.data[0].status;
-    } catch (error) {
-      console.error('Error fetching status:', error);
-      return null;
     }
   };
 
@@ -123,11 +90,7 @@ const RubricPage: React.FC = () => {
     };
 
     axios
-      .post(
-        `${apiURL}/titan`,
-        {},
-        { headers }
-      )
+      .post(`${apiURL}/titan`, {}, { headers })
       .then((response) => {
         if (!response.data.success) {
           if (response.data.message === 'No content found') {
@@ -135,7 +98,7 @@ const RubricPage: React.FC = () => {
             alert('No content found for the specified standard and indicator.');
           } else if (response.data.message === 'Error fetching contents') {
             alert(
-              'An error occurred while fetching contents. Please try again.'
+              'An error occurred while fetching contents. Please try again.',
             );
           } else {
             alert(`An error occurred: ${response.data.message}`);
@@ -154,12 +117,12 @@ const RubricPage: React.FC = () => {
             alert('An internal server error occurred. Please try again later.');
           } else {
             alert(
-              `Server responded with status code: ${error.response.status}`
+              `Server responded with status code: ${error.response.status}`,
             );
           }
         } else if (error.request) {
           alert(
-            'No response received from the server. Please try again later.'
+            'No response received from the server. Please try again later.',
           );
         } else {
           alert('An unexpected error occurred. Please try again later.');
@@ -185,7 +148,7 @@ const RubricPage: React.FC = () => {
 
   const paginatedCriteria = criteria.slice(
     (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
+    currentPage * itemsPerPage,
   );
 
   return (
@@ -221,7 +184,10 @@ const RubricPage: React.FC = () => {
                 <div className="overflow-x-auto">
                   <table className="w-full bg-white border border-gray-300 rounded-lg shadow-lg">
                     <thead>
-                      <tr className="bg-blue-700 text-white">
+                      <tr
+                        className="bg-blue-700
+-700 text-white"
+                      >
                         <th className="py-3 px-4 text-left font-bold border-r border-gray-300">
                           Comment
                         </th>
