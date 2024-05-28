@@ -18,12 +18,17 @@ const UploadVideo: React.FC = () => {
       if (!response.ok) {
         throw new Error('Failed to fetch video list');
       }
-      const data = await response.json();
-      setVideoList(data);
+      const contentType = response.headers.get('content-type');
+      const responseData = contentType && contentType.includes('application/json')
+        ? await response.json()
+        : await response.text();
+      console.log('Response data:', responseData); // Log the response data
+      setVideoList(responseData);
     } catch (error) {
       console.error('Error fetching video list:', error);
     }
   };
+  
 
   const handleSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedVideo(event.target.value);
