@@ -54,6 +54,7 @@ export function ApiStack({ stack }: StackContext) {
         function: {
           handler: "packages/functions/src/splitPdf.handler",
           permissions: ["s3", "dynamodb"],
+          bind: [documentsQueue],
           timeout: "900 seconds",
           retryAttempts: 2,
         },
