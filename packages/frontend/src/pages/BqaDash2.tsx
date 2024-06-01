@@ -62,20 +62,19 @@ const BqaDash2 = ({}) => {
   // const name = query.get('name');
 
   //use /files enpoint to fetch uni files --pass uniName/Standard selected
+  console.log('uniName', uniName);
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(
-          `${import.meta.env.VITE_API_URL}/files`,
-          {
-            headers: {
-              'Content-Type': 'application/json',
-              'bucket-name': 'uni-artifacts',
-              'folder-name': uniName,
-              'subfolder-name': standard.replace(/\s/g, ''),
-            },
+        const response = await axios.get(`${apiURL}/files`, {
+          headers: {
+            'bucket-name': 'uni-artifacts',
+            'folder-name': uniName,
+            'subfolder-name': standard.replace(/\s/g, ''),
           },
-        );
+        });
+        console.log(response.data.files, 'response');
+        console.log('files', files);
         let filteredFiles = response.data.files.map((file: any) => ({
           ...file,
           name: file.Key.split('/').pop(), // Add filename property to each file object
@@ -99,6 +98,7 @@ const BqaDash2 = ({}) => {
         }
 
         setFiles(filteredFiles);
+        console.log(response, 'response');
       } catch (error) {
         console.error('Error fetching data:', error);
         // Handle error
@@ -364,7 +364,7 @@ const BqaDash2 = ({}) => {
                             className="cursor-pointer text-black dark:text-white hover:underline hover:text-blue-500"
                           >
                             <h5 className="font-medium hover:text-blue-500 hover:underline">
-                              {file.name}
+                              {file.Key}
                             </h5>
                           </a>
                         </td>
@@ -410,7 +410,7 @@ const BqaDash2 = ({}) => {
                               onClick={() =>
                                 navigate('/SummaryPage', {
                                   state: {
-                                    fileName: file.name,
+                                    fileName: file.Key,
                                   },
                                 })
                               }

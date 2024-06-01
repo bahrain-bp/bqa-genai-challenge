@@ -31,6 +31,8 @@ import { getCurrentUser, fetchUserAttributes } from 'aws-amplify/auth';
 import { ToastContainer } from 'react-toastify';
 import SummaryPage from './pages/summaryPage';
 import RubricPage from './pages/RubricPage';
+import UploadVideo from './pages/UploadVideo';
+
 
 function App() {
   const [user, setUser] = useState<any | null>(null);
@@ -222,6 +224,16 @@ function App() {
             <>
               <PageTitle title="Standards | EduScribe" />
               <Standards />
+            </>
+          }
+        />
+
+        <Route
+          path="/VideoAI"
+          element={
+            <>
+              <PageTitle title="Analyze Videos With AI | EduScribe" />
+              <UploadVideo />
             </>
           }
         />

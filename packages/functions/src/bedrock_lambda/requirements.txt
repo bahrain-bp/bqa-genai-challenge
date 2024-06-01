@@ -1,0 +1,5 @@
+requests
+google-auth
+boto3
+google-cloud-storage
+google.cloud

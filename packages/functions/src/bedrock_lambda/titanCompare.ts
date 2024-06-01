@@ -353,15 +353,15 @@ const handler: Handler = async (event: any, context: Context) => {
         continue;
       }
 
-      const contentChunks = chunkContent(allContent, CHUNK_SIZE);
+    //  const contentChunks = chunkContent(allContent, CHUNK_SIZE);
 
       for (const c of comments) {
         const aggregatedOutput = [];
 
-        for (const chunk of contentChunks) {
+      //  for (const chunk of contentChunks) {
           const prompt = `
             Below is the evidence submitted by the university under the indicator "${indicatorName}":
-            ${JSON.stringify(chunk)}
+            ${JSON.stringify(allContent)}
 
             Analyze and evaluate the university's compliance and performance based on the provided rubric criteria:
 
@@ -371,15 +371,15 @@ const handler: Handler = async (event: any, context: Context) => {
             - Evaluate the university's compliance and performance across the criteria.
             - Provide a score (1-5) for each comment, citing evidence directly from the provided content, if not related score it as N/A.
 
-            (Write your response in concise bullet points, focusing strictly on relevant analysis and evidence. Limit your response to 100 words.)
-          `;
+            Write your response in concise bullet points, focusing strictly on relevant analysis and evidence. **Limit your response to 100 words only.**
+            `;
 
           logger.info(`Prompt for comment ${c.commentId}: ${prompt}`);
 
           const body = JSON.stringify({
             inputText: prompt,
             textGenerationConfig: {
-              maxTokenCount: CHUNK_SIZE,
+              maxTokenCount: 4096,
               stopSequences: [],
               temperature: 0,
               topP: 0.1,
@@ -395,15 +395,15 @@ const handler: Handler = async (event: any, context: Context) => {
             .join("\n\n");
 
           aggregatedOutput.push(outputText);
-        }
+        
 
-        const finalOutputText = aggregatedOutput.join("\n\n");
+       // const finalOutputText = aggregatedOutput.join("\n\n");
 
         logger.info(
-          `Output Text for comment ${c.commentId}: ${finalOutputText}`
+          `Output Text for comment ${c.commentId}: ${outputText}`
         );
 
-        results.push({ commentId: c.commentId, outputText: finalOutputText });
+        results.push({ commentId: c.commentId, outputText: outputText });
 
         try {
           const params = {
@@ -412,11 +412,11 @@ const handler: Handler = async (event: any, context: Context) => {
               comparisonId: Math.random(),
               standardNumber: standardNum,
               standardName: standardName,
-              uniName: "BUB",
+              uniName: uniName,
               indicatorNumber: parseInt(indicatorNum),
               indicatorName: indicatorName,
               comment: c.comment,
-              outputText: finalOutputText,
+              outputText: outputText,
               timestamp: new Date().toISOString(),
             },
           };

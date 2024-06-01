@@ -2,6 +2,7 @@ import Breadcrumb from '../components/Breadcrumbs/Breadcrumb';
 import DefaultLayout from '../layout/DefaultLayout';
 import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
+import axios from 'axios';
 
 // import { useParams } from 'react-router-dom';
 
@@ -20,7 +21,7 @@ const SummaryPage = () => {
   //standards?standardId=${standardId}
   // const { fileName } = useParams<{ fileName: string }>();
   const [fileData, setFileData] = useState<any | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, /*setLoading*/] = useState(false);
   const apiURL = import.meta.env.VITE_API_URL;
   const location = useLocation();
   // Extract the fileName from the state object
@@ -29,20 +30,24 @@ const SummaryPage = () => {
   const fetchFiles = async () => {
     // setLoading(true);
 //return the apiURL
-    try { // Changed the apiurl to prod 
+     // Changed the apiurl to prod //u1oaj2omi2
       // const response = await fetch('https://66xzg471hh.execute-api.us-east-1.amazonaws.com/summarization/BusinessPlan.pdf');
-      const response = await fetch(`${apiURL}/summarization/${fileName}`);
-
-      const data = await response.json();
-      setFileData(data);
-      setLoading(false);
-
-      // setStandards(Array.from(standardsMap.values()));
-    } catch (error) {
-      console.error('Error fetching files:', error);
-      // toast.error(Error fetching standards: ${error.message});
+      const url = `${apiURL}/summarization`;
+    try {
+        const response = await axios.get(url, {
+            headers: {
+                'file-name': fileName // Sending fileName in headers
+            }
+        });
+        console.log('Response:', response.data);
+        setFileData(response.data);
+        return response.data;
+        
+    } catch (error:any) {
+        console.error('Error fetching file summary:', error.message);
+        return null;
     }
-  };
+}
   console.log(fileData);
   useEffect(() => {
     fetchFiles();
@@ -96,12 +101,12 @@ const SummaryPage = () => {
                 </h3> */}
               {/* </div> */}
               {/* <div className="border-b border-stroke py-4 px-7 dark:border-strokedark"> */}
-              <div className="w-full sm:w-1/2">
+              {/* <div className="w-full sm:w-1/2">
                 <label
                   className="mb-3 mt-4 block text-sm font-medium text-black dark:text-white"
                   htmlFor="fullName"
                 >
-                  Standard Name
+                  Standard Number
                 </label>
                 <input
                   // className="w-full h-auto min-h-[150px] resize-y rounded border border-stroke bg-gray-100 py-3 pl-4 pr-4 text-black
@@ -109,13 +114,13 @@ const SummaryPage = () => {
                   //                           className="w-full rounded border border-stroke bg-gray py-3 pl-11.5 pr-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
                   className="w-full rounded border border-stroke bg-gray py-3 pl-11.5 pr-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary "
                   // className="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                  placeholder={fileData.standardName}
+                  placeholder={fileData.standardNumber}
                   disabled
                 ></input>
-              </div>
+              </div> */}
 
               {/* <div className="border-b border-stroke py-4 px-7 dark:border-strokedark"> */}
-            </div>
+            {/* </div>
 
             <div className="mb-5 flex flex-col gap-5 sm:flex-row ml-3 mr-3 px-7 ">
               <div className="w-full sm:w-1/2">
@@ -126,88 +131,17 @@ const SummaryPage = () => {
                   Indicator Number
                 </label>
                 <input
-                  // className="w-full h-auto min-h-[150px] resize-y rounded border border-stroke bg-gray-100 py-3 pl-4 pr-4 text-black
-                  // focus:border-primary focus-visible:outline-none dark:border-stroke-dark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
-                  //                           className="w-full rounded border border-stroke bg-gray py-3 pl-11.5 pr-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
+                  
                   className="w-full rounded border border-stroke bg-gray py-3 pl-11.5 pr-4 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary "
-                  // className="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                   placeholder={fileData.indicatorNumber}
                   disabled
                 ></input>
-              </div>
-
-              {/* <div className="w-full sm:w-1/2">
-                <label
-                  className="mb-3 mt-4 block text-sm font-medium text-black dark:text-white"
-                  htmlFor="fullName"
-                >
-                  Total Score
-                </label>
-                <input
-                  // className="w-full h-auto min-h-[150px] resize-y rounded border border-stroke bg-gray-100 py-3 pl-4 pr-4 text-black
-                  // focus:border-primary focus-visible:outline-none dark:border-stroke-dark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
-                  //                           className="w-full rounded border border-stroke bg-gray py-3 pl-11.5 pr-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
-                  className="w-full rounded border border-stroke bg-gray py-3 pl-11.5 pr-4 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary "
-                  // className="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                  placeholder={fileData.score}
-                  disabled
-                ></input>
               </div> */}
+
+            
             </div>
 
-            {/* <div className=" py-2 px-7">
-              <label
-                className="mb-3 mt-4 block text-sm font-medium text-black dark:text-white"
-                htmlFor="fullName"
-              >
-                Strength
-              </label>
-              <div
-                // className="w-full h-auto min-h-[150px] resize-y rounded border border-stroke bg-gray-100 py-3 pl-4 pr-4 text-black
-                // focus:border-primary focus-visible:outline-none dark:border-stroke-dark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
-                //                           className="w-full rounded border border-stroke bg-gray py-3 pl-11.5 pr-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
-                className="w-full rounded border border-stroke bg-gray py-3 pl-11.5 pr-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary "
-                // className="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-              >
-                {fileData.strength}
-              </div>
-            </div> */}
-{/* 
-            <div className=" py-2 px-7">
-              <label
-                className="mb-3 mt-4 block text-sm font-medium text-black dark:text-white"
-                htmlFor="fullName"
-              >
-                Weaknesses
-              </label>
-              <div
-                // className="w-full h-auto min-h-[150px] resize-y rounded border border-stroke bg-gray-100 py-3 pl-4 pr-4 text-black
-                // focus:border-primary focus-visible:outline-none dark:border-stroke-dark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
-                //                           className="w-full rounded border border-stroke bg-gray py-3 pl-11.5 pr-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
-                className="w-full rounded border border-stroke bg-gray py-3 pl-11.5 pr-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary "
-                // className="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-              >
-                {fileData.weakness}
-              </div>
-            </div> */}
-            {/* <div className=" py-2 px-7">
-              <label
-                className="mb-3 mt-4 block text-sm font-medium text-black dark:text-white"
-                htmlFor="fullName"
-              >
-                Comments
-              </label>
-              <div
-                // className="w-full h-auto min-h-[150px] resize-y rounded border border-stroke bg-gray-100 py-3 pl-4 pr-4 text-black
-                // focus:border-primary focus-visible:outline-none dark:border-stroke-dark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
-                //                           className="w-full rounded border border-stroke bg-gray py-3 pl-11.5 pr-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
-                className="w-full rounded border border-stroke bg-gray py-3 pl-11.5 pr-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary "
-                // className="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-              >
-                {fileData.comments}
-              </div>
-            </div> */}
-
+           
             <div className=" py-4 px-7">
               <label
                 className="mb-3 mt-4 block text-sm font-medium text-black dark:text-white"

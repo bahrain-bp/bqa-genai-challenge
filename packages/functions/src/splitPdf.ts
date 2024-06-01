@@ -4,12 +4,16 @@ const axios = require("axios");
 import { DynamoDB } from "aws-sdk";
 import { Table } from "sst/node/table";
 import { randomUUID } from "crypto";
+import { Queue } from "sst/node/queue";
+
 const s3 = new AWS.S3();
+const sqs = new AWS.SQS();
 const maxTokens = 500; // Adjust based on your SageMaker token limit
 const maxAllowedTokens = 4096; // Maximum tokens allowed by SageMaker endpoint
 
 // Create an instance of DynamoDB DocumentClient
 const dynamoDb = new DynamoDB.DocumentClient();
+
 const updateProcessStatus = async (
   status: string,
   processName: string,
@@ -34,6 +38,54 @@ const updateProcessStatus = async (
     );
   }
 };
+
+async function getOldestMessage(queueUrl: string): Promise<AWS.SQS.Message | null> {
+  const params = {
+    QueueUrl: queueUrl,
+    MaxNumberOfMessages: 10, // Adjust the number as needed
+    VisibilityTimeout: 30,   // Adjust the visibility timeout as needed
+    WaitTimeSeconds: 0       // Short polling
+  };
+
+  const result = await sqs.receiveMessage(params).promise();
+  const messages = result.Messages;
+
+  if (!messages || messages.length === 0) {
+    return null; // No messages in the queue
+  }
+
+  // Find the oldest message based on the 'SentTimestamp' attribute
+  let oldestMessage: AWS.SQS.Message = messages[0];
+  for (const message of messages) {
+    const sentTimestamp = parseInt(message.Attributes?.SentTimestamp || '0', 10);
+    const oldestSentTimestamp = parseInt(oldestMessage.Attributes?.SentTimestamp || '0', 10);
+
+    if (sentTimestamp < oldestSentTimestamp) {
+      oldestMessage = message;
+    }
+  }
+
+  return oldestMessage;
+}
+
+async function deleteMessageFromQueue(receiptHandle: string): Promise<void> {
+  await sqs.deleteMessage({
+    QueueUrl: Queue["Document-Queue"].queueUrl,
+    ReceiptHandle: receiptHandle
+  }).promise();
+}
+
+async function deleteOldestMessage(queueUrl: string): Promise<void> {
+  const oldestMessage = await getOldestMessage(queueUrl);
+
+  if (!oldestMessage) {
+    console.log('No messages to delete');
+    return;
+  }
+
+  console.log('Deleting message:', oldestMessage.MessageId);
+  await deleteMessageFromQueue(oldestMessage.ReceiptHandle as string);
+}
 
 export const handler = async (event: any) => {
   try {
@@ -116,6 +168,7 @@ export const handler = async (event: any) => {
     const score = 0; // Extracted or assigned as needed
     const comments = ""; // Extracted or assigned as needed
 
+   
     // Insert data into DynamoDB using /createFileDb API
     await axios.post(
       "https://u1oaj2omi2.execute-api.us-east-1.amazonaws.com/createFileDB",
@@ -135,11 +188,15 @@ export const handler = async (event: any) => {
         comments,
       }
     );
+     // Delete the oldest message in the queue
+     await deleteOldestMessage(Queue["Document-Queue"].queueUrl);
+
+
     try {
       await updateProcessStatus("Completed", "File Processing", fileName);
-      console.log("saved in db");
+      console.log("Saved in DB");
     } catch (error) {
-      console.log("errrorrr saviiinnngggg", error);
+      console.log("Error saving status", error);
     }
 
     // Send email confirmation when processing is complete

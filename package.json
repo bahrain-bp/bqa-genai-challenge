@@ -48,8 +48,14 @@
     "aws-amplify": "^6.3.4",
     "aws-sdk": "^2.1606.0",
     "axios": "^1.7.0",
+
+    "base64-js": "^1.5.1",
+
+    "axios-retry": "^4.3.0",
+
     "bootstrap": "^5.3.3",
     "bootstrap-icons": "^1.11.3",
+    "get-video-duration": "^4.1.0",
     "i18n": "^0.15.1",
     "i18next": "^23.11.3",
     "immer": "^9.0.21",
@@ -60,6 +66,8 @@
     "primereact": "^10.6.5",
     "proxy-agent": "^6.4.0",
     "react": "^18.2.0",
+    "react-confirm": "^0.3.0-7",
+    "react-confirm-alert": "^3.0.6",
     "react-i18next": "^14.1.1",
     "react-modal": "^3.16.1",
     "react-router-dom": "^6.23.0",
