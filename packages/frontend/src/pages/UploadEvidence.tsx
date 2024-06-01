@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { FileUpload } from 'primereact/fileupload';
 import 'react-confirm-alert/src/react-confirm-alert.css'; // Import CSS
-import { confirmAlert } from 'react-confirm-alert';
+import { confirmAlert } from 'react-confirm-alert'; // Fix: npm install react-confirm-alert
 
 //import { useTranslation } from 'react-i18next';
 //import Loader from '../common/Loader';
