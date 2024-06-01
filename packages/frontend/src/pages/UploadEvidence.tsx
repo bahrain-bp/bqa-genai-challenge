@@ -179,16 +179,16 @@ const customStyles = {
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
 };
-// const CompletionMessage = styled.div`
-//   top: 10px;
-//   left: 10px;
-//   color: #2ecc71;
-//   font-size: 20px;
-//   background-color: white;
-//   padding: 5px 10px; // Adds
-//   display: inline-block;
+const CompletionMessage = styled.div`
+  top: 10px;
+  left: 10px;
+  color: #2ecc71;
+  font-size: 20px;
+  background-color: white;
+  padding: 5px 10px; // Adds
+  display: inline-block;
 
-// `;
+`;
 
 const UploadEvidence = () => {
   const [standards, setStandards] = useState<any[]>([]); // Using 'any[]' for state typing
@@ -327,34 +327,19 @@ const UploadEvidence = () => {
       const formData = new FormData();
       formData.append('file', file);
 
-      // try {
-      //   const response = await fetch(`${apiURL}/uploadS3`, {
-      //     method: 'POST',
-      //     body: formData,
-      //     headers: {
-      //       'user-email': userEmail, // Add the user's email to the headers
-      //       'file-name': String(file.name),
-      //       'bucket-name': 'uni-artifacts',
-      //       'folder-name': currentName,
-      //       'subfolder-name': `${standard.standardId}`,
-      //       'subsubfolder-name': `${indicator.id}`,
-      //       'content-type': 'application/pdf', // Assuming all files are PDF
-      //     },
-      //   });
-      //   console.log(file.name);
-      //   if (!response.ok) {
-      //     const errorText = await response.text();
-      //     throw new Error(`Failed to upload file: ${errorText}`);
-      //   } 
-
-      // Testing if the email gets sent when uploading
       try {
-        const response = await fetch(`${apiURL}/email`, {
+        console.log('Email:', userEmail);
+        const response = await fetch(`${apiURL}/uploadS3`, {
           method: 'POST',
           body: formData,
           headers: {
             'user-email': userEmail, // Add the user's email to the headers
             'file-name': String(file.name),
+            'bucket-name': 'uni-artifacts',
+            'folder-name': currentName,
+            'subfolder-name': `${standard.standardId}`,
+            'subsubfolder-name': `${indicator.id}`,
+            'content-type': 'application/pdf', // Assuming all files are PDF
           },
         });
         console.log(file.name);
@@ -362,6 +347,22 @@ const UploadEvidence = () => {
           const errorText = await response.text();
           throw new Error(`Failed to upload file: ${errorText}`);
         } 
+
+      // Testing if the email gets sent when uploading
+      // try {
+      //   const response = await fetch(`${apiURL}/email`, {
+      //     method: 'POST',
+      //     body: formData,
+      //     headers: {
+      //       'user-email': userEmail, // Add the user's email to the headers
+      //       'file-name': String(file.name),
+      //     },
+      //   });
+      //   console.log(file.name);
+      //   if (!response.ok) {
+      //     const errorText = await response.text();
+      //     throw new Error(`Failed to upload file: ${errorText}`);
+      //   } 
 
         // Log file info and refresh file list
         console.log('Uploaded file:', file.name);
@@ -526,13 +527,13 @@ const UploadEvidence = () => {
 
   return (
     <DefaultLayout>
-      <Loading/>
+      {/*<Loading/>*/}
       <Breadcrumb pageName="Upload Evidence" />
-      {/* {universityStatus === 'completed' && (
+      {universityStatus === 'completed' && (
         <CompletionMessage>
           You have submited The final vesion to BQA
         </CompletionMessage>
-      )} */}
+      )} 
       <MainContainer>
       {universityStatus === 'in-progress' && (
           <FinishButtonContainer>

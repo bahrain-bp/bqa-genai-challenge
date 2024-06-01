@@ -173,37 +173,6 @@ export const handler = async (event: any) => {
         // return the response data
         return Emailresponse.data;
 
-    // Send email confirmation when processing is complete
-
-        // Prepare email parameters
-        const sourceEmail = 'noreplyeduscribeai@gmail.com'; // sender email address
-        // const userEmail = ''; // already retrieved from headers receiver email address replace this with the email of university that uploaded the file
-        const subject = 'Processing Complete';
-        const body = `The processing of your file '${fileName}' is complete. You can access it at ${fileURL}.`;
-
-        // Invoke the email sending Lambda function
-        const Emailresponse = await axios.post('https://u1oaj2omi2.execute-api.us-east-1.amazonaws.com/send-email', {
-            sourceEmail,
-            userEmail, // recipient
-            subject,
-            body
-        }, {
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
-
-        console.log(Emailresponse);
-
-        // check if the response is successful
-        if (Emailresponse.status !== 200) {
-          console.log('Failed to get response from lambda function');
-          throw new Error('Failed to get response from lambda function');
-        }
-
-        // return the response data
-        return Emailresponse.data;
-
     // Return the extracted text chunks as response
     return {
       statusCode: 200,
