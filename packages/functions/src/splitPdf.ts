@@ -203,7 +203,7 @@ export const handler = async (event: any) => {
 
         // Prepare email parameters
         const sourceEmail = 'noreplyeduscribeai@gmail.com'; // sender email address
-        // const userEmail = ''; // already retrieved from headers receiver email address replace this with the email of university that uploaded the file
+        // const userEmail = 'maryamkameshki02@gmail.com'; // testing email
         const subject = 'Processing Complete';
         const body = `The processing of your file '${fileName}' is complete. You can access it at ${fileURL}.`;
 

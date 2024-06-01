@@ -307,6 +307,7 @@ const UploadEvidence = () => {
     fetchStandards();
   }, []);
 
+
   const handleFileChange = async (
     files: any,
     standard: any,
@@ -332,7 +333,7 @@ const UploadEvidence = () => {
       formData.append('file', file);
 
       try {
-        console.log('Email:', userEmail);
+        // console.log('Email:', userEmail);
         const response = await fetch(`${apiURL}/uploadS3`, {
           method: 'POST',
           body: formData,
