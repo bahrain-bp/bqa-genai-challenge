@@ -191,7 +191,32 @@ export function ApiStack({ stack }: StackContext) {
           timeout: "900 seconds",
         },
       },
+      //adding comments 
+      "POST /addFileComments": {
+        function: {
+          handler: "packages/functions/src/comments/addComments.main",
+          permissions: "*",
+          timeout: "900 seconds",
+        },
+      },
 
+      //Delete comments
+      "DELETE /deleteFileComments": {
+        function: {
+          handler: "packages/functions/src/comments/deleteComments.main",
+          permissions: "*",
+          timeout: "900 seconds",
+        },
+      },
+
+      //get comments 
+      "GET /getFileComments": {
+        function: {
+          handler: "packages/functions/src/comments/getComments.main",
+          permissions: "*",
+          timeout: "900 seconds",
+        },
+      },
 
       "PUT /fileSummary/{fileName}": {
         function: {
