@@ -1,11 +1,11 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import './styles.scss'; // Make sure to include your CSS file
 import { useNavigate } from 'react-router-dom';
 
 
 const Page403 = () => {
   const navigate = useNavigate(); // Declare navigate here to use it anywhere in your component
-  
+
   const goToLogin = () => {
     navigate('/Auth/SignInPage');
   };
