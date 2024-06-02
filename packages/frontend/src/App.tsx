@@ -32,6 +32,7 @@ import { ToastContainer } from 'react-toastify';
 import SummaryPage from './pages/summaryPage';
 import RubricPage from './pages/RubricPage';
 import UploadVideo from './pages/UploadVideo';
+import LandingPage from './pages/LandingPage';
 
 
 function App() {
@@ -234,6 +235,16 @@ function App() {
             <>
               <PageTitle title="Analyze Videos With AI | EduScribe" />
               <UploadVideo />
+            </>
+          }
+        />
+        
+        <Route
+          path="/LandingPage"
+          element={
+            <>
+              <PageTitle title="Analyze Videos With AI | EduScribe" />
+              <LandingPage />
             </>
           }
         />
