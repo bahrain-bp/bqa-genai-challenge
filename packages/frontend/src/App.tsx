@@ -32,8 +32,7 @@ import { ToastContainer } from 'react-toastify';
 import SummaryPage from './pages/summaryPage';
 import RubricPage from './pages/RubricPage';
 import UploadVideo from './pages/UploadVideo';
-import Page403 from './pages/Page403';
-//import P403 from './pages/P403';
+
 
 function App() {
   const [user, setUser] = useState<any | null>(null);
@@ -154,16 +153,6 @@ function App() {
           }
         />
         <Route
-          path="/403Page"
-          element={
-            <>
-              <PageTitle title="403 | EduScribe" />
-              <Page403/>
-            </>
-          }
-        />
-
-        <Route
           path="/settings"
           element={
             <>
@@ -252,62 +241,62 @@ function App() {
         {/*===================================================================================================================================*/}
         {/* Route Available to BQA Reviewer Only */}
 
-        {isAdmin ? (
-  <>
-    <Route
-      path="/Archived"
-      element={
-        <>
-          <PageTitle title="Archived | EduScribe" />
-          <Archived />
-        </>
-      }
-    />
-    <Route
-      path="/BqaDash1"
-      element={
-        <>
-          <PageTitle title="Bqa Reviewer Dashboard | EduScribe" />
-          <BqaDash1 />
-        </>
-      }
-    />
-    <Route
-      path="/AddUni"
-      element={
-        <>
-          <PageTitle title="Bqa Reviewer Add University | EduScribe" />
-          <AddUni />
-        </>
-      }
-    />
-    <Route
-      path="/BqaRequestPage"
-      element={
-        <>
-          <PageTitle title="Bqa Reviewer Request Additional Documents Page | EduScribe" />
-          <BqaRequestPage />
-        </>
-      }
-    />
-    <Route
-      path="/BqaDash2/:name"
-      element={
-        <>
-          <PageTitle title="Bqa Reviewer Dashboard (University Details) | EduScribe" />
-          <BqaDash2 />
-        </>
-      }
-    />
-  </>
-) : (
-  <Route path="*" element={<Page403 />} />
-)}
+        {isAdmin && (
+          <>
+            <Route
+              path="/Archived"
+              element={
+                <>
+                  <PageTitle title="Archived | EduScribe" />
+                  <Archived />
+                </>
+              }
+            />
 
+            <Route
+              path="/BqaDash1"
+              element={
+                <>
+                  <PageTitle title="Bqa Reviewer Dashboard | EduScribe" />
+                  <BqaDash1 />
+                </>
+              }
+            />
 
+            <Route
+              path="/AddUni"
+              element={
+                <>
+                  <PageTitle title="Bqa Reviewer Add University | EduScribe" />
+                  <AddUni />
+                </>
+              }
+            />
+
+            <Route
+              path="/BqaRequestPage"
+              element={
+                <>
+                  <PageTitle title="Bqa Reviewer Request Additional Documents Page | EduScribe" />
+                  <BqaRequestPage />
+                </>
+              }
+            />
+
+            <Route
+              path="/BqaDash2/:name"
+              element={
+                <>
+                  <PageTitle title="Bqa Reviewer Dashboard (University Details)| EduScribe" />
+                  <BqaDash2 />
+                </>
+              }
+            />
+          </>
+        )}
         {/**-------------------------------------------------------------------------------------------------------------------- */}
         {/* Route Available to University Officer Only */}
-        {!isAdmin ? (
+        {!isAdmin && (
           <>
             {/* <Route
           path="/Dashboard"
@@ -337,12 +326,8 @@ function App() {
                 </>
               }
             />
-          {/* Additional officer-only routes can be added here */}
-  </>
-) : (
-  <Route path="*" element={<Page403 />} />
-)}
-
+          </>
+        )}
         <Route
           path="RubricPage/:standardId/:indicatorId"
           element={
