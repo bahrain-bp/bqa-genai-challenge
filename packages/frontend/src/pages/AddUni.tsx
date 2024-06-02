@@ -62,19 +62,7 @@ const AddUni = () => {
   const [logo, setLogo] = useState<File | null>(null);
   const navigate = useNavigate();
 
-  const getMimeType = (filename: any) => {
-    const extension = filename.split('.').pop();
-    switch (extension.toLowerCase()) {
-      case 'jpg':
-        return 'image/jpg';
-      case 'jpeg':
-        return 'image/jpeg';
-      case 'png':
-        return 'image/png';
-      default:
-        return 'application/octet-stream'; // Default MIME type
-    }
-  };
+  
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files ? event.target.files[0] : null;
     setLogo(file);
@@ -148,7 +136,6 @@ const AddUni = () => {
   //end of upload
   //trying the upload logo
   const uploadLogo = async (logo: File, name: string) => {
-    const mimeType = getMimeType(File.name);
     if (!logo) {
       toast.error('Please select a logo to upload.');
       return;
@@ -169,7 +156,7 @@ const AddUni = () => {
         'bucket-name': 'uni-artifacts',
         'folder-name': name,
         'subfolder-name': 'logos',
-        'Content-Type': mimeType,
+        //'Content-Type':'image/png',
       },
       // body: JSON.stringify({ logo }),
     };
@@ -257,6 +244,7 @@ const AddUni = () => {
             <input
               id="logo"
               type="file"
+              accept="image/png, image/jpeg, image/gif"
               onChange={handleFileChange}
               className="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             />
