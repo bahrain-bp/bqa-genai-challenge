@@ -11,6 +11,7 @@ import Loader from '../common/Loader';
 import Pagination from '@mui/material/Pagination';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import CommentModal from './Comments';
 
 // import MultiSelect from '../components/Forms/MultiSelect';
 import {
@@ -20,6 +21,7 @@ import {
   MenuItem,
   Select,
 } from '@mui/material';
+
 import ModalComponent from '../components/Modal';
 // Type definitions
 interface Record {
@@ -41,6 +43,8 @@ const BqaDash2 = ({}) => {
   const [records, setRecords] = useState<Record[]>([]);
   const [, /*loading */ setLoading] = useState<boolean>(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
+  const [comment, setComment] = useState('');
 
   console.log(uniName, 'name uni');
   // State for search term in the search bar
@@ -160,7 +164,7 @@ const BqaDash2 = ({}) => {
       toast.error('Failed to download file');
       setIsDownloading(false);
     }
-  };
+  }; 
 
   //////////////////////////
   useEffect(() => {
@@ -219,6 +223,40 @@ const BqaDash2 = ({}) => {
   useEffect(() => {
     setTimeout(() => setLoading(false), 1000);
   }, []);
+
+  
+  const openModal = () => setIsCommentModalOpen(true);
+  const closeModal = () => setIsCommentModalOpen(false);
+
+  const handleAddComment = async (fileKey:any ) => {
+    console.log(`Adding comment to : ${comment}`);
+    // Add comment to the database
+    try {
+      const response = await axios.post(`${apiURL}/addFileComments`, {
+        // Data to be sent to Lambda function
+        // Adjust the payload according to your Lambda function's requirements
+        fileName: fileKey,
+        fileURL: '',
+        standardName: '',
+        standardNumber: '',
+        indicatorNumber: 'exampleIndicatorNumber',
+        name: 'exampleName',
+        content: 'exampleContent',
+        summary: 'exampleSummary',
+        strength: 'exampleStrength',
+        weakness: 'exampleWeakness',
+        score: 'exampleScore',
+        comments: comment,
+      });
+      console.log(response.data);
+      toast.success('Comment added successfully');
+    } catch (error) {
+      console.error('Error adding comment:', error);
+      toast.error('Failed to add comment');
+    }
+    setIsModalOpen(false);
+  };
+
 
   return (
     <>
@@ -404,7 +442,7 @@ const BqaDash2 = ({}) => {
                                 />
                               </svg>
                             </button>
-                            {/**This button will take you to the summarization tex */}
+                            {/**This button will take you to the summarization text */}
                             <button
                               className="hover:text-primary"
                               onClick={() =>
@@ -433,6 +471,37 @@ const BqaDash2 = ({}) => {
                                 />
                               </svg>
                             </button>
+                            {/**This button will allow BQA reviewer to add comments**/}
+                            <button
+                              className="hover:text-primary"
+                              onClick={openModal}
+                            >
+                              <svg
+                                className="fill-current"
+                                width="18"
+                                height="18"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                xmlns="http://www.w3.org/2000/svg"
+                              >
+                                <path
+                                  d="M21 6.99999H7C6.447 6.99999 6 7.44799 6 7.99999V14C6 14.552 6.447 15 7 15H18.585L21 17.414V7.99999C21 7.44799 20.553 6.99999 21 6.99999ZM5 8.99999H3V18C3 18.552 3.447 19 4 19H16V17H5C4.447 17 4 16.552 4 16V8.99999H5Z"
+                                  fill="currentColor"
+                                />
+                              </svg>
+                            </button>
+                            <CommentModal isOpen={isCommentModalOpen} onClose={closeModal}>
+                              <h2 className="text-lg font-bold">Add Comment</h2>
+                              <textarea
+                                className="w-full p-2 border rounded"
+                                value={comment}
+                                onChange={(e) => setComment(e.target.value)}
+                              />
+                              <button className="mt-4 px-4 py-2 bg-blue-500 text-white rounded" 
+                              onClick={() => handleAddComment(file.Key)}>
+                                Add Comment
+                              </button>
+                            </CommentModal>
                           </div>
                         </td>
                       </tr>
