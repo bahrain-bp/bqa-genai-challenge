@@ -410,18 +410,20 @@ return loading ? (
             <div className="modal-content">
             <h1 style={{ fontWeight: 'bold', fontSize: '24px' }}>Create New Indicator</h1><br></br>
           
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700">{t('indicatorName')}</label>
-              <input type="text" name="indicatorName" value={recordData.indicatorName} onChange={handleChange} className="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3 
-                focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" />
-             
-            </div><br />
+           
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700">{t('indicatorId')}</label>
               <input type="text" name="indicatorId" value={recordData.indicatorId} onChange={handleChange} className="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3 
                 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" />
              
             </div><br />
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700">{t('indicatorName')}</label>
+              <input type="text" name="indicatorName" value={recordData.indicatorName} onChange={handleChange} className="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3 
+                focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" />
+             
+            </div>
+            
         
             <div className="form-buttons">
             <button
