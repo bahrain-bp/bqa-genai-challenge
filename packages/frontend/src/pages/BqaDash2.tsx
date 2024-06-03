@@ -46,6 +46,18 @@ const BqaDash2 = ({}) => {
   //const [selectedFile, setSelectedFile] = useState(null);
   const { name } = useParams();
   console.log('name:' + name);
+
+  const useUsername = () =>
+  {
+    const location = useLocation();
+    const queryParams = new URLSearchParams(location.search);
+    const username = queryParams.get('username');
+    return username;
+  }
+
+  const username = useUsername();
+  console.log('username:' + username);
+
   // const query = useQuery();
   // const name = query.get('name');
 
@@ -158,7 +170,7 @@ const BqaDash2 = ({}) => {
         <div className="flex justify-end py-4">
           {/* Request Document Button */}
           <button className="px-5 py-2 bg-primary text-white rounded-md shadow-sm hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary-dark focus:ring-opacity-50">
-            <Link to={`/BqaRequestPage?name=${name}`}>Request Documents</Link>
+            <Link to={`/BqaRequestPage?name=${name}&username=${username}`}>Request Documents</Link>
           </button>
         </div>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-4 2xl:gap-7.5">
