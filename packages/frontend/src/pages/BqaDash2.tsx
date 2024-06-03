@@ -56,10 +56,11 @@ const BqaDash2 = ({}) => {
   // }
 
   //const [selectedFile, setSelectedFile] = useState(null);
-  const { name } = useParams();
-  console.log('name:' + name);
-  // const query = useQuery();
-  // const name = query.get('name');
+  const query = useQuery();
+  const name = query.get('name');
+
+  const query2 = useQuery();
+  const username = query2.get('username');
 
   //use /files enpoint to fetch uni files --pass uniName/Standard selected
   console.log('uniName', uniName);
@@ -238,7 +239,7 @@ const BqaDash2 = ({}) => {
           </div>
           {/* Request Document Button */}
           <button className="px-5 py-2 bg-primary text-white rounded-md shadow-sm hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary-dark focus:ring-opacity-50 ml-4">
-            <Link to={`/BqaRequestPage?name=${name}`}>Request Documents</Link>
+            <Link to={`/BqaRequestPage?name=${name}?username=${username}`}>Request Documents</Link>
           </button>
         </div>
 
