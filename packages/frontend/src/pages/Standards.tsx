@@ -222,7 +222,7 @@ const Standards: React.FC = () => {
 {/*Until here  */}
 {isAdmin?(       
    <div>
-        <div className="button-container">
+        <div className="button-container1">
           <button
             className={`flex justify-center rounded bg-primary py-2 px-6 font-medium text-gray hover:bg-opacity-90 mr-4`}
             type="button" // Change type to "button"
