@@ -29,9 +29,6 @@ const BqaRequestPage: React.FC = () => {
   const query = useQuery();
   const name = query.get('name');
 
-  const query2 = useQuery();
-  const username = query2.get('username');
-
   // getting user attribute
   const getAttributeValue = (attributes: { Name: string; Value: string }[], attributeName: string): string => {
     const attribute = attributes.find(attr => attr.Name === attributeName);
@@ -129,14 +126,6 @@ const BqaRequestPage: React.FC = () => {
       if (responseData.result === 'OK') 
         {
           toast.success(`Request is successfully sent to ${userEmail}`, { position: 'top-right' });
-          navigate(
-            `/BqaDash2/name=${name}?username=${username}`,
-            {
-              state: {
-                uniName: name,
-              },
-            },
-          );
         } else {
           toast.error('Failed to send the request.', { position: 'top-right' });
         }

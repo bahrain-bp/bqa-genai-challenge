@@ -59,9 +59,6 @@ const BqaDash2 = ({}) => {
   const { name } = useParams();
   console.log('name:' + name);
 
-  const { username } = useParams();
-  console.log('username:' + username);
-
   //use /files enpoint to fetch uni files --pass uniName/Standard selected
   console.log('uniName', uniName);
   useEffect(() => {
@@ -239,7 +236,7 @@ const BqaDash2 = ({}) => {
           </div>
           {/* Request Document Button */}
           <button className="px-5 py-2 bg-primary text-white rounded-md shadow-sm hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary-dark focus:ring-opacity-50 ml-4">
-            <Link to={`/BqaRequestPage?name=${name}?username=${username}`}>Request Documents</Link>
+            <Link to={`/BqaRequestPage?${name}`}>Request Documents</Link>
           </button>
         </div>
 
