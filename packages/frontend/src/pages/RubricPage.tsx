@@ -6,7 +6,7 @@ import ConfirmationDialog from '../components/Forms/ConfirmDialog';
 import Breadcrumb from '../components/Breadcrumbs/Breadcrumb';
 import Loader from '../common/Loader';
 import { toast } from 'react-toastify';
-import { fetchUserAttributes } from 'aws-amplify/auth';
+import { fetchUserAttributes } from '@aws-amplify/auth';
 
 interface Criterion {
   id: number;
@@ -19,60 +19,91 @@ interface Criterion {
 const itemsPerPage = 2;
 
 const RubricPage: React.FC = () => {
-  const [currentName, setCurrentName] = useState('');
+  const [currentName, setCurrentName] = useState<string>('');
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [criteria, setCriteria] = useState<Criterion[]>([]);
-  const [isConfirmationDialogOpen, setIsConfirmationDialogOpen] =
-    useState<boolean>(false);
+  const [isConfirmationDialogOpen, setIsConfirmationDialogOpen] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [status, setStatus] = useState<string | null>(null);
-  const { standardId, indicatorId } = useParams<{
-    standardId: string;
-    indicatorId: string;
-  }>();
+  const { standardId, indicatorId } = useParams<{ standardId: string; indicatorId: string; }>();
   const location = useLocation();
   const standardName = location.state?.standardName || '';
   const indicatorName = location.state?.indicatorName || '';
   const apiURL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
-    const fetchCurrentUserInfo = async () => {
+    const fetchUserInfo = async () => {
       try {
+        // Assuming you have a function to fetch user attributes from your authentication service
         const attributes = await fetchUserAttributes();
-        const name: any = attributes.name;
+        const name = attributes?.name || '';
         setCurrentName(name);
       } catch (error) {
-        console.error('Error fetching current user info:', error);
+        console.error('Error fetching user info:', error);
       }
     };
 
-    fetchCurrentUserInfo();
+    fetchUserInfo();
   }, []);
 
   useEffect(() => {
     if (currentName) {
-      fetchData();
+      fetchStatusAndData();
     }
   }, [currentName, standardId, indicatorId]);
 
+  const getStatus = async (): Promise<string | null> => {
+    try {
+      const response = await axios.get(`${apiURL}/status`, {
+        headers: {
+          'combined-key': `${currentName}-${standardId}-${indicatorId}`,
+        },
+      });
+      return response.data[0]?.status || null;
+    } catch (error) {
+      console.error('Error fetching status:', error);
+      return null;
+    }
+  };
+
+  const fetchStatusAndData = async () => {
+    const status = await getStatus();
+    setStatus(status);
+    if (status !== 'Processing') {
+      fetchData();
+    } else {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      const status = await getStatus();
+      setStatus(status);
+      if (status === 'Completed') {
+        clearInterval(interval);
+        if (criteria.length === 0) {
+          fetchData();
+        }
+      }
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [standardId, indicatorId, criteria.length]);
+
   const fetchData = async () => {
     try {
-      console.log(currentName, 'current name');
-      const response = await axios.get(
-        `https://u1oaj2omi2.execute-api.us-east-1.amazonaws.com/compareResult/${currentName}/${standardId}/${indicatorId}`,
-      );
+      const response = await axios.get(`${apiURL}/compareResult/${currentName}/${standardId}/${indicatorId}`);
       if (response.data.length === 0) {
         setIsConfirmationDialogOpen(true);
       } else {
-        setCriteria(
-          response.data.map((item: any) => ({
-            id: item.comparisonId,
-            name: item.indicatorName,
-            maxScore: 0,
-            comment: item.comment,
-            outputText: item.outputText,
-          })),
-        );
+        setCriteria(response.data.map((item: any) => ({
+          id: item.comparisonId,
+          name: item.indicatorName,
+          maxScore: 0,
+          comment: item.comment,
+          outputText: item.outputText,
+        })));
       }
     } catch (error) {
       console.error('Error fetching results:', error);
@@ -84,22 +115,19 @@ const RubricPage: React.FC = () => {
 
   const handleYesAIComment = () => {
     const headers = {
-      'uni-name': `${currentName}`,
+      'uni-name': currentName,
       'standard-number': standardId,
       'indicator-number': indicatorId,
     };
 
-    axios
-      .post(`${apiURL}/titan`, {}, { headers })
+    axios.post(`${apiURL}/titan`, {}, { headers })
       .then((response) => {
         if (!response.data.success) {
           if (response.data.message === 'No content found') {
             toast('No content found');
             alert('No content found for the specified standard and indicator.');
           } else if (response.data.message === 'Error fetching contents') {
-            alert(
-              'An error occurred while fetching contents. Please try again.',
-            );
+            alert('An error occurred while fetching contents. Please try again.');
           } else {
             alert(`An error occurred: ${response.data.message}`);
           }
@@ -116,14 +144,10 @@ const RubricPage: React.FC = () => {
           } else if (error.response.status === 500) {
             alert('An internal server error occurred. Please try again later.');
           } else {
-            alert(
-              `Server responded with status code: ${error.response.status}`,
-            );
+            alert(`Server responded with status code: ${error.response.status}`);
           }
         } else if (error.request) {
-          alert(
-            'No response received from the server. Please try again later.',
-          );
+          alert('No response received from the server. Please try again later.');
         } else {
           alert('An unexpected error occurred. Please try again later.');
         }
@@ -136,7 +160,6 @@ const RubricPage: React.FC = () => {
 
   const formatOutputText = (text: string) => {
     const formattedText = text.replace(/(?<=\S)- /g, '\n-');
-
     return (
       <ul>
         {formattedText.split('\n\n').map((sentence, index) => (
@@ -146,10 +169,7 @@ const RubricPage: React.FC = () => {
     );
   };
 
-  const paginatedCriteria = criteria.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage,
-  );
+  const paginatedCriteria = criteria.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   return (
     <DefaultLayout>
