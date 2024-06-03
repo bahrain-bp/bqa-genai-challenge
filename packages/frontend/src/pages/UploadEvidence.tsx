@@ -46,7 +46,7 @@ const ProgressLine = styled.div<ProgressLineProps>`
     `calc(${(props.activeStep / (props.totalSteps - 1)) * 100}% - 10px)`};
   position: absolute;
   top: 16px;
-  left: 1px;
+  left: 6px;
   z-index: -8;
 `;
 
@@ -607,7 +607,7 @@ const UploadEvidence = () => {
                 onError={(e) => {
                   console.error('Upload Error:', e);
                 }}
-                emptyTemplate={<p>Drag and drop files here to upload</p>}
+                emptyTemplate={<p>Drag and drop PDF files here to upload</p>}
               />
               <div style={{ marginTop: '10px' }}>
                 {(
