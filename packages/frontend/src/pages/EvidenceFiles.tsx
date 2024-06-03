@@ -563,7 +563,7 @@ return loading ? (
             </div><br />
             <div className="form-buttons">
             <button
-        className="bg-blue-500 flex rounded border border-stroke py-2 px-6 font-medium text-white hover:shadow-1 dark:border-strokedark dark:text-white mr-4"
+        className={`flex justify-center rounded bg-primary py-2 px-6 font-medium text-gray hover:bg-opacity-90 mr-4`}
         type="button"
         onClick={handleCancel}
       >
@@ -573,8 +573,8 @@ return loading ? (
 
       </button>
       <button
-         className="bg-blue-500 flex rounded border border-stroke py-2 px-6 font-medium text-white hover:shadow-1 dark:border-strokedark dark:text-white mr-4"
-           type="button" // Change type to "button"
+        className={`flex justify-center rounded bg-primary py-2 px-6 font-medium text-gray hover:bg-opacity-90 mr-4`}
+        type="button" // Change type to "button"
         onClick={createRecord} // Add onClick handler
       >
 
