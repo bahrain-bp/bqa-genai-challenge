@@ -330,8 +330,14 @@ margin-top: 20px; /* Add some margin from the form elements */
 
 .button-container {
 display: flex;
-justify-content: flex-end; /* Align button to the right */
+justify-content: space-between; /* Align button to the right */
 }
+
+.button-container1 {
+  display: flex;
+  justify-content: flex-end; /* Align button to the right */
+  }
+  
 
 .hidden {
 display: none;

@@ -1,68 +1,41 @@
 import React, { useState } from 'react';
 import Breadcrumb from '../components/Breadcrumbs/Breadcrumb';
 import DefaultLayout from '../layout/DefaultLayout';
-import './PredefinedTemplate.css'; // Importing CSS file
+import './PredefinedTemplate.css';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
-//import { aws_cognito as cognito } from 'aws-cdk-lib';
-//import { env } from 'process';
-//import { signUp, confirmSignUp } from 'aws-amplify/auth';
-//import { CognitoIdentityProviderClient, AdminCreateUserCommand } from "@aws-sdk/client-cognito-identity-provider"; // ES Modules import
-// import * as AWS from 'aws-sdk';
-// import {
-//   CognitoIdentityProviderClient,
-// } from '@aws-sdk/client-cognito-identity-provider';
-
-// Add authenticator so only admin can create an email and
-// password
-//import { Authenticator } from '@aws-amplify/ui-react';
-import { toast } from 'react-toastify'; // Import toast from react-toastify
-import 'react-toastify/dist/ReactToastify.css'; // Import the CSS for react-toastify
-// Set the AWS Region
 const apiUrl = import.meta.env.VITE_API_URL;
+
 const generateTemporaryPassword = () => {
   const numbers = '0123456789';
   const lowerCaseLetters = 'abcdefghijklmnopqrstuvwxyz';
   const upperCaseLetters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
   const specialCharacters = '!@#$%^&*()_+';
-  const base =
-    lowerCaseLetters + upperCaseLetters + numbers + specialCharacters;
+  const base = lowerCaseLetters + upperCaseLetters + numbers + specialCharacters;
   let password = '';
-  // Ensure at least one character from each set
-  password += numbers[Math.floor(Math.random() * numbers.length)];
-  password +=
-    lowerCaseLetters[Math.floor(Math.random() * lowerCaseLetters.length)];
-  password +=
-    upperCaseLetters[Math.floor(Math.random() * upperCaseLetters.length)];
-  password +=
-    specialCharacters[Math.floor(Math.random() * specialCharacters.length)];
 
-  // Fill the rest of the password length to meet the minimum required (e.g., 8 characters)
+  password += numbers[Math.floor(Math.random() * numbers.length)];
+  password += lowerCaseLetters[Math.floor(Math.random() * lowerCaseLetters.length)];
+  password += upperCaseLetters[Math.floor(Math.random() * upperCaseLetters.length)];
+  password += specialCharacters[Math.floor(Math.random() * specialCharacters.length)];
+
   for (let i = password.length; i < 12; i++) {
     password += base[Math.floor(Math.random() * base.length)];
   }
 
-  // Shuffle the password to ensure randomness (Optional)
-  password = password
-    .split('')
-    .sort(() => 0.5 - Math.random())
-    .join('');
+  password = password.split('').sort(() => 0.5 - Math.random()).join('');
 
   return password;
 };
 
 const AddUni = () => {
-  // const cognitoPoolId = 'us-east-1_PraHctOMo';
-  // const cognitoClient = new CognitoIdentityProviderClient({
-  //   region: 'us-east-1',
-  // });
-
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
   const [logo, setLogo] = useState<File | null>(null);
   const navigate = useNavigate();
 
-  
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files ? event.target.files[0] : null;
     setLogo(file);
@@ -73,31 +46,21 @@ const AddUni = () => {
       toast.error('Please fill all the fields.');
       return;
     }
-    const tempPassword = generateTemporaryPassword(); // Generate a compliant temporary password
-
-    //First uploa the
+    const tempPassword = generateTemporaryPassword();
 
     try {
-      //const logoUrl = await uploadLogo(logo); // Get the URL of the uploaded logo
-      await createUser(email, tempPassword, name); //
-      await uploadLogo(logo, name); //
-
+      await createUser(email, tempPassword, name);
+      await uploadLogo(logo, name);
       toast.success('User and logo added successfully!');
-      navigate('/BqaDash1'); // Redirect to bqadash1 page
-
+      navigate('/BqaDash1');
     } catch (error) {
       console.error('Error:', error);
-      toast.error('The email you enterd is already use.');
+      toast.error('The email you entered is already in use.');
     }
   }
 
-  const createUser = async (
-    email: string,
-    tempPassword: string,
-    name: string,
-  ) => {
-    const url = `${apiUrl}/createUser`; // This will be replaced with the main api
-    //66xzg471hh mine ----- prod u1oaj2omi2
+  const createUser = async (email: string, tempPassword: string, name: string) => {
+    const url = `${apiUrl}/createUser`;
     const requestOptions: RequestInit = {
       method: 'POST',
       headers: {
@@ -111,88 +74,50 @@ const AddUni = () => {
       if (response.ok) {
         const data = await response.json();
         console.log('User created successfully:', data);
-        // Handle success (e.g., display success message to the user)
       } else {
         const errorData = await response.json();
         console.error('Failed to create user:', errorData);
-        // Handle failure (e.g., display error message to the user)
       }
     } catch (error) {
       console.error('Error creating user:', error);
-      // Handle error (e.g., display error message to the user)
     }
   };
 
-  // try {
-  //   createUser(email, tempPassword,name);
-
-  //   console.log('Admin create user successful');
-  //   toast.success('Verification email sent to ' + email);
-  // } catch (error) {
-  //   console.error('Error creating user:', error);
-  //   toast.error('Failed to create user: ');
-  // }
-
-  //end of upload
-  //trying the upload logo
   const uploadLogo = async (logo: File, name: string) => {
     if (!logo) {
       toast.error('Please select a logo to upload.');
       return;
     }
-    const url =`${apiUrl}/uploadLogo`;
 
-      // 'https://u1oaj2omi2.execute-api.us-east-1.amazonaws.com/uploadLogo'; // This will be replaced with the main api
-    /////
+    const url = `${apiUrl}/uploadLogo`;
+
     const formData = new FormData();
-    formData.append('logo', logo, logo.name); // Append the file to FormData
-    //formData.append('name', name); // Optionally send email or other fields
+    formData.append('logo', logo, logo.name);
 
     const requestOptions: RequestInit = {
       method: 'POST',
-      body: formData,
+      body: logo,
       headers: {
         'file-name': logo.name,
         'bucket-name': 'uni-artifacts',
         'folder-name': name,
         'subfolder-name': 'logos',
-        //'Content-Type':'image/png',
+        'content-type': "image/*" // Corrected to get the MIME type from the file itself
       },
-      // body: JSON.stringify({ logo }),
     };
-
-    // try {
-    //   const response = await fetch(url, requestOptions);
-    //   if (response.ok) {
-    //     const data = await response.json();
-    //     console.log('Logo uploaded successfully', data);
-    //     // Handle success (e.g., display success message to the user)
-    //   } else {
-    //     const errorData = await response.json();
-    //     console.error('Failed to upload logo:', errorData);
-    //     // Handle failure (e.g., display error message to the user)
-    //   }
-    // } catch (error) {
-    //   console.error('Error Uploading Logo:', error);
-    //   // Handle error (e.g., display error message to the user)
-    // }
 
     try {
       const response = await fetch(url, requestOptions);
       if (response.ok) {
         const data = await response.json();
         console.log('Logo uploaded successfully:', data);
-        // Handle success (e.g., display success message to the user)
       } else {
         const errorData = await response.json();
         console.error('Failed to upload logo:', errorData);
-        // Handle failure (e.g., display error message to the user)
       }
     } catch (error) {
       console.error('Error uploading logo:', error);
-      toast.error('The email you enterd is already used.');
-
-      // Handle error (e.g., display error message to the user)
+      toast.error('Error uploading logo.');
     }
   };
 
