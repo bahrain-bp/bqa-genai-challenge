@@ -173,35 +173,57 @@ const BqaDash1 = () => {
           </button>
         </div>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3 md:gap-6">
-          {users.map((user) => (
-            <div
-              key={user.Username}
-              className="col-md-4 col-sm-6"
-              style={{ cursor: 'pointer' }}
-              onClick={() =>
-                navigate(`/BqaDash2/${getAttributeValue(user.Attributes, 'name')}?username=${user.Username}`, {
-                  state: {
-                    uniName: getAttributeValue(user.Attributes, 'name'),
-                  },
-                })
-              }
-            >
-              <div
-                className="rounded-xl border border-stroke bg-white p-6 shadow-default dark:border-strokedark"
-                style={{ marginBottom: '20px', height: '300px' }} // Set fixed height for each card
-              >
-                <div style={{ height: '200px', width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}>
-                  {' '}
-                  {/* Container for fixed size image */}
-                  {user.imageUrl && (
-                    <img
-                      src={user.imageUrl}
-                      style={{ maxHeight: '100%', maxWidth: '100%', objectFit: 'contain' }} // Ensure the image fits within the container without being cut off
+          {users.map((user) => {
+            const isClickable = user.status.toLowerCase() === 'completed';
+            const statusClass = isClickable
+              ? 'bg-success text-success'
+              : 'bg-red-500 text-red-500';
 
-                      alt="S3 Image"
-                    />
-                  )}
-                </div>
+            return (
+              <div
+                key={user.Username}
+                className={`col-md-4 col-sm-6 ${isClickable ? '' : 'cursor-not-allowed opacity-50'}`}
+                style={{ cursor: isClickable ? 'pointer' : 'not-allowed' }}
+                onClick={() =>
+                  isClickable &&
+                  navigate(
+                    `/BqaDash2/${getAttributeValue(user.Attributes, 'name')}?username=${user.Username}`,
+                    {
+                      state: {
+                        uniName: getAttributeValue(user.Attributes, 'name'),
+                      },
+                    },
+                  )
+                }
+              >
+                <div
+                  className="rounded-xl border border-stroke bg-white p-6 shadow-default dark:border-strokedark"
+                  style={{ marginBottom: '20px', height: '300px' }} // Set fixed height for each card
+                >
+                  <div
+                    style={{
+                      height: '200px',
+                      width: '100%',
+                      display: 'flex',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      overflow: 'hidden',
+                    }}
+                  >
+                    {' '}
+                    {/* Container for fixed size image */}
+                    {user.imageUrl && (
+                      <img
+                        src={user.imageUrl}
+                        style={{
+                          maxHeight: '100%',
+                          maxWidth: '100%',
+                          objectFit: 'contain',
+                        }} // Ensure the image fits within the container without being cut off
+                        alt="S3 Image"
+                      />
+                    )}
+                  </div>
 
                   <div className="d-flex justify-content-between align-items-center">
                     <h3 className="text-lg font-semibold mb-3">
