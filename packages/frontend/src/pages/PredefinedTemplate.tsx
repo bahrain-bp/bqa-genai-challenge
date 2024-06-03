@@ -10,6 +10,7 @@ import 'react-toastify/dist/ReactToastify.css'; // Import the CSS for react-toas
 import {fetchUserAttributes } from 'aws-amplify/auth';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import { confirmAlert } from 'react-confirm-alert';
 
 
 //INDICATORS FILE **
@@ -75,69 +76,121 @@ const [indicators, setIndicators] = useState<any[]>([]); // State variable to st
       }));
     }
   };
-  
   const handleDelete = async (indicatorId: string) => {
     try {
-      // Fetch records with the matching standardId
-      const recordsToDelete = records.filter(record => record.indicatorId === indicatorId);
-      if (recordsToDelete.length === 0) {
-        throw new Error('No records found for the given standardId');
-      }
+      // Define the confirmation dialog options
+      const confirmationOptions = {
+        title: 'Confirm Deletion',
+        message: 'Are you sure you want to delete this indicator?',
+        buttons: [
+          {
+            label: 'Yes',
+            onClick: async () => {
+              try {
+                // Fetch records with the matching standardId
+                const recordsToDelete = records.filter(record => record.indicatorId === indicatorId);
+                if (recordsToDelete.length === 0) {
+                  throw new Error('No records found for the given standardId');
+                }
+            
+                // Delete each record
+                await Promise.all(recordsToDelete.map(async record => {
+                  const api = import.meta.env.VITE_API_URL;
+                  const apiUrl = `${api}/standards/${record.entityId}`;
+                  const response = await fetch(apiUrl, {
+                    method: 'DELETE',
+                  });
+                  if (!response.ok) {
+                    throw new Error(`Failed to delete record with entityId: ${record.entityId}`);
+                  }
+                }));
+            
+                // Remove the deleted records from the state
+                setRecords(records.filter(record => !recordsToDelete.includes(record)));
+                toast.success('Records deleted successfully');
+              } catch (error) {
+                console.error('Error deleting records:', error);
+                toast.error('Error deleting records:');
+              }
+            },
+          },
+          {
+            label: 'No',
+            onClick: () => {}, // Do nothing if "No" is clicked
+          },
+        ],
+      };
   
-      // Delete each record
-      await Promise.all(recordsToDelete.map(async record => {
-        const api = import.meta.env.VITE_API_URL;
-        const apiUrl = `${api}/standards/${record.entityId}`;
-        const response = await fetch(apiUrl, {
-          method: 'DELETE',
-        });
-        if (!response.ok) {
-          throw new Error(`Failed to delete record with entityId: ${record.entityId}`);
-        }
-      }));
-  
-      // Remove the deleted records from the state
-      setRecords(records.filter(record => !recordsToDelete.includes(record)));
-      toast.success('Records deleted successfully');
+      // Show the confirmation dialog
+      confirmAlert(confirmationOptions);
     } catch (error) {
-      console.error('Error deleting records:', error);
-      toast.error('Error deleting records:');
+      const errorMessage =
+        error instanceof Error ? error.message : 'An unknown error occurred';
+      console.error('Confirmation error:', errorMessage);
+      toast.error(`Failed to confirm deletion: ${errorMessage}`);
     }
   };
   
-
   const handleArchive = async (indicatorId: string) => {
     try {
-      // Fetch records with the matching standardId
-      const recordsToArchive = records.filter(record => record.indicatorId === indicatorId);
-      if (recordsToArchive.length === 0) {
-        throw new Error('No records found for the given standardId');
-      }
-  
-      // Update status to 'archived' for each record
-      await Promise.all(recordsToArchive.map(async record => {
-        const api = import.meta.env.VITE_API_URL;
-        const apiUrl = `${api}/standards/${record.entityId}`;
-        const response = await fetch(apiUrl, {
-          method: 'PUT', // Use PUT method to update the record
-          headers: {
-            'Content-Type': 'application/json',
+      // Define the confirmation dialog options
+      const confirmationOptions = {
+        title: 'Confirm Archive',
+        message: 'Are you sure you want to archive this indicator?',
+        buttons: [
+          {
+            label: 'Yes',
+            onClick: async () => {
+              try {
+                // Fetch records with the matching standardId
+                const recordsToArchive = records.filter(record => record.indicatorId === indicatorId);
+                if (recordsToArchive.length === 0) {
+                  throw new Error('No records found for the given standardId');
+                }
+            
+                // Update status to 'archived' for each record
+                await Promise.all(recordsToArchive.map(async record => {
+                  const api = import.meta.env.VITE_API_URL;
+                  const apiUrl = `${api}/standards/${record.entityId}`;
+                  const response = await fetch(apiUrl, {
+                    method: 'PUT', // Use PUT method to update the record
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ ...record, status: 'archived' }), // Update the status field to 'archived'
+                  });
+                  if (!response.ok) {
+                    throw new Error(`Failed to archive record with entityId: ${record.entityId}`);
+                  }
+                }));
+            
+                // Fetch records again to reflect the changes
+                fetchRecords(standardId);
+                toast.success('Records archived successfully');
+              } catch (error) {
+                console.error('Error archiving records:', error);
+                toast.error('Error archiving records:');
+              }
+            },
           },
-          body: JSON.stringify({ ...record, status: 'archived' }), // Update the status field to 'archived'
-        });
-        if (!response.ok) {
-          throw new Error(`Failed to archive record with entityId: ${record.entityId}`);
-        }
-      }));
+          {
+            label: 'No',
+            onClick: () => {}, // Do nothing if "No" is clicked
+          },
+        ],
+      };
   
-      // Fetch records again to reflect the changes
-      fetchRecords(standardId);
-      toast.success('Records archived successfully');
+      // Show the confirmation dialog
+      confirmAlert(confirmationOptions);
     } catch (error) {
-      console.error('Error archiving records:', error);
-      toast.error('Error deleting records:');
+      const errorMessage =
+        error instanceof Error ? error.message : 'An unknown error occurred';
+      console.error('Confirmation error:', errorMessage);
+      toast.error(`Failed to confirm deletion: ${errorMessage}`);
     }
   };
+  
+ 
   
   const toggleForm = () => {
     setShowForm(!showForm);
