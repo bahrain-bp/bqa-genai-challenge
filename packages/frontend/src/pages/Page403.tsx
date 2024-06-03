@@ -1,7 +1,7 @@
+// test test
 import { useEffect } from 'react';
 import './styles.scss'; // Make sure to include your CSS file
 import { useNavigate } from 'react-router-dom';
-
 
 const Page403 = () => {
   const navigate = useNavigate(); // Declare navigate here to use it anywhere in your component
@@ -19,9 +19,6 @@ const Page403 = () => {
       return [x, y];
     }
 
-   
-  
-
     function generateLocks() {
       const lock = document.createElement('div'),
             position = generatePosition();
@@ -29,12 +26,12 @@ const Page403 = () => {
       lock.style.position = 'absolute';
       lock.style.left = position[0];
       lock.style.top = position[1];
-      lock.className = 'lock';
+      lock.className = 'custom-lock'; // Updated class name
       document.body.appendChild(lock);
 
       setTimeout(() => {
         lock.style.opacity = '1';
-        lock.classList.add('generated');
+        lock.classList.add('generated'); // Ensure this matches any related styles
       }, 100);
 
       setTimeout(() => {
@@ -53,18 +50,17 @@ const Page403 = () => {
   }, []);
 
   return (
-    <div className="container" >
+    <div className="custom-container" > 
       <h1>
         4
-        <div className="lock">
+        <div className="custom-lock"> 
           <div className="top"></div>
           <div className="bottom"></div>
         </div>
         3
       </h1>
       <p>Access denied</p>
-      <button onClick={goToLogin} className="login-button">Click here to go back to login page</button> 
-
+      <button onClick={goToLogin} className="login-button">Click here to go back to login page</button>
     </div>
   );
 };

@@ -90,7 +90,7 @@ function App() {
   }, [pathname]);
 
   useEffect(() => {
-    setTimeout(() => setLoading(false), 1000);
+    setTimeout(() => setLoading(false), 2000);
   }, []);
 
   return loading ? (
@@ -255,15 +255,6 @@ function App() {
         {isAdmin ? (
   <>
     <Route
-      path="/Archived"
-      element={
-        <>
-          <PageTitle title="Archived | EduScribe" />
-          <Archived />
-        </>
-      }
-    />
-    <Route
       path="/BqaDash1"
       element={
         <>
@@ -272,6 +263,17 @@ function App() {
         </>
       }
     />
+
+    <Route
+      path="/Archived"
+      element={
+        <>
+          <PageTitle title="Archived | EduScribe" />
+          <Archived />
+        </>
+      }
+    />
+
     <Route
       path="/AddUni"
       element={
