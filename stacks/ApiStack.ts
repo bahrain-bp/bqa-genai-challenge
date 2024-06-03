@@ -54,6 +54,7 @@ export function ApiStack({ stack }: StackContext) {
         function: {
           handler: "packages/functions/src/splitPdf.handler",
           permissions: ["s3", "dynamodb"],
+          bind: [documentsQueue],
           timeout: "900 seconds",
           retryAttempts: 2,
         },
@@ -85,6 +86,13 @@ export function ApiStack({ stack }: StackContext) {
         function: {
           handler: "packages/functions/detectFileType.detect",
           permissions: ["s3"],
+          timeout: "900 seconds",
+        },
+      },
+      "GET /videoList": {
+        function: {
+          handler: "packages/functions/src/retrieveVideos.handler",
+          permissions: "*",
           timeout: "900 seconds",
         },
       },
@@ -138,6 +146,37 @@ export function ApiStack({ stack }: StackContext) {
           timeout: "900 seconds",
         },
       },
+      "POST /gemini": {
+        function: {
+          handler: "packages/functions/src/bedrock_lambda/videoAnalyze.handler",
+          runtime: "python3.11",
+          permissions: "*",
+          timeout: "900 seconds"
+        },
+      },
+      "POST /videoFlow": {
+        function: {
+          handler: "packages/functions/src/bedrock_lambda/videoFlow.handler",
+          permissions: "*",
+          timeout: "900 seconds"
+        },
+      },
+      "POST /videoUpload": {
+        function: {
+          handler: "packages/functions/src/videoUpload.handler",
+          permissions: "*",
+          timeout: "900 seconds"
+        },
+      },
+      "POST /transferToGoogle": {
+        function: {
+          handler: "packages/functions/src/bedrock_lambda/transferToGoogle.handler",
+          runtime: "python3.11",
+          permissions: "*",
+          timeout: "900 seconds"
+        },
+      },
+      
       "POST /createUser": {
         function: {
           handler: "packages/functions/createUser.createUserInCognito",
@@ -152,7 +191,32 @@ export function ApiStack({ stack }: StackContext) {
           timeout: "900 seconds",
         },
       },
+      //adding comments 
+      "POST /addFileComments": {
+        function: {
+          handler: "packages/functions/src/comments/addComments.main",
+          permissions: "*",
+          timeout: "900 seconds",
+        },
+      },
 
+      //Delete comments
+      "DELETE /deleteFileComments": {
+        function: {
+          handler: "packages/functions/src/comments/deleteComments.main",
+          permissions: "*",
+          timeout: "900 seconds",
+        },
+      },
+
+      //get comments 
+      "GET /getFileComments": {
+        function: {
+          handler: "packages/functions/src/comments/getComments.main",
+          permissions: "*",
+          timeout: "900 seconds",
+        },
+      },
 
       "PUT /fileSummary/{fileName}": {
         function: {
