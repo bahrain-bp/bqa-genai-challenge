@@ -23,7 +23,6 @@ const BqaRequestPage: React.FC = () => {
   const subject = 'Additional Document Required';
   const [body, setBody] = useState('');
   const navigate = useNavigate();
-  const navigate = useNavigate();
 
   // const { t } = useTranslation(); // Hook to access translation functions
   const api = import.meta.env.VITE_API_URL;
@@ -31,7 +30,6 @@ const BqaRequestPage: React.FC = () => {
 
   const query = useQuery();
   const name = query.get('name');
-  
   const useUsername = () =>
     {
       const location = useLocation();
