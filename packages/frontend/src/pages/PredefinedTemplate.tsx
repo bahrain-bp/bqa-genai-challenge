@@ -9,6 +9,7 @@ import { toast } from 'react-toastify'; // Import toast from react-toastify
 import 'react-toastify/dist/ReactToastify.css'; // Import the CSS for react-toastify
 import {fetchUserAttributes } from 'aws-amplify/auth';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 
 
 //INDICATORS FILE **
@@ -295,17 +296,27 @@ setStandardName(standardName);
     console.error('Error fetching standards:', error);
   }
 };
+
+  
+const navigate = useNavigate();
+  
+const goBack = () => {
+  navigate(-1); // Moves one step back in the browser's history stack
+};
+
     
 return loading ? (
   <Loader />
 ) : (
     <DefaultLayout>
-     
+
+  
 
 <div>
 {isAdmin?(  
 
-<div className="button-container">
+<div className="button-container1">
+
 
 <button
         className={`flex justify-center rounded bg-primary py-2 px-6 font-medium text-gray hover:bg-opacity-90 mr-4`}
@@ -319,6 +330,27 @@ return loading ? (
       
       </div>
 ):null} 
+
+<div className="button-container">
+
+<button onClick={goBack} style={{
+  padding: '8px 16px',
+  //backgroundColor: '#3c50e0',
+  color: 'black',
+  border: 'none',
+  borderRadius: '4px',
+  cursor: 'pointer',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: '',
+  marginTop: '-15px' ,// Adjust this value as needed
+
+}}><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" style={{ marginRight: '8px' }}>
+    <path fillRule="evenodd" d="M15 8a.5.5 0 0 1-.5.5H2.707l3.147 3.146a.5.5 0 0 1-.708.708l-4-4a.5.5 0 0 1 0-.708l4-4a.5.5 0 0 1 .708.708L2.707 7.5H14.5A.5.5 0 0 1 15 8z"/>
+  </svg>Back</button>
+
+  </div>
+
       {showForm && (
         
           <div className="modal-overlay">

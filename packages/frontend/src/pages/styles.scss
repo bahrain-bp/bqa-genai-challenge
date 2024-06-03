@@ -1,3 +1,4 @@
+//test test
 @import url('https://fonts.googleapis.com/css?family=Comfortaa');
 
 $bg: darken(#F76B1C, 20%);
@@ -13,22 +14,22 @@ html {
   overflow: hidden;
 }
 body {
-  background-color: darken(#F76B1C, 20%);
+  background-color: $bg;
   font-family: sans-serif;
 }
-.container {
+.custom-container {
   z-index: 1;
   position: absolute;
   top: 50%;
   left: 50%;
-  transform: translate(-50%,-50%);
+  transform: translate(-50%, -50%);
   text-align: center;
   padding: 10px;
   min-width: 300px;
   div {
     display: inline-block;
   }
-  .lock {
+  .custom-lock {
     opacity: 1;
   }
   h1 {
@@ -40,10 +41,10 @@ body {
     margin: 0;
   }
   p {
-    color:#081168;
+    color: #081168;
   }
 }
-.lock {
+.custom-lock {
   transition: 0.5s ease;
   position: relative;
   overflow: hidden;
@@ -56,7 +57,7 @@ body {
   }
   ::after {
     content: '';
-    background: darken(#F76B1C, 20%);
+    background: $bg;
     opacity: 0.3;
     display: block;
     position: absolute;
@@ -94,10 +95,10 @@ body {
   }
 }
 @media (max-width: 420px) {
-  .container {
-    transform: translate(-50%,-50%) scale(0.8)
+  .custom-container {
+    transform: translate(-50%, -50%) scale(0.8);
   }
-  .lock.generated {
+  .custom-lock.generated {
     transform: scale(0.3);
   }
 }
