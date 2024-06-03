@@ -4,10 +4,13 @@ import DefaultLayout from '../layout/DefaultLayout';
 import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { FileUpload } from 'primereact/fileupload';
+import 'react-confirm-alert/src/react-confirm-alert.css'; // Import CSS
+import { confirmAlert } from 'react-confirm-alert';
+
 //import { useTranslation } from 'react-i18next';
 //import Loader from '../common/Loader';
 import { fetchUserAttributes } from 'aws-amplify/auth';
-
+import Modal from 'react-modal';
 
 const MainContainer = styled.div`
   width: 100%;
@@ -43,7 +46,7 @@ const ProgressLine = styled.div<ProgressLineProps>`
     `calc(${(props.activeStep / (props.totalSteps - 1)) * 100}% - 10px)`};
   position: absolute;
   top: 16px;
-  left: 1px;
+  left: 6px;
   z-index: -8;
 `;
 
@@ -140,12 +143,61 @@ const SectionTitle = styled.h2`
   margin-top: 20px;
   margin-bottom: 20px;
 `;
+const FinishButtonContainer = styled.div`
+  display: flex;
+  justify-content: flex-end; // Aligns the button to the right
+  margin-top: 10px;
+`;
+
+const FinishButton = styled.button`
+  padding: 10px 20px;
+  font-size: 16px;
+  color: #ffffff;
+  background-color: #2ecc71;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  &:hover {
+    background-color: #27ae60;
+  }
+`;
+
+// Custom styles for the modal
+const customStyles = {
+  content: {
+    top: '30%', // Adjusted to position the modal higher
+    left: '55%',
+    right: 'auto',
+    bottom: 'auto',
+    marginRight: '-50%',
+    transform: 'translate(-50%, -50%)',
+    width: '80%',
+    maxWidth: '400px',
+    padding: '20px',
+    borderRadius: '10px',
+  },
+  overlay: {
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+};
+// const CompletionMessage = styled.div`
+//   top: 10px;
+//   left: 10px;
+//   color: #2ecc71;
+//   font-size: 20px;
+//   background-color: white;
+//   padding: 5px 10px; // Adds
+//   display: inline-block;
+
+// `;
 
 const UploadEvidence = () => {
   const [standards, setStandards] = useState<any[]>([]); // Using 'any[]' for state typing
   const [activeStep, setActiveStep] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState<any[]>([]);
+  const [universityStatus, setUniversityStatus] = useState('');
+  const [showModal, setShowModal] = useState(false);
 
   const [currentName, setCurrentName] = useState('');
 
@@ -153,9 +205,8 @@ const UploadEvidence = () => {
     const fetchCurrentUserInfo = async () => {
       try {
         const attributes = await fetchUserAttributes();
-        const name:any= attributes.name;
+        const name: any = attributes.name;
         setCurrentName(name);
-
       } catch (error) {
         console.error('Error fetching current user info:', error);
       }
@@ -164,12 +215,28 @@ const UploadEvidence = () => {
     fetchCurrentUserInfo();
   }, []);
 
-   
-
-
-
   const apiURL = import.meta.env.VITE_API_URL;
+  useEffect(() => {
+    const fetchUniversityStatus = async () => {
+      try {
+        const response = await fetch(`${apiURL}/uniStatus/${currentName}`);
+        if (!response.ok) {
+          throw new Error(`HTTP status ${response.status}`);
+        }
+        const data = await response.json();
+        setUniversityStatus(data.status);
+      } catch (error) {
+        console.error('Error fetching university status:', error);
+        toast.error(
+          `Error fetching university status: ${error instanceof Error ? error.message : 'An error occurred'}`,
+        );
+      }
+    };
 
+    if (currentName) {
+      fetchUniversityStatus();
+    }
+  }, [currentName]);
 
   useEffect(() => {
     const fetchStandards = async () => {
@@ -182,46 +249,58 @@ const UploadEvidence = () => {
         }
         const rawData = await response.json();
         const standardsMap = new Map();
-       
-        rawData.forEach((item:any) => {
-          if (item.status === 'unarchived'  ) {
+
+        rawData.forEach((item: any) => {
+          if (item.status === 'unarchived') {
             if (!standardsMap.has(item.standardId)) {
               standardsMap.set(item.standardId, { ...item, indicators: [] });
             }
 
             // Get the current list of indicators for this standard
-            const existingIndicators = standardsMap.get(item.standardId).indicators;
+            const existingIndicators = standardsMap.get(
+              item.standardId,
+            ).indicators;
             // Create a Set to filter out duplicate indicator IDs
-            const indicatorSet = new Set(existingIndicators.map((ind:any) => ind.id));
+            const indicatorSet = new Set(
+              existingIndicators.map((ind: any) => ind.id),
+            );
             // Check if the current item's indicatorId is already in the set
-            if (!indicatorSet.has(item.indicatorId) ) {
+            if (!indicatorSet.has(item.indicatorId)) {
               existingIndicators.push({
                 label: item.indicatorName,
                 uploadSection: item.uploadSection,
                 id: item.indicatorId,
               });
             }
-            
           }
         });
 
-               // Sort indicators inside each standard
-         
-      standardsMap.forEach((standard: any) => {
-        standard.indicators.sort((a: any, b: any) => a.id.localeCompare(b.id, undefined, { numeric: true }));
-      });
+        // Convert the map to an array and sort standards
+        const sortedStandards = Array.from(standardsMap.values());
+        sortedStandards.sort((a: any, b: any) =>
+          a.standardId.localeCompare(b.standardId, undefined, {
+            numeric: true,
+          }),
+        );
 
-           // Convert the map to an array and sort standards
-           const sortedStandards = Array.from(standardsMap.values());
-           sortedStandards.sort((a: any, b: any) => a.standardId.localeCompare(b.standardId, undefined, { numeric: true }));
+        // Sort indicators inside each standard
+        standardsMap.forEach((standard: any) => {
+          standard.indicators.sort((a: any, b: any) => {
+            const idA = a.id ?? ''; // Fallback to empty string if null
+            const idB = b.id ?? ''; // Fallback to empty string if null
+            return idA.localeCompare(idB, undefined, { numeric: true });
+          });
+        });
 
         setStandards(sortedStandards);
       } catch (error) {
         console.error('Error fetching standards:', error);
-        toast.error(`Error fetching standards: ${error instanceof Error ? error.message : 'An error occurred'}`);
+        toast.error(
+          `Error fetching standards: ${error instanceof Error ? error.message : 'An error occurred'}`,
+        );
       }
     };
-  
+
     fetchStandards();
   }, []);
 
@@ -246,25 +325,23 @@ const UploadEvidence = () => {
         continue;
       }
 
-
       const formData = new FormData();
       formData.append('file', file);
-
 
       try {
         const response = await fetch(`${apiURL}/uploadS3`, {
           method: 'POST',
           body: formData,
           headers: {
-            'file-name': file.name,
+            'file-name': String(file.name),
             'bucket-name': 'uni-artifacts',
             'folder-name': currentName,
             'subfolder-name': `${standard.standardId}`,
-            'subSubfolder-name': `${indicator.id}`,
+            'subsubfolder-name': `${indicator.id}`,
             'content-type': 'application/pdf', // Assuming all files are PDF
           },
         });
-
+        console.log(file.name);
         if (!response.ok) {
           const errorText = await response.text();
           throw new Error(`Failed to upload file: ${errorText}`);
@@ -301,13 +378,12 @@ const UploadEvidence = () => {
 
     try {
       const response = await fetch(url, {
-          method: 'GET',
-          headers: {
-              'bucket-name': 'uni-artifacts',
-              'folder-name': currentName,
-              'subfolder-name': `${currentStandard.standardId}`,
-          },
-
+        method: 'GET',
+        headers: {
+          'bucket-name': 'uni-artifacts',
+          'folder-name': currentName,
+          'subfolder-name': `${currentStandard.standardId}`,
+        },
       });
 
       if (!response.ok) {
@@ -316,7 +392,12 @@ const UploadEvidence = () => {
       const data = await response.json();
       const files = data.files; // Ensure this matches the structure you log in Lambda
 
-      const filesByIndicator = files.reduce((acc: any, file: any) => {
+      // Filter out files containing "-split" in their name
+      const filteredFiles = files.filter(
+        (file: any) => !file.Key.includes('-split'),
+      );
+
+      const filesByIndicator = filteredFiles.reduce((acc: any, file: any) => {
         // Path structure: 'BUB/StandardID/IndicatorID/filename'
         const parts = file.Key.split('/');
         const indicatorId = parts[2]; // This assumes the indicator ID is the third part
@@ -336,7 +417,7 @@ const UploadEvidence = () => {
       const errorMessage =
         error instanceof Error ? error.message : 'An unknown error occurred';
       console.error('Error fetching uploaded files:', errorMessage);
-      toast.error(`Error fetching uploaded files: ${errorMessage}`);
+      // toast.error(`Error fetching uploaded files: ${errorMessage}`);
     }
   };
 
@@ -345,45 +426,64 @@ const UploadEvidence = () => {
     standardId: any,
     indicatorId: any,
   ) => {
-    try {
-      // Construct the API endpoint URL
-      const url = `${apiURL}/deleteFile`; // Replace with your actual endpoint URL
+    confirmAlert({
+      title: 'Confirm deletion',
+      message: 'Are you sure you want to delete this file?',
+      buttons: [
+        {
+          label: 'Yes',
+          onClick: async () => {
+            try {
+              // Construct the API endpoint URL
+              const url = `${apiURL}/deleteFile`; // Replace with your actual endpoint URL
 
-      const response = await fetch(url, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
+              const response = await fetch(url, {
+                method: 'DELETE',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  bucketName: 'uni-artifacts', // Your S3 bucket name
+                  key: fileKey, // This should be the full path of the file in S3
+                }),
+              });
+
+              if (!response.ok) {
+                throw new Error(`HTTP status ${response.status}`);
+              }
+
+              // Parse JSON response if necessary
+              //const result = await response.json();
+              toast.success('File deleted successfully');
+
+              // Update local state to remove the file from the list
+              setUploadedFiles((prevFiles: any) => {
+                const updatedFiles = { ...prevFiles };
+                const filteredFiles = updatedFiles[standardId][
+                  indicatorId
+                ].filter((file: any) => file.name !== fileKey);
+                // Assuming setUploadedFiles is a state setter function
+                // Replace it with the appropriate state setter function from your component
+                updatedFiles[standardId][indicatorId] = filteredFiles;
+
+                return updatedFiles;
+              });
+            } catch (error) {
+              const errorMessage =
+                error instanceof Error
+                  ? error.message
+                  : 'An unknown error occurred';
+              console.error('Delete file error:', errorMessage);
+              toast.error(`Failed to delete file: ${errorMessage}`);
+            }
+          },
         },
-        body: JSON.stringify({
-          bucketName: 'uni-artifacts', // Your S3 bucket name
-          key: fileKey, // This should be the full path of the file in S3
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP status ${response.status}`);
-      }
-
-      // Parse JSON response if necessary
-      //const result = await response.json();
-      toast.success('File deleted successfully');
-
-      // Update local state to remove the file from the list
-      setUploadedFiles((prevFiles) => {
-        const updatedFiles = { ...prevFiles } as any;
-        const filteredFiles = updatedFiles[standardId][indicatorId].filter(
-          (file: any) => file.name !== fileKey,
-        );
-        updatedFiles[standardId][indicatorId] = filteredFiles;
-
-        return updatedFiles;
-      });
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : 'An unknown error occurred';
-      console.error('Delete file error:', errorMessage);
-      toast.error(`Failed to delete file: ${errorMessage}`);
-    }
+        {
+          label: 'No',
+          onClick: () => {},
+        },
+      ],
+    });
   };
   const fileUploadUrl = `${apiURL}/uploadS3`;
   useEffect(() => {
@@ -398,10 +498,63 @@ const UploadEvidence = () => {
     setActiveStep((prevStep) => prevStep - 1);
   };
 
+  const handleFinishUploading = async () => {
+    try {
+      const response = await fetch(`${apiURL}/updateStatus/${currentName}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ uniName: currentName }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP status ${response.status}`);
+      }
+
+      toast.success('Upload finalized successfully');
+      setUniversityStatus('completed');
+      setShowModal(false); // Close the modal after the user clicks "Yes"
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'An unknown error occurred';
+      console.error('Error finalizing upload:', errorMessage);
+      toast.error(`Failed to finalize upload: ${errorMessage}`);
+      setShowModal(false); // Ensure the modal closes even on error
+    }
+  };
+
   return (
     <DefaultLayout>
+      {/* <Loading/> */}
       <Breadcrumb pageName="Upload Evidence" />
+      {/* {universityStatus === 'completed' && (
+        <CompletionMessage>
+          You have submited The final vesion to BQA
+        </CompletionMessage>
+      )} */}
       <MainContainer>
+        {universityStatus === 'in-progress' && (
+          <FinishButtonContainer>
+            <FinishButton onClick={() => setShowModal(true)}>
+              Submit Final Version
+            </FinishButton>
+          </FinishButtonContainer>
+        )}
+        <Modal
+          isOpen={showModal}
+          onRequestClose={() => setShowModal(false)}
+          contentLabel="Confirm Finish Uploading"
+          style={customStyles} // Apply custom styles here
+        >
+          <h2>Are you sure you want to finalize your upload?</h2>
+          <ButtonsContainer>
+            <ButtonStyle onClick={() => setShowModal(false)}>
+              Cancel
+            </ButtonStyle>
+            <ButtonStyle onClick={handleFinishUploading}>Yes</ButtonStyle>
+          </ButtonsContainer>
+        </Modal>
 
         <SectionTitle>
           {standards[activeStep]?.standardId}:{' '}
@@ -432,57 +585,55 @@ const UploadEvidence = () => {
         </ButtonsContainer>
         <br />
 
-        {standards[activeStep]?.indicators.map((indicator: any, index: any) => (
-         
-         indicator.id && indicator.label ? (
-         <div key={`${activeStep}-${index}`} className="card">
-            {/* <StandardName>{standards[activeStep].standardName}</StandardName> */}
+        {standards[activeStep]?.indicators.map((indicator: any, index: any) =>
+          indicator.id && indicator.label ? (
+            <div key={`${activeStep}-${index}`} className="card">
+              {/* <StandardName>{standards[activeStep].standardName}</StandardName> */}
 
-           
               <IndicatorName>
                 {indicator.id}: {indicator.label}
               </IndicatorName>
-           
-            <FileUpload
-              name={`upload-${activeStep}-${index}`}
-              url={fileUploadUrl}
-              multiple
-              accept="*"
-              auto={true}
-              maxFileSize={10000000} // 10 MB limit
-              onSelect={(e) =>
-                handleFileChange(e.files, standards[activeStep], indicator)
-              }
-              onError={(e) => {
-                console.error('Upload Error:', e);
-              }}
-              emptyTemplate={<p>Drag and drop files here to upload</p>}
-            />
-            <div style={{ marginTop: '10px' }}>
-              {(
-                uploadedFiles[standards[activeStep]?.standardId]?.[
-                  indicator.id
-                ] || []
-              ).map((file: any) => (
-                <StyledFileDisplay key={file.name}>
-                  <i className="pi pi-file" style={{ fontSize: '1.2em' }}></i>
-                  {file.name.split('/').pop()}
-                  <DeleteIcon
-                    className="pi pi-times"
-                    onClick={() =>
-                      handleFileDelete(
-                        file.name,
-                        standards[activeStep]?.standardId,
-                        indicator.id,
-                      )
-                    }
-                  />
-                </StyledFileDisplay>
-              ))}
+
+              <FileUpload
+                name={`upload-${activeStep}-${index}`}
+                url={fileUploadUrl}
+                multiple
+                accept="*"
+                auto={true}
+                maxFileSize={10000000} // 10 MB limit
+                onSelect={(e) =>
+                  handleFileChange(e.files, standards[activeStep], indicator)
+                }
+                onError={(e) => {
+                  console.error('Upload Error:', e);
+                }}
+                emptyTemplate={<p>Drag and drop PDF files here to upload</p>}
+              />
+              <div style={{ marginTop: '10px' }}>
+                {(
+                  uploadedFiles[standards[activeStep]?.standardId]?.[
+                    indicator.id
+                  ] || []
+                ).map((file: any) => (
+                  <StyledFileDisplay key={file.name}>
+                    <i className="pi pi-file" style={{ fontSize: '1.2em' }}></i>
+                    {file.name.split('/').pop()}
+                    <DeleteIcon
+                      className="pi pi-times"
+                      onClick={() =>
+                        handleFileDelete(
+                          file.name,
+                          standards[activeStep]?.standardId,
+                          indicator.id,
+                        )
+                      }
+                    />
+                  </StyledFileDisplay>
+                ))}
+              </div>
             </div>
-          </div>
-           ) : null
-        ))}
+          ) : null,
+        )}
       </MainContainer>
     </DefaultLayout>
   );

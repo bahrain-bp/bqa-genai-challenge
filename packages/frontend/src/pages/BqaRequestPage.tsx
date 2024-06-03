@@ -2,10 +2,12 @@ import Breadcrumb from '../components/Breadcrumbs/Breadcrumb';
 import React, { useEffect, useState } from 'react';
 import DefaultLayout from '../layout/DefaultLayout';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 // import { useTranslation } from 'react-i18next';
 import { fetchUserAttributes } from 'aws-amplify/auth';
+
 
 
 
@@ -20,6 +22,7 @@ const BqaRequestPage: React.FC = () => {
   const [userEmail, setUserEmail] = useState('');
   const subject = 'Additional Document Required';
   const [body, setBody] = useState('');
+  const navigate = useNavigate();
   const navigate = useNavigate();
 
   // const { t } = useTranslation(); // Hook to access translation functions

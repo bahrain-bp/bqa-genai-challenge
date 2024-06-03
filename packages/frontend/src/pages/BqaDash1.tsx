@@ -12,6 +12,7 @@ interface User {
   Username: string;
   Attributes: { Name: string; Value: string }[];
   imageUrl: string; // Added imageUrl property
+  status: string;
 }
 
 const BqaDash1 = () => {
@@ -21,7 +22,7 @@ const BqaDash1 = () => {
   const [users, setUsers] = useState<User[]>([]); // Updated users type to User[]
   const { t } = useTranslation(); // Hook to access translation functions
   const [imagesFetched, setImagesFetched] = useState<boolean>(false); // Flag to track if images are fetched
-
+  const [statusFetched, setStatusFetched] = useState<boolean>(false); // Flag to track if statuses are fetched
   useEffect(() => {
     const fetchCognitoUsers = async () => {
       try {
@@ -35,7 +36,11 @@ const BqaDash1 = () => {
             },
           );
           setUsers(
-            filteredUsers.map((user: any) => ({ ...user, imageUrl: '' })),
+            filteredUsers.map((user: any) => ({
+              ...user,
+              imageUrl: '',
+              status: '',
+            })),
           );
         } else {
           console.error('Error fetching users:', data.error);
@@ -49,11 +54,45 @@ const BqaDash1 = () => {
     fetchCognitoUsers();
   }, [apiUrl]);
 
-
   useEffect(() => {
     const timer = setTimeout(() => setLoading(false), 1000);
     return () => clearTimeout(timer); // Cleanup the timeout on component unmount
   }, []);
+
+  useEffect(() => {
+    if (!statusFetched && users.length > 0) {
+      const fetchStatuses = async () => {
+        try {
+          const response = await axios.get(`${apiUrl}/listUni`);
+          const statusData = response.data;
+          console.log('Fetched status data:', statusData);
+
+          setUsers((prevUsers) =>
+            prevUsers.map((user) => {
+              const uniName = getAttributeValue(user.Attributes, 'name');
+              const uniStatus = statusData.find(
+                (status: { uniName: string }) => status.uniName === uniName,
+              );
+              console.log(
+                'Matching user:',
+                user.Username,
+                'with university:',
+                uniName,
+                'status:',
+                uniStatus ? uniStatus.status : 'N/A',
+              );
+              return { ...user, status: uniStatus ? uniStatus.status : 'N/A' };
+            }),
+          );
+          setStatusFetched(true); // Set flag to prevent further fetching
+        } catch (error) {
+          console.error('Error fetching university statuses:', error);
+        }
+      };
+
+      fetchStatuses();
+    }
+  }, [users, statusFetched, apiUrl]);
 
   useEffect(() => {
     if (!imagesFetched && users.length > 0) {
@@ -122,7 +161,6 @@ const BqaDash1 = () => {
     return attribute ? attribute.Value : 'N/A';
   };
 
-
   return loading ? (
     <Loader />
   ) : (
@@ -165,17 +203,20 @@ const BqaDash1 = () => {
                   )}
                 </div>
 
-                <div className="d-flex justify-content-between align-items-center">
-                  <h3 className="text-lg font-semibold mb-3">
-                    {getAttributeValue(user.Attributes, 'name')}
-                  </h3>
-                  <div className="inline-flex rounded-full bg-opacity-10 py-1 px-3 text-sm font-medium indicator bg-success text-success">
-                    {t('completed')}
+                  <div className="d-flex justify-content-between align-items-center">
+                    <h3 className="text-lg font-semibold mb-3">
+                      {getAttributeValue(user.Attributes, 'name')}
+                    </h3>
+                    <div
+                      className={`inline-flex rounded-full bg-opacity-10 py-1 px-3 text-sm font-medium indicator ${statusClass}`}
+                    >
+                      {user.status}
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </DefaultLayout>

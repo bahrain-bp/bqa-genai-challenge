@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import Breadcrumb from '../components/Breadcrumbs/Breadcrumb';
 import DefaultLayout from '../layout/DefaultLayout';
 import './PredefinedTemplate.css'; // Importing CSS file
+import { useNavigate } from 'react-router-dom';
+
 //import { aws_cognito as cognito } from 'aws-cdk-lib';
 //import { env } from 'process';
 //import { signUp, confirmSignUp } from 'aws-amplify/auth';
@@ -58,6 +60,7 @@ const AddUni = () => {
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
   const [logo, setLogo] = useState<File | null>(null);
+  const navigate = useNavigate();
 
   const getMimeType = (filename: any) => {
     const extension = filename.split('.').pop();
@@ -92,9 +95,11 @@ const AddUni = () => {
       await uploadLogo(logo, name); //
 
       toast.success('User and logo added successfully!');
+      navigate('/BqaDash1'); // Redirect to bqadash1 page
+
     } catch (error) {
       console.error('Error:', error);
-      toast.error('Error, please try again.');
+      toast.error('The email you enterd is already use.');
     }
   }
 
@@ -148,8 +153,9 @@ const AddUni = () => {
       toast.error('Please select a logo to upload.');
       return;
     }
-    const url =
-      'https://u1oaj2omi2.execute-api.us-east-1.amazonaws.com/uploadLogo'; // This will be replaced with the main api
+    const url =`${apiUrl}/uploadLogo`;
+
+      // 'https://u1oaj2omi2.execute-api.us-east-1.amazonaws.com/uploadLogo'; // This will be replaced with the main api
     /////
     const formData = new FormData();
     formData.append('logo', logo, logo.name); // Append the file to FormData
@@ -197,6 +203,8 @@ const AddUni = () => {
       }
     } catch (error) {
       console.error('Error uploading logo:', error);
+      toast.error('The email you enterd is already used.');
+
       // Handle error (e.g., display error message to the user)
     }
   };
