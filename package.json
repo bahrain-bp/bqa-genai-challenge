@@ -19,6 +19,7 @@
     "@vitejs/plugin-react": "^4.2.1",
     "aws-cdk-lib": "^2.132.0",
     "constructs": "^10.3.0",
+    "sass": "^1.77.4",
     "sst": "^2.40.3",
     "typescript": "^5.2.2",
     "vite": "^4.4.0"
@@ -47,13 +48,11 @@
     "aws-amplify": "^6.3.2",
     "aws-sdk": "^2.1606.0",
     "axios": "^1.7.0",
-
-    "base64-js": "^1.5.1",
-
     "axios-retry": "^4.3.0",
-
+    "base64-js": "^1.5.1",
     "bootstrap": "^5.3.3",
     "bootstrap-icons": "^1.11.3",
+    "framer": "^2.4.1",
     "get-video-duration": "^4.1.0",
     "i18n": "^0.15.1",
     "i18next": "^23.11.3",
