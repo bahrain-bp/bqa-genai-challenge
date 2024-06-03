@@ -56,11 +56,11 @@ const BqaDash2 = ({}) => {
   // }
 
   //const [selectedFile, setSelectedFile] = useState(null);
-  const query = useQuery();
-  const name = query.get('name');
+  const { name } = useParams();
+  console.log('name:' + name);
 
-  const query2 = useQuery();
-  const username = query2.get('username');
+  const { username } = useParams();
+  console.log('username:' + username);
 
   //use /files enpoint to fetch uni files --pass uniName/Standard selected
   console.log('uniName', uniName);
