@@ -33,7 +33,8 @@ import SummaryPage from './pages/summaryPage';
 import RubricPage from './pages/RubricPage';
 import UploadVideo from './pages/UploadVideo';
 import Page403 from './pages/Page403';
-//import P403 from './pages/P403';
+import HomePagess from './pages/homePagess';
+import { BrowserRouter as Router } from 'react-router-dom';
 
 function App() {
   const [user, setUser] = useState<any | null>(null);
@@ -172,6 +173,8 @@ function App() {
             </>
           }
         />
+
+       
         <Route
           path="/chart"
           element={
@@ -248,6 +251,17 @@ function App() {
             </>
           }
         />
+
+        <Route
+          path="/homePagess"
+          element={
+            <>
+              <PageTitle title="homePagess | EduScribe" />
+              <HomePagess />
+            </>
+          }
+        />
+      
 
         {/*===================================================================================================================================*/}
         {/* Route Available to BQA Reviewer Only */}
