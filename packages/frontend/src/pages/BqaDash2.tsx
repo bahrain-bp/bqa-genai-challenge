@@ -46,6 +46,7 @@ const BqaDash2 = ({}) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
   const [comment, setComment] = useState('');
+  const [sourceEmail, setSourceEmail] = useState('');
   const [userEmail, setUserEmail] = useState('');
 
   console.log(uniName, 'name uni');
@@ -227,19 +228,67 @@ const BqaDash2 = ({}) => {
     setTimeout(() => setLoading(false), 1000);
   }, []);
 
+  // getting user attribute
+  const getAttributeValue = (attributes: { Name: string; Value: string }[], attributeName: string): string => {
+    const attribute = attributes.find(attr => attr.Name === attributeName);
+    return attribute ? attribute.Value : 'N/A'; // Returns 'N/A' if attribute not found
+  };
+
   useEffect(() => {
     // getting current user email
     const getCurrentUserInfo = async () => {
       try {
         const attributes = fetchUserAttributes();
-        setUserEmail((await attributes)?.email ?? ''); // Provide a default value for setSourceEmail
-        console.log("Email will be sent to: " + (await attributes)?.email ?? ''); // email doesn't show in the log but is recognized
+        setSourceEmail((await attributes)?.email ?? ''); // Provide a default value for setSourceEmail
+        console.log("Source Email:" + (await attributes)?.email ?? ''); // email doesn't show in the log but is recognized
       } catch (error) {
         console.error('Failed to fetch user info:', error);
       }
     };
+
+    // getting university user email
+    const fetchUserInfo = async () => {
+
+      if (!name) {
+        console.error('No name provided in query parameters');
+        return;
+      }
+      try {
+        // Assuming fetchUserAttributes takes a name parameter and fetches the corresponding user attributes
+        const response = await fetch(`${apiURL}/getUsers`);
+
+        // const response = await fetch(`https://u1oaj2omi2.execute-api.us-east-1.amazonaws.com/getUsers`);
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+       
+          const filteredUsers = data.filter((user: { Attributes: { Name: string; Value: string; }[]; }) => {
+            const nameValue = getAttributeValue(user.Attributes, 'name');
+            return nameValue === name;
+          }).map((user: { Attributes: { Name: string; Value: string; }[]; }) => ({
+            name: getAttributeValue(user.Attributes, 'name'), // Extract name
+            email: getAttributeValue(user.Attributes, 'email') // Extract email
+        }   ));
+
+         // Check if there's a matching user and set their email
+            if (filteredUsers.length > 0) {
+              setUserEmail(filteredUsers[0].email); 
+              console.log(`Email of ${name}: ${filteredUsers[0].email}`);
+            } else {
+                console.log(`No user found with the name: ${name}`);
+                // setuserEmail(''); // Clear the email if no user is found
+            }
+         
+      } catch (error) {
+        console.error('Error fetching user info:', error);
+      }
+    };
+
     getCurrentUserInfo();
-  }, []);
+    fetchUserInfo();
+  }, [name]);
 
   const openModal = () => setIsCommentModalOpen(true);
   const closeModal = () => setIsCommentModalOpen(false);
@@ -271,7 +320,6 @@ const BqaDash2 = ({}) => {
 
     // send the comment by email
     try {
-      const sourceEmail = 'noreplyeduscribeai@gmail.com';
       const subject = `BQA Reviewer Added a Comment on ${fileKey}`;
       const body = `Filename : ${fileKey} \n comment : ${comment}`;
 
