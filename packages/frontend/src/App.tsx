@@ -33,6 +33,8 @@ import SummaryPage from './pages/summaryPage';
 import RubricPage from './pages/RubricPage';
 import UploadVideo from './pages/UploadVideo';
 import Page403 from './pages/Page403';
+import AssessmentPage from './pages/AssessmentPage';
+
 //import P403 from './pages/P403';
 
 function App() {
@@ -87,7 +89,7 @@ function App() {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, [pathname]);
+  }, [pathname,isAdmin]);
 
   useEffect(() => {
     setTimeout(() => setLoading(false), 2000);
@@ -344,6 +346,16 @@ function App() {
 ) : (
   <Route path="*" element={<Page403 />} />
 )}
+            <Route
+              path="/AssessmentPage"
+              element={
+                <>
+                  <PageTitle title="Assessment Page | EduScribe" />
+                  <AssessmentPage />
+                </>
+              }
+            />
+
 
         <Route
           path="RubricPage/:standardId/:indicatorId"
@@ -356,6 +368,8 @@ function App() {
         />
       </Routes>
     </>
+
+    
   );
 }
 
