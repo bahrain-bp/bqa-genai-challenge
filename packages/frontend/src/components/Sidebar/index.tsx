@@ -1,12 +1,12 @@
-import React, { useEffect, useRef, useState } from 'react';
+import /*React,*/ { useEffect, useRef, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import SidebarLinkGroup from './SidebarLinkGroup';
+// import SidebarLinkGroup from './SidebarLinkGroup';
 import Logo from '../../images/logo/Eduscribe.svg';
 import { fetchUserAttributes } from 'aws-amplify/auth';
 import Loader from '../../common/Loader';
-import { signOut } from 'aws-amplify/auth';
-import { toast } from 'react-toastify';
-import { useNavigate } from 'react-router-dom';
+// import { signOut } from 'aws-amplify/auth';
+// import { toast } from 'react-toastify';
+// import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
 interface SidebarProps {
@@ -24,7 +24,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
   const [/*currentName*/, setCurrentName] = useState('');
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   useEffect(() => {
     const fetchCurrentUserInfo = async () => {
@@ -43,23 +43,23 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
     fetchCurrentUserInfo();
   }, []);
 
-  const handleSignOut = async () => {
-    try {
-      await signOut();
-      // Navigate to the SignInPage after signing out
-      navigate('/Auth/SignInPage');
-      toast.success('Logged out successfully', { position: 'top-left' });
-    } catch (error) {
-      console.error('Error signing out', error);
-      toast.error('Error during logout', { position: 'top-left' });
-    }
-  };
+  // const handleSignOut = async () => {
+  //   try {
+  //     await signOut();
+  //     // Navigate to the SignInPage after signing out
+  //     navigate('/Auth/SignInPage');
+  //     toast.success('Logged out successfully', { position: 'top-left' });
+  //   } catch (error) {
+  //     console.error('Error signing out', error);
+  //     toast.error('Error during logout', { position: 'top-left' });
+  //   }
+  // };
 
   const changeLanguage = (lng: string) => {
     i18n.changeLanguage(lng);
   };
   const storedSidebarExpanded = localStorage.getItem('sidebar-expanded');
-  const [sidebarExpanded, setSidebarExpanded] = useState(
+  const [sidebarExpanded, /*setSidebarExpanded*/] = useState(
     storedSidebarExpanded === null ? false : storedSidebarExpanded === 'true'
   );
 
@@ -299,10 +299,10 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
 
           {/* <!-- Others Group --> */}
           <div>
-            <h3 className="mb-4 ml-4 text-sm font-semibold text-bodydark2">
+            {/* <h3 className="mb-4 ml-4 text-sm font-semibold text-bodydark2">
 
               {t('others')}
-            </h3>
+            </h3> */}
 
             <ul className="mb-6 flex flex-col gap-1.5">
 
@@ -348,13 +348,13 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
               </li>*/}
               {/* <!-- Menu Item Settings --> */}
               {/* <!-- Menu Item Auth Pages --> */}
-              <SidebarLinkGroup
+              {/* <SidebarLinkGroup
                 activeCondition={
                   pathname === '/auth' || pathname.includes('auth')
                 }
-              >
-                {(handleClick, open) => {
-                  return (
+              > */}
+                {/* {(handleClick, open) => { */}
+                  {/* return (
                     <React.Fragment>
                       <NavLink
                         to="#"
@@ -367,8 +367,8 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                             ? handleClick()
                             : setSidebarExpanded(true);
                         }}
-                      >
-                        <svg
+                      > */}
+                        {/* <svg
                           className="fill-current"
                           width="18"
                           height="19"
@@ -384,8 +384,8 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                             <path
                               d="M10.4346 8.60205L7.62207 5.7333C7.36895 5.48018 6.97519 5.48018 6.72207 5.7333C6.46895 5.98643 6.46895 6.38018 6.72207 6.6333L8.46582 8.40518H3.45957C3.12207 8.40518 2.84082 8.68643 2.84082 9.02393C2.84082 9.36143 3.12207 9.64268 3.45957 9.64268H8.49395L6.72207 11.4427C6.46895 11.6958 6.46895 12.0896 6.72207 12.3427C6.83457 12.4552 7.00332 12.5114 7.17207 12.5114C7.34082 12.5114 7.50957 12.4552 7.62207 12.3145L10.4346 9.4458C10.6877 9.24893 10.6877 8.85518 10.4346 8.60205Z"
                               fill=""
-                            />
-                          </g>
+                            /> */}
+                          {/* </g>
                           <defs>
                             <clipPath id="clip0_130_9814">
                               <rect
@@ -396,9 +396,9 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                               />
                             </clipPath>
                           </defs>
-                        </svg>
-                        {t('authentication')}
-                        <svg
+                        </svg> */}
+                        {/* {t('authentication')} */}
+                        {/* <svg
                           className={`absolute right-4 top-1/2 -translate-y-1/2 fill-current ${open && 'rotate-180'
                             }`}
                           width="20"
@@ -406,21 +406,21 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                           viewBox="0 0 20 20"
                           fill="none"
                           xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
+                        > */}
+                          {/* <path
                             fillRule="evenodd"
                             clipRule="evenodd"
                             d="M4.41107 6.9107C4.73651 6.58527 5.26414 6.58527 5.58958 6.9107L10.0003 11.3214L14.4111 6.91071C14.7365 6.58527 15.2641 6.58527 15.5896 6.91071C15.915 7.23614 15.915 7.76378 15.5896 8.08922L10.5896 13.0892C10.2641 13.4147 9.73651 13.4147 9.41107 13.0892L4.41107 8.08922C4.08563 7.76378 4.08563 7.23614 4.41107 6.9107Z"
                             fill=""
                           />
                         </svg>
-                      </NavLink>
+                      </NavLink> */}
                       {/* <!-- Dropdown Menu Start --> */}
-                      <div
+                      {/* <div
                         className={`translate transform overflow-hidden ${!open && 'hidden'
                           }`}
-                      >
-                        <ul className="mt-4 mb-5.5 flex flex-col gap-2.5 pl-6">
+                      > */}
+                        {/* <ul className="mt-4 mb-5.5 flex flex-col gap-2.5 pl-6">
                           <li>
                             <NavLink
                               to="/ChangePassword"
@@ -428,36 +428,36 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                                 'group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:text-white ' +
                                 (isActive && '!text-white')
                               }
-                            >
-                              Change your password
+                            > */}
+                              {/* Change your password
                             </NavLink>
-                          </li>
+                          </li> */}
 
 
 
 
-                          <li className="mt-4 mb-5.5 flex flex-col gap-2.5 pl-6">
+                          {/* <li className="mt-4 mb-5.5 flex flex-col gap-2.5 pl-6"> */}
                             {/* Logout */}
-                            <NavLink
+                            {/* <NavLink
                               to="/"
                               onClick={handleSignOut}
                               className='group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:text-white '
 
-                            >
-                              Log Out
+                            > */}
+                              {/* Log Out */}
 
 
-                            </NavLink>
+                            {/* </NavLink> */}
 
 
-                          </li>
-                        </ul>
-                      </div>
+                          {/* </li> */}
+                        {/* </ul> */}
+                      {/* </div> */}
                       {/* <!-- Dropdown Menu End --> */}
-                    </React.Fragment>
-                  );
-                }}
-              </SidebarLinkGroup>
+                    {/* </React.Fragment> */}
+                  {/* ); */}
+                {/* }} */}
+              {/* </SidebarLinkGroup>   */}
               {/* <!-- Menu Item Auth Pages --> */}
             </ul>
           </div>
