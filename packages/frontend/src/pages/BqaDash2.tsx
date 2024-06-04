@@ -12,6 +12,7 @@ import Pagination from '@mui/material/Pagination';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import CommentModal from './Comments';
+import { fetchUserAttributes } from 'aws-amplify/auth';
 
 // import MultiSelect from '../components/Forms/MultiSelect';
 import {
@@ -45,6 +46,7 @@ const BqaDash2 = ({}) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
   const [comment, setComment] = useState('');
+  const [userEmail, setUserEmail] = useState('');
 
   console.log(uniName, 'name uni');
   // State for search term in the search bar
@@ -52,6 +54,7 @@ const BqaDash2 = ({}) => {
 
   // State for selected indicator in the select menu
   const [selectedIndicator, setSelectedIndicator] = useState('');
+
 
   // import { useLocation } from 'react-router-dom';
 
@@ -224,36 +227,86 @@ const BqaDash2 = ({}) => {
     setTimeout(() => setLoading(false), 1000);
   }, []);
 
-  
+  useEffect(() => {
+    // getting current user email
+    const getCurrentUserInfo = async () => {
+      try {
+        const attributes = fetchUserAttributes();
+        setUserEmail((await attributes)?.email ?? ''); // Provide a default value for setSourceEmail
+        console.log("Email will be sent to: " + (await attributes)?.email ?? ''); // email doesn't show in the log but is recognized
+      } catch (error) {
+        console.error('Failed to fetch user info:', error);
+      }
+    };
+    getCurrentUserInfo();
+  }, []);
+
   const openModal = () => setIsCommentModalOpen(true);
   const closeModal = () => setIsCommentModalOpen(false);
 
   const handleAddComment = async (fileKey:any ) => {
-    console.log(`Adding comment to : ${comment}`);
     // Add comment to the database
+    // try {
+    //   const response = await axios.post(`${apiURL}/addFileComments`, {
+    //     // replace '' with the actual values
+    //     fileName: fileKey, // I assume this is the file name correct me if I'm wrong
+    //     fileURL: '',
+    //     standardName: '',
+    //     standardNumber: '',
+    //     indicatorNumber: '',
+    //     name: '',
+    //     content: '',
+    //     summary: '',
+    //     strength: '',
+    //     weakness: '',
+    //     score: '',
+    //     comments: comment,
+    //   });
+    //   console.log(response.data);
+    //   toast.success('Comment added successfully');
+    // } catch (error) {
+    //   console.error('Error adding comment:', error);
+    //   toast.error('Failed to add comment');
+    // }
+
+    // send the comment by email
     try {
-      const response = await axios.post(`${apiURL}/addFileComments`, {
-        // Data to be sent to Lambda function
-        // Adjust the payload according to your Lambda function's requirements
-        fileName: fileKey,
-        fileURL: '',
-        standardName: '',
-        standardNumber: '',
-        indicatorNumber: 'exampleIndicatorNumber',
-        name: 'exampleName',
-        content: 'exampleContent',
-        summary: 'exampleSummary',
-        strength: 'exampleStrength',
-        weakness: 'exampleWeakness',
-        score: 'exampleScore',
-        comments: comment,
-      });
-      console.log(response.data);
-      toast.success('Comment added successfully');
-    } catch (error) {
-      console.error('Error adding comment:', error);
-      toast.error('Failed to add comment');
-    }
+      const sourceEmail = 'noreplyeduscribeai@gmail.com';
+      const subject = `BQA Reviewer Added a Comment on ${fileKey}`;
+      const body = `Filename : ${fileKey} \n comment : ${comment}`;
+
+      console.log('sourceEmail:', sourceEmail);
+      console.log('userEmail:', userEmail);
+      console.log('subject:', subject);
+      console.log('body:', body);
+
+      // Invoke lambda function to send email
+      const response = await fetch(`${apiURL}/send-email`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          sourceEmail,
+          userEmail, // recipient
+          subject,
+          body
+      })
+    });
+    
+    // Get the response data
+    const responseData = await response.json();
+
+    if (responseData.result === 'OK') 
+      {
+        toast.success(`Request is successfully sent to ${userEmail}`, { position: 'top-right' });
+      } else {
+        toast.error('Failed to send the request.', { position: 'top-right' });
+      }
+  } catch (error) {
+    console.error('Network Error:', error);
+    toast.error('Error Catched: Failed to send the request.', { position: 'top-right' });
+  }
     setIsModalOpen(false);
   };
 
