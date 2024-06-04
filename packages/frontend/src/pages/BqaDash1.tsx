@@ -187,7 +187,7 @@ const BqaDash1 = () => {
                 onClick={() =>
                   isClickable &&
                   navigate(
-                    `/BqaDash2/${getAttributeValue(user.Attributes, 'name')}?${user.Username}`,
+                    `/BqaDash2/${getAttributeValue(user.Attributes, 'name')}?username=${user.Username}`,
                     {
                       state: {
                         uniName: getAttributeValue(user.Attributes, 'name'),
