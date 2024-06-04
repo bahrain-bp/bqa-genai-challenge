@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import SelectGroupTwo from '../components/Forms/SelectGroup/SelectGroupTwo';
 import DefaultLayout from '../layout/DefaultLayout';
-import { useParams, useLocation } from 'react-router-dom';
 import ConfirmationDialog from '../components/Forms/ConfirmDialog';
 import Breadcrumb from '../components/Breadcrumbs/Breadcrumb';
 import Loader from '../common/Loader';
 import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { fetchUserAttributes } from '@aws-amplify/auth';
 
 interface Criterion {
@@ -16,25 +17,24 @@ interface Criterion {
   outputText: string;
 }
 
-const itemsPerPage = 2;
+const itemsPerPage = 5;
 
-const RubricPage: React.FC = () => {
+const AssessmentPage: React.FC = () => {
+  const [selectedStandard, setSelectedStandard] = useState<string>('');
+  const [selectedIndicator, setSelectedIndicator] = useState<string>('');
+  const [selectedStandardName, setSelectedStandardName] = useState<string>('');
+  const [selectedIndicatorName, setSelectedIndicatorName] = useState<string>('');
   const [currentName, setCurrentName] = useState<string>('');
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [criteria, setCriteria] = useState<Criterion[]>([]);
   const [isConfirmationDialogOpen, setIsConfirmationDialogOpen] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [status, setStatus] = useState<string | null>(null);
-  const { standardId, indicatorId } = useParams<{ standardId: string; indicatorId: string; }>();
-  const location = useLocation();
-  const standardName = location.state?.standardName || '';
-  const indicatorName = location.state?.indicatorName || '';
   const apiURL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     const fetchUserInfo = async () => {
       try {
-        // Assuming you have a function to fetch user attributes from your authentication service
         const attributes = await fetchUserAttributes();
         const name = attributes?.name || '';
         setCurrentName(name);
@@ -47,19 +47,24 @@ const RubricPage: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (currentName) {
+    if (currentName && selectedStandard && selectedIndicator) {
       fetchStatusAndData();
     }
-  }, [currentName, standardId, indicatorId]);
+  }, [currentName, selectedStandard, selectedIndicator,status]);
 
   const getStatus = async (): Promise<string | null> => {
     try {
+      const combinedKey = `${currentName}-${selectedStandard}-${selectedIndicator}`;
+      console.log('combined-key', combinedKey);
+      
       const response = await axios.get(`${apiURL}/status`, {
         headers: {
-          'combined-key': `${currentName}-${standardId}-${indicatorId}`,
+          'combined-key': combinedKey,
         },
       });
+      console.log(response.data[0]?.status);
       return response.data[0]?.status || null;
+
     } catch (error) {
       console.error('Error fetching status:', error);
       return null;
@@ -69,6 +74,7 @@ const RubricPage: React.FC = () => {
   const fetchStatusAndData = async () => {
     const status = await getStatus();
     setStatus(status);
+    console.log(status, "status");
     if (status !== 'Processing') {
       fetchData();
     } else {
@@ -77,23 +83,27 @@ const RubricPage: React.FC = () => {
   };
 
   useEffect(() => {
-    const interval = setInterval(async () => {
-      const status = await getStatus();
-      setStatus(status);
-      if (status === 'Completed') {
-        clearInterval(interval);
-        if (criteria.length === 0) {
+    if (criteria.length === 0 && (status === 'Processing' || status === 'Failed')) {
+      const interval = setInterval(async () => {
+        const status = await getStatus();
+        setStatus(status);
+        if (status === 'Completed') {
+          clearInterval(interval);
           fetchData();
+        } else if (status === 'Failed') {
+          clearInterval(interval);
+          setIsLoading(false);
+          toast.error('Failed fetching content: No content found');
         }
-      }
-    }, 5000);
+      }, 5000);
 
-    return () => clearInterval(interval);
-  }, [standardId, indicatorId, criteria.length]);
+      return () => clearInterval(interval);
+    }
+  }, [criteria.length, status]);
 
   const fetchData = async () => {
     try {
-      const response = await axios.get(`${apiURL}/compareResult/${currentName}/${standardId}/${indicatorId}`);
+      const response = await axios.get(`${apiURL}/compareResult/${currentName}/${selectedStandard}/${selectedIndicator}`);
       if (response.data.length === 0) {
         setIsConfirmationDialogOpen(true);
       } else {
@@ -113,25 +123,39 @@ const RubricPage: React.FC = () => {
     }
   };
 
+  const handleSelectionChange = (
+    standardId: string,
+    indicatorId: string,
+    standardName: string,
+    indicatorName: string,
+  ) => {
+    setSelectedStandard(standardId);
+    setSelectedIndicator(indicatorId);
+    setSelectedStandardName(standardName);
+    setSelectedIndicatorName(indicatorName);
+  };
+
   const handleYesAIComment = () => {
     const headers = {
       'uni-name': currentName,
-      'standard-number': standardId,
-      'indicator-number': indicatorId,
+      'standard-number': selectedStandard,
+      'indicator-number': selectedIndicator,
     };
+    console.log(headers, "headers");
 
     axios.post(`${apiURL}/titan`, {}, { headers })
       .then((response) => {
         if (!response.data.success) {
           if (response.data.message === 'No content found') {
-            toast('No content found');
-            alert('No content found for the specified standard and indicator.');
-          } else if (response.data.message === 'Error fetching contents') {
-            alert('An error occurred while fetching contents. Please try again.');
-          } else {
-            alert(`An error occurred: ${response.data.message}`);
-          }
-        } else {
+            //toast('No content found');
+            //alert('No content found for the specified standard and indicator.');
+          // } else if (response.data.message === 'Error fetching contents') {
+          //   alert('An error occurred while fetching contents. Please try again.');
+          // }
+          // } else {
+          //   alert(`An error occurred: ${response.data.message}`);
+          // }
+      }  } else {
           console.log('Content:', response.data.data);
           setStatus('Done');
         }
@@ -142,7 +166,8 @@ const RubricPage: React.FC = () => {
           if (error.response.status === 404) {
             alert('The requested resource was not found.');
           } else if (error.response.status === 500) {
-            alert('An internal server error occurred. Please try again later.');
+            //alert('An internal server error occurred. Please try again later.');
+            toast.error("No Content Found For This Indiactor");
           } else {
             alert(`Server responded with status code: ${error.response.status}`);
           }
@@ -159,22 +184,38 @@ const RubricPage: React.FC = () => {
   };
 
   const formatOutputText = (text: string) => {
-    const formattedText = text.replace(/(?<=\S)- /g, '\n-');
+    const formattedText = text.replace(
+      /(score|compliant|compliant with the recommendation|recommendation|Compliant with recommendation|compliant(?= )|non-compliant|non compliant)/gi,
+      '<strong>$1</strong>'
+    );
+  
     return (
       <ul>
-        {formattedText.split('\n\n').map((sentence, index) => (
-          <li key={index}>{sentence}</li>
+        {formattedText.split('\n').map((point, index) => (
+          <li key={index} dangerouslySetInnerHTML={{ __html: point.trim() }} />
         ))}
       </ul>
     );
   };
+  
+  
+  
+  
 
   const paginatedCriteria = criteria.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   return (
     <DefaultLayout>
-      <Breadcrumb pageName="Assessment Rubric" />
+      <Breadcrumb pageName="Assessment Page" />
       <div className="p-4">
+        <div className="text-center mb-8">
+          <h2 className="text-2xl text-gray-700">
+            {selectedStandardName} / {selectedIndicatorName}
+          </h2>
+        </div>
+        <div className="flex flex-col gap-5.5 p-6.5">
+          <SelectGroupTwo onSelectionChange={handleSelectionChange} />
+        </div>
         {isLoading ? (
           <Loader />
         ) : status === 'Processing' ? (
@@ -183,11 +224,6 @@ const RubricPage: React.FC = () => {
           </div>
         ) : (
           <>
-            <div className="text-center mb-8">
-              <h2 className="text-2xl text-gray-700">
-                {standardName} / {indicatorName}
-              </h2>
-            </div>
             <div>
               <ConfirmationDialog
                 isOpen={isConfirmationDialogOpen}
@@ -204,15 +240,16 @@ const RubricPage: React.FC = () => {
                 <div className="overflow-x-auto">
                   <table className="w-full bg-white border border-gray-300 rounded-lg shadow-lg">
                     <thead>
-                      <tr
-                        className="text-white bg-gradient-to-r from-purple-500 to-pink-500 hover:bg-gradient-to-l focus:ring-4 focus:outline-none focus:ring-purple-200 dark:focus:ring-purple-800 font-regular rounded-lg text-sm px-5 py-3"
-                      >
+                      <tr className="text-white bg-gradient-to-r from-purple-500 to-pink-500 hover:bg-gradient-to-l focus:ring-4 focus:outline-none focus:ring-purple-200 dark:focus:ring-purple-800 font-regular rounded-lg text-sm px-5 py-3">
                         <th className="py-3 px-4 text-left font-bold border-r border-gray-300">
                           Comment
                         </th>
                         <th className="py-3 px-4 text-left font-bold">
-                          Generated Text
+                          Evaluation Result
                         </th>
+                        {/* <th className="py-3 px-4 text-left font-bold">
+                          Compliance
+                        </th> */}
                       </tr>
                     </thead>
                     <tbody>
@@ -231,6 +268,11 @@ const RubricPage: React.FC = () => {
                               {formatOutputText(criterion.outputText)}
                             </span>
                           </td>
+                          {/* <td className="py-4 px-6 border-b border-gray-300">
+                            <span className="text-gray-800">
+                              Compliance
+                            </span>
+                          </td> */}
                         </tr>
                       ))}
                     </tbody>
@@ -238,19 +280,20 @@ const RubricPage: React.FC = () => {
                 </div>
 
                 {criteria.length > itemsPerPage && (
-                  <div className="flex justify-center mt-8">
+                  <div className="flex justify-center mt-10 space-x-4">
                     {currentPage > 1 && (
                       <button
-                        className="mr-4 px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 focus:outline-none"
+                        className="text-white bg-gradient-to-r from-purple-500 to-pink-500 hover:bg-gradient-to-l focus:ring-4 focus:outline-none focus:ring-purple-200 dark:focus:ring-purple-800 font-regular rounded-lg text-sm px-5 py-3"
                         onClick={() => handlePageChange(currentPage - 1)}
                       >
                         Previous
+
                       </button>
+
                     )}
-                    {currentPage <
-                      Math.ceil(criteria.length / itemsPerPage) && (
+                    {currentPage < Math.ceil(criteria.length / itemsPerPage) && (
                       <button
-                        className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 focus:outline-none"
+                        className="text-white bg-gradient-to-r from-purple-500 to-pink-500 hover:bg-gradient-to-l focus:ring-4 focus:outline-none focus:ring-purple-200 dark:focus:ring-purple-800 font-regular rounded-lg text-sm px-5 py-3"
                         onClick={() => handlePageChange(currentPage + 1)}
                       >
                         Next
@@ -263,8 +306,9 @@ const RubricPage: React.FC = () => {
           </>
         )}
       </div>
+   
     </DefaultLayout>
   );
 };
 
-export default RubricPage;
+export default AssessmentPage;
