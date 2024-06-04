@@ -200,6 +200,7 @@ const UploadEvidence = () => {
   const [showModal, setShowModal] = useState(false);
 
   const [currentName, setCurrentName] = useState('');
+  const [currentEmail, setCurrentEmail] = useState('');
 
   useEffect(() => {
     const fetchCurrentUserInfo = async () => {
@@ -207,6 +208,9 @@ const UploadEvidence = () => {
         const attributes = await fetchUserAttributes();
         const name: any = attributes.name;
         setCurrentName(name);
+        const email: any = attributes.email;
+        setCurrentEmail(email);
+        console.log('Current user info:', name, email);
       } catch (error) {
         console.error('Error fetching current user info:', error);
       }
@@ -514,6 +518,40 @@ const UploadEvidence = () => {
 
       toast.success('Upload finalized successfully');
       setUniversityStatus('completed');
+      // send email to BQA
+      try {
+        const sourceEmail = 'noreplyeduscribeai@gmail.com';
+        const userEmail = currentEmail;
+        const subject = 'Final Version Submitted';
+        const body = `Dear ${currentName}, The final version of the university evidence has been submitted. 
+        Please review the evidence and provide feedback.`;
+      
+        // Invoke lambda function to send email
+        const response = await fetch(`${apiURL}/send-email`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            sourceEmail,
+            userEmail, // recipient
+            subject,
+            body
+        })
+        });
+  
+        // Get the response data
+        const responseData = await response.json();
+  
+        if (responseData.result === 'OK') 
+          {
+            console.log(`an email is successfully sent to ${userEmail}`);
+          }
+          
+      } catch (error) {
+        console.error('Network Error:', error);
+      }    
+      
       setShowModal(false); // Close the modal after the user clicks "Yes"
     } catch (error) {
       const errorMessage =
@@ -638,5 +676,4 @@ const UploadEvidence = () => {
     </DefaultLayout>
   );
 };
-
 export default UploadEvidence;
