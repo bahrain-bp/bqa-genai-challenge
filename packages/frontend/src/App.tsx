@@ -33,9 +33,12 @@ import SummaryPage from './pages/summaryPage';
 import RubricPage from './pages/RubricPage';
 import UploadVideo from './pages/UploadVideo';
 import Page403 from './pages/Page403';
+
+import HomePagess from './pages/homePagess';
+
 import AssessmentPage from './pages/AssessmentPage';
 
-//import P403 from './pages/P403';
+
 
 function App() {
   const [user, setUser] = useState<any | null>(null);
@@ -104,7 +107,7 @@ function App() {
 
       <Routes>
         {/* Route to SignInPage */}
-        <Route path="/" element={<Navigate to="/Auth/SignInPage" />} />
+        <Route path="/" element={<Navigate to="/homePagess" />} />
         <Route
           path="/Auth/SignInPage"
           element={<SignInPage setUser={setUser} user={user} />}
@@ -174,6 +177,8 @@ function App() {
             </>
           }
         />
+
+       
         <Route
           path="/chart"
           element={
@@ -250,6 +255,17 @@ function App() {
             </>
           }
         />
+
+        <Route
+          path="/homePagess"
+          element={
+            <>
+              <PageTitle title="homePagess | EduScribe" />
+              <HomePagess />
+            </>
+          }
+        />
+      
 
         {/*===================================================================================================================================*/}
         {/* Route Available to BQA Reviewer Only */}
