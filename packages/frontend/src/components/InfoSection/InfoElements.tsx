@@ -1,38 +1,47 @@
-import styled from "styled-components";
-// import { Link as LinkS} from "react-scroll";
-import {Link} from "react-router-dom";
+import styled from 'styled-components';
+import { Link } from 'react-router-dom';
+import { LinkProps } from 'react-router-dom';
 
+// interface InfoProps {
+//     lightBg: boolean;
+//     imgStart: boolean;
+//     lightText: boolean;
+//     darkText: boolean;
+// }
 
-interface InfoProps {
-    lightBg: boolean;
-    id: string;
-    imgStart: boolean; // or any other appropriate type
-    topLine: string;
-    lightText: boolean;
-    headline: string;6
-    darkText: boolean;
-    description: string;
-    buttonLabel: string;
-    img: string;
-    primary: boolean;
-    dark: boolean;
-    dark2?: boolean; // Use optional if not always required
+interface ButtonProps extends LinkProps {
+    primary?: boolean;
+    dark?: boolean;
+    dark2?: boolean;
+    big?: boolean; // If you're using this, it wasn't passed in your example
+    fontBig?: boolean; // If you're using this, it wasn't passed in your example
 }
 
+interface HeadingProps {
+    lightText: boolean;
+}
+interface SubtitleProps {
+    darkText: boolean;
+}
 
-export const InfoContainer = styled.div<InfoProps>`
+export const InfoContainer = styled.div<{ lightBg: boolean }>`
+    background: ${({ lightBg }) => (lightBg ? '#f9f9f9' : '#fff')};
     color: #fff;
-    background: ${({lightBg}) => (lightBg ? '#f9f9f9' : '010606')};
-    
-    
+    //padding: 100px 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+
     @media screen and (max-width:768px){
         padding: 100px 0;
     }
 `;
 
+
 export const InfoWrapper = styled.div`
     display: grid;
-    z-index:1;
+    z-index: 1;
     height: 660px;
     width: 100%;
     max-width: 1100px;
@@ -40,38 +49,37 @@ export const InfoWrapper = styled.div`
     margin-left: auto;
     padding: 0 24px;
     justify-content: center;
-`
+`;
 
-export const InfoRow = styled.div`
+export const InfoRow = styled.div<{ imgStart: boolean }>`
     display: grid;
-    grid-auto-columns: minmax (auto, 1fr);
+    grid-auto-columns: minmax(auto, 1fr);
     align-items: center;
-    grid-template-areas: ${({imgStart}) => (imgStart ? `'col2 col1'` : `'col1 col2'` )};
+    grid-template-areas: ${({ imgStart }) => (imgStart ? `'col2 col1'` : `'col1 col2'`)};
 
     @media screen and (max-width: 768px) {
-        grid-template-areas: ${({imgStart}) => (imgStart ? `'col1' 'col2'` : `'col1 col1' 'col2 col2'` )};
+        grid-template-areas: ${({ imgStart }) => (imgStart ? `'col1' 'col2'` : `'col1 col1' 'col2 col2'`)};
+    }
+`;
 
-    ｝
-`
 
 export const Column1 = styled.div`
     margin-bottom: 15px;
     padding: 0 15px;
     grid-area: col1;
-`
-
+`;
 
 export const Column2 = styled.div`
     margin-bottom: 15px;
     padding: 0 15px;
     grid-area: col2;
-`
+`;
 
 export const TextWrapper = styled.div`
     max-width: 540px;
     padding-top: 0;
     padding-bottom: 60px;
-`
+`;
 
 export const TopLine = styled.p`
     color: #1d4ed8;
@@ -81,67 +89,60 @@ export const TopLine = styled.p`
     letter-spacing: 1.4px;
     text-transform: uppercase;
     margin-bottom: 16px;
-`
+`;
 
-export const Heading = styled.h1`
-   color: #000;
+export const Heading = styled.h1<HeadingProps>`
+    //color: ${({ lightText }) => (lightText ? '#f7f8fa' : '#010606')};
+    color:black;
     margin-bottom: 24px;
     font-size: 48px;
-    line-height:1.1;
-    font-weight:600;
-    //color: ${({lightText}) => (lightText ? '#f7f8fa' : '#010606')}
+    line-height: 1.1;
+    font-weight: 600;
 
     @media screen and (max-width: 480px) {
-        font-size: 32px;
+        font-size: 32  px;
     }
+`;
 
-`
-
-export const Subtitle = styled.p`
-color: #000;
-
+export const Subtitle = styled.p<SubtitleProps>`
+    //color: ${({ darkText }) => (darkText ? '#010606' : '#fff')};
+    color:black;
     margin-bottom: 35px;
     max-width: 440px;
     font-size: 18px;
     line-height: 24px;
-    //color: ${({darkText}) => (darkText ? '#010606' : '#fff')}
-
-`
-
+`;
 
 export const BtnWrap = styled.div`
-    display:flex;
+    display: flex;
     justify-content: flex-start;
-`
+`;
 
 export const ImgWrap = styled.div`
     max-width: 555px;
-    height:100%;
-`
+    height: 100%;
+`;
+
 export const Img = styled.img`
-    width:100%;
+    width: 100%;
     margin: 0 0 10px 0;
     padding-right: 0;
-`
+`;
 
-
-
-export const Button = styled(Link)`
-  border-radius: 50px;
-  background: ${({ primary }) => (primary ? '#1d4ed8' : '#010606')};
-  white-space: nowrap;
-  padding: ${({ big }) => (big ? '14px 48px' : '12px 30px')};
-  color: ${({ dark }) => (dark ? '#fff' : '#fff')};
-  font-size: ${({ fontBig }) => (fontBig ? '20px' : '16px')};
-  border: none;
-  cursor: pointer;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  transition: all 0.2s ease-in-out;
-
-  &:hover {
+export const Button = styled(Link)<ButtonProps>`
+    border-radius: 50px;
+    background: ${({ primary }) => (primary ? '#1d4ed8' : '#010606')};
+    white-space: nowrap;
+    padding: ${({ big }) => (big ? '14px 48px' : '12px 30px')};
+    color: white;
+    font-size: ${({ fontBig }) => (fontBig ? '20px' : '16px')};
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     transition: all 0.2s ease-in-out;
-    background: ${({ primary }) => (primary ? '#fff' : '#001BF71')};
-  }
+
+    &:hover {
+        background: ${({ primary }) => (primary ? '#fff' : '#001BF71')};
+    }
 `;
