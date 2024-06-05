@@ -1,7 +1,7 @@
 import Breadcrumb from '../components/Breadcrumbs/Breadcrumb';
 import DefaultLayout from '../layout/DefaultLayout';
 // import ChartThree from '../components/Charts/ChartThree';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import Loader from '../common/Loader';
 import { useEffect, useState } from 'react';
@@ -437,9 +437,12 @@ const OfficerDash = () => {
             <button
               type="button"
               className="text-white bg-gradient-to-r from-purple-500 to-pink-500 hover:bg-gradient-to-l focus:ring-4 focus:outline-none focus:ring-purple-200 dark:focus:ring-purple-800 font-regular rounded-lg text-sm px-5 py-3"
-              onClick={() => setIsModalOpen(true)}
+              // onClick={() => setIsModalOpen(true)}
+              
             >
-              View Generated AI Comments
+                          <Link to={`/AssessmentPage`}>View Generated AI Comments</Link>
+
+              {/* View Generated AI Comments */}
             </button>
           </div>
           </div>

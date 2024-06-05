@@ -48,6 +48,7 @@ const AssessmentPage: React.FC = () => {
 
   useEffect(() => {
     if (currentName && selectedStandard && selectedIndicator) {
+
       fetchStatusAndData();
     }
   }, [currentName, selectedStandard, selectedIndicator,status]);
@@ -103,6 +104,8 @@ const AssessmentPage: React.FC = () => {
 
   const fetchData = async () => {
     try {
+   //   setIsLoading(true); // Set loading state to true before fetching data
+
       const response = await axios.get(`${apiURL}/compareResult/${currentName}/${selectedStandard}/${selectedIndicator}`);
       if (response.data.length === 0) {
         setIsConfirmationDialogOpen(true);
@@ -133,6 +136,9 @@ const AssessmentPage: React.FC = () => {
     setSelectedIndicator(indicatorId);
     setSelectedStandardName(standardName);
     setSelectedIndicatorName(indicatorName);
+     // setIsLoading(true); // Set isLoading to true when selection changes
+
+
   };
 
   const handleYesAIComment = () => {
@@ -231,11 +237,13 @@ const AssessmentPage: React.FC = () => {
                 onYes={handleYesAIComment}
               />
             </div>
-            {criteria.length === 0 ? (
+            {selectedStandard&&selectedIndicator&&criteria.length === 0 && (
+
               <div className="text-center text-lg text-gray-700">
                 No data found.
               </div>
-            ) : (
+)}
+            {selectedStandard && selectedIndicator && criteria.length > 0 && (
               <>
                 <div className="overflow-x-auto">
                   <table className="w-full bg-white border border-gray-300 rounded-lg shadow-lg">
