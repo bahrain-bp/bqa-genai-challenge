@@ -48,16 +48,16 @@ const AssessmentPage: React.FC = () => {
 
   useEffect(() => {
     if (currentName && selectedStandard && selectedIndicator) {
-      setIsLoading(true);
+      
       fetchStatusAndData();
     }
-  }, [currentName, selectedStandard, selectedIndicator, status]);
+  }, [currentName, selectedStandard, selectedIndicator,status]);
 
   const getStatus = async (): Promise<string | null> => {
     try {
       const combinedKey = `${currentName}-${selectedStandard}-${selectedIndicator}`;
       console.log('combined-key', combinedKey);
-
+      
       const response = await axios.get(`${apiURL}/status`, {
         headers: {
           'combined-key': combinedKey,
@@ -104,6 +104,8 @@ const AssessmentPage: React.FC = () => {
 
   const fetchData = async () => {
     try {
+   //   setIsLoading(true); // Set loading state to true before fetching data
+
       const response = await axios.get(`${apiURL}/compareResult/${currentName}/${selectedStandard}/${selectedIndicator}`);
       if (response.data.length === 0) {
         setIsConfirmationDialogOpen(true);
@@ -134,7 +136,8 @@ const AssessmentPage: React.FC = () => {
     setSelectedIndicator(indicatorId);
     setSelectedStandardName(standardName);
     setSelectedIndicatorName(indicatorName);
-    setCriteria([]); // Clear the previous data
+     // setIsLoading(true); // Set isLoading to true when selection changes
+
   };
 
   const handleYesAIComment = () => {
@@ -200,6 +203,10 @@ const AssessmentPage: React.FC = () => {
     );
   };
   
+  
+  
+  
+
   const paginatedCriteria = criteria.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   return (
@@ -232,11 +239,12 @@ const AssessmentPage: React.FC = () => {
                 onYes={handleYesAIComment}
               />
             </div>
-            { criteria.length === 0 ? (
+            {selectedStandard&&selectedIndicator&&criteria.length === 0 && (
               <div className="text-center text-lg text-gray-700">
                 No data found.
               </div>
-            ) : (
+)}
+            {selectedStandard && selectedIndicator && criteria.length > 0 && (
               <>
                 <div className="overflow-x-auto">
                   <table className="w-full bg-white border border-gray-300 rounded-lg shadow-lg">
