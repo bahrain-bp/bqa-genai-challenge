@@ -154,13 +154,16 @@ const OfficerDash = () => {
       opacity: 1,
     },
 
-    // tooltip: {
-    //   y: {
-    //     formatter: function (val: number) {
-    //       return `Files: ${val}`;
-    //     },
-    //   },
-    // },
+    tooltip: {
+      x: {
+        formatter: function (_, opts) {
+          const standardName = records[opts.dataPointIndex].standardName;
+          return `${standardName}`;
+        },
+      }
+    }
+   
+    
   };
 
   const fetchCurrentUserInfo = async () => {
@@ -449,10 +452,10 @@ const OfficerDash = () => {
           onClose={() => setIsModalOpen(false)}
         />
 
-      <div className="grid grid-cols gap-4 md:gap-6 2xl:gap-7.5 sm:px-7.5 xl:pb-1">
+<div className="grid grid-cols-1 md:grid-cols-1 gap-4 md:gap-6 2xl:gap-7.5 sm:px-7.5 xl:pb-1">
         {/* <ChartTwo /> */}
 
-        <div className="col-span-full rounded-sm border border-stroke bg-white p-7.5 shadow-default dark:border-strokedark dark:bg-boxdark xl:col-span-4">
+        <div className="col-span-full rounded-sm border border-stroke bg-white p-7.5 shadow-default dark:border-strokedark dark:bg-boxdark">
           <div className="mb-4 justify-between gap-4 sm:flex">
             <div>
               <h4 className="text-xl font-semibold text-black dark:text-white">
@@ -463,18 +466,20 @@ const OfficerDash = () => {
           </div>
 
           <div>
-            {loading ? (
+           
+              <div id="chartTwo" className="-ml-5 -mb-8" >
+              {loading ? (
               <Loader />
             ) : (
-              <div id="chartTwo" className="-ml-5 -mb-8">
                 <ReactApexChart
                   options={options}
                   series={state.series}
                   type="bar"
                   height={350}
                 />
+              )}
+
               </div>
-            )}
           </div>
         </div>
 

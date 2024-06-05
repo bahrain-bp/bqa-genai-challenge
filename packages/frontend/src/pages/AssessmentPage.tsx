@@ -28,7 +28,7 @@ const AssessmentPage: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [criteria, setCriteria] = useState<Criterion[]>([]);
   const [isConfirmationDialogOpen, setIsConfirmationDialogOpen] = useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [status, setStatus] = useState<string | null>(null);
   const apiURL = import.meta.env.VITE_API_URL;
 
@@ -48,7 +48,7 @@ const AssessmentPage: React.FC = () => {
 
   useEffect(() => {
     if (currentName && selectedStandard && selectedIndicator) {
-      
+
       fetchStatusAndData();
     }
   }, [currentName, selectedStandard, selectedIndicator,status]);
@@ -138,6 +138,7 @@ const AssessmentPage: React.FC = () => {
     setSelectedIndicatorName(indicatorName);
      // setIsLoading(true); // Set isLoading to true when selection changes
 
+
   };
 
   const handleYesAIComment = () => {
@@ -214,12 +215,9 @@ const AssessmentPage: React.FC = () => {
       <Breadcrumb pageName="Assessment Page" />
       <div className="p-4">
         <div className="text-center mb-8">
-        <h2 className="text-2xl text-gray-700">
-  {selectedStandardName && selectedIndicatorName 
-    ? `${selectedStandardName} / ${selectedIndicatorName}` 
-    : selectedStandardName || selectedIndicatorName}
-</h2>
-
+          <h2 className="text-2xl text-gray-700">
+            {selectedStandardName} / {selectedIndicatorName}
+          </h2>
         </div>
         <div className="flex flex-col gap-5.5 p-6.5">
           <SelectGroupTwo onSelectionChange={handleSelectionChange} />
@@ -240,6 +238,7 @@ const AssessmentPage: React.FC = () => {
               />
             </div>
             {selectedStandard&&selectedIndicator&&criteria.length === 0 && (
+
               <div className="text-center text-lg text-gray-700">
                 No data found.
               </div>

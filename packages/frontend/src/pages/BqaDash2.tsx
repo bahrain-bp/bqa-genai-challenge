@@ -11,6 +11,8 @@ import Loader from '../common/Loader';
 import Pagination from '@mui/material/Pagination';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import CircularProgress from '@mui/material/CircularProgress';
+
 
 // import MultiSelect from '../components/Forms/MultiSelect';
 import {
@@ -41,6 +43,8 @@ const BqaDash2 = ({}) => {
   const [records, setRecords] = useState<Record[]>([]);
   const [, /*loading */ setLoading] = useState<boolean>(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [fileCountsByStandard, setFileCountsByStandard] = useState<{[key: string]: number}>({});
+
 
   console.log(uniName, 'name uni');
   // State for search term in the search bar
@@ -58,6 +62,18 @@ const BqaDash2 = ({}) => {
   //const [selectedFile, setSelectedFile] = useState(null);
   const { name } = useParams();
   console.log('name:' + name);
+
+  const useUsername = () =>
+  {
+    const location = useLocation();
+    const queryParams = new URLSearchParams(location.search);
+    const username = queryParams.get('username');
+    return username;
+  }
+
+  const username = useUsername();
+  console.log('username:' + username);
+
   // const query = useQuery();
   // const name = query.get('name');
 
@@ -169,7 +185,7 @@ const BqaDash2 = ({}) => {
     // console.log("University email received:", email);
     // Fetch more data if needed using the university email
   }, []);
-  //fetch uploaded folders TRY#1
+
   const fetchRecords = async () => {
     try {
       // const api = import.meta.env.VITE_API_URL;
@@ -203,8 +219,43 @@ const BqaDash2 = ({}) => {
     }
   };
   useEffect(() => {
-    fetchRecords(); // Fetch records for the extracted standard name // Fetch records when the component mounts
+    fetchRecords(); 
+    fetchFileCounts();
+    // Fetch records for the extracted standard name // Fetch records when the component mounts
+
   }, []);
+
+  const fetchFileCounts = async () => {
+
+    try {
+      const url = `${apiURL}/count`; // Adjust this to your actual API endpoint
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'bucket-name': 'uni-artifacts', // Any required headers
+          'folder-name': uniName, // Optional, adjust as needed
+        },
+      });      
+      if (!response.ok) throw new Error(`HTTP status ${response.status}`);
+      const counts: {[key: string]: number} = await response.json();
+  
+      // Log each standard with its file count
+      for (const [standardId, count] of Object.entries(counts)) {
+        console.log(`Standard ID: ${standardId}, File Count: ${count}`);
+      }
+  
+      setFileCountsByStandard(counts);
+    } catch (error) {
+      console.error('Error fetching file counts:', error);
+    }
+  };
+  // useEffect(() => {
+  //   if (uniName) {
+  //     fetchFileCounts();
+  //   }
+  // }, [uniName]);
+  
+  
 
   //Chart
   // Filtering files based on the selected indicator
@@ -239,8 +290,8 @@ const BqaDash2 = ({}) => {
             </button>
           </div>
           {/* Request Document Button */}
-          <button className="px-5 py-2 bg-primary text-white rounded-md shadow-sm hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary-dark focus:ring-opacity-50 ml-4">
-            <Link to={`/BqaRequestPage?name=${name}`}>Request Documents</Link>
+          <button className="px-5 py-2 bg-primary text-white rounded-md shadow-sm hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary-dark focus:ring-opacity-50">
+            <Link to={`/BqaRequestPage?name=${name}&username=${username}`}>Request Documents</Link>
           </button>
         </div>
 
@@ -286,18 +337,41 @@ const BqaDash2 = ({}) => {
               <div className="progress-value">65%</div>
             </div> */}
         {/* </div> */}
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4 2xl:gap-7.5">
-          {records.map((record) => (
-            <div
-              key={record.standardId}
-              className={`rounded-xl border border-stroke bg-white py-6 px-7.5 shadow-default dark:border-strokedark ${standard === record.standardId ? 'bg-green-200' : ''}`}
-              style={{ marginBottom: '20px', cursor: 'pointer' }}
-              onClick={() => handleStandardClick(record.standardId)}
-            >
-              <h3 style={{ marginBottom: '10px' }}>{record.standardName}</h3>
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-5 xl:gap-8 ">
+  {records.map((record) => (
+    <div
+      key={record.standardId}
+      className={`rounded-xl border border-stroke bg-white py-4 px-5 shadow-default dark:border-strokedark ${standard === record.standardId ? 'bg-green-200' : ''}`}
+      style={{ marginBottom: '20px', cursor: 'pointer', width: '', height: '' }} // Smaller size
+      onClick={() => handleStandardClick(record.standardId)}
+    >
+      <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+        <h3 style={{ fontWeight: 'bold', fontSize: '1rem', textAlign: 'center', marginBottom: '10px' }}>
+          {record.standardId}
+        </h3>
+        <div style={{ flex: '2', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <h3 style={{ fontSize: '0.85rem', textAlign: 'left', flex: 2 }}>{record.standardName}</h3>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1 }}>
+            <div style={{ fontSize: '0.65rem', color: '#6c757d', fontWeight: 'bold', marginBottom: '4px', textAlign: 'center' , marginRight:'1px', marginLeft:'15px'}}>
+              Number of Files:
             </div>
-          ))}
+            <div style={{ position: 'relative', display: 'flex', justifyContent: 'center', alignItems: 'center',marginLeft:'18px' }}>
+              <CircularProgress variant="determinate" value={100} size={30} thickness={4} /> {/* Smaller circle */}
+              <div style={{ position: 'absolute', fontSize: '0.7rem', fontWeight: 'bold' }}>
+                {fileCountsByStandard[record.standardId] ?? 0}
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
+    </div>
+  ))}
+</div>
+
+
+
+
+
 
         {/* Add more standard cards as needed */}
 
