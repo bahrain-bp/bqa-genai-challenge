@@ -1,11 +1,28 @@
 import styled from "styled-components";
-import { Link as LinkS} from "react-scroll";
+// import { Link as LinkS} from "react-scroll";
+import {Link} from "react-router-dom";
 
 
+interface InfoProps {
+    lightBg: boolean;
+    id: string;
+    imgStart: boolean; // or any other appropriate type
+    topLine: string;
+    lightText: boolean;
+    headline: string;6
+    darkText: boolean;
+    description: string;
+    buttonLabel: string;
+    img: string;
+    primary: boolean;
+    dark: boolean;
+    dark2?: boolean; // Use optional if not always required
+}
 
-export const InfoContainer = styled.div`
+
+export const InfoContainer = styled.div<InfoProps>`
     color: #fff;
-    background: ${({lightbg}) => (lightbg ? '#f9f9f9' : '010606')};
+    background: ${({lightBg}) => (lightBg ? '#f9f9f9' : '010606')};
     
     
     @media screen and (max-width:768px){
@@ -108,7 +125,8 @@ export const Img = styled.img`
 `
 
 
-export const Button = styled(LinkS)`
+
+export const Button = styled(Link)`
   border-radius: 50px;
   background: ${({ primary }) => (primary ? '#1d4ed8' : '#010606')};
   white-space: nowrap;
@@ -127,4 +145,3 @@ export const Button = styled(LinkS)`
     background: ${({ primary }) => (primary ? '#fff' : '#001BF71')};
   }
 `;
-

@@ -1,5 +1,3 @@
-import React from 'react'
-import UploadSvg from '../../images/Upload.svg';
 
 import {
     InfoContainer,
@@ -19,11 +17,13 @@ import {
     
 } from './InfoElements'
 
+interface InfoProps {
 
-const Info = ({lightBg,id,imgStart,topLine,lightText,headline,darkText,description,buttonLabel,img,alt,primary,dark,dark2}) => {
+
+const Info: React.FC<InfoProps> = ({lightBg,id,imgStart,topLine,lightText,headline,darkText,description,buttonLabel,img,primary,dark,dark2}) => {
   return (
     <>
-    <InfoContainer lightBg={lightBg} id={id}>
+    <InfoContainer lightbg={lightBg} id={id}>
         <InfoWrapper>
             <InfoRow imgStart={imgStart}>
                 <Column1>
@@ -33,7 +33,7 @@ const Info = ({lightBg,id,imgStart,topLine,lightText,headline,darkText,descripti
                     <Subtitle darkText={darkText}>{description}</Subtitle>
                     <BtnWrap>
                         <Button 
-                        to="home"
+                        to="/Auth/SignInPage"
                         smooth={true}
                         duration={500}
                         spy={true}

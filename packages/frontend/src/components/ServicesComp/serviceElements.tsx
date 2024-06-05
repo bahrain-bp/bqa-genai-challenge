@@ -1,12 +1,14 @@
 import styled from "styled-components";
 
 export const ServicesContainer = styled.div`
-    height:800px;
+    height:540px;
     display:flex;
     flex-direction:column;
     justify-content: center;
     align-items: center;
     background: #010606;
+    //padding-bottom: 90px;  
+    
     
     @media screen and (max-width: 768px){
         height: 1100px;
@@ -19,7 +21,7 @@ export const ServicesContainer = styled.div`
 `
 
 export const ServicesWrapper = styled.div`
-    max-width:1000px;
+    max-width:10000px;
     margin: 0 auto;
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
@@ -59,9 +61,10 @@ export const ServicesCard = styled.div `
 `
 
 export const ServicesIcon = styled.video`
-    height:360px;
-    width: 460px;
-    margin-bottom:10px;
+width: 100%;  // Full width of the card
+height: auto;  // Height auto for maintaining aspect ratio
+aspect-ratio: 16 / 9;  // Ensuring a widescreen aspect ratio
+margin-bottom: 20px;  // Added some bottom margin
 `
 
 export const ServicesH1 = styled.h1`
@@ -77,6 +80,7 @@ export const ServicesH1 = styled.h1`
 export const ServicesH2 = styled.h2`
     font-size:1rem;
     margin-bottom:10px;
+    weight:bold;
    
 `
 

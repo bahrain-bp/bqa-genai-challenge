@@ -34,7 +34,6 @@ import RubricPage from './pages/RubricPage';
 import UploadVideo from './pages/UploadVideo';
 import Page403 from './pages/Page403';
 import HomePagess from './pages/homePagess';
-import { BrowserRouter as Router } from 'react-router-dom';
 
 function App() {
   const [user, setUser] = useState<any | null>(null);
@@ -103,7 +102,7 @@ function App() {
 
       <Routes>
         {/* Route to SignInPage */}
-        <Route path="/" element={<Navigate to="/Auth/SignInPage" />} />
+        <Route path="/" element={<Navigate to="/homePagess" />} />
         <Route
           path="/Auth/SignInPage"
           element={<SignInPage setUser={setUser} user={user} />}

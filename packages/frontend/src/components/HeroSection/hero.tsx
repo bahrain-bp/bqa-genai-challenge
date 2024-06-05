@@ -1,4 +1,4 @@
-import React, {useState} from 'react'
+import {useState} from 'react'
 import {
     HeroContainer,
     VideoBg,
@@ -14,6 +14,7 @@ import {
 import video from '../../videos/video.mp4';
 
 
+
 const Hero = () => {
     const [hover, sethover] = useState(false);
 
@@ -26,7 +27,7 @@ const Hero = () => {
   return (
     <HeroContainer id="Home">
         <HeroBg>
-            <VideoBg autoPlay loop muted src={video} type='video/mp4'/>
+            <VideoBg autoPlay loop muted src={video} />
         </HeroBg>
         <HeroContent>
             {/* <HeroH1>Transforming Educational Quality Assessment with GenAI</HeroH1> */}
@@ -38,7 +39,7 @@ const Hero = () => {
             </HeroP>
             <HeroBtnWrapper>
                 <Button 
-                    to="SignIn" 
+                    to="/Auth/SignInPage"
                     onMouseEnter={onHover} 
                     onMouseLeave={onHover}
                     primary='true'

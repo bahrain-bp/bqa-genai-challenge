@@ -5,14 +5,15 @@ import dashSVG from '../../images/dash.svg';
 
 
 
+
 export const homeObjOne = {
     id: 'about',
     lightBg: false,
     lightText: true,
     lightTextDesc: true,
-    topLine: 'Premium Bank',
-    headline: 'Unlimited Transactions with zero fees',
-    description: 'Get access to our exclusive app that allows you to send unlimited transactions without getting charged any fees.',
+    topLine: 'About Us',
+    headline: 'Explore EduScribeAI’s Capabilities',
+    description: 'Developed in partnership with AWS, EduScribeAI uses cutting-edge GenAI technology to provide real-time insights and automate quality reporting. It ensures consistency, reduces human error, and offers a user-friendly interface for effortless management of compliance documentation. EduScribeAI makes quality assessments efficient and precise, setting new standards in educational quality management.',
     buttonLabel: 'Get started',
     imgStart: false,
     //img: require('../../images/Upload.svg'),
@@ -31,9 +32,9 @@ export const homeObjtwo = {
     lightBg: false,
     lightText: true,
     lightTextDesc: true,
-    topLine: 'Premium Bank',
-    headline: 'Unlimited Transactions with zero fees',
-    description: 'Get access to our exclusive app that allows you to send unlimited transactions without getting charged any fees.',
+    topLine: 'Discover',
+    headline: 'EduScribeAI in Action',
+    description: 'Discover how EduScribeAI, powered by AWS and Anthropic’s technology, transforms self-assessment in education with speed and precision. This innovative tool cuts down review times from weeks to hours, allowing institutions to focus on enhancing educational standards more efficiently.',
     buttonLabel: 'Get started',
     imgStart: true,
     //img: require('../../images/Upload.svg'),

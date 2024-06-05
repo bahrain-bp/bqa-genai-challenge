@@ -1,14 +1,13 @@
 import React, {useState} from 'react';
 import Navbar from '../components/Navigationar/Navbar';
 import SideBars from '../components/Header/sidor/sideBars';
-import { BrowserRouter as Router } from 'react-router-dom';
 import Hero from '../components/HeroSection/hero';
 import Info from '../components/InfoSection/Info';
 import { homeObjOne } from '../components/InfoSection/Data';
 import { homeObjtwo } from '../components/InfoSection/Data';
-import { homeObjthree} from '../components/InfoSection/Data';
 import ServiceInfo from "../components/ServicesComp/ServiceInfo";
 import styled from 'styled-components';
+import FooterInfo from "../components/Footer/FooterInfo";
 
 const PageContainer = styled.div`
     min-height: 100vh; // 100% of the viewport height
@@ -34,6 +33,7 @@ const HomePage: React.FC = () => {
             <Info {...homeObjtwo}/>
             {/* <Info {...homeObjthree}/> */}
             <ServiceInfo />
+            <FooterInfo />
 
         </PageContainer>     
      

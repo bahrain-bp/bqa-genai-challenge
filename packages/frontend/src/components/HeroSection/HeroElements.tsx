@@ -1,6 +1,8 @@
 import styled from "styled-components";
 import {MdKeyboardArrowRight, MdArrowForward} from 'react-icons/md';
-import { Link as LinkS} from "react-scroll";
+//import { Link as LinkS} from "react-scroll";
+import { Link } from 'react-router-dom';
+
 
 
 export const HeroContainer =styled.div`
@@ -9,7 +11,7 @@ export const HeroContainer =styled.div`
     justify-content: center;
     align-items: center;
     padding: 0 30px;
-    height: 550px;
+    height: 800px;
     position: relative;
     z-index: 1;
 
@@ -34,6 +36,7 @@ export const HeroBg =styled.div`
     left: 0;
     width: 100%;
     height: 100%;
+    overflow: hidden;
 `;
 
 export const VideoBg = styled.video`
@@ -97,7 +100,7 @@ export const HeroH1 = styled.h1`
     color: #fff;
     font-size: 48px;
     text-align: center;
-    margin-top: -0px;
+    margin-top: -180px;
 
     @media screen and (max-width: 768px){
         font-size: 40px;
@@ -144,9 +147,14 @@ export const ArrowRight = styled(MdKeyboardArrowRight)`
     font-size: 20px;
 `
 
+interface ButtonProps {
+    primary?: string;
+    dark?: string;
+    big?:string;
+    fontBig?:string;
+  }
 
-
-export const Button = styled(LinkS)`
+export const Button = styled(Link)<ButtonProps>`
   border-radius: 50px;
   background: ${({ primary }) => (primary ? '#1d4ed8' : '#010606')};
   white-space: nowrap;

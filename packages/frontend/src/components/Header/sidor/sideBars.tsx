@@ -1,4 +1,3 @@
-import React from 'react';
 import {
     SidebarContainer,
     Icon,
@@ -10,7 +9,13 @@ import {
     SidebarLink
 } from './SidebarElements';
 
-const SideBars = ({ isOpen, toggle }) => {
+// Define a type for the props
+type SideBarsProps = {
+    isOpen: boolean;
+    toggle: () => void;
+};
+
+const SideBars = ({ isOpen, toggle }: SideBarsProps) => {
   return (
     <SidebarContainer isOpen={isOpen} onClick={toggle}>
         <Icon onClick={toggle}>
@@ -21,7 +26,7 @@ const SideBars = ({ isOpen, toggle }) => {
                 <SidebarLink to="about" onClick={toggle}>About</SidebarLink>  
                 <SidebarLink to="discover" onClick={toggle}>Discover</SidebarLink>
                 <SidebarLink to="services" onClick={toggle}>Services</SidebarLink>
-                <SidebarLink to="signup" onClick={toggle}>Sign Up</SidebarLink>
+                {/* <SidebarLink to="signup" onClick={toggle}>Sign Up</SidebarLink> */}
             </SidebarMenu>
             <SideBtnWrap>
                 <SidebarRoute to="/signin">Sign In</SidebarRoute>
