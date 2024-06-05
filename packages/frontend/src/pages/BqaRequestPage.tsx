@@ -1,11 +1,12 @@
 import Breadcrumb from '../components/Breadcrumbs/Breadcrumb';
 import React, { useEffect, useState } from 'react';
 import DefaultLayout from '../layout/DefaultLayout';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 // import { useTranslation } from 'react-i18next';
 import { fetchUserAttributes } from 'aws-amplify/auth';
+
 
 
 
@@ -20,6 +21,7 @@ const BqaRequestPage: React.FC = () => {
   const [userEmail, setUserEmail] = useState('');
   const subject = 'Additional Document Required';
   const [body, setBody] = useState('');
+  const navigate = useNavigate();
 
   // const { t } = useTranslation(); // Hook to access translation functions
   const api = import.meta.env.VITE_API_URL;
@@ -27,6 +29,16 @@ const BqaRequestPage: React.FC = () => {
 
   const query = useQuery();
   const name = query.get('name');
+  const useUsername = () =>
+    {
+      const location = useLocation();
+      const queryParams = new URLSearchParams(location.search);
+      const username = queryParams.get('username');
+      return username;
+    }
+  
+    const username = useUsername();
+    console.log('username:' + username);
   
   // getting user attribute
   const getAttributeValue = (attributes: { Name: string; Value: string }[], attributeName: string): string => {
@@ -40,7 +52,7 @@ const BqaRequestPage: React.FC = () => {
       try {
         const attributes = fetchUserAttributes();
         setSourceEmail((await attributes)?.email ?? ''); // Provide a default value for setSourceEmail
-        console.log("Source Email:" + (await attributes)?.email ?? ''); // email doesn't show in the log but is recognized
+        console.log("Source Email: " + (await attributes)?.email ?? ''); // email doesn't show in the log but is recognized
       } catch (error) {
         console.error('Failed to fetch user info:', error);
       }
@@ -125,6 +137,11 @@ const BqaRequestPage: React.FC = () => {
       if (responseData.result === 'OK') 
         {
           toast.success(`Request is successfully sent to ${userEmail}`, { position: 'top-right' });
+          navigate(`/BqaDash2/${name}?username=${username}`, {
+            state: {
+              uniName: name
+            }
+          });
         } else {
           toast.error('Failed to send the request.', { position: 'top-right' });
         }
