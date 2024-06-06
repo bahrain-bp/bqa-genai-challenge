@@ -472,8 +472,10 @@ const BqaDash2 = ({}) => {
               type="button"
               className="text-white bg-gradient-to-r from-purple-500 to-pink-500 hover:bg-gradient-to-l focus:ring-4 focus:outline-none focus:ring-purple-200 dark:focus:ring-purple-800 font-regular rounded-lg text-sm px-5 py-3 mr-2"
               onClick={() => setIsModalOpen(true)}
+
             >
-              View Generated AI Comments
+                          <Link to={`/AssessmentPage`}>              View Generated AI Comments</Link>
+
             </button>
           </div>
           {/* Request Document Button */}

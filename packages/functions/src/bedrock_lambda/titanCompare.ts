@@ -54,30 +54,6 @@ interface ComparisonResult {
   timestamp: string;
 }
 
-interface Indicator {
-  indicatorId: string;
-  indicatorName: string;
-  comments: Comment[];
-}
-
-interface CriteriaResponse {
-  standardId: string;
-  standardName: string;
-  indicators: Indicator[];
-}
-
-interface ComparisonResult {
-  comparisonId: number; // Adjust as needed
-  standardNumber: string;
-  standardName: string;
-  uniName: string;
-  indicatorNumber: number; // Assuming indicatorNumber is a number
-  indicatorName: string;
-  comment: string;
-  outputText: string;
-  timestamp: string;
-}
-
 const CHUNK_SIZE = 4096; // Token limit for each chunk
 
 const extractStandardAndIndicator = (
@@ -162,15 +138,17 @@ const fetchAllContents = async (
       };
     }
   } catch (error) {
+    // If there's an error fetching contents, return early and abort the process
+    logger.error(`Error fetching contents: ${(error as Error).message}`);
     return {
       statusCode: 500, // Set status code to 204 (No Content)
       body: JSON.stringify({
-
-        message: (`Error fetching contents: ${(error as Error).message}`),
+        message: `Error fetching contents: ${(error as Error).message}`,
       }),
     };
   }
 };
+
 
 const generateText = async (modelId: string, body: string): Promise<any> => {
   const bedrock = new BedrockRuntime();
@@ -204,33 +182,33 @@ const generateText = async (modelId: string, body: string): Promise<any> => {
   }
 };
 
-const chunkContent = (
-  contentArray: string[],
-  chunkSize: number
-): string[][] => {
-  const chunks: string[][] = [];
-  let currentChunk: string[] = [];
-  let currentSize = 0;
+// const chunkContent = (
+//   contentArray: string[],
+//   chunkSize: number
+// ): string[][] => {
+//   const chunks: string[][] = [];
+//   let currentChunk: string[] = [];
+//   let currentSize = 0;
 
-  for (const content of contentArray) {
-    const contentSize = content.length; // Adjust this if calculating actual tokens
+//   for (const content of contentArray) {
+//     const contentSize = content.length; // Adjust this if calculating actual tokens
 
-    if (currentSize + contentSize > chunkSize) {
-      chunks.push(currentChunk);
-      currentChunk = [];
-      currentSize = 0;
-    }
+//     if (currentSize + contentSize > chunkSize) {
+//       chunks.push(currentChunk);
+//       currentChunk = [];
+//       currentSize = 0;
+//     }
 
-    currentChunk.push(content);
-    currentSize += contentSize;
-  }
+//     currentChunk.push(content);
+//     currentSize += contentSize;
+//   }
 
-  if (currentChunk.length > 0) {
-    chunks.push(currentChunk);
-  }
+//   if (currentChunk.length > 0) {
+//     chunks.push(currentChunk);
+//   }
 
-  return chunks;
-};
+//   return chunks;
+// };
 const updateComparisonStatus = async (
   processId: string,
   status: string,
@@ -268,11 +246,11 @@ const updateComparisonStatus = async (
 };
 
 const handler: Handler = async (event: any, context: Context) => {
+  const uniName = event.headers["uni-name"];
+  const standardNum = event.headers["standard-number"];
+  const indicatorNum = event.headers["indicator-number"];
+  const processId = randomUUID();
   try {
-    const uniName = event.headers["uni-name"];
-    const standardNum = event.headers["standard-number"];
-    const indicatorNum = event.headers["indicator-number"];
-
     if (!uniName || !standardNum || !indicatorNum) {
       const errorMsg =
         "Missing required headers: uniName, standardNumber, or indicatorNumber";
@@ -282,15 +260,7 @@ const handler: Handler = async (event: any, context: Context) => {
         body: JSON.stringify({ error: errorMsg }),
       };
     }
-    const processId = randomUUID();
-    await updateComparisonStatus(
-      processId,
-      "Processing",
-      "Comparing Process",
-      uniName,
-      standardNum,
-      indicatorNum
-    );
+   
     logger.info(`Uni name: ${uniName}`);
     logger.info(`Standard Number: ${standardNum}`);
     logger.info(`Indicator Number: ${indicatorNum}`);
@@ -333,7 +303,7 @@ const handler: Handler = async (event: any, context: Context) => {
         standardNum,
         indicatorNum
       );
-      if (!allContent) {
+      if (!allContent || (allContent.statusCode && allContent.statusCode !== 200)) {
         await updateComparisonStatus(
           processId,
           "Failed",
@@ -344,60 +314,60 @@ const handler: Handler = async (event: any, context: Context) => {
         );
 
         logger.error("No content found for the given standard and indicator");
-        return {
-          statusCode: 404,
-          body: JSON.stringify({
-            error: "No content found for the given standard and indicator",
-          }),
-        };
-        continue;
+        return allContent;
       }
 
-    //  const contentChunks = chunkContent(allContent, CHUNK_SIZE);
+      await updateComparisonStatus(
+        processId,
+        "Processing",
+        "Comparing Process",
+        uniName,
+        standardNum,
+        indicatorNum
+      );
 
       for (const c of comments) {
-        const aggregatedOutput = [];
+        const prompt = `
+        Below is the evidence submitted by the university under the indicator "${indicatorName}":
+        ${JSON.stringify(allContent)}
+    
+         Analyze and Evaluate the university's eviedence based on the provided rubric criteria:
+        ${JSON.stringify(c.comment)}
 
-      //  for (const chunk of contentChunks) {
-          const prompt = `
-            Below is the evidence submitted by the university under the indicator "${indicatorName}":
-            ${JSON.stringify(allContent)}
-
-            Analyze and evaluate the university's compliance and performance based on the provided rubric criteria:
-
-            ${JSON.stringify(c.comment)}
-
-            - If the evidence does not relate to the indicator, indicate that it is not applicable (N/A) without any additional commentary.
-            - Evaluate the university's compliance and performance across the criteria.
-            - Provide a score (1-5) for each comment, citing evidence directly from the provided content, if not related score it as N/A.
-
-            Write your response in concise bullet points, focusing strictly on relevant analysis and evidence. **Limit your response to 100 words only.**
-            `;
-
-          logger.info(`Prompt for comment ${c.commentId}: ${prompt}`);
-
-          const body = JSON.stringify({
-            inputText: prompt,
-            textGenerationConfig: {
-              maxTokenCount: 4096,
-              stopSequences: [],
-              temperature: 0,
-              topP: 0.1,
-            },
-          });
-
-          const responseBody = await generateText(
-            "amazon.titan-text-express-v1",
-            body
-          );
-          const outputText = responseBody.results
-            .map((result: { outputText: string }) => result.outputText)
-            .join("\n\n");
-
-          aggregatedOutput.push(outputText);
+        - If the evidence does not relate to the indicator, indicate that it is not applicable (N/A) without any additional commentary.
         
+       Choose one from the below compliance score based on evidence submitted:
+       1. Non-compliant: The comment does not meet the criteria or standards.
+        2.Compliant with recommendation: The comment meets the criteria but includes a suggestion or recommendation for improvement.
+        3. Compliant: The comment meets the criteria or standards.
 
-       // const finalOutputText = aggregatedOutput.join("\n\n");
+
+
+        THE END OF THE RESPONSE THERE SHOULD BE EITHER SCORE: [SCORE: COMPLIANT OR NON-COMPLIANT OR COMPLIANT WITH RECOMMENDATION]
+        Write your response in concise bullet points, focusing strictly on relevant analysis and evidence.
+        **LIMIT YOUR RESPONSE TO 100 WORDS ONLY.**
+
+        `;
+
+        logger.info(`Prompt for comment ${c.commentId}: ${prompt}`);
+
+        const body = JSON.stringify({
+          inputText: prompt,
+          textGenerationConfig: {
+            maxTokenCount: 4096,
+            stopSequences: [],
+            temperature: 0,
+            topP: 0.1,
+          },
+        });
+
+        const responseBody = await generateText(
+          "amazon.titan-text-express-v1",
+          body
+        );
+        const outputText = responseBody.results
+          .map((result: { outputText: string }) => result.outputText)
+          .join("\n\n");
 
         logger.info(
           `Output Text for comment ${c.commentId}: ${outputText}`
@@ -437,6 +407,7 @@ const handler: Handler = async (event: any, context: Context) => {
           );
         }
       }
+
       await updateComparisonStatus(
         processId,
         "Completed",
@@ -459,14 +430,23 @@ const handler: Handler = async (event: any, context: Context) => {
       };
     }
   } catch (err) {
+    await updateComparisonStatus(
+      processId,
+      "Failed",
+      "Comparing Process",
+      uniName,
+      standardNum,
+      indicatorNum
+    );
+
     if (err instanceof Error) {
       logger.error(
-        `An error occurred: ${"No content for this standard and indicator"}`
+        `An error occurred: ${err.message}`
       );
       return {
-        statusCode: 404,
+        statusCode: 500,
         body: JSON.stringify({
-          message: "No content for this standard and indicator",
+          message: err.message,
         }),
       };
     } else {

@@ -33,7 +33,12 @@ import SummaryPage from './pages/summaryPage';
 import RubricPage from './pages/RubricPage';
 import UploadVideo from './pages/UploadVideo';
 import Page403 from './pages/Page403';
-//import P403 from './pages/P403';
+
+import HomePagess from './pages/homePagess';
+
+import AssessmentPage from './pages/AssessmentPage';
+
+
 
 function App() {
   const [user, setUser] = useState<any | null>(null);
@@ -87,7 +92,7 @@ function App() {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, [pathname]);
+  }, [pathname,isAdmin]);
 
   useEffect(() => {
     setTimeout(() => setLoading(false), 2000);
@@ -102,7 +107,7 @@ function App() {
 
       <Routes>
         {/* Route to SignInPage */}
-        <Route path="/" element={<Navigate to="/Auth/SignInPage" />} />
+        <Route path="/" element={<Navigate to="/homePagess" />} />
         <Route
           path="/Auth/SignInPage"
           element={<SignInPage setUser={setUser} user={user} />}
@@ -172,6 +177,8 @@ function App() {
             </>
           }
         />
+
+       
         <Route
           path="/chart"
           element={
@@ -248,6 +255,17 @@ function App() {
             </>
           }
         />
+
+        <Route
+          path="/homePagess"
+          element={
+            <>
+              <PageTitle title="homePagess | EduScribe" />
+              <HomePagess />
+            </>
+          }
+        />
+      
 
         {/*===================================================================================================================================*/}
         {/* Route Available to BQA Reviewer Only */}
@@ -344,6 +362,16 @@ function App() {
 ) : (
   <Route path="*" element={<Page403 />} />
 )}
+            <Route
+              path="/AssessmentPage"
+              element={
+                <>
+                  <PageTitle title="Assessment Page | EduScribe" />
+                  <AssessmentPage />
+                </>
+              }
+            />
+
 
         <Route
           path="RubricPage/:standardId/:indicatorId"
@@ -356,6 +384,8 @@ function App() {
         />
       </Routes>
     </>
+
+    
   );
 }
 
