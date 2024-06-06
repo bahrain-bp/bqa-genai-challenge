@@ -1,6 +1,6 @@
 import React from 'react';
-import { useEffect ,useState} from 'react';
-import axios from 'axios';
+import { /*useEffect*/ useState} from 'react';
+// import axios from 'axios';
 
 interface CommentModalProps {
   isOpen: boolean;
@@ -12,10 +12,11 @@ interface CommentModalProps {
 
 const CommentModal: React.FC<CommentModalProps> = ({ isOpen, onClose, children,fileKey }) => {
   if (!isOpen) return null;
-  const [loading, /*setLoading*/] = useState(false);
+  console.log("filekey",fileKey);
+  // const [loading, /*setLoading*/] = useState(false);
 
-  const [comments, setComments] = useState<any | null>(null);
-  const apiURL: string = import.meta.env.VITE_API_URL;
+  // const [comments, setComments] = useState<any | null>(null);
+  // const apiURL: string = import.meta.env.VITE_API_URL;
     // Define custom shadow style directly in the component
     const shadowStyle = {
       boxShadow: ' 2px 2px 4px rgba(0, 0, 0, 0.001),-2px -2px 10px rgba(0, 0, 0, 0.001),2px -2px 20px rgba(0, 0, 0, 0.01),-2px 2px 20px rgba(0, 0, 0, 0.1)'
