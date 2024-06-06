@@ -121,57 +121,12 @@ const SummaryPage = () => {
                 ></input>
               </div>
 
-              {/* <h3 className="font-medium text-black dark:text-white">
-                 File Name: {fileData.fileName}
-                </h3> */}
-              {/* </div> */}
-              {/* <div className="border-b border-stroke py-4 px-7 dark:border-strokedark"> */}
-              {/* <h3 className="font-medium text-black dark:text-white">
-                Standard Name :  {fileData.standardName}
-                </h3> */}
-              {/* </div> */}
-              {/* <div className="border-b border-stroke py-4 px-7 dark:border-strokedark"> */}
-              {/* <div className="w-full sm:w-1/2">
-                <label
-                  className="mb-3 mt-4 block text-sm font-medium text-black dark:text-white"
-                  htmlFor="fullName"
-                >
-                  Standard Number
-                </label>
-                <input
-                  // className="w-full h-auto min-h-[150px] resize-y rounded border border-stroke bg-gray-100 py-3 pl-4 pr-4 text-black
-                  // focus:border-primary focus-visible:outline-none dark:border-stroke-dark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
-                  //                           className="w-full rounded border border-stroke bg-gray py-3 pl-11.5 pr-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
-                  className="w-full rounded border border-stroke bg-gray py-3 pl-11.5 pr-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary "
-                  // className="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                  placeholder={fileData.standardNumber}
-                  disabled
-                ></input>
-              </div> */}
-
-              {/* <div className="border-b border-stroke py-4 px-7 dark:border-strokedark"> */}
-            {/* </div>
-
-            <div className="mb-5 flex flex-col gap-5 sm:flex-row ml-3 mr-3 px-7 ">
-              <div className="w-full sm:w-1/2">
-                <label
-                  className="mb-3 mt-4 block text-sm font-medium text-black dark:text-white"
-                  htmlFor="fullName"
-                >
-                  Indicator Number
-                </label>
-                <input
-                  
-                  className="w-full rounded border border-stroke bg-gray py-3 pl-11.5 pr-4 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary "
-                  placeholder={fileData.indicatorNumber}
-                  disabled
-                ></input>
-              </div> */}
-
             
             </div>
 
-           
+          
+              
+
             <div className=" py-4 px-7">
               <label
                 className="mb-3 mt-4 block text-sm font-medium text-black dark:text-white"
@@ -189,6 +144,26 @@ const SummaryPage = () => {
                 {fileData.summary}
               </div>
             </div>
+            {fileData.comments && ( // This line checks if fileData.comments exists
+
+            <div className=" py-4 px-7">
+                <label
+                  className="mb-3 mt-4 block text-sm font-medium text-black dark:text-white"
+                  htmlFor="fullName"
+                >
+                  Comments from BQA Reviewer
+                </label>
+                <div
+                // className="w-full h-auto min-h-[150px] resize-y rounded border border-stroke bg-gray-100 py-3 pl-4 pr-4 text-black
+                // focus:border-primary focus-visible:outline-none dark:border-stroke-dark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
+                //                           className="w-full rounded border border-stroke bg-gray py-3 pl-11.5 pr-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
+                className="w-full rounded border border-stroke bg-gray py-3 pl-11.5 pr-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary "
+                // className="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              >
+                {fileData.comments}
+              </div>
+              </div>
+            )}
 
             {/* <div className="border-b border-stroke py-4 px-7 dark:border-strokedark">
 

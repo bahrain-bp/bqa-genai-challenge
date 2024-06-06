@@ -13,6 +13,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import CommentModal from './Comments';
 import { fetchUserAttributes } from 'aws-amplify/auth';
+import CircularProgress from '@mui/material/CircularProgress';
 
 // import MultiSelect from '../components/Forms/MultiSelect';
 import {
@@ -50,6 +51,8 @@ const BqaDash2 = ({}) => {
   const [comment, setComment] = useState('');
   const [sourceEmail, setSourceEmail] = useState('');
   const [userEmail, setUserEmail] = useState('');
+  const [currentFileKey, setCurrentFileKey] = useState('');
+  // const [comments, setComments] = useState<string[]>([]);
 
   console.log(uniName, 'name uni');
   // State for search term in the search bar
@@ -339,33 +342,55 @@ const BqaDash2 = ({}) => {
     fetchUserInfo();
   }, [name]);
 
-  const openModal = () => setIsCommentModalOpen(true);
+  const openModal = () => {
+    setComment('');  // Clear the comment state whenever the modal is opened
+    setIsCommentModalOpen(true);
+  };
   const closeModal = () => setIsCommentModalOpen(false);
+  const handleCommentClick = (fileKey:any) => {
+    console.log("Setting file key:", fileKey);
+    setCurrentFileKey(fileKey);
+    console.log("Current file key set:", currentFileKey);
+    openModal();
+    // setComment('');
+    // setIsCommentModalOpen(true);
+  };
+  
+  useEffect(() => {
+  }, [currentFileKey]); // Dependency on `currentFileKey` ensures modal opens after it's set
+  
+  const handleAddComment = async (fileKey:any) => {
+    const url = `${apiURL}/updateFileDB`; // Ensure this URL is correct
+    // const encodedComment = encodeURIComponent(comment); // Encode comment to handle newlines and other special characters
 
-  const handleAddComment = async (fileKey:any ) => {
-    // Add comment to the database
-    // try {
-    //   const response = await axios.post(`${apiURL}/addFileComments`, {
-    //     // replace '' with the actual values
-    //     fileName: fileKey, // I assume this is the file name correct me if I'm wrong
-    //     fileURL: '',
-    //     standardName: '',
-    //     standardNumber: '',
-    //     indicatorNumber: '',
-    //     name: '',
-    //     content: '',
-    //     summary: '',
-    //     strength: '',
-    //     weakness: '',
-    //     score: '',
-    //     comments: comment,
-    //   });
-    //   console.log(response.data);
-    //   toast.success('Comment added successfully');
-    // } catch (error) {
-    //   console.error('Error adding comment:', error);
-    //   toast.error('Failed to add comment');
-    // }
+  
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'fileName': fileKey,
+          'comments': comment,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          // Assuming your backend needs other data as well, pass them in the body
+          fileName: fileKey, // Example, replace with actual data if needed
+          comments: comment, // Example, replace with actual data if needed
+          // Other fields can be added here as per your backend requirements
+        })
+      });
+      
+      console.log(response);
+      toast.success('Comment added successfully');
+      // setComments([...comments, comment]);
+      setComment('');
+      setTimeout(() => {
+        closeModal();  // Close the modal after a delay
+      }, 5);
+    } catch (error) {
+      console.error('Error adding comment:', error);
+      toast.error('Failed to add comment');
+    }
 
     // send the comment by email
     try {
@@ -396,17 +421,44 @@ const BqaDash2 = ({}) => {
 
     if (responseData.result === 'OK') 
       {
-        toast.success(`Request is successfully sent to ${userEmail}`, { position: 'top-right' });
+        // toast.success(`Request is successfully sent to ${userEmail}`, { position: 'top-right' });
       } else {
         toast.error('Failed to send the request.', { position: 'top-right' });
       }
+    
   } catch (error) {
     console.error('Network Error:', error);
     toast.error('Error Catched: Failed to send the request.', { position: 'top-right' });
   }
     setIsModalOpen(false);
   };
+  
 
+  const fetchComments = async (fileKey:any) => {
+    const url = `${apiURL}/summarization`; // Modify this URL based on your actual API endpoint
+    try {
+      const response = await axios.get(url, {
+        headers: { 'file-name': fileKey }
+      });
+      console.log("API Response:", response.data.comments);  // Check the actual structure here
+      setComment(response.data.comments);
+      console.log ("The comment of this file:",comment);
+
+      return response.data;
+
+    } catch (error) {
+      console.error('Error fetching comments:', error);
+      setComment('');
+    }
+  };
+  useEffect(() => { fetchComments(currentFileKey);
+  }, [currentFileKey]);
+
+  const handleKeyDown = (event:any) => {
+    if (event.key === 'Enter') {
+      event.preventDefault(); // Stop the default Enter key action (new line)
+    }
+  };
 
   return (
     <>
@@ -418,7 +470,7 @@ const BqaDash2 = ({}) => {
           <div className="ml-4">
             <button
               type="button"
-              className="text-white bg-gradient-to-r from-purple-500 to-pink-500 hover:bg-gradient-to-l focus:ring-4 focus:outline-none focus:ring-purple-200 dark:focus:ring-purple-800 font-regular rounded-lg text-sm px-5 py-3"
+              className="text-white bg-gradient-to-r from-purple-500 to-pink-500 hover:bg-gradient-to-l focus:ring-4 focus:outline-none focus:ring-purple-200 dark:focus:ring-purple-800 font-regular rounded-lg text-sm px-5 py-3 mr-2"
               onClick={() => setIsModalOpen(true)}
             >
               View Generated AI Comments
@@ -647,8 +699,8 @@ const BqaDash2 = ({}) => {
                             {/**This button will allow BQA reviewer to add comments**/}
                             <button
                               className="hover:text-primary"
-                              onClick={openModal}
-                            >
+                              onClick={() => handleCommentClick(file.Key)}
+                              >
                               <svg
                                 className="fill-current"
                                 width="18"
@@ -663,15 +715,21 @@ const BqaDash2 = ({}) => {
                                 />
                               </svg>
                             </button>
-                            <CommentModal isOpen={isCommentModalOpen} onClose={closeModal}>
-                              <h2 className="text-lg font-bold">Add Comment</h2>
+                            <CommentModal isOpen={isCommentModalOpen} onClose={closeModal} fileKey={currentFileKey}>
+                              
+                              <h2 className="text-lg font-bold ">Add Comment</h2>
+                              <h2>File key {currentFileKey}</h2>
                               <textarea
                                 className="w-full p-2 border rounded"
                                 value={comment}
                                 onChange={(e) => setComment(e.target.value)}
+                                onKeyDown={handleKeyDown} // Add the onKeyDown handler here
+
                               />
                               <button className="mt-4 px-4 py-2 bg-blue-500 text-white rounded" 
-                              onClick={() => handleAddComment(file.Key)}>
+                                onClick={() => handleAddComment(currentFileKey)}
+
+                              >
                                 Add Comment
                               </button>
                             </CommentModal>
@@ -711,4 +769,4 @@ const BqaDash2 = ({}) => {
   );
 };
 
-export default BqaDash2;
+export default BqaDash2
