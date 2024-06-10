@@ -720,7 +720,7 @@ const BqaDash2 = ({}) => {
                             <CommentModal isOpen={isCommentModalOpen} onClose={closeModal} fileKey={currentFileKey}>
                               
                               <h2 className="text-lg font-bold ">Add Comment</h2>
-                              <h2>File key {currentFileKey}</h2>
+                              <h2>File: {currentFileKey}</h2>
                               <textarea
                                 className="w-full p-2 border rounded"
                                 value={comment}

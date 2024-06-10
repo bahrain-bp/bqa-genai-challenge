@@ -49,14 +49,27 @@ const AddUni = () => {
     const tempPassword = generateTemporaryPassword();
 
     try {
-      await createUser(email, tempPassword, name);
-      await uploadLogo(logo, name);
-      toast.success('User and logo added successfully!');
-      navigate('/BqaDash1');
+      const emailAvailable = await createUser(email, tempPassword, name);
+      if (emailAvailable) {
+        // Attempt to upload the logo only if the email is not in use and user creation is successful
+        const LOGOZ = await uploadLogo(logo, name);
+        if (LOGOZ) { // Check if logo was uploaded successfully
+          toast.success('User and logo added successfully!');
+          navigate('/BqaDash1');
+        } else {
+          // Handle the case where the user is created but the logo upload fails
+          toast.error('Logo upload failed.');
+        }
+      } else {
+        // Handle the case if email is already in use and user is not created
+        console.log('Errro creatin user');
+      }
     } catch (error) {
       console.error('Error:', error);
-      toast.error('The email you entered is already in use.');
+      toast.error('An error occurred during user creation or logo upload.');
     }
+
+
   }
 
   const createUser = async (email: string, tempPassword: string, name: string) => {
@@ -74,19 +87,23 @@ const AddUni = () => {
       if (response.ok) {
         const data = await response.json();
         console.log('User created successfully:', data);
+        return true;
       } else {
         const errorData = await response.json();
         console.error('Failed to create user:', errorData);
+        toast.error('Please ensure the email address is not already in use and that it is formatted correctly');
+      return false;
+
       }
     } catch (error) {
       console.error('Error creating user:', error);
+      toast.error('Error creating user:');
     }
   };
-
   const uploadLogo = async (logo: File, name: string) => {
     if (!logo) {
       toast.error('Please select a logo to upload.');
-      return;
+      return false;
     }
 
     const url = `${apiUrl}/uploadLogo`;
@@ -111,15 +128,20 @@ const AddUni = () => {
       if (response.ok) {
         const data = await response.json();
         console.log('Logo uploaded successfully:', data);
+        return true;
       } else {
         const errorData = await response.json();
         console.error('Failed to upload logo:', errorData);
+        return false;
+
       }
     } catch (error) {
       console.error('Error uploading logo:', error);
       toast.error('Error uploading logo.');
+      return false;
     }
   };
+
 
   return (
     <DefaultLayout>
