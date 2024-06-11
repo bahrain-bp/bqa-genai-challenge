@@ -7,6 +7,7 @@ import { faTrash, faArchive } from '@fortawesome/free-solid-svg-icons';
 import { useTranslation } from 'react-i18next';
 import {fetchUserAttributes } from 'aws-amplify/auth';
 import Loader from '../common/Loader';
+import { confirmAlert } from 'react-confirm-alert';
 import { toast } from 'react-toastify'; // Import toast from react-toastify
 import 'react-toastify/dist/ReactToastify.css'; // Import the CSS for react-toastify
 
@@ -20,69 +21,120 @@ const Standards: React.FC = () => {
 
   const handleDelete = async (standardId: string) => {
     try {
-      // Fetch records with the matching standardId
-      const recordsToDelete = records.filter(record => record.standardId === standardId);
-      if (recordsToDelete.length === 0) {
-        throw new Error('No records found for the given standardId');
-      }
+      // Define the confirmation dialog options
+      const confirmationOptions = {
+        title: 'Confirm Deletion',
+        message: 'Are you sure you want to delete this standard?',
+        buttons: [
+          {
+            label: 'Yes',
+            onClick: async () => {
+              try {
+                // Fetch records with the matching standardId
+                const recordsToDelete = records.filter(record => record.standardId === standardId);
+                if (recordsToDelete.length === 0) {
+                  throw new Error('No records found for the given standardId');
+                }
+            
+                // Delete each record
+                await Promise.all(recordsToDelete.map(async record => {
+                  const api = import.meta.env.VITE_API_URL; 
+                  const apiUrl = `${api}/standards/${record.entityId}`;
+                  const response = await fetch(apiUrl, {
+                    method: 'DELETE',
+                  });
+                  if (!response.ok) {
+                    throw new Error(`Failed to delete record with entityId: ${record.entityId}`);
+                  }
+                }));
+            
+                // Remove the deleted records from the state
+                setRecords(records.filter(record => !recordsToDelete.includes(record)));
+                console.log('Records deleted successfully');
+                toast.success('Records deleted successfully');
+              }catch (error) {
+                console.error('Error deleting records:', error);
+                toast.error('Error deleting records:');
+              }
+            },
+          },
+          {
+            label: 'No',
+            onClick: () => {}, // Do nothing if "No" is clicked
+          },
+        ],
+      };
   
-      // Delete each record
-      await Promise.all(recordsToDelete.map(async record => {
-        const api = import.meta.env.VITE_API_URL; 
-        const apiUrl = `${api}/standards/${record.entityId}`;
-        const response = await fetch(apiUrl, {
-          method: 'DELETE',
-        });
-        if (!response.ok) {
-          throw new Error(`Failed to delete record with entityId: ${record.entityId}`);
-        }
-      }));
-  
-      // Remove the deleted records from the state
-      setRecords(records.filter(record => !recordsToDelete.includes(record)));
-      console.log('Records deleted successfully');
-      toast.success('Records deleted successfully');
+      // Show the confirmation dialog
+      confirmAlert(confirmationOptions);
     } catch (error) {
-      console.error('Error deleting records:', error);
-      toast.error('Error deleting records:');
+      const errorMessage =
+        error instanceof Error ? error.message : 'An unknown error occurred';
+      console.error('Confirmation error:', errorMessage);
+      toast.error(`Failed to confirm deletion: ${errorMessage}`);
     }
   };
   
-
-
   const handleArchive = async (standardId: string) => {
     try {
-      // Fetch records with the matching standardId
-      const recordsToArchive = records.filter(record => record.standardId === standardId);
-      if (recordsToArchive.length === 0) {
-        throw new Error('No records found for the given standardId');
-      }
-  
-      // Update status to 'archived' for each record
-      await Promise.all(recordsToArchive.map(async record => {
-        const api = import.meta.env.VITE_API_URL; 
-        const apiUrl = `${api}/standards/${record.entityId}`;
-        const response = await fetch(apiUrl, {
-          method: 'PUT', // Use PUT method to update the record
-          headers: {
-            'Content-Type': 'application/json',
+      // Define the confirmation dialog options
+      const confirmationOptions = {
+        title: 'Confirm Archive',
+        message: 'Are you sure you want to archive this file?',
+        buttons: [
+          {
+            label: 'Yes',
+            onClick: async () => {
+              try {
+                // Fetch records with the matching standardId
+                const recordsToArchive = records.filter(record => record.standardId === standardId);
+                if (recordsToArchive.length === 0) {
+                  throw new Error('No records found for the given standardId');
+                }
+            
+                // Update status to 'archived' for each record
+                await Promise.all(recordsToArchive.map(async record => {
+                  const api = import.meta.env.VITE_API_URL; 
+                  const apiUrl = `${api}/standards/${record.entityId}`;
+                  const response = await fetch(apiUrl, {
+                    method: 'PUT', // Use PUT method to update the record
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ ...record, status: 'archived' }), // Update the status field to 'archived'
+                  });
+                  if (!response.ok) {
+                    throw new Error(`Failed to archive record with entityId: ${record.entityId}`);
+                  }
+                }));
+            
+                // Fetch records again to reflect the changes
+                fetchRecords();
+                toast.success('Records archived successfully');
+              }catch (error) {
+                console.error('Error archiving records:', error);
+                toast.error('Error archiving records:');
+              }
+            },
           },
-          body: JSON.stringify({ ...record, status: 'archived' }), // Update the status field to 'archived'
-        });
-        if (!response.ok) {
-          throw new Error(`Failed to archive record with entityId: ${record.entityId}`);
-        }
-      }));
+          {
+            label: 'No',
+            onClick: () => {}, // Do nothing if "No" is clicked
+          },
+        ],
+      };
   
-      // Fetch records again to reflect the changes
-      fetchRecords();
-      toast.success('Records archived successfully');
+      // Show the confirmation dialog
+      confirmAlert(confirmationOptions);
     } catch (error) {
-      console.error('Error archiving records:', error);
-      toast.error('Error archiving records:');
+      const errorMessage =
+        error instanceof Error ? error.message : 'An unknown error occurred';
+      console.error('Confirmation error:', errorMessage);
+      toast.error(`Failed to confirm deletion: ${errorMessage}`);
     }
   };
-  
+
+
 
 
   useEffect(() => {
@@ -118,8 +170,6 @@ const Standards: React.FC = () => {
     indicatorId: '',
     indicatorName: '',
     description: '',
-    documentName: '',
-    documentURL: '', // Initialize documentURL state
     dateCreated: '',
     status: 'unarchived',
   });
@@ -180,8 +230,6 @@ const Standards: React.FC = () => {
         indicatorId: '',
         indicatorName: '',
         description: '',
-        documentName: '',
-        documentURL: '',
         dateCreated: '',
         status: 'unarchived',
       });
@@ -240,7 +288,7 @@ const Standards: React.FC = () => {
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700"> {t('standardId')}</label>
                 <input type="text"  placeholder="Enter new standardId"  name="standardId" value={recordData.standardId} onChange={handleChange}  className="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
- />
+  style={{ width: '300px'}}/>
               </div>
               <br />
               <div className="mb-4">
@@ -251,7 +299,7 @@ const Standards: React.FC = () => {
               <br />
               <div className="form-buttons">
                 <button
-                 className="bg-blue-500 flex rounded border border-stroke py-2 px-6 font-medium text-black hover:shadow-1 dark:border-strokedark dark:text-white mr-4"
+                 className={`flex justify-center rounded bg-primary py-2 px-6 font-medium text-gray hover:bg-opacity-90 mr-4`}
        
                  type="button"
                   onClick={handleCancel}
@@ -260,7 +308,7 @@ const Standards: React.FC = () => {
                 </button>
                 
                 <button
-                 className="bg-blue-500 flex rounded border border-stroke py-2 px-6 font-medium text-black hover:shadow-1 dark:border-strokedark dark:text-white mr-4"
+                 className={`flex justify-center rounded bg-primary py-2 px-6 font-medium text-gray hover:bg-opacity-90 mr-4`}
                  type="button" // Change type to "button"
                   onClick={createRecord} // Add onClick handler
                 >
@@ -323,7 +371,9 @@ const Standards: React.FC = () => {
                   {isAdmin && (
                     <>
                   {/* Delete icon */}
-                  <FontAwesomeIcon icon={faTrash} className="delete-icon" onClick={() => handleDelete(record.standardId)} />
+                {/* Delete icon */}
+                <FontAwesomeIcon icon={faTrash} className="delete-icon" onClick={() => handleDelete(record.description)} />
+                       
                   {/* Archive icon */}
                   <FontAwesomeIcon icon={faArchive} className="archive-icon" onClick={() => handleArchive(record.standardId)} />
                   </>
