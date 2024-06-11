@@ -100,8 +100,13 @@
   }
 
   .text-box h2 {
-    font-weight:600px;
-}
+    font-weight: bold;
+    padding-bottom: 20px;
+    font-size: 16px;
+  }
+
+  
+
 
 .text-box small{
     display: inline-block;
@@ -182,4 +187,19 @@
     object-fit: cover;
     background: #232a34;
     z-index:999;
+    
+}
+
+.fullscreen-button {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.fullscreen-button small {
+  transition: color 0.3s ease;
+}
+
+.fullscreen-button:hover small {
+  color: #123a8a; /* Color on hover */
 }

@@ -24,7 +24,7 @@ const UserGuid: React.FC = () => {
     const [isAdmin, setIsAdmin] = useState<boolean>(false);
     const [currentLogo, setCurrentLogo] = useState('');
   const [imagesFetched, setImagesFetched] = useState<boolean>(false); // Flag to track if images are fetched
-  const [currentEmail, setCurrentEmail] = useState('');
+  const [/*currentEmail*/, setCurrentEmail] = useState('');
   const [currentName, setCurrentName] = useState('');
   const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -91,21 +91,61 @@ const UserGuid: React.FC = () => {
         fetchCurrentUserInfo();
     }, []);
 
+    // Function to handle full-screen request
+const handleFullScreen = (videoRef:any) => {
+    if (videoRef.current) {
+        if (videoRef.current.requestFullscreen) {
+            videoRef.current.requestFullscreen();
+        } else if (videoRef.current.mozRequestFullScreen) { /* Firefox */
+            videoRef.current.mozRequestFullScreen();
+        } else if (videoRef.current.webkitRequestFullscreen) { /* Chrome, Safari & Opera */
+            videoRef.current.webkitRequestFullscreen();
+        } else if (videoRef.current.msRequestFullscreen) { /* IE/Edge */
+            videoRef.current.msRequestFullscreen();
+        }
+    }
+};
+
+interface VideoComponentProps {
+    src: string;  // src is a URL, so it should be a string.
+}
+
+
+// Component rendering the video
+const VideoComponent: React.FC<VideoComponentProps> = ({ src }) => {
+    const videoRef = React.useRef<HTMLVideoElement>(null);
+
+
+     return (
+        <div>
+            <video ref={videoRef} autoPlay loop muted className="video-style">
+                <source src={src} type="video/mp4" />
+                Your browser does not support the video tag.
+            </video>
+            <button onClick={() => handleFullScreen(videoRef)} className="fullscreen-button">
+                <small>Full Screen</small>
+            </button>
+        </div>
+    );
+};
+
+      
+
     const adminContent = [
         { title: "Login", description: "Securely log in to access the administrative dashboard and manage system settings.", video: video4, image: pic1 },
         { title: "Predefined Templates", description: "Review and manage the templates and requirements for each standard and indicator. Add new templates as needed to accommodate evolving criteria.", video: video7, image: pic1 },
         { title: "View the Dashboard", description: "Access real-time analytics and progress updates for each university to monitor compliance and document uploads effectively.", video: video8, image: pic1 },
         { title: "Review the Generated Assessment", description: "Examine detailed assessments for each standard and indicator to ensure all requirements are met and identify areas needing attention.", video: video11, image: pic1 },
-        { title: "View Their Summary", description: "Inspect summary reports for each submitted file to assess completeness and accuracy of the evidence provided.", video: video10, image: pic1 },
+        { title: "Review the Generated Summary", description: "Inspect summary reports for each submitted file to assess completeness and accuracy of the evidence provided.", video: video10, image: pic1 },
         { title: "Comment and Request Additional Documents", description: "Provide feedback on submissions and request additional documents to ensure thorough evaluation and compliance with established standards.", video: video9, image: pic1 },
     ];
 
     const userContent = [
         { title: "Login", description: "Log in to your account to start uploading and managing your documentation securely.", video: video4, image: pic1 },
-        { title: "Predefined Templates", description: "Explore the available templates to understand the requirements for each standard and indicator, ensuring your submissions meet all criteria.", video: video5, image: pic1 },
+        { title: "View the Predefined Templates", description: "Explore the available templates to understand the requirements for each standard and indicator, ensuring your submissions meet all criteria.", video: video5, image: pic1 },
         { title: "Upload Documents", description: "Securely upload your documents, including PDFs, videos, and images, ensuring they are stored safely and accessible for review.", video: video1, image: pic1 },
-        { title: "View the public Dashboard", description: "Navigate through the dashboard to view and manage your uploaded documents, delete files, or review them in detail.", video: video6, image: pic1 },
-        { title: "View Their Summary", description: "Review detailed summaries for each of your submissions directly through the dashboard, providing insights into your compliance status.", video: video3, image: pic1 },
+        { title: "View the Dashboard", description: "Navigate through the dashboard to view and manage your uploaded documents, delete files, or review them in detail.", video: video6, image: pic1 },
+        { title: "Review the Generated Summary", description: "Review detailed summaries for each of your submissions directly through the dashboard, providing insights into your compliance status.", video: video3, image: pic1 },
         { title: "Review the Generated Assessment", description: "Access and review the generated assessments for each standard and indicator to understand how your submissions are evaluated against the criteria.", video: video2, image: pic1 }
     ];
 
@@ -123,11 +163,8 @@ const UserGuid: React.FC = () => {
                         <img src={currentLogo}  />
                         <div className="text-box">
                             <h2>{item.title}</h2>
-                            <video autoPlay loop muted className="video-style">
-                                <source src={item.video} type="video/mp4" />
-                                Your browser does not support the video tag.
-                            </video>
-                            <small>View the guide</small>
+                            <VideoComponent src={item.video} />
+
                             <p>{item.description}</p>
                             {/* <span className={`container-arrow ${index % 2 === 0 ? 'left-container-arrow' : 'right-container-arrow'}`}></span> */}
                         </div>

@@ -38,6 +38,12 @@ const SummaryPage = () => {
       navigate(-1); // Moves one step back in the browser's history stack
     };
 
+    // const handlePrint = () => {
+    //   window.print();
+    // };
+  
+  
+
 
 
 
@@ -188,6 +194,8 @@ const SummaryPage = () => {
               >
                 {fileData.summary}
               </div>
+              {/* <button onClick={handlePrint}>Print Summary</button> */}
+
             </div>
 
             {/* <div className="border-b border-stroke py-4 px-7 dark:border-strokedark">
