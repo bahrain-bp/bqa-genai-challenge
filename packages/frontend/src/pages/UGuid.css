@@ -27,7 +27,7 @@
     left: 50%;
     margin-left:2px;
     z-index:-1;
-    animation: moveline 15s linear forwards;
+    /* animation: moveline 15s linear forwards; */
 
 
   }
@@ -39,7 +39,7 @@
     padding: 20px 10px; /* Removed padding */
     display: flex; /* Added for center alignment */
     width: 50% !important;
-    animation: movedown 3s linear forwards;
+    /* animation: movedown 3s linear forwards; */
     opacity: 0;
 
     
