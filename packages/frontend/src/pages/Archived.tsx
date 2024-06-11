@@ -79,12 +79,12 @@ const Archived: React.FC = () => {
   };
 
   
-  const handleArchiveFiles = async (documentURL: string) => {
+  const handleArchiveFiles = async (description: string) => {
     try {
-      // Find the record with the matching documentURL
-      const recordToArchive = records.find(record => record.documentURL === documentURL);
+      // Find the record with the matching comment
+      const recordToArchive = records.find(record => record.description === description);
       if (!recordToArchive) {
-        throw new Error('Record not found for the given document URL');
+        throw new Error('Record not found for the given comments');
       }
           // Print the record to be updated in the console
     console.log('Record to be archived:', recordToArchive);
@@ -159,7 +159,7 @@ const Archived: React.FC = () => {
       
       // Sort records based on the numeric value in the standardId
       const sortedRecords = data
-        .filter((record: any) => record.documentURL && record.status == 'archived') // Filter based on documentURL and status
+        .filter((record: any) => record.description && record.status == 'archived') // Filter based on documentURL and status
         .sort((a: any, b: any) => {
           const indicatorIdA = parseInt(a.indicatorId.replace('Indicator', ''));
           const indicatorIdB = parseInt(b.indicatorId.replace('Indicator', ''));
@@ -259,7 +259,7 @@ const Archived: React.FC = () => {
        
        {[...new Map(
          records
-           .filter(record => record.documentURL && record.status == 'archived') // Filter based on documentURL and status
+           .filter(record => record.description && record.status == 'archived') // Filter based on documentURL and status
            .map(record => [record.indicatorId, record]) // Map each record to its standardName and the record itself
        )].map(([indicatorId, record], index) => (
          <div key={index} className="record">
@@ -303,11 +303,8 @@ const Archived: React.FC = () => {
         <h2>{t('archivedFiles')}</h2>
           </div>
      {records
-        .filter(record => record.documentURL && record.status == 'archived') // Filter based on documentURL and status
+        .filter(record => record.description && record.status == 'archived') // Filter based on documentURL and status
         .map((record, index) => {
-          // Extracting document name from the URL
-          const urlParts = record.documentURL.split('/');
-          const documentName = urlParts[urlParts.length - 1];
 
           return (
             <div key={index} className="record">
@@ -315,16 +312,13 @@ const Archived: React.FC = () => {
               <div className="d-flex justify-content-center">
               <div className="card rounded-xl border border-stroke bg-white shadow-default border-info">
               <div className="card-body py-4 px-5">
-                        <a href={record.documentURL} className="link-unstyled">
                           <div className="d-flex align-items-center">
                             <div>
-                              <h4 className="my-1 text-info">{documentName}</h4>
-                              <p className="mb-0 font-13" style={{ fontWeight: 'normal' }}>{record.description}</p>
+                               <p className="mb-0 font-13" style={{ fontWeight: 'normal' }}>{record.description}</p>
                             </div>
                           </div>
-                        </a>
                        {/* Archive icon */}
-                        <FontAwesomeIcon icon={faUndo} className="unarchive-icon" onClick={() => handleArchiveFiles(record.documentURL)} />
+                        <FontAwesomeIcon icon={faUndo} className="unarchive-icon" onClick={() => handleArchiveFiles(record.description)} />
                       </div>
                     </div>
                 

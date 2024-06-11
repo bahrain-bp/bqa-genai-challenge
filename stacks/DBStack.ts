@@ -36,9 +36,7 @@ export function DBStack({ stack, app }: StackContext) {
             indicatorId: "string",
             indicatorName: "string",
             status: "string",        // Attribute for status
-            description: "string",
-            documentName: "string",
-            documentURL: "string"
+            description: "string"
         },
         primaryIndex: { partitionKey: "entityType", sortKey: "entityId" },
     });

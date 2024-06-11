@@ -28,8 +28,8 @@ const Standards: React.FC = () => {
   
       // Delete each record
       await Promise.all(recordsToDelete.map(async record => {
-        const api = import.meta.env.VITE_API_URL; 
-        const apiUrl = `${api}/standards/${record.entityId}`;
+        // const api = import.meta.env.VITE_API_URL; 
+        const apiUrl = `https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards/${record.entityId}`;
         const response = await fetch(apiUrl, {
           method: 'DELETE',
         });
@@ -60,8 +60,8 @@ const Standards: React.FC = () => {
   
       // Update status to 'archived' for each record
       await Promise.all(recordsToArchive.map(async record => {
-        const api = import.meta.env.VITE_API_URL; 
-        const apiUrl = `${api}/standards/${record.entityId}`;
+        // const api = import.meta.env.VITE_API_URL; 
+        const apiUrl = `https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards/${record.entityId}`;
         const response = await fetch(apiUrl, {
           method: 'PUT', // Use PUT method to update the record
           headers: {
@@ -118,16 +118,15 @@ const Standards: React.FC = () => {
     indicatorId: '',
     indicatorName: '',
     description: '',
-    documentName: '',
-    documentURL: '', // Initialize documentURL state
+    comment: '',
     dateCreated: '',
     status: 'unarchived',
   });
 
   const fetchRecords = async () => {
     try {
-      const api = import.meta.env.VITE_API_URL;
-      const response = await fetch(`${api}/standards`);
+      // const api = import.meta.env.VITE_API_URL;
+      const response = await fetch(`https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards`);
       if (!response.ok) {
         throw new Error('Failed to fetch records');
       }
@@ -157,8 +156,8 @@ const Standards: React.FC = () => {
        const newRecordData = {
         ...recordData,
       };
-      const api = import.meta.env.VITE_API_URL;
-      const response = await fetch(`${api}/standards`, {
+      // const api = import.meta.env.VITE_API_URL;
+      const response = await fetch(`https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -180,8 +179,7 @@ const Standards: React.FC = () => {
         indicatorId: '',
         indicatorName: '',
         description: '',
-        documentName: '',
-        documentURL: '',
+        comment: '',
         dateCreated: '',
         status: 'unarchived',
       });
@@ -246,7 +244,8 @@ const Standards: React.FC = () => {
               <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700"> {t('standardName')}</label>
                 <input type="text"  placeholder="Enter new standardName" name="standardName" value={recordData.standardName} onChange={handleChange} className="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3 
-                focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" />
+                focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" 
+                style={{ width: '300px'}}/>
               </div>
               <br />
               <div className="form-buttons">
