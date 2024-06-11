@@ -65,7 +65,7 @@ export const InfoRow = styled.div<{ imgStart: boolean }>`
 
 export const Column1 = styled.div`
     margin-bottom: 15px;
-    padding: 0px 15px;
+    padding: 0 15px;
     grid-area: col1;
 `;
 
