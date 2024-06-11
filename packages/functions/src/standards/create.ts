@@ -20,9 +20,7 @@ export const main: APIGatewayProxyHandlerV2 = async (event) => {
             indicatorId: data.indicatorId,
             indicatorName: data.indicatorName || null,
             description: data.description || null,
-            status: data.status,
-            documentName: data.documentName,
-            documentURL: data.documentURL
+            status: data.status
         },
     };
 

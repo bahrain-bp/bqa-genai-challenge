@@ -6,6 +6,7 @@ import { toast } from 'react-toastify';
 import { FileUpload } from 'primereact/fileupload';
 import 'react-confirm-alert/src/react-confirm-alert.css'; // Import CSS
 import { confirmAlert } from 'react-confirm-alert';
+import { useNavigate } from 'react-router-dom';
 
 //import { useTranslation } from 'react-i18next';
 //import Loader from '../common/Loader';
@@ -119,6 +120,7 @@ const StyledFileDisplay = styled.div`
 `;
 
 const DeleteIcon = styled.i`
+
   cursor: pointer;
   color: #f44336; // Google's material design color for destructive actions
   &:hover {
@@ -190,6 +192,14 @@ const customStyles = {
 //   display: inline-block;
 
 // `;
+const SummaryIcon = styled.i`
+margin-left:auto;
+margin-right:10px;
+  cursor: pointer;
+    align-items: right;
+
+ 
+`;
 
 const UploadEvidence = () => {
   const [standards, setStandards] = useState<any[]>([]); // Using 'any[]' for state typing
@@ -198,6 +208,7 @@ const UploadEvidence = () => {
   const [uploadedFiles, setUploadedFiles] = useState<any[]>([]);
   const [universityStatus, setUniversityStatus] = useState('');
   const [showModal, setShowModal] = useState(false);
+  const navigate = useNavigate();
 
   const [currentName, setCurrentName] = useState('');
   const [currentEmail, setCurrentEmail] = useState('');
@@ -694,8 +705,22 @@ const UploadEvidence = () => {
                   ] || []
                 ).map((file: any) => (
                   <StyledFileDisplay key={file.name}>
-                    <i className="pi pi-file" style={{ fontSize: '1.2em' }}></i>
+                    <i className="pi pi-file mr-2" style={{ fontSize: '1.2em' }}></i>
                     {file.name.split('/').pop()}
+                    {/** Add summary button */}
+                  {/* Summary Navigation Icon */}
+
+  
+                  <SummaryIcon
+        className="pi pi-eye"
+          onClick={() =>
+            navigate('/SummaryPage', {
+              state: {
+                fileName: file.name,
+              },
+            })
+          }
+        />
                     <DeleteIcon
                       className="pi pi-times"
                       onClick={() =>
@@ -706,7 +731,10 @@ const UploadEvidence = () => {
                         )
                       }
                     />
+    
+ 
                   </StyledFileDisplay>
+
                 ))}
               </div>
             </div>

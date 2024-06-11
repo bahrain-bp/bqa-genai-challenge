@@ -8,7 +8,7 @@ import Loader from '../common/Loader';
 // import * as AWS from 'aws-sdk';
 import { toast } from 'react-toastify'; // Import toast from react-toastify
 import 'react-toastify/dist/ReactToastify.css'; // Import the CSS for react-toastify
-
+import { confirmAlert } from 'react-confirm-alert';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {fetchUserAttributes } from 'aws-amplify/auth';
@@ -49,8 +49,6 @@ const [/*currentName*/, setCurrentName] = useState('');
     standardName: '',
     indicatorName: '',
     description: '',
-    documentName: '',
-    documentURL: '', // Initialize documentURL state
     dateCreated: '',
     status: 'unarchived',
   });
@@ -58,7 +56,7 @@ const [/*currentName*/, setCurrentName] = useState('');
   const [loading, setLoading] = useState<boolean>(true);
 
 
-  const handleChange = (event: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
+  const handleChange = (event: React.ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = event.target;
   
     if (event.target instanceof HTMLSelectElement) { // Check if the event target is a HTMLSelectElement
@@ -81,64 +79,118 @@ const [/*currentName*/, setCurrentName] = useState('');
     }
   };
   
-  const handleDelete = async (documentURL: string) => {
+
+  const handleDelete = async (description: string) => {
     try {
-      // Find the record with the matching documentURL
-      const recordToDelete = records.find(record => record.documentURL === documentURL);
-      if (!recordToDelete) {
-        throw new Error('Record not found for the given document URL');
-      }
-      const api = import.meta.env.VITE_API_URL;
-      const apiUrl = `${api}/standards/${recordToDelete.entityId}`;
-      const response = await fetch(apiUrl, {
-        method: 'DELETE',
-      });
-      if (!response.ok) {
-        throw new Error('Failed to delete record');
-      }
+      // Define the confirmation dialog options
+      const confirmationOptions = {
+        title: 'Confirm Deletion',
+        message: 'Are you sure you want to delete this comment?',
+        buttons: [
+          {
+            label: 'Yes',
+            onClick: async () => {
+              try {
+                // Find the record with the matching description
+                const recordToDelete = records.find(record => record.description === description);
+                if (!recordToDelete) {
+                  throw new Error('Record not found for the given comment');
+                }
+                const api = import.meta.env.VITE_API_URL;
+                const apiUrl = `${api}/standards/${recordToDelete.entityId}`;
+                const response = await fetch(apiUrl, {
+                  method: 'DELETE',
+                });
+                if (!response.ok) {
+                  throw new Error('Failed to delete record');
+                }
+            
+                // Remove the deleted record from the state
+                setRecords(records.filter(record => record.entityId !== recordToDelete.entityId));
+               
+                toast.success('Comment deleted successfully');
+              } catch (error) {
+                console.error('Error deleting records:', error);
+                toast.error('Error deleting records:');
+              }
+            },
+          },
+          {
+            label: 'No',
+            onClick: () => {}, // Do nothing if "No" is clicked
+          },
+        ],
+      };
   
-      // Remove the deleted record from the state
-      setRecords(records.filter(record => record.entityId !== recordToDelete.entityId));
-     
-      toast.success('File deleted successfully');
+      // Show the confirmation dialog
+      confirmAlert(confirmationOptions);
     } catch (error) {
-      console.error('Error deleting record:', error);
-      toast.error('Failed to delete file');
+      const errorMessage =
+        error instanceof Error ? error.message : 'An unknown error occurred';
+      console.error('Confirmation error:', errorMessage);
+      toast.error(`Failed to confirm deletion: ${errorMessage}`);
+    }
+  };
+  
+  const handleArchive = async (description: string) => {
+    try {
+      // Define the confirmation dialog options
+      const confirmationOptions = {
+        title: 'Confirm Archive',
+        message: 'Are you sure you want to archive this comment?',
+        buttons: [
+          {
+            label: 'Yes',
+            onClick: async () => {
+              try {
+                // Find the record with the matching documentURL
+                const recordToArchive = records.find(record => record.description === description);
+                if (!recordToArchive) {
+                  throw new Error('Record not found for the given comment');
+                }
+                    // Print the record to be updated in the console
+              console.log('Record to be archived:', recordToArchive);
+          
+              const api = import.meta.env.VITE_API_URL;
+                const apiUrl = `${api}/standards/${recordToArchive.entityId}`;
+                const response = await fetch(apiUrl, {
+                  method: 'PUT', // Use PUT method to update the record
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({ ...recordToArchive, status: 'archived' }), // Update the status field to 'archived'
+                });
+                if (!response.ok) {
+                  throw new Error('Failed to archive record');
+                }
+            
+                // Fetch records again to reflect the changes
+                fetchRecords(recordToArchive.indicatorId);
+                console.log('Record to be archived:', recordToArchive);
+                toast.success('Comment archived successfully');
+              } catch (error) {
+                console.error('Error archiving records:', error);
+                toast.error('Error archiving records:');
+              }
+            },
+          },
+          {
+            label: 'No',
+            onClick: () => {}, // Do nothing if "No" is clicked
+          },
+        ],
+      };
+  
+      // Show the confirmation dialog
+      confirmAlert(confirmationOptions);
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'An unknown error occurred';
+      console.error('Confirmation error:', errorMessage);
+      toast.error(`Failed to confirm deletion: ${errorMessage}`);
     }
   };
 
-  const handleArchive = async (documentURL: string) => {
-    try {
-      // Find the record with the matching documentURL
-      const recordToArchive = records.find(record => record.documentURL === documentURL);
-      if (!recordToArchive) {
-        throw new Error('Record not found for the given document URL');
-      }
-          // Print the record to be updated in the console
-    console.log('Record to be archived:', recordToArchive);
-
-    const api = import.meta.env.VITE_API_URL;
-      const apiUrl = `${api}/standards/${recordToArchive.entityId}`;
-      const response = await fetch(apiUrl, {
-        method: 'PUT', // Use PUT method to update the record
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ ...recordToArchive, status: 'archived' }), // Update the status field to 'archived'
-      });
-      if (!response.ok) {
-        throw new Error('Failed to archive record');
-      }
-  
-      // Fetch records again to reflect the changes
-      fetchRecords(recordToArchive.indicatorId);
-      console.log('Record to be archived:', recordToArchive);
-      toast.success('File archived successfully');
-    } catch (error) {
-      console.error('Error archiving record:', error);
-      toast.error('Failed to archive file');
-    }
-  };
   
   const toggleForm = () => {
     setShowForm(!showForm);
@@ -151,25 +203,12 @@ const [/*currentName*/, setCurrentName] = useState('');
 
   const createRecord = async () => {
     try {
-      const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
-      if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
-        throw new Error('Please select a file.');
-      }
-      const file = fileInput.files[0];
-  
       // Get the standardId from the URL
       const indicatorId = window.location.pathname.split('/').pop();
   
-      // Handle file upload
-      const selectedStandard = `${standardId}/${indicatorId}`;// Get the selected standard value
-      await handleFileSelect(file, selectedStandard);
-  
       // Create record in DynamoDB
-      const documentURL = `https://d2qvr68pyo44tt.cloudfront.net/${selectedStandard}/${file.name}`;
       const newRecordData = {
         ...recordData,
-        documentName: file.name,
-        documentURL,
         standardId: standardId, // Ensure standardId is included in the record data
         standardName: standardName, // Include standardName in recordData
         indicatorId: indicatorId, // Ensure standardId is included in the record data
@@ -188,7 +227,6 @@ const [/*currentName*/, setCurrentName] = useState('');
       }
       const data = await response.json();
       console.log('New record created:', data);
-      toast.success('New file Added successfully');
       setShowForm(false);
       fetchRecords(indicatorId); // Fetch records for the extracted standard name
       setRecordData({
@@ -198,8 +236,6 @@ const [/*currentName*/, setCurrentName] = useState('');
         standardName: '',
         indicatorName: '',
         description: '',
-        documentName: '',
-        documentURL: '',
         dateCreated: '',
         status: 'unarchived',
       });
@@ -326,90 +362,6 @@ const [/*currentName*/, setCurrentName] = useState('');
   }, []);
 
 
-  //uncomment this for demo*
-  // async function uploadToS3Evidence(fileData: Blob | File, fileName: string, folderName: string) {
-  //   try {
-  //     var upload = new AWS.S3.ManagedUpload({
-  //       params: {
-  //         Bucket:  'bqa-standards-upload',
-  //         Key: folderName + '/' + fileName,
-  //         Body: fileData
-  //       },
-  //     });
-    
-  //     var promise = upload.promise();
-
-  //     promise.then(
-  //       function () {
-  //         console.log("Successfully uploaded file.");
-  //       },
-  //       function () {
-  //         return  console.log("There was an error uploading your file: ");
-  //       }
-  //     );
-  //     return { message: 'File uploaded successfully'};
-  //   } catch (error) {
-  //     console.error('Error uploading file:', error);
-  //     throw new Error('Failed to upload file');
-  //   }
-  // }
-  //uncomment this for demo*
-
-  async function uploadToS3Evidence(fileData: Blob | File, fileName: string, folderName: string) {
-    try {
-      const AWS = require('aws-sdk');
-      const s3 = new AWS.S3();
-
-    const uploadParams = {
-      Bucket: 'bqa-standards-upload',
-      Key: folderName + '/' + fileName,
-      Body: fileData
-    };
-
-    const upload = s3.upload(uploadParams);
-
-    upload.promise()
-  .then(function() {
-    alert("Successfully uploaded file.");
-  })
-  .catch(function() {
-    alert("There was an error uploading your file: ");
-  });
-      return { message: 'File uploaded successfully'};
-    } catch (error) {
-      console.error('Error uploading file:', error);
-      throw new Error('Failed to upload file');
-    }
-  }
-
-  async function handleFileSelect(file: File, selectedFolder: string) {
-    const fileReader = new FileReader();
-    fileReader.onload = function (e) {
-      if (e.target) {
-        const fileContent = e.target.result as string;
-  
-        const uploadParams = {
-          body: new Blob([fileContent], { type: file.type }),
-          headers: {
-            'Content-Type': file.type,
-            'file-name': file.name
-          }
-        };
-        uploadToS3Evidence(uploadParams.body, uploadParams.headers['file-name'], selectedFolder)
-          .then(response => {
-            console.log(response);
-            toast.success('File uploaded successfully!');
-          })
-          .catch(error => {
-            console.error('Error uploading file:', error);
-
-
-          });
-      }
-    };
-  
-    fileReader.readAsBinaryString(file);
-  }
 
 const fetchIndicatorName = async (indicatorId: string | undefined) => {
   try {
@@ -461,7 +413,7 @@ return loading ? (
         onClick={toggleForm} // Add onClick handler
       >
 
-       {t('uploadEvidence')}
+       Add New Comments
 
       </button>
       
@@ -490,23 +442,25 @@ return loading ? (
         
           <div className="modal-overlay">
             <div className="modal-content">
-            
+            <label className="block text-sm font-medium text-gray-700"  style={{fontSize: 18}}> Add New Comment</label><br></br>
+             
+           
            
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700">{t('uploadDocument')}</label>
-              <input type="file" name="documentName" value={recordData.documentName} onChange={handleChange}className="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3 
-                focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" />
-            </div><br />
+            <label>Standard Name</label>
+              <input type='text' name="standard" value={standardName} className="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+        />
+            </div>
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700">{t('documentDescription')}</label>
-              <input type="text" name="description" value={recordData.description} onChange={handleChange} className="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3 
-                focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" />
-            </div><br />
+              <label>Indicator Name</label>
+              <input type='text' name="indicator" value={indicatorName} className="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+        />
+            </div>
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700">{t('status')}</label>
-              <input type="text" name="status" value={recordData.status} onChange={handleChange} className="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3 
-                focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" readOnly />
-            </div><br />
+              <label> Comment</label><br></br>
+              <textarea  name="description" value={recordData.description} onChange={handleChange} className="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+        style={{ width: '400px', height: '100px' }}/>
+            </div>
             <div className="form-buttons">
             <button
         className="bg-blue-500 flex rounded border border-stroke py-2 px-6 font-medium text-white hover:shadow-1 dark:border-strokedark dark:text-white mr-4"
@@ -538,36 +492,32 @@ return loading ? (
 
       
 <div className="download-header">
-        <h2> {t('downloadFiles')}</h2>
-        <h6></h6>
+        <h2>{standardName}/{indicatorName}</h2>
+        <h6>Below are the comments to help ensure that applicable standards/indicator’s expectations are being met.</h6>
       </div>
       {records
-        .filter(record => record.documentURL && record.status !== 'archived') // Filter based on documentURL and status
+        .filter(record => record.description && record.status !== 'archived') // Filter based on documentURL and status
         .map((record, index) => {
-          // Extracting document name from the URL
-          const urlParts = record.documentURL.split('/');
-          const documentName = urlParts[urlParts.length - 1];
-
           return (
             <div key={index} className="record">
               <div className="container">
               <div className="d-flex justify-content-center">
               <div className="card rounded-xl border border-stroke bg-white shadow-default border-info">
               <div className="card-body py-4 px-5">
-                        <a href={record.documentURL} className="link-unstyled">
+                        {/* <a href={record.documentURL} className="link-unstyled"> */}
                           <div className="d-flex align-items-center">
                             <div>
-                              <h4 className="my-1 text-info">{documentName}</h4>
+                              {/* <h4 className="my-1 text-info">{documentName}</h4> */}
                               <p className="mb-0 font-13" style={{ fontWeight: 'normal' }}>{record.description}</p>
                             </div>
                           </div>
-                        </a>
+                        {/* </a> */}
                         {isAdmin && (
         <>
                         {/* Delete icon */}
-                        <FontAwesomeIcon icon={faTrash} className="delete-icon" onClick={() => handleDelete(record.documentURL)} />
+                        <FontAwesomeIcon icon={faTrash} className="delete-icon" onClick={() => handleDelete(record.description)} />
                         {/* Archive icon */}
-                        <FontAwesomeIcon icon={faArchive} className="archive-icon" onClick={() => handleArchive(record.documentURL)} />
+                        <FontAwesomeIcon icon={faArchive} className="archive-icon" onClick={() => handleArchive(record.description)} />
                         </>
       )}
                       </div>

@@ -11,6 +11,9 @@ import Loader from '../common/Loader';
 import Pagination from '@mui/material/Pagination';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import CommentModal from './Comments';
+import { fetchUserAttributes } from 'aws-amplify/auth';
+import CircularProgress from '@mui/material/CircularProgress';
 
 // import MultiSelect from '../components/Forms/MultiSelect';
 import {
@@ -20,6 +23,7 @@ import {
   MenuItem,
   Select,
 } from '@mui/material';
+
 import ModalComponent from '../components/Modal';
 // Type definitions
 interface Record {
@@ -41,6 +45,14 @@ const BqaDash2 = ({}) => {
   const [records, setRecords] = useState<Record[]>([]);
   const [, /*loading */ setLoading] = useState<boolean>(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [fileCountsByStandard, setFileCountsByStandard] = useState<{[key: string]: number}>({});
+
+  const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
+  const [comment, setComment] = useState('');
+  const [sourceEmail, setSourceEmail] = useState('');
+  const [userEmail, setUserEmail] = useState('');
+  const [currentFileKey, setCurrentFileKey] = useState('');
+  // const [comments, setComments] = useState<string[]>([]);
 
   console.log(uniName, 'name uni');
   // State for search term in the search bar
@@ -48,6 +60,7 @@ const BqaDash2 = ({}) => {
 
   // State for selected indicator in the select menu
   const [selectedIndicator, setSelectedIndicator] = useState('');
+
 
   // import { useLocation } from 'react-router-dom';
 
@@ -58,6 +71,18 @@ const BqaDash2 = ({}) => {
   //const [selectedFile, setSelectedFile] = useState(null);
   const { name } = useParams();
   console.log('name:' + name);
+
+  const useUsername = () =>
+  {
+    const location = useLocation();
+    const queryParams = new URLSearchParams(location.search);
+    const username = queryParams.get('username');
+    return username;
+  }
+
+  const username = useUsername();
+  console.log('username:' + username);
+
   // const query = useQuery();
   // const name = query.get('name');
 
@@ -160,7 +185,7 @@ const BqaDash2 = ({}) => {
       toast.error('Failed to download file');
       setIsDownloading(false);
     }
-  };
+  }; 
 
   //////////////////////////
   useEffect(() => {
@@ -169,7 +194,7 @@ const BqaDash2 = ({}) => {
     // console.log("University email received:", email);
     // Fetch more data if needed using the university email
   }, []);
-  //fetch uploaded folders TRY#1
+
   const fetchRecords = async () => {
     try {
       // const api = import.meta.env.VITE_API_URL;
@@ -203,8 +228,43 @@ const BqaDash2 = ({}) => {
     }
   };
   useEffect(() => {
-    fetchRecords(); // Fetch records for the extracted standard name // Fetch records when the component mounts
+    fetchRecords(); 
+    fetchFileCounts();
+    // Fetch records for the extracted standard name // Fetch records when the component mounts
+
   }, []);
+
+  const fetchFileCounts = async () => {
+
+    try {
+      const url = `${apiURL}/count`; // Adjust this to your actual API endpoint
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'bucket-name': 'uni-artifacts', // Any required headers
+          'folder-name': uniName, // Optional, adjust as needed
+        },
+      });      
+      if (!response.ok) throw new Error(`HTTP status ${response.status}`);
+      const counts: {[key: string]: number} = await response.json();
+  
+      // Log each standard with its file count
+      for (const [standardId, count] of Object.entries(counts)) {
+        console.log(`Standard ID: ${standardId}, File Count: ${count}`);
+      }
+  
+      setFileCountsByStandard(counts);
+    } catch (error) {
+      console.error('Error fetching file counts:', error);
+    }
+  };
+  // useEffect(() => {
+  //   if (uniName) {
+  //     fetchFileCounts();
+  //   }
+  // }, [uniName]);
+  
+  
 
   //Chart
   // Filtering files based on the selected indicator
@@ -220,6 +280,186 @@ const BqaDash2 = ({}) => {
     setTimeout(() => setLoading(false), 1000);
   }, []);
 
+  // getting user attribute
+  const getAttributeValue = (attributes: { Name: string; Value: string }[], attributeName: string): string => {
+    const attribute = attributes.find(attr => attr.Name === attributeName);
+    return attribute ? attribute.Value : 'N/A'; // Returns 'N/A' if attribute not found
+  };
+
+  useEffect(() => {
+    // getting current user email
+    const getCurrentUserInfo = async () => {
+      try {
+        const attributes = fetchUserAttributes();
+        setSourceEmail((await attributes)?.email ?? ''); // Provide a default value for setSourceEmail
+        console.log("Source Email:" + (await attributes)?.email ?? ''); // email doesn't show in the log but is recognized
+      } catch (error) {
+        console.error('Failed to fetch user info:', error);
+      }
+    };
+
+    // getting university user email
+    const fetchUserInfo = async () => {
+
+      if (!name) {
+        console.error('No name provided in query parameters');
+        return;
+      }
+      try {
+        // Assuming fetchUserAttributes takes a name parameter and fetches the corresponding user attributes
+        const response = await fetch(`${apiURL}/getUsers`);
+
+        // const response = await fetch(`https://u1oaj2omi2.execute-api.us-east-1.amazonaws.com/getUsers`);
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+       
+          const filteredUsers = data.filter((user: { Attributes: { Name: string; Value: string; }[]; }) => {
+            const nameValue = getAttributeValue(user.Attributes, 'name');
+            return nameValue === name;
+          }).map((user: { Attributes: { Name: string; Value: string; }[]; }) => ({
+            name: getAttributeValue(user.Attributes, 'name'), // Extract name
+            email: getAttributeValue(user.Attributes, 'email') // Extract email
+        }   ));
+
+         // Check if there's a matching user and set their email
+            if (filteredUsers.length > 0) {
+              setUserEmail(filteredUsers[0].email); 
+              console.log(`Email of ${name}: ${filteredUsers[0].email}`);
+            } else {
+                console.log(`No user found with the name: ${name}`);
+                // setuserEmail(''); // Clear the email if no user is found
+            }
+         
+      } catch (error) {
+        console.error('Error fetching user info:', error);
+      }
+    };
+
+    getCurrentUserInfo();
+    fetchUserInfo();
+  }, [name]);
+
+  const openModal = () => {
+    setComment('');  // Clear the comment state whenever the modal is opened
+    setIsCommentModalOpen(true);
+  };
+  const closeModal = () => setIsCommentModalOpen(false);
+  const handleCommentClick = (fileKey:any) => {
+    console.log("Setting file key:", fileKey);
+    setCurrentFileKey(fileKey);
+    console.log("Current file key set:", currentFileKey);
+    openModal();
+    // setComment('');
+    // setIsCommentModalOpen(true);
+  };
+  
+  useEffect(() => {
+  }, [currentFileKey]); // Dependency on `currentFileKey` ensures modal opens after it's set
+  
+  const handleAddComment = async (fileKey:any) => {
+    const url = `${apiURL}/updateFileDB`; // Ensure this URL is correct
+    // const encodedComment = encodeURIComponent(comment); // Encode comment to handle newlines and other special characters
+
+  
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'fileName': fileKey,
+          'comments': comment,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          // Assuming your backend needs other data as well, pass them in the body
+          fileName: fileKey, // Example, replace with actual data if needed
+          comments: comment, // Example, replace with actual data if needed
+          // Other fields can be added here as per your backend requirements
+        })
+      });
+      
+      console.log(response);
+      toast.success('Comment added successfully');
+      // setComments([...comments, comment]);
+      setComment('');
+      setTimeout(() => {
+        closeModal();  // Close the modal after a delay
+      }, 5);
+    } catch (error) {
+      console.error('Error adding comment:', error);
+      toast.error('Failed to add comment');
+    }
+
+    // send the comment by email
+    try {
+      const subject = `BQA Reviewer Added a Comment on ${fileKey}`;
+      const body = `Filename : ${fileKey} \n comment : ${comment}`;
+
+      console.log('sourceEmail:', sourceEmail);
+      console.log('userEmail:', userEmail);
+      console.log('subject:', subject);
+      console.log('body:', body);
+
+      // Invoke lambda function to send email
+      const response = await fetch(`${apiURL}/send-email`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          sourceEmail,
+          userEmail, // recipient
+          subject,
+          body
+      })
+    });
+    
+    // Get the response data
+    const responseData = await response.json();
+
+    if (responseData.result === 'OK') 
+      {
+        // toast.success(`Request is successfully sent to ${userEmail}`, { position: 'top-right' });
+      } else {
+        toast.error('Failed to send the request.', { position: 'top-right' });
+      }
+    
+  } catch (error) {
+    console.error('Network Error:', error);
+    toast.error('Error Catched: Failed to send the request.', { position: 'top-right' });
+  }
+    setIsModalOpen(false);
+  };
+  
+
+  const fetchComments = async (fileKey:any) => {
+    const url = `${apiURL}/summarization`; // Modify this URL based on your actual API endpoint
+    try {
+      const response = await axios.get(url, {
+        headers: { 'file-name': fileKey }
+      });
+      console.log("API Response:", response.data.comments);  // Check the actual structure here
+      setComment(response.data.comments);
+      console.log ("The comment of this file:",comment);
+
+      return response.data;
+
+    } catch (error) {
+      console.error('Error fetching comments:', error);
+      setComment('');
+    }
+  };
+  useEffect(() => { fetchComments(currentFileKey);
+  }, [currentFileKey]);
+
+  const handleKeyDown = (event:any) => {
+    if (event.key === 'Enter') {
+      event.preventDefault(); // Stop the default Enter key action (new line)
+    }
+  };
+
   return (
     <>
       <DefaultLayout>
@@ -230,15 +470,17 @@ const BqaDash2 = ({}) => {
           <div className="ml-4">
             <button
               type="button"
-              className="text-white bg-gradient-to-r from-purple-500 to-pink-500 hover:bg-gradient-to-l focus:ring-4 focus:outline-none focus:ring-purple-200 dark:focus:ring-purple-800 font-regular rounded-lg text-sm px-5 py-3"
+              className="text-white bg-gradient-to-r from-purple-500 to-pink-500 hover:bg-gradient-to-l focus:ring-4 focus:outline-none focus:ring-purple-200 dark:focus:ring-purple-800 font-regular rounded-lg text-sm px-5 py-3 mr-2"
               onClick={() => setIsModalOpen(true)}
+
             >
-              View Generated AI Comments
+                          <Link to={`/AssessmentPage`}>              View Generated AI Comments</Link>
+
             </button>
           </div>
           {/* Request Document Button */}
-          <button className="px-5 py-2 bg-primary text-white rounded-md shadow-sm hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary-dark focus:ring-opacity-50 ml-4">
-            <Link to={`/BqaRequestPage?name=${name}`}>Request Documents</Link>
+          <button className="px-5 py-2 bg-primary text-white rounded-md shadow-sm hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary-dark focus:ring-opacity-50">
+            <Link to={`/BqaRequestPage?name=${name}&username=${username}`}>Request Documents</Link>
           </button>
         </div>
 
@@ -284,18 +526,41 @@ const BqaDash2 = ({}) => {
               <div className="progress-value">65%</div>
             </div> */}
         {/* </div> */}
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4 2xl:gap-7.5">
-          {records.map((record) => (
-            <div
-              key={record.standardId}
-              className={`rounded-xl border border-stroke bg-white py-6 px-7.5 shadow-default dark:border-strokedark ${standard === record.standardId ? 'bg-green-200' : ''}`}
-              style={{ marginBottom: '20px', cursor: 'pointer' }}
-              onClick={() => handleStandardClick(record.standardId)}
-            >
-              <h3 style={{ marginBottom: '10px' }}>{record.standardName}</h3>
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-5 xl:gap-8 ">
+  {records.map((record) => (
+    <div
+      key={record.standardId}
+      className={`rounded-xl border border-stroke bg-white py-4 px-5 shadow-default dark:border-strokedark ${standard === record.standardId ? 'bg-green-200' : ''}`}
+      style={{ marginBottom: '20px', cursor: 'pointer', width: '', height: '' }} // Smaller size
+      onClick={() => handleStandardClick(record.standardId)}
+    >
+      <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+        <h3 style={{ fontWeight: 'bold', fontSize: '1rem', textAlign: 'center', marginBottom: '10px' }}>
+          {record.standardId}
+        </h3>
+        <div style={{ flex: '2', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <h3 style={{ fontSize: '0.85rem', textAlign: 'left', flex: 2 }}>{record.standardName}</h3>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1 }}>
+            <div style={{ fontSize: '0.65rem', color: '#6c757d', fontWeight: 'bold', marginBottom: '4px', textAlign: 'center' , marginRight:'1px', marginLeft:'15px'}}>
+              Number of Files:
             </div>
-          ))}
+            <div style={{ position: 'relative', display: 'flex', justifyContent: 'center', alignItems: 'center',marginLeft:'18px' }}>
+              <CircularProgress variant="determinate" value={100} size={30} thickness={4} /> {/* Smaller circle */}
+              <div style={{ position: 'absolute', fontSize: '0.7rem', fontWeight: 'bold' }}>
+                {fileCountsByStandard[record.standardId] ?? 0}
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
+    </div>
+  ))}
+</div>
+
+
+
+
+
 
         {/* Add more standard cards as needed */}
 
@@ -404,7 +669,7 @@ const BqaDash2 = ({}) => {
                                 />
                               </svg>
                             </button>
-                            {/**This button will take you to the summarization tex */}
+                            {/**This button will take you to the summarization text */}
                             <button
                               className="hover:text-primary"
                               onClick={() =>
@@ -433,6 +698,43 @@ const BqaDash2 = ({}) => {
                                 />
                               </svg>
                             </button>
+                            {/**This button will allow BQA reviewer to add comments**/}
+                            <button
+                              className="hover:text-primary"
+                              onClick={() => handleCommentClick(file.Key)}
+                              >
+                              <svg
+                                className="fill-current"
+                                width="18"
+                                height="18"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                xmlns="http://www.w3.org/2000/svg"
+                              >
+                                <path
+                                  d="M21 6.99999H7C6.447 6.99999 6 7.44799 6 7.99999V14C6 14.552 6.447 15 7 15H18.585L21 17.414V7.99999C21 7.44799 20.553 6.99999 21 6.99999ZM5 8.99999H3V18C3 18.552 3.447 19 4 19H16V17H5C4.447 17 4 16.552 4 16V8.99999H5Z"
+                                  fill="currentColor"
+                                />
+                              </svg>
+                            </button>
+                            <CommentModal isOpen={isCommentModalOpen} onClose={closeModal} fileKey={currentFileKey}>
+                              
+                              <h2 className="text-lg font-bold ">Add Comment</h2>
+                              <h2>File: {currentFileKey}</h2>
+                              <textarea
+                                className="w-full p-2 border rounded"
+                                value={comment}
+                                onChange={(e) => setComment(e.target.value)}
+                                onKeyDown={handleKeyDown} // Add the onKeyDown handler here
+
+                              />
+                              <button className="mt-4 px-4 py-2 bg-blue-500 text-white rounded" 
+                                onClick={() => handleAddComment(currentFileKey)}
+
+                              >
+                                Add Comment
+                              </button>
+                            </CommentModal>
                           </div>
                         </td>
                       </tr>
@@ -469,4 +771,4 @@ const BqaDash2 = ({}) => {
   );
 };
 
-export default BqaDash2;
+export default BqaDash2
