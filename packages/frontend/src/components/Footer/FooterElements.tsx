@@ -7,7 +7,7 @@ export const FooterContainer = styled.footer`
 `
 
 export const FooterWrap = styled.div`
-    padding: 15px 24px;
+    padding: 48px 24px;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -21,7 +21,7 @@ export const FooterLinksContainer = styled.div`
     justify-content: center;
     
     @media screen and (max-width: 820px){
-        padding-top: 10px;
+        padding-top: 32px;
     }
 `
 
@@ -70,7 +70,6 @@ export const FooterLink = styled(Link)`
 export const SocialMedia = styled.section`
     max-width:10000px;
     width:100%;
-    
 `
 
 export const SocialMediaWrap = styled.div`
@@ -103,25 +102,13 @@ export const WebsiteRights = styled.small`
 `
 
 export const SocialIcons = styled.div`
-    display: flex;
-    justify-content: center; // Center the icons horizontally
-    align-items: center; // Center the icons vertically
-    width: auto; // Adjust based on your specific needs
-    
-    @media screen and (max-width: 820px){
-        margin-top: 20px; // Add some top margin on smaller screens
-    }
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    width:24px;
 `
 
 export const SocialIconsLink = styled.a`
-    color: #fff;
-    font-size: 24px; // Adjust size as needed
-    margin: 0 2px; // Add horizontal space between icons
-    transition: color 0.3s; // Smooth transition for color change
-    justify-content: center; // Center the icons horizontally
-
-    &:hover {
-        color: #9ab0e1; // Change color on hover
-        transform: scale(1.1); // Slightly enlarge icons on hover
-    }
+    color:#fff;
+    font-size:24px;
 `

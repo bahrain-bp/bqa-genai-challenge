@@ -35,7 +35,7 @@ import UploadVideo from './pages/UploadVideo';
 import Page403 from './pages/Page403';
 
 import HomePagess from './pages/homePagess';
-import UserGuid from './pages/UserGuid';
+
 import AssessmentPage from './pages/AssessmentPage';
 
 
@@ -121,7 +121,6 @@ function App() {
             </>
           }
         />
-     
         <Route
           path="/SummaryPage"
           element={
@@ -266,16 +265,6 @@ function App() {
             </>
           }
         />
-           <Route
-          path="/UserGuid"
-          element={
-            <>
-              <PageTitle title="User Guide| EduScribe" />
-              <UserGuid />
-            </>
-          }
-        />
-    
       
 
         {/*===================================================================================================================================*/}
@@ -302,7 +291,6 @@ function App() {
         </>
       }
     />
-    
 
     <Route
       path="/AddUni"
@@ -331,7 +319,6 @@ function App() {
         </>
       }
     />
-    
   </>
 ) : (
   <Route path="*" element={<Page403 />} />
@@ -373,7 +360,7 @@ function App() {
           {/* Additional officer-only routes can be added here */}
   </>
 ) : (
-   <Route path="*" element={<Page403 />} />
+  <Route path="*" element={<Page403 />} />
 )}
             <Route
               path="/AssessmentPage"
@@ -395,7 +382,6 @@ function App() {
             </>
           }
         />
-    
       </Routes>
     </>
 
