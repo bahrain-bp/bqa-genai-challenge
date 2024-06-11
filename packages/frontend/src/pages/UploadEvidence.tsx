@@ -240,7 +240,7 @@ const UploadEvidence = () => {
   useEffect(() => {
     const fetchReviewerInfo = async () => {
       try {
-        const response = await fetch(`https://bu6d6fsf7f.execute-api.us-east-1.amazonaws.com/getUsers`);
+        const response = await fetch(`${apiURL}/getUsers`);
         const data = await response.json();
         if (response.ok) {
           const bqaReviewer = data.find(
@@ -381,7 +381,7 @@ const UploadEvidence = () => {
       formData.append('file', file);
 
       try {
-        const response = await fetch(`https://bu6d6fsf7f.execute-api.us-east-1.amazonaws.com/uploadS3`, {
+        const response = await fetch(`${apiURL}/uploadS3`, {
           method: 'POST',
           body: formData,
           headers: {
@@ -552,7 +552,7 @@ const UploadEvidence = () => {
 
   const handleFinishUploading = async () => {
     try {
-      const response = await fetch(`https://bu6d6fsf7f.execute-api.us-east-1.amazonaws.com/updateStatus/${currentName}`, {
+      const response = await fetch(`${apiURL}/updateStatus/${currentName}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -575,7 +575,7 @@ const UploadEvidence = () => {
         Please review the evidence and provide feedback.`;
       
         // Invoke lambda function to send email
-        const response = await fetch(`https://bu6d6fsf7f.execute-api.us-east-1.amazonaws.com/send-email`, {
+        const response = await fetch(`${apiURL}/send-email`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
