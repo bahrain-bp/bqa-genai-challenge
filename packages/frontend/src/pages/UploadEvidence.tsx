@@ -201,6 +201,8 @@ const UploadEvidence = () => {
 
   const [currentName, setCurrentName] = useState('');
   const [currentEmail, setCurrentEmail] = useState('');
+  const [bqaEmail, setBqaEmail] = useState('');
+  const [isAdmin, setIsAdmin] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchCurrentUserInfo = async () => {
@@ -217,6 +219,24 @@ const UploadEvidence = () => {
     };
 
     fetchCurrentUserInfo();
+  }, []);
+
+  useEffect(() => {
+    const fetchReviewerInfo = async () => {
+      try {
+        const attributes = await fetchUserAttributes();
+        const name:any= attributes.name;
+        setIsAdmin(name.endsWith("BQA") || false);
+        const email:any= attributes.email;
+        setBqaEmail(email);
+        console.log('BQA user info:', name, email);
+
+      } catch (error) {
+        console.error('Error fetching current user info:', error);
+      }
+    };
+
+    fetchReviewerInfo();
   }, []);
 
   const apiURL = import.meta.env.VITE_API_URL;
@@ -521,13 +541,13 @@ const UploadEvidence = () => {
       // send email to BQA
       try {
         const sourceEmail = 'noreplyeduscribeai@gmail.com';
-        const userEmail = currentEmail;
+        const userEmail = bqaEmail;
         const subject = 'Final Version Submitted';
-        const body = `Dear ${currentName}, The final version of the university evidence has been submitted. 
+        const body = `Dear BQA Reviewer, The final version of "${currentName}" university evidence has been submitted. 
         Please review the evidence and provide feedback.`;
       
         // Invoke lambda function to send email
-        const response = await fetch(`${apiURL}/send-email`, {
+        const response = await fetch(`/send-email`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
