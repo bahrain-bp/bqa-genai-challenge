@@ -442,13 +442,25 @@ return loading ? (
         
           <div className="modal-overlay">
             <div className="modal-content">
-            
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700"  style={{fontSize: 18}}>Add New Comment</label><br></br>
-              <textarea  name="description" value={recordData.description} onChange={handleChange} className="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-        style={{ width: '300px', height: '100px' }}/>
-            </div>
+            <label className="block text-sm font-medium text-gray-700"  style={{fontSize: 18}}> Add New Comment</label><br></br>
+             
            
+           
+            <div className="mb-4">
+            <label>Standard Name</label>
+              <input type='text' name="standard" value={standardName} className="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+        />
+            </div>
+            <div className="mb-4">
+              <label>Indicator Name</label>
+              <input type='text' name="indicator" value={indicatorName} className="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+        />
+            </div>
+            <div className="mb-4">
+              <label> Comment</label><br></br>
+              <textarea  name="description" value={recordData.description} onChange={handleChange} className="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+        style={{ width: '400px', height: '100px' }}/>
+            </div>
             <div className="form-buttons">
             <button
         className="bg-blue-500 flex rounded border border-stroke py-2 px-6 font-medium text-white hover:shadow-1 dark:border-strokedark dark:text-white mr-4"
@@ -480,8 +492,8 @@ return loading ? (
 
       
 <div className="download-header">
-        <h2> Standards Comments</h2>
-        <h6></h6>
+        <h2>{standardName}/{indicatorName}</h2>
+        <h6>Below are the comments to help ensure that applicable standards/indicator’s expectations are being met.</h6>
       </div>
       {records
         .filter(record => record.description && record.status !== 'archived') // Filter based on documentURL and status
