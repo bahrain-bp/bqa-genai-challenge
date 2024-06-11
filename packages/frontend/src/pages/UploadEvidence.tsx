@@ -211,9 +211,7 @@ const UploadEvidence = () => {
   const navigate = useNavigate();
 
   const [currentName, setCurrentName] = useState('');
-  const [currentEmail, setCurrentEmail] = useState('');
   const [bqaEmail, setBqaEmail] = useState('');
-  const [isAdmin, setIsAdmin] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchCurrentUserInfo = async () => {
@@ -222,7 +220,6 @@ const UploadEvidence = () => {
         const name: any = attributes.name;
         setCurrentName(name);
         const email: any = attributes.email;
-        setCurrentEmail(email);
         console.log('Current user info:', name, email);
       } catch (error) {
         console.error('Error fetching current user info:', error);
@@ -384,7 +381,7 @@ const UploadEvidence = () => {
       formData.append('file', file);
 
       try {
-        const response = await fetch(`${apiURL}/uploadS3`, {
+        const response = await fetch(`https://bu6d6fsf7f.execute-api.us-east-1.amazonaws.com/uploadS3`, {
           method: 'POST',
           body: formData,
           headers: {
@@ -555,7 +552,7 @@ const UploadEvidence = () => {
 
   const handleFinishUploading = async () => {
     try {
-      const response = await fetch(`${apiURL}/updateStatus/${currentName}`, {
+      const response = await fetch(`https://bu6d6fsf7f.execute-api.us-east-1.amazonaws.com/updateStatus/${currentName}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -578,7 +575,7 @@ const UploadEvidence = () => {
         Please review the evidence and provide feedback.`;
       
         // Invoke lambda function to send email
-        const response = await fetch(`/send-email`, {
+        const response = await fetch(`https://bu6d6fsf7f.execute-api.us-east-1.amazonaws.com/send-email`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
