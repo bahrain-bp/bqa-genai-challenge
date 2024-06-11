@@ -1,8 +1,8 @@
 import {
     FooterContainer,
-    FooterLink,
+    // FooterLink,
     FooterLinkItems,
-    FooterLinkTitle,
+    // FooterLinkTitle,
     FooterLinksContainer,
     FooterLinksWrapper,
     FooterWrap,
