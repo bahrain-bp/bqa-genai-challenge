@@ -28,7 +28,21 @@ const UserGuid: React.FC = () => {
   const [currentName, setCurrentName] = useState('');
   const apiUrl = import.meta.env.VITE_API_URL;
 
+  useEffect(() => {
+    const fetchCurrentUserInfo = async () => {
+      try {
+        const attributes = await fetchUserAttributes();
+        const email:any = attributes.email;
+        const name:any= attributes.name;
+        setCurrentEmail(email);
+        setCurrentName(name);
+      } catch (error) {
+        console.error('Error fetching current user info:', error);
+      }
+    };
 
+    fetchCurrentUserInfo();
+  }, []);
   useEffect(() => {
     if (!imagesFetched && currentName) {
         const fetchImage = async () => {
@@ -115,7 +129,7 @@ const UserGuid: React.FC = () => {
                             </video>
                             <small>View the guide</small>
                             <p>{item.description}</p>
-                            <span className={`container-arrow ${index % 2 === 0 ? 'left-container-arrow' : 'right-container-arrow'}`}></span>
+                            {/* <span className={`container-arrow ${index % 2 === 0 ? 'left-container-arrow' : 'right-container-arrow'}`}></span> */}
                         </div>
                     </div>
                 ))}
