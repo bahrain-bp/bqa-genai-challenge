@@ -221,21 +221,41 @@ const UploadEvidence = () => {
     fetchCurrentUserInfo();
   }, []);
 
+  const getAttributeValue = (
+    attributes: { Name: string; Value: string }[],
+    attributeName: string,
+  ): string => {
+    const attribute = attributes.find((attr) => attr.Name === attributeName);
+    return attribute ? attribute.Value : 'N/A';
+  };
+
   useEffect(() => {
     const fetchReviewerInfo = async () => {
       try {
-        const attributes = await fetchUserAttributes();
-        const name:any= attributes.name;
-        setIsAdmin(name.endsWith("BQA") || false);
-        const email:any= attributes.email;
-        setBqaEmail(email);
-        console.log('BQA user info:', name, email);
-
+        const response = await fetch(`https://bu6d6fsf7f.execute-api.us-east-1.amazonaws.com/getUsers`);
+        const data = await response.json();
+        if (response.ok) {
+          const bqaReviewer = data.find(
+            (user: { Attributes: { Name: string; Value: string }[] }) => {
+              const name = getAttributeValue(user.Attributes, 'name');
+              return name === 'BQA Reviewer';
+            }
+          );
+          if (bqaReviewer) {
+            const email = getAttributeValue(bqaReviewer.Attributes, 'email');
+            console.log('BQA Reviewer info:', name, email);
+            setBqaEmail(email);
+          } else {
+            console.log('No BQA Reviewer found');
+          }
+        } else {
+          console.error('Error fetching users:', data.error);
+        }
       } catch (error) {
-        console.error('Error fetching current user info:', error);
+        console.error('Error fetching users:', error);
       }
     };
-
+  
     fetchReviewerInfo();
   }, []);
 
