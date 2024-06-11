@@ -8,7 +8,7 @@ import Loader from '../common/Loader';
 // import * as AWS from 'aws-sdk';
 import { toast } from 'react-toastify'; // Import toast from react-toastify
 import 'react-toastify/dist/ReactToastify.css'; // Import the CSS for react-toastify
-
+import { confirmAlert } from 'react-confirm-alert';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {fetchUserAttributes } from 'aws-amplify/auth';
@@ -79,64 +79,118 @@ const [/*currentName*/, setCurrentName] = useState('');
     }
   };
   
+
   const handleDelete = async (description: string) => {
     try {
-      // Find the record with the matching description
-      const recordToDelete = records.find(record => record.description === description);
-      if (!recordToDelete) {
-        throw new Error('Record not found for the given comment');
-      }
-      // const api = import.meta.env.VITE_API_URL;
-      const apiUrl = `https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards/${recordToDelete.entityId}`;
-      const response = await fetch(apiUrl, {
-        method: 'DELETE',
-      });
-      if (!response.ok) {
-        throw new Error('Failed to delete record');
-      }
+      // Define the confirmation dialog options
+      const confirmationOptions = {
+        title: 'Confirm Deletion',
+        message: 'Are you sure you want to delete this comment?',
+        buttons: [
+          {
+            label: 'Yes',
+            onClick: async () => {
+              try {
+                // Find the record with the matching description
+                const recordToDelete = records.find(record => record.description === description);
+                if (!recordToDelete) {
+                  throw new Error('Record not found for the given comment');
+                }
+                const api = import.meta.env.VITE_API_URL;
+                const apiUrl = `${api}/standards/${recordToDelete.entityId}`;
+                const response = await fetch(apiUrl, {
+                  method: 'DELETE',
+                });
+                if (!response.ok) {
+                  throw new Error('Failed to delete record');
+                }
+            
+                // Remove the deleted record from the state
+                setRecords(records.filter(record => record.entityId !== recordToDelete.entityId));
+               
+                toast.success('Comment deleted successfully');
+              } catch (error) {
+                console.error('Error deleting records:', error);
+                toast.error('Error deleting records:');
+              }
+            },
+          },
+          {
+            label: 'No',
+            onClick: () => {}, // Do nothing if "No" is clicked
+          },
+        ],
+      };
   
-      // Remove the deleted record from the state
-      setRecords(records.filter(record => record.entityId !== recordToDelete.entityId));
-     
-      toast.success('File deleted successfully');
+      // Show the confirmation dialog
+      confirmAlert(confirmationOptions);
     } catch (error) {
-      console.error('Error deleting record:', error);
-      toast.error('Failed to delete file');
+      const errorMessage =
+        error instanceof Error ? error.message : 'An unknown error occurred';
+      console.error('Confirmation error:', errorMessage);
+      toast.error(`Failed to confirm deletion: ${errorMessage}`);
     }
   };
-
+  
   const handleArchive = async (description: string) => {
     try {
-      // Find the record with the matching documentURL
-      const recordToArchive = records.find(record => record.description === description);
-      if (!recordToArchive) {
-        throw new Error('Record not found for the given comment');
-      }
-          // Print the record to be updated in the console
-    console.log('Record to be archived:', recordToArchive);
-
-    // const api = import.meta.env.VITE_API_URL;
-      const apiUrl = `https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards/${recordToArchive.entityId}`;
-      const response = await fetch(apiUrl, {
-        method: 'PUT', // Use PUT method to update the record
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ ...recordToArchive, status: 'archived' }), // Update the status field to 'archived'
-      });
-      if (!response.ok) {
-        throw new Error('Failed to archive record');
-      }
+      // Define the confirmation dialog options
+      const confirmationOptions = {
+        title: 'Confirm Archive',
+        message: 'Are you sure you want to archive this comment?',
+        buttons: [
+          {
+            label: 'Yes',
+            onClick: async () => {
+              try {
+                // Find the record with the matching documentURL
+                const recordToArchive = records.find(record => record.description === description);
+                if (!recordToArchive) {
+                  throw new Error('Record not found for the given comment');
+                }
+                    // Print the record to be updated in the console
+              console.log('Record to be archived:', recordToArchive);
+          
+              const api = import.meta.env.VITE_API_URL;
+                const apiUrl = `${api}/standards/${recordToArchive.entityId}`;
+                const response = await fetch(apiUrl, {
+                  method: 'PUT', // Use PUT method to update the record
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({ ...recordToArchive, status: 'archived' }), // Update the status field to 'archived'
+                });
+                if (!response.ok) {
+                  throw new Error('Failed to archive record');
+                }
+            
+                // Fetch records again to reflect the changes
+                fetchRecords(recordToArchive.indicatorId);
+                console.log('Record to be archived:', recordToArchive);
+                toast.success('Comment archived successfully');
+              } catch (error) {
+                console.error('Error archiving records:', error);
+                toast.error('Error archiving records:');
+              }
+            },
+          },
+          {
+            label: 'No',
+            onClick: () => {}, // Do nothing if "No" is clicked
+          },
+        ],
+      };
   
-      // Fetch records again to reflect the changes
-      fetchRecords(recordToArchive.indicatorId);
-      console.log('Record to be archived:', recordToArchive);
-      toast.success('File archived successfully');
+      // Show the confirmation dialog
+      confirmAlert(confirmationOptions);
     } catch (error) {
-      console.error('Error archiving record:', error);
-      toast.error('Failed to archive file');
+      const errorMessage =
+        error instanceof Error ? error.message : 'An unknown error occurred';
+      console.error('Confirmation error:', errorMessage);
+      toast.error(`Failed to confirm deletion: ${errorMessage}`);
     }
   };
+
   
   const toggleForm = () => {
     setShowForm(!showForm);
@@ -160,8 +214,8 @@ const [/*currentName*/, setCurrentName] = useState('');
         indicatorId: indicatorId, // Ensure standardId is included in the record data
         indicatorName: indicatorName, // Include standardName in recordData
       };
-      // const api = import.meta.env.VITE_API_URL;
-      const response = await fetch(`https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards`, {
+      const api = import.meta.env.VITE_API_URL;
+      const response = await fetch(`${api}/standards`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -173,7 +227,6 @@ const [/*currentName*/, setCurrentName] = useState('');
       }
       const data = await response.json();
       console.log('New record created:', data);
-      toast.success('New file Added successfully');
       setShowForm(false);
       fetchRecords(indicatorId); // Fetch records for the extracted standard name
       setRecordData({
@@ -194,8 +247,8 @@ const [/*currentName*/, setCurrentName] = useState('');
   const fetchStandardId = async (indicatorId: string | undefined) => {
     try {
       // Make API call to fetch standard name based on standardId
-      // const api = import.meta.env.VITE_API_URL;
-      const response = await fetch(`https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards?indicatorId=${indicatorId}`);
+      const api = import.meta.env.VITE_API_URL;
+      const response = await fetch(`${api}/standards?indicatorId=${indicatorId}`);
       if (!response.ok) {
         throw new Error('Failed to fetch standardId');
       }
@@ -217,8 +270,8 @@ const [/*currentName*/, setCurrentName] = useState('');
   const fetchStandardName = async (indicatorId: string | undefined) => {
     try {
       // Make API call to fetch standard name based on standardId
-      // const api = import.meta.env.VITE_API_URL;
-      const response = await fetch(`https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards?indicatorId=${indicatorId}`);
+      const api = import.meta.env.VITE_API_URL;
+      const response = await fetch(`${api}/standards?indicatorId=${indicatorId}`);
       if (!response.ok) {
         throw new Error('Failed to fetch standards');
       }
@@ -239,8 +292,8 @@ const [/*currentName*/, setCurrentName] = useState('');
 
   const fetchIndicators = async (standardId: string | undefined) => {
     try {
-      // const api = import.meta.env.VITE_API_URL;
-      const response = await fetch(`https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards?standardId=${standardId}`);
+      const api = import.meta.env.VITE_API_URL;
+      const response = await fetch(`${api}/standards?standardId=${standardId}`);
       if (!response.ok) {
         throw new Error('Failed to fetch indicators');
       }
@@ -256,8 +309,8 @@ const [/*currentName*/, setCurrentName] = useState('');
   const fetchRecords = async (indicatorId: string | undefined) => {
     try {
       // Constructing URL with standard name
-      // const api = import.meta.env.VITE_API_URL;
-      const apiUrl = `https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards?standard=${indicatorId}`;
+      const api = import.meta.env.VITE_API_URL;
+      const apiUrl = `${api}/standards?standard=${indicatorId}`;
 
       const response = await fetch(apiUrl);
       if (!response.ok) {
@@ -313,8 +366,8 @@ const [/*currentName*/, setCurrentName] = useState('');
 const fetchIndicatorName = async (indicatorId: string | undefined) => {
   try {
     // Make API call to fetch standard name based on standardId
-    // const api = import.meta.env.VITE_API_URL;
-    const response = await fetch(`https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards?indicatorId=${indicatorId}`);
+    const api = import.meta.env.VITE_API_URL;
+    const response = await fetch(`${api}/standards?indicatorId=${indicatorId}`);
     if (!response.ok) {
       throw new Error('Failed to fetch standards');
     }

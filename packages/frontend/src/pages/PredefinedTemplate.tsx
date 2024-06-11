@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import DefaultLayout from '../layout/DefaultLayout';
 import './PredefinedTemplate.css'; // Importing CSS file
@@ -10,6 +11,7 @@ import 'react-toastify/dist/ReactToastify.css'; // Import the CSS for react-toas
 import {fetchUserAttributes } from 'aws-amplify/auth';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import { confirmAlert } from 'react-confirm-alert';
 
 
 //INDICATORS FILE **
@@ -43,7 +45,6 @@ const [indicators, setIndicators] = useState<any[]>([]); // State variable to st
     indicatorId: '',
     indicatorName: '',
     description: '',
-    comment: '',
     dateCreated: '',
     status: 'unarchived',
   });
@@ -74,69 +75,121 @@ const [indicators, setIndicators] = useState<any[]>([]); // State variable to st
       }));
     }
   };
-  
   const handleDelete = async (indicatorId: string) => {
     try {
-      // Fetch records with the matching standardId
-      const recordsToDelete = records.filter(record => record.indicatorId === indicatorId);
-      if (recordsToDelete.length === 0) {
-        throw new Error('No records found for the given standardId');
-      }
+      // Define the confirmation dialog options
+      const confirmationOptions = {
+        title: 'Confirm Deletion',
+        message: 'Are you sure you want to delete this indicator?',
+        buttons: [
+          {
+            label: 'Yes',
+            onClick: async () => {
+              try {
+                // Fetch records with the matching standardId
+                const recordsToDelete = records.filter(record => record.indicatorId === indicatorId);
+                if (recordsToDelete.length === 0) {
+                  throw new Error('No records found for the given standardId');
+                }
+            
+                // Delete each record
+                await Promise.all(recordsToDelete.map(async record => {
+                  const api = import.meta.env.VITE_API_URL;
+                  const apiUrl = `${api}/standards/${record.entityId}`;
+                  const response = await fetch(apiUrl, {
+                    method: 'DELETE',
+                  });
+                  if (!response.ok) {
+                    throw new Error(`Failed to delete record with entityId: ${record.entityId}`);
+                  }
+                }));
+            
+                // Remove the deleted records from the state
+                setRecords(records.filter(record => !recordsToDelete.includes(record)));
+                toast.success('Records deleted successfully');
+              } catch (error) {
+                console.error('Error deleting records:', error);
+                toast.error('Error deleting records:');
+              }
+            },
+          },
+          {
+            label: 'No',
+            onClick: () => {}, // Do nothing if "No" is clicked
+          },
+        ],
+      };
   
-      // Delete each record
-      await Promise.all(recordsToDelete.map(async record => {
-        // const api = import.meta.env.VITE_API_URL;
-        const apiUrl = `https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards/${record.entityId}`;
-        const response = await fetch(apiUrl, {
-          method: 'DELETE',
-        });
-        if (!response.ok) {
-          throw new Error(`Failed to delete record with entityId: ${record.entityId}`);
-        }
-      }));
-  
-      // Remove the deleted records from the state
-      setRecords(records.filter(record => !recordsToDelete.includes(record)));
-      toast.success('Records deleted successfully');
+      // Show the confirmation dialog
+      confirmAlert(confirmationOptions);
     } catch (error) {
-      console.error('Error deleting records:', error);
-      toast.error('Error deleting records:');
+      const errorMessage =
+        error instanceof Error ? error.message : 'An unknown error occurred';
+      console.error('Confirmation error:', errorMessage);
+      toast.error(`Failed to confirm deletion: ${errorMessage}`);
     }
   };
   
-
   const handleArchive = async (indicatorId: string) => {
     try {
-      // Fetch records with the matching standardId
-      const recordsToArchive = records.filter(record => record.indicatorId === indicatorId);
-      if (recordsToArchive.length === 0) {
-        throw new Error('No records found for the given standardId');
-      }
-  
-      // Update status to 'archived' for each record
-      await Promise.all(recordsToArchive.map(async record => {
-        // const api = import.meta.env.VITE_API_URL;
-        const apiUrl = `https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards/${record.entityId}`;
-        const response = await fetch(apiUrl, {
-          method: 'PUT', // Use PUT method to update the record
-          headers: {
-            'Content-Type': 'application/json',
+      // Define the confirmation dialog options
+      const confirmationOptions = {
+        title: 'Confirm Archive',
+        message: 'Are you sure you want to archive this indicator?',
+        buttons: [
+          {
+            label: 'Yes',
+            onClick: async () => {
+              try {
+                // Fetch records with the matching standardId
+                const recordsToArchive = records.filter(record => record.indicatorId === indicatorId);
+                if (recordsToArchive.length === 0) {
+                  throw new Error('No records found for the given standardId');
+                }
+            
+                // Update status to 'archived' for each record
+                await Promise.all(recordsToArchive.map(async record => {
+                  const api = import.meta.env.VITE_API_URL;
+                  const apiUrl = `${api}/standards/${record.entityId}`;
+                  const response = await fetch(apiUrl, {
+                    method: 'PUT', // Use PUT method to update the record
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ ...record, status: 'archived' }), // Update the status field to 'archived'
+                  });
+                  if (!response.ok) {
+                    throw new Error(`Failed to archive record with entityId: ${record.entityId}`);
+                  }
+                }));
+            
+                // Fetch records again to reflect the changes
+                fetchRecords(standardId);
+                toast.success('Records archived successfully');
+              } catch (error) {
+                console.error('Error archiving records:', error);
+                toast.error('Error archiving records:');
+              }
+            },
           },
-          body: JSON.stringify({ ...record, status: 'archived' }), // Update the status field to 'archived'
-        });
-        if (!response.ok) {
-          throw new Error(`Failed to archive record with entityId: ${record.entityId}`);
-        }
-      }));
+          {
+            label: 'No',
+            onClick: () => {}, // Do nothing if "No" is clicked
+          },
+        ],
+      };
   
-      // Fetch records again to reflect the changes
-      fetchRecords(standardId);
-      toast.success('Records archived successfully');
+      // Show the confirmation dialog
+      confirmAlert(confirmationOptions);
     } catch (error) {
-      console.error('Error archiving records:', error);
-      toast.error('Error deleting records:');
+      const errorMessage =
+        error instanceof Error ? error.message : 'An unknown error occurred';
+      console.error('Confirmation error:', errorMessage);
+      toast.error(`Failed to confirm deletion: ${errorMessage}`);
     }
   };
+  
+ 
   
   const toggleForm = () => {
     setShowForm(!showForm);
@@ -159,8 +212,8 @@ const [indicators, setIndicators] = useState<any[]>([]); // State variable to st
         standardId: standardId, // Ensure standardId is included in the record data
       standardName: standardName // Include standardName in recordData
       };
-      // const api = import.meta.env.VITE_API_URL;
-      const response = await fetch(`https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards`, {
+      const api = import.meta.env.VITE_API_URL;
+      const response = await fetch(`${api}/standards`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -183,7 +236,6 @@ const [indicators, setIndicators] = useState<any[]>([]); // State variable to st
         indicatorId: '',
         indicatorName: '',
         description: '',
-        comment: '',
         dateCreated: '',
         status: 'unarchived',
       });
@@ -196,8 +248,8 @@ const [indicators, setIndicators] = useState<any[]>([]); // State variable to st
 
   const fetchIndicators = async (standardId: string | undefined) => {
     try {
-      // const api = import.meta.env.VITE_API_URL;
-      const response = await fetch(`https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards?standardId=${standardId}`);
+      const api = import.meta.env.VITE_API_URL;
+      const response = await fetch(`${api}/standards?standardId=${standardId}`);
       if (!response.ok) {
         throw new Error('Failed to fetch indicators');
       }
@@ -212,8 +264,8 @@ const [indicators, setIndicators] = useState<any[]>([]); // State variable to st
 
   const fetchRecords = async (standardId: string | undefined) => {
     try {
-      // const api = import.meta.env.VITE_API_URL;
-      const response = await fetch(`https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards?standard=${standardId}`);
+      const api = import.meta.env.VITE_API_URL;
+      const response = await fetch(`${api}/standards?standard=${standardId}`);
       if (!response.ok) {
         throw new Error('Failed to fetch records');
       }
@@ -275,8 +327,8 @@ const [indicators, setIndicators] = useState<any[]>([]); // State variable to st
 const fetchStandardName = async (standardId: string | undefined) => {
   try {
     // Make API call to fetch standard name based on standardId
-    // const api = import.meta.env.VITE_API_URL;
-    const response = await fetch(`https://tds1ye78fl.execute-api.us-east-1.amazonaws.com/standards?standardId=${standardId}`);
+    const api = import.meta.env.VITE_API_URL;
+    const response = await fetch(`${api}/standards?standardId=${standardId}`);
     if (!response.ok) {
       throw new Error('Failed to fetch standards');
     }
@@ -355,22 +407,24 @@ return loading ? (
             <div className="modal-content">
             <h1 style={{ fontWeight: 'bold', fontSize: '24px' }}>Create New Indicator</h1><br></br>
           
+           
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700">{t('indicatorId')}</label>
               <input type="text" name="indicatorId" value={recordData.indicatorId} onChange={handleChange} className="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3 
-                focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" />
+                focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" style={{ width: '300px'}}/>
              
             </div><br />
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700">{t('indicatorName')}</label>
               <input type="text" name="indicatorName" value={recordData.indicatorName} onChange={handleChange} className="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3 
-                focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" 
-                style={{ width: '300px'}}/>
+                focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" />
              
             </div><br />
+            
+        
             <div className="form-buttons">
             <button
-       className="bg-blue-500 flex rounded border border-stroke py-2 px-6 font-medium text-black hover:shadow-1 dark:border-strokedark dark:text-white mr-4"
+       className={`flex justify-center rounded bg-primary py-2 px-6 font-medium text-gray hover:bg-opacity-90 mr-4`}
        type="button"
         onClick={handleCancel}
       >
@@ -380,7 +434,7 @@ return loading ? (
 
       </button>
       <button
-        className="bg-blue-500 flex rounded border border-stroke py-2 px-6 font-medium text-black hover:shadow-1 dark:border-strokedark dark:text-white mr-4"
+        className={`flex justify-center rounded bg-primary py-2 px-6 font-medium text-gray hover:bg-opacity-90 mr-4`}
         type="button" // Change type to "button"
         onClick={createRecord} // Add onClick handler
       >
@@ -441,8 +495,8 @@ return loading ? (
     <h5>{record.indicatorName}</h5></a>
     {isAdmin && (
         <>
-       {/* Delete icon */}
-       <FontAwesomeIcon icon={faTrash} className="delete-icon" onClick={() => handleDelete(record.indicatorId)} />
+     {/* Delete icon */}
+     <FontAwesomeIcon icon={faTrash} className="delete-icon" onClick={() => handleDelete(record.description)} />
                         {/* Archive icon */}
                         <FontAwesomeIcon icon={faArchive} className="archive-icon" onClick={() => handleArchive(record.indicatorId)} />
                         </>
