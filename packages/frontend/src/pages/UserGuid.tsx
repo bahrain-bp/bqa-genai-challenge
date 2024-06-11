@@ -11,7 +11,7 @@ import video6 from '../videos/OfficerDash.mp4';
 import video7 from '../videos/predefinedBQA-ezgif.com-video-speed.mp4';
 import video8 from '../videos/bqadash-ezgif.com-video-speed.mp4';
 import video9 from '../videos/commentandadditionaldoc-ezgif.com-video-speed.mp4';
-import video10 from '../videos/summarybqa.mp4';
+import video10 from '../videos/summarybqa-ezgif.com-mute-video.mp4';
 import video11 from '../videos/assesmentbqa.mp4';
 import pic1 from '../images/aws.jpg';
 import { fetchUserAttributes } from 'aws-amplify/auth';
