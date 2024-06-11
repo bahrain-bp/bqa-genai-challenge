@@ -508,7 +508,7 @@ const UploadEvidence = () => {
       ],
     });
   };
-  const fileUploadUrl = `${apiURL}/uploadS3`;
+  const fileUploadUrl = `https://bu6d6fsf7f.execute-api.us-east-1.amazonaws.com/uploadS3`;
   useEffect(() => {
     fetchUploadedFiles();
   }, [activeStep, standards]); // Re-fetch when these change

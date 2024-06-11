@@ -219,7 +219,7 @@ export const handler = async (event: any) => {
             }
         });
 
-        console.log(Emailresponse);
+        console.log("email sent to " + userEmail + "body:" + Emailresponse);
 
         // check if the response is successful
         if (Emailresponse.status !== 200) {
