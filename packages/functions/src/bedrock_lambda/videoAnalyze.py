@@ -33,75 +33,84 @@ def get_secret():
     return json.loads(secret)
 
 def handler(event, context):
-    # Extract the Cloud Storage URI from the request
-    cloud_storage_uri = event['body']
-    cloud_storage_uri2 = base64.b64decode(cloud_storage_uri).decode('utf-8')
-    cloud_storage_uri2 = json.loads(cloud_storage_uri2)['body']
-
-    # Create the JSON request payload with the Cloud Storage URI
-    request_payload = {
-        "contents": [
-            {
-                "role": "user",
-                "parts": [
-                    {
-                        "fileData": {
-                            "mimeType": "video/mp4",
-                            "fileUri": cloud_storage_uri2
+    try:
+        # Parse request body
+        decoded_event = base64.b64decode(event['body'])
+        print(decoded_event)
+        event_body = json.loads(decoded_event)
+        # Extract the Cloud Storage URI and text from the request
+        cloud_storage_uri = event_body['cloudStorageUri']
+        text = event_body['text']
+        print(text)
+        # Create the JSON request payload with the Cloud Storage URI and text
+        request_payload = {
+            "contents": [
+                {
+                    "role": "user",
+                    "parts": [
+                        {
+                            "fileData": {
+                                "mimeType": "video/mp4",
+                                "fileUri": cloud_storage_uri
+                            }
+                        },
+                        {
+                            "text": text
                         }
-                    },
-                    {
-                        "text": "Describe this video? rate it out of 10"
-                    }
-                ]
-            }
-        ],
-        "generationConfig": {
-            "maxOutputTokens": 8192,
-            "temperature": 1,
-            "topP": 0.95
-        },
-        "safetySettings": [
-            {
-                "category": "HARM_CATEGORY_HATE_SPEECH",
-                "threshold": "BLOCK_MEDIUM_AND_ABOVE"
+                    ]
+                }
+            ],
+            "generationConfig": {
+                "maxOutputTokens": 8192,
+                "temperature": 1,
+                "topP": 0.95
             },
-            {
-                "category": "HARM_CATEGORY_DANGEROUS_CONTENT",
-                "threshold": "BLOCK_MEDIUM_AND_ABOVE"
-            },
-            {
-                "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-                "threshold": "BLOCK_MEDIUM_AND_ABOVE"
-            },
-            {
-                "category": "HARM_CATEGORY_HARASSMENT",
-                "threshold": "BLOCK_MEDIUM_AND_ABOVE"
-            }
-        ]
-    }
+            "safetySettings": [
+                {
+                    "category": "HARM_CATEGORY_HATE_SPEECH",
+                    "threshold": "BLOCK_MEDIUM_AND_ABOVE"
+                },
+                {
+                    "category": "HARM_CATEGORY_DANGEROUS_CONTENT",
+                    "threshold": "BLOCK_MEDIUM_AND_ABOVE"
+                },
+                {
+                    "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+                    "threshold": "BLOCK_MEDIUM_AND_ABOVE"
+                },
+                {
+                    "category": "HARM_CATEGORY_HARASSMENT",
+                    "threshold": "BLOCK_MEDIUM_AND_ABOVE"
+                }
+            ]
+        }
 
-    # Set the API endpoint and headers with OAuth
-    API_ENDPOINT = "https://us-central1-aiplatform.googleapis.com/v1/projects/vertex-2-424221/locations/us-central1/publishers/google/models/gemini-1.5-flash-preview-0514:streamGenerateContent"
-    headers = {
-        "Authorization": f"Bearer {get_access_token()}",
-        "Content-Type": "application/json"
-    }
+        # Set the API endpoint and headers with OAuth
+        API_ENDPOINT = "https://us-central1-aiplatform.googleapis.com/v1/projects/vertex-2-424221/locations/us-central1/publishers/google/models/gemini-1.5-flash-preview-0514:streamGenerateContent"
+        headers = {
+            "Authorization": f"Bearer {get_access_token()}",
+            "Content-Type": "application/json"
+        }
 
-    # Set the timeout for the request (in seconds)
-    timeout_seconds = 900  # 15 minutes
+        # Set the timeout for the request (in seconds)
+        timeout_seconds = 900  # 15 minutes
 
-    # Send the request to the API with timeout
-    response = requests.post(API_ENDPOINT, headers=headers, json=request_payload, timeout=timeout_seconds)
-    response_json = response.json() 
-    #Merge all candidates in response
-    merged_text = merge_text(response_json)
-    print(merged_text)
+        # Send the request to the API with timeout
+        response = requests.post(API_ENDPOINT, headers=headers, json=request_payload, timeout=timeout_seconds)
+        response_json = response.json() 
+        # Merge all candidates in response
+        merged_text = merge_text(response_json)
+        print(merged_text)
 
-    return {
-        'statusCode': response.status_code,
-        'body': merged_text
-    }
+        return {
+            'statusCode': response.status_code,
+            'body': merged_text
+        }
+    except Exception as e:
+        return {
+            'statusCode': 500,
+            'body': f"Error: {str(e)}"
+        }
 
 def merge_text(response_json):
     merged_text = ""
