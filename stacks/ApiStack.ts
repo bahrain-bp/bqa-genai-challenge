@@ -9,7 +9,7 @@ import * as iam from "@aws-cdk/aws-iam";
 export function ApiStack({ stack }: StackContext) {
   const { auth } = use(AuthStack);
 
-  const { table, fileTable, criteriaTable, universityTable,comparisonResultTable,statusTable } = use(DBStack);
+  const { table, fileTable, criteriaTable, universityTable,comparisonResultTable,statusTable, videoCriteriaTable } = use(DBStack);
 
   const { documentsQueue } = use(S3Stack);
 
@@ -26,7 +26,7 @@ export function ApiStack({ stack }: StackContext) {
     defaults: {
       function: {
 
-       bind: [table, fileTable, criteriaTable,universityTable,comparisonResultTable,statusTable], // Bind the table name to our API
+       bind: [table, fileTable, criteriaTable,universityTable,comparisonResultTable,statusTable, videoCriteriaTable], // Bind the table name to our API
 
       },
       // Optional: Remove authorizer from defaults if set to "jwt"
@@ -93,6 +93,13 @@ export function ApiStack({ stack }: StackContext) {
         function: {
           handler: "packages/functions/src/retrieveVideos.handler",
           permissions: "*",
+          timeout: "900 seconds",
+        },
+      },
+      "POST /videoPrompt": {
+        function: {
+          handler: "packages/functions/src/generateVideoPrompt.handler",
+          permissions: ["dynamodb"],
           timeout: "900 seconds",
         },
       },
@@ -258,6 +265,12 @@ export function ApiStack({ stack }: StackContext) {
         function: {
           handler: "packages/functions/createUserDB.main",
           permissions: "*",
+        },
+      },
+      "POST /addVideoCriteria": {
+        function: {
+          handler: "packages/functions/src/addVideoCriteria.main",
+          permissions: ["dynamodb"],
         },
       },
 
