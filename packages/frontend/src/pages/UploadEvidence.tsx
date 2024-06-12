@@ -211,6 +211,7 @@ const UploadEvidence = () => {
   const navigate = useNavigate();
 
   const [currentName, setCurrentName] = useState('');
+  const [userEmail, setUserEmail] = useState('');
   const [bqaEmail, setBqaEmail] = useState('');
 
   useEffect(() => {
@@ -219,6 +220,9 @@ const UploadEvidence = () => {
         const attributes = await fetchUserAttributes();
         const name: any = attributes.name;
         setCurrentName(name);
+        const email: any = attributes.email;
+        setUserEmail(email);
+        console.log('Current user info:', name, email);
       } catch (error) {
         console.error('Error fetching current user info:', error);
       }
@@ -238,7 +242,7 @@ const UploadEvidence = () => {
   useEffect(() => {
     const fetchReviewerInfo = async () => {
       try {
-        const response = await fetch(`${apiURL}/getUsers`);
+        const response = await fetch(`https://bu6d6fsf7f.execute-api.us-east-1.amazonaws.com/getUsers`);
         const data = await response.json();
         if (response.ok) {
           const bqaReviewer = data.find(
@@ -269,7 +273,7 @@ const UploadEvidence = () => {
   useEffect(() => {
     const fetchUniversityStatus = async () => {
       try {
-        const response = await fetch(`${apiURL}/uniStatus/${currentName}`);
+        const response = await fetch(`https://bu6d6fsf7f.execute-api.us-east-1.amazonaws.com/uniStatus/${currentName}`);
         if (!response.ok) {
           throw new Error(`HTTP status ${response.status}`);
         }
@@ -381,7 +385,7 @@ const UploadEvidence = () => {
 
       try {
         // console.log('Email:', userEmail);
-        const response = await fetch(`${apiURL}/uploadS3`, {
+        const response = await fetch(`https://bu6d6fsf7f.execute-api.us-east-1.amazonaws.com/uploadS3`, {
           method: 'POST',
           body: formData,
           headers: {
@@ -444,7 +448,7 @@ const UploadEvidence = () => {
     }
 
     const currentStandard = standards[activeStep];
-    const url = `${apiURL}/files`;
+    const url = `https://bu6d6fsf7f.execute-api.us-east-1.amazonaws.com/files`;
 
     try {
       const response = await fetch(url, {
@@ -505,7 +509,7 @@ const UploadEvidence = () => {
           onClick: async () => {
             try {
               // Construct the API endpoint URL
-              const url = `${apiURL}/deleteFile`; // Replace with your actual endpoint URL
+              const url = `https://bu6d6fsf7f.execute-api.us-east-1.amazonaws.com/deleteFile`; // Replace with your actual endpoint URL
 
               const response = await fetch(url, {
                 method: 'DELETE',
@@ -570,7 +574,7 @@ const UploadEvidence = () => {
 
   const handleFinishUploading = async () => {
     try {
-      const response = await fetch(`${apiURL}/updateStatus/${currentName}`, {
+      const response = await fetch(`https://bu6d6fsf7f.execute-api.us-east-1.amazonaws.com/updateStatus/${currentName}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
