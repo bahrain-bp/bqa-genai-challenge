@@ -74,7 +74,7 @@ button:focus-visible {
 }
 
 .border-info {
-  border-left: 5px solid  #0dcaf0 !important;
+  border-left: 5px solid  #0e072e !important;
 }
 .border-danger {
   border-left: 5px solid  #fd3550 !important;
@@ -100,13 +100,13 @@ button:focus-visible {
   box-shadow: 0 2px 6px 0 rgb(218 218 253 / 65%), 0 2px 6px 0 rgb(206 206 238 / 54%);
 }
 .bg-gradient-scooter {
-  background: #17ead9;
+  background: #ffffff;
   background: -webkit-linear-gradient( 
 45deg
-, #17ead9, #6078ea)!important;
+, #ffffff, #6078ea)!important;
   background: linear-gradient( 
 45deg
-, #17ead9, #6078ea)!important;
+, #ffffff, #6078ea)!important;
 }
 .widgets-icons-2 {
   width: 56px;
@@ -141,13 +141,13 @@ button:focus-visible {
 }
 
 .bg-gradient-ohhappiness {
-  background: #00b09b;
+  background: #ffffff;
   background: -webkit-linear-gradient( 
 45deg
-, #00b09b, #96c93d)!important;
+, #ffffff, #ffffff)!important;
   background: linear-gradient( 
 45deg
-, #00b09b, #96c93d)!important;
+, #ffffff, #ffffff)!important;
 }
 .custom-card-width {
 width: 400%;
@@ -183,7 +183,7 @@ height: 150px;
 }
 
 .bg-c-blue {
-  background: linear-gradient(90deg, rgba(232,250,253,1) 0%, rgba(232,250,253,1) 100%);
+  background: linear-gradient(90deg, rgb(255, 255, 255) 0%, rrgb(255, 255, 255)100%);
 }
 
 .bg-c-green {
@@ -317,7 +317,7 @@ align-items: center;
 }
 
 .modal-content {
-background-color:#ededed;
+background-color:#f1f2f3;
 padding: 20px;
 border-radius: 8px;
 box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);

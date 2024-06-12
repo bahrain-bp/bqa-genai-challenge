@@ -51,7 +51,7 @@ def handler(event, context):
                         }
                     },
                     {
-                        "text": "Describe the video? what is in it?"
+                        "text": "Describe this video? rate it out of 10"
                     }
                 ]
             }
@@ -96,7 +96,6 @@ def handler(event, context):
     response_json = response.json() 
     #Merge all candidates in response
     merged_text = merge_text(response_json)
-
     print(merged_text)
 
     return {

@@ -202,7 +202,7 @@ export function ApiStack({ stack }: StackContext) {
         },
       },
       //adding comments 
-      "POST /addFileComments": {
+      "PUT /addFileComments": {
         function: {
           handler: "packages/functions/src/comments/addComments.main",
           permissions: "*",
