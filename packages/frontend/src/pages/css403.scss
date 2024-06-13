@@ -17,6 +17,10 @@ body {
   background-color: $bg;
   font-family: sans-serif;
 }
+
+.page403-wrapper{
+  overflow: hidden;
+
 .custom-container {
   z-index: 1;
   position: absolute;
@@ -26,6 +30,7 @@ body {
   text-align: center;
   padding: 10px;
   min-width: 300px;
+  
   div {
     display: inline-block;
   }
@@ -43,17 +48,19 @@ body {
   p {
     color: #081168;
   }
-}
+} 
 .custom-lock {
   transition: 0.5s ease;
   position: relative;
   overflow: hidden;
   opacity: 0;
+  
   &.generated {
     transform: scale(0.5);
     position: absolute;
     animation: 2s move linear;
     animation-fill-mode: forwards;
+    
   }
   ::after {
     content: '';
@@ -65,6 +72,7 @@ body {
     width: 50%;
     top: 0;
     left: 0;
+    
   }
   .bottom {
     background: #D68910;
@@ -81,11 +89,13 @@ body {
     border: 10px solid #D68910;
     display: block;
     position: relative;
+    
     top: 30px;
     margin: 0 auto;
     &::after {
       padding: 10px;
       border-radius: 50%;
+      
     }
   }
 }
@@ -101,4 +111,5 @@ body {
   .custom-lock.generated {
     transform: scale(0.3);
   }
+}
 }
