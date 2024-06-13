@@ -49,7 +49,7 @@ export const handler: APIGatewayProxyHandler = async (event: any) => {
     console.error('Error uploading video:', error);
     return {
       statusCode: 500,
-      body: JSON.stringify({ message: 'Internal Server Error', error: error.message }),
+      body: JSON.stringify({ message: 'Internal Server Error', error: error }),
     };
   }
 };

@@ -23,6 +23,7 @@ const BqaDash1 = () => {
   const { t } = useTranslation(); // Hook to access translation functions
   const [imagesFetched, setImagesFetched] = useState<boolean>(false); // Flag to track if images are fetched
   const [statusFetched, setStatusFetched] = useState<boolean>(false); // Flag to track if statuses are fetched
+  
   useEffect(() => {
     const fetchCognitoUsers = async () => {
       try {
