@@ -281,7 +281,7 @@ function App() {
         {/*===================================================================================================================================*/}
         {/* Route Available to BQA Reviewer Only */}
 
-        {isAdmin ? (
+        {isAdmin && (
   <>
     <Route
       path="/BqaDash1"
@@ -333,14 +333,12 @@ function App() {
     />
     
   </>
-) : (
-  <Route path="*" element={<Page403 />} />
-)}
+) }
 
 
         {/**-------------------------------------------------------------------------------------------------------------------- */}
         {/* Route Available to University Officer Only */}
-        {!isAdmin ? (
+        {!isAdmin && (
           <>
             {/* <Route
           path="/Dashboard"
@@ -372,9 +370,7 @@ function App() {
             />
           {/* Additional officer-only routes can be added here */}
   </>
-) : (
-   <Route path="*" element={<Page403 />} />
-)}
+) }
             <Route
               path="/AssessmentPage"
               element={
