@@ -34,7 +34,7 @@ export const homeObjtwo = {
     lightTextDesc: true,
     topLine: 'Discover',
     headline: 'EduScribeAI in Action',
-    description: 'Discover how EduScribeAI, powered by AWS and Anthropic’s technology, transforms self-assessment in education with speed and precision. This innovative tool cuts down review times from weeks to hours, allowing institutions to focus on enhancing educational standards more efficiently.',
+    description: 'Discover how EduScribeAI, powered by AWS Bedrock and SageMaker models, transforms self-assessment in education with speed and precision. This innovative tool cuts down review times from weeks to hours, allowing institutions to focus on enhancing educational standards more efficiently.',
     buttonLabel: 'Get started',
     imgStart: true,
     //img: require('../../images/Upload.svg'),
