@@ -147,3 +147,16 @@
 @media only screen and (max-width: 990px){
     .progress{ margin-bottom: 20px; }
 }
+
+/* Assuming your component has a className `comment-modal` */
+.comment-modal h2 {
+    max-width: 100%; /* Ensure it takes the full width available */
+    white-space: normal; /* Allows text to wrap */
+  }
+  
+  @media (max-width: 480px) {
+    .comment-modal h2 {
+      font-size: 14px; /* Smaller text on smaller screens */
+    }
+  }
+  

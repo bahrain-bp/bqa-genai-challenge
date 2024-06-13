@@ -5,7 +5,7 @@ import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useParams, Link } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
-import './BqaDash1.css'; // Custom CSS file for progress bars
+// import './BqaDash1.css'; // Custom CSS file for progress bars
 import { ToastContainer } from 'react-toastify';
 import Loader from '../common/Loader';
 import Pagination from '@mui/material/Pagination';
@@ -32,6 +32,13 @@ interface Record {
   status: string;
 }
 const BqaDash2 = ({}) => {
+  // CSS rules defined within the component
+  const cssStyles = `
+    .file-name {
+      max-width: 100%; /* Ensure it doesn't exceed the container */
+      wordWrap: 'break-word';
+    }
+  `;
   const [isDownloading, setIsDownloading] = useState(false);
   const [files, setFiles] = useState<any[]>([]);
   const [standard, setStandard] = useState<string>('Standard 1');
@@ -98,12 +105,21 @@ const BqaDash2 = ({}) => {
             'subfolder-name': standard.replace(/\s/g, ''),
           },
         });
-        console.log(response.data.files, 'response');
-        console.log('files', files);
-        let filteredFiles = response.data.files.map((file: any) => ({
-          ...file,
-          name: file.Key.split('/').pop(), // Add filename property to each file object
-        }));
+        
+
+        let filePromises = response.data.files.map(async (file: any) => {
+          const hasComment = await fetchComments(file.Key); // Use the new fetchComments
+          return {
+            ...file,
+            name: file.Key.split('/').pop(),
+            hasComment: hasComment // Set hasComment based on fetchComments result
+          };
+        });
+
+        let filteredFiles = await Promise.all(filePromises);
+
+
+
         // Filter out files containing "-split" in their name
         filteredFiles = filteredFiles.filter(
           (file: any) => !file.Key.includes('-split'),
@@ -346,8 +362,11 @@ const BqaDash2 = ({}) => {
     setComment('');  // Clear the comment state whenever the modal is opened
     setIsCommentModalOpen(true);
   };
-  const closeModal = () => setIsCommentModalOpen(false);
-  const handleCommentClick = (fileKey:any) => {
+  const closeModal = () => {
+    setIsCommentModalOpen(false);
+    setComment(''); // Resetting comment when modal is closed
+  };
+    const handleCommentClick = (fileKey:any) => {
     console.log("Setting file key:", fileKey);
     setCurrentFileKey(fileKey);
     console.log("Current file key set:", currentFileKey);
@@ -435,16 +454,18 @@ const BqaDash2 = ({}) => {
   
 
   const fetchComments = async (fileKey:any) => {
+    setLoading(true);  // Set loading to true when fetch starts
+
     const url = `${apiURL}/summarization`; // Modify this URL based on your actual API endpoint
     try {
       const response = await axios.get(url, {
         headers: { 'file-name': fileKey }
       });
-      console.log("API Response:", response.data.comments);  // Check the actual structure here
-      setComment(response.data.comments);
-      console.log ("The comment of this file:",comment);
-
-      return response.data;
+      if (fileKey === currentFileKey) {
+        setComment(response.data.comments);
+      }
+      
+      return response.data.comments && response.data.comments.length > 0; // Returns true if comments exist
 
     } catch (error) {
       console.error('Error fetching comments:', error);
@@ -700,7 +721,7 @@ const BqaDash2 = ({}) => {
                             </button>
                             {/**This button will allow BQA reviewer to add comments**/}
                             <button
-                              className="hover:text-primary"
+                              className="hover:text-primary relative"
                               onClick={() => handleCommentClick(file.Key)}
                               >
                               <svg
@@ -716,13 +737,26 @@ const BqaDash2 = ({}) => {
                                   fill="currentColor"
                                 />
                               </svg>
-                            </button>
-                            <CommentModal isOpen={isCommentModalOpen} onClose={closeModal} fileKey={currentFileKey}>
+                              {file.hasComment && (
+                                <span className="absolute top-0 right-0 block h-2 w-2 bg-red-500 rounded-full border border-white"></span>
+                              )}            
                               
-                              <h2 className="text-lg font-bold ">Add Comment</h2>
-                              <h2>File: {currentFileKey}</h2>
+                                              </button>
+                                              
+
+                            <CommentModal isOpen={isCommentModalOpen} onClose={closeModal} fileKey={currentFileKey}>
+                            <style>
+        {`
+          .file-name {
+            max-width: 100%; /* Ensure it doesn't exceed the container */
+            word-wrap: break-word; /* Ensure words break if necessary */
+          }
+        `}
+      </style>
+                              <h2 className="text-lg font-bold mt-0 ">Add Comment</h2>
+                              <h2 className="file-name">File: {currentFileKey}</h2>
                               <textarea
-                                className="w-full p-2 border rounded"
+                                className="w-full p-5 border rounded"
                                 value={comment}
                                 onChange={(e) => setComment(e.target.value)}
                                 onKeyDown={handleKeyDown} // Add the onKeyDown handler here
