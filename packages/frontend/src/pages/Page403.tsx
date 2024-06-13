@@ -1,6 +1,6 @@
 // test test
 import { useEffect } from 'react';
-import './styles.scss'; // Make sure to include your CSS file
+import './css403.scss'; // Make sure to include your CSS file
 import { useNavigate } from 'react-router-dom';
 
 const Page403 = () => {
@@ -50,6 +50,8 @@ const Page403 = () => {
   }, []);
 
   return (
+    <div className="page403-wrapper">
+
     <div className="custom-container" > 
       <h1>
         4
@@ -62,6 +64,8 @@ const Page403 = () => {
       <p>Access denied</p>
       <button onClick={goToLogin} className="login-button">Click here to go back to login page</button>
     </div>
+    </div>
+
   );
 };
 

@@ -19,6 +19,7 @@ import axios from 'axios';
 import UserOne from '../images/user/BQA.jpg';
 
 
+
 const UserGuid: React.FC = () => {
     const [loading, setLoading] = useState<boolean>(false);
     const [isAdmin, setIsAdmin] = useState<boolean>(false);
@@ -153,13 +154,15 @@ const VideoComponent: React.FC<VideoComponentProps> = ({ src }) => {
         return <Loader />;
     }
 
-    return (
+    return loading ? (
+        <Loader />
+      ) : (
         <DefaultLayout>
                 <h1 className="text-xl font-bold">User Guide</h1>
                 <p>Welcome to the user guide page. Here, you can find information on how to use the application.</p>
             <div className="timeline">
                 {(isAdmin ? adminContent : userContent).map((item, index) => (
-                    <div className={`container ${index % 2 === 0 ? 'left-container' : 'right-container'}`} key={index}>
+                    <div className={`container1 ${index % 2 === 0 ? 'left-container' : 'right-container'}`} key={index}>
                         <img src={currentLogo}  />
                         <div className="text-box">
                             <h2>{item.title}</h2>

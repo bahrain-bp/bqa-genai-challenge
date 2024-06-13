@@ -84,6 +84,8 @@ const DefaultLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
     </Box>
       </div>
                          )}
+
+                         
                            {!isAdmin && (
 
 <div className="fixed bottom-4 right-4">
