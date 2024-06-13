@@ -33,12 +33,12 @@ interface Record {
 }
 const BqaDash2 = ({}) => {
   // CSS rules defined within the component
-  const cssStyles = `
-    .file-name {
-      max-width: 100%; /* Ensure it doesn't exceed the container */
-      wordWrap: 'break-word';
-    }
-  `;
+  // const cssStyles = `
+  //   .file-name {
+  //     max-width: 100%; /* Ensure it doesn't exceed the container */
+  //     wordWrap: 'break-word';
+  //   }
+  // `;
   const [isDownloading, setIsDownloading] = useState(false);
   const [files, setFiles] = useState<any[]>([]);
   const [standard, setStandard] = useState<string>('Standard 1');
