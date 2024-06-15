@@ -12,7 +12,9 @@ import { useNavigate } from 'react-router-dom';
 //import Loader from '../common/Loader';
 import { fetchUserAttributes } from 'aws-amplify/auth';
 import Modal from 'react-modal';
-
+interface StepContainerProps {
+  showModal: boolean;
+}
 const MainContainer = styled.div`
   width: 100%;
   max-width: 900px;
@@ -20,11 +22,13 @@ const MainContainer = styled.div`
   padding: 0 16px;
 `;
 
-const StepContainer = styled.div`
+const StepContainer = styled.div<StepContainerProps>`
   display: flex;
   justify-content: space-between;
   margin-top: 50px;
   position: relative;
+  opacity: ${({ showModal }) => showModal ? 0.5 : 1}; // Conditional opacity based on showModal
+
 `;
 
 const StepWrapper = styled.div`
@@ -655,7 +659,7 @@ const UploadEvidence = () => {
           contentLabel="Confirm Finish Uploading"
           style={customStyles} // Apply custom styles here
         >
-          <h2>Are you sure you want to finalize your upload?</h2>
+          <h2 >Are you sure you want to finalize your upload?</h2>
           <ButtonsContainer>
             <ButtonStyle onClick={() => setShowModal(false)}>
               Cancel
@@ -669,7 +673,7 @@ const UploadEvidence = () => {
           {standards[activeStep]?.standardName}
         </SectionTitle>
 
-        <StepContainer>
+        <StepContainer showModal={showModal}>
           {standards.map((_, index) => (
             <StepWrapper key={index}>
               <StepStyle completed={activeStep >= index}>

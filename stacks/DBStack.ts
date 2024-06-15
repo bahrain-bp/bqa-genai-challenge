@@ -116,7 +116,21 @@ export function DBStack({ stack, app }: StackContext) {
   });
 
 
-
+  const videoCriteriaTable = new Table(stack, "videoCriteriaTable", {
+    fields: {
+        id: "string",          // Primary key, UUID
+        standardId: "string",  // Standard ID
+        indicatorId: "string", // Indicator ID
+        criteria: "string"     // Criteria text
+    },
+    primaryIndex: { partitionKey: "id" },
+    globalIndexes: {
+        StandardIndicatorIndex: {
+            partitionKey: "standardId",
+            sortKey: "indicatorId",
+        },
+    },
+});
 
 
 
@@ -172,7 +186,8 @@ export function DBStack({ stack, app }: StackContext) {
         criteriaTable,
         universityTable,
       comparisonResultTable,
-      statusTable
+      statusTable,
+      videoCriteriaTable
 
     };
 
