@@ -2,6 +2,7 @@ import  { useEffect, useState } from 'react';
 import { getCurrentUser, fetchUserAttributes } from 'aws-amplify/auth';
 import BqaDash1 from '../pages/BqaDash1';
 import OfficerDash from '../pages/OfficerDash';
+import Loader from '../common/Loader';
 
 const Dashboard = () => {
   const [ setUser] = useState<any | null>(null);
@@ -47,8 +48,7 @@ const Dashboard = () => {
   }, [isAdmin]);
 
   if (loading) {
-    return <p>Loading...</p>; // Placeholder for loading state
-  }
+<Loader/>  }
 
   return (
     <>
