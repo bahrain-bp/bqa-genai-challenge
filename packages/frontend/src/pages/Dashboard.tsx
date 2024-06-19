@@ -6,7 +6,7 @@ import Loader from '../common/Loader';
 
 const Dashboard = () => {
   const [ user,setUser] = useState<any | null>(null);
-  const [isAdmin, setIsAdmin] = useState<boolean>(false);
+  const [isAdmin, setIsAdmin] = useState<boolean | null>(null); // Use null to signify undetermined state
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
@@ -51,8 +51,9 @@ const Dashboard = () => {
     // }`
   }, [isAdmin,user]);
 
-  if (loading) {
-<Loader/>  }
+  if (loading || isAdmin === null) {
+    return <Loader />; // Render loading indicator while fetching user info or isAdmin is not determined
+  }
 
   return (
     <>
