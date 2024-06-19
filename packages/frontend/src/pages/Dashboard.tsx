@@ -31,7 +31,7 @@ const Dashboard = () => {
       const userInfo = await getCurrentUserInfo();
       if (userInfo) {
         setUser(userInfo);
-        setIsAdmin(user.attributes.name?.startsWith('BQA') || false);
+        setIsAdmin(userInfo.attributes.name?.startsWith('BQA') || false);
       }
 
       setLoading(false);
@@ -41,15 +41,15 @@ const Dashboard = () => {
   }, []);
 
   useEffect(() => {
-    // if (isAdmin) {
+`    // if (isAdmin) {
     //     console.log(isAdmin);
     //   console.log('This is BQA Reviewer');
     // } else {
     //     console.log(isAdmin);
 
     //   console.log('Other type of user');
-    // }
-  }, [isAdmin]);
+    // }`
+  }, [isAdmin,user]);
 
   if (loading) {
 <Loader/>  }
