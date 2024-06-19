@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { FileUpload } from 'primereact/fileupload';
 import 'react-confirm-alert/src/react-confirm-alert.css'; // Import CSS
-import { confirmAlert } from 'react-confirm-alert';
+import { confirmAlert } from 'react-confirm-alert'; // Fix: npm install react-confirm-alert
 import { useNavigate } from 'react-router-dom';
 
 //import { useTranslation } from 'react-i18next';
@@ -186,14 +186,14 @@ const customStyles = {
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
 };
-// const CompletionMessage = styled.div`
-//   top: 10px;
-//   left: 10px;
-//   color: #2ecc71;
-//   font-size: 20px;
-//   background-color: white;
-//   padding: 5px 10px; // Adds
-//   display: inline-block;
+const CompletionMessage = styled.div`
+  top: 10px;
+  left: 10px;
+  color: #2ecc71;
+  font-size: 20px;
+  background-color: white;
+  padding: 5px 10px; // Adds
+  display: inline-block;
 
 // `;
 const SummaryIcon = styled.i`
@@ -215,6 +215,7 @@ const UploadEvidence = () => {
   const navigate = useNavigate();
 
   const [currentName, setCurrentName] = useState('');
+  const [userEmail, setUserEmail] = useState('');
   const [bqaEmail, setBqaEmail] = useState('');
 
   useEffect(() => {
@@ -224,6 +225,7 @@ const UploadEvidence = () => {
         const name: any = attributes.name;
         setCurrentName(name);
         const email: any = attributes.email;
+        setUserEmail(email);
         console.log('Current user info:', name, email);
       } catch (error) {
         console.error('Error fetching current user info:', error);
@@ -244,7 +246,7 @@ const UploadEvidence = () => {
   useEffect(() => {
     const fetchReviewerInfo = async () => {
       try {
-        const response = await fetch(`${apiURL}/getUsers`);
+        const response = await fetch(`https://bu6d6fsf7f.execute-api.us-east-1.amazonaws.com/getUsers`);
         const data = await response.json();
         if (response.ok) {
           const bqaReviewer = data.find(
@@ -275,7 +277,7 @@ const UploadEvidence = () => {
   useEffect(() => {
     const fetchUniversityStatus = async () => {
       try {
-        const response = await fetch(`${apiURL}/uniStatus/${currentName}`);
+        const response = await fetch(`https://bu6d6fsf7f.execute-api.us-east-1.amazonaws.com/uniStatus/${currentName}`);
         if (!response.ok) {
           throw new Error(`HTTP status ${response.status}`);
         }
@@ -360,6 +362,7 @@ const UploadEvidence = () => {
     fetchStandards();
   }, []);
 
+
   const handleFileChange = async (
     files: any,
     standard: any,
@@ -385,10 +388,12 @@ const UploadEvidence = () => {
       formData.append('file', file);
 
       try {
-        const response = await fetch(`${apiURL}/uploadS3`, {
+        // console.log('Email:', userEmail);
+        const response = await fetch(`https://bu6d6fsf7f.execute-api.us-east-1.amazonaws.com/uploadS3`, {
           method: 'POST',
           body: formData,
           headers: {
+            'user-email': userEmail, // Add the user's email to the headers
             'file-name': String(file.name),
             'bucket-name': 'uni-artifacts',
             'folder-name': currentName,
@@ -401,7 +406,23 @@ const UploadEvidence = () => {
         if (!response.ok) {
           const errorText = await response.text();
           throw new Error(`Failed to upload file: ${errorText}`);
-        }
+        } 
+
+      // Testing if the email gets sent when uploading
+      // try {
+      //   const response = await fetch(`${apiURL}/email`, {
+      //     method: 'POST',
+      //     body: formData,
+      //     headers: {
+      //       'user-email': userEmail, // Add the user's email to the headers
+      //       'file-name': String(file.name),
+      //     },
+      //   });
+      //   console.log(file.name);
+      //   if (!response.ok) {
+      //     const errorText = await response.text();
+      //     throw new Error(`Failed to upload file: ${errorText}`);
+      //   } 
 
         // Log file info and refresh file list
         console.log('Uploaded file:', file.name);
@@ -419,6 +440,7 @@ const UploadEvidence = () => {
     setIsUploading(false);
   };
 
+
   //fetch uploaded folders TRY#1
   const fetchUploadedFiles = async () => {
     if (
@@ -430,7 +452,7 @@ const UploadEvidence = () => {
     }
 
     const currentStandard = standards[activeStep];
-    const url = `${apiURL}/files`;
+    const url = `https://bu6d6fsf7f.execute-api.us-east-1.amazonaws.com/files`;
 
     try {
       const response = await fetch(url, {
@@ -491,7 +513,7 @@ const UploadEvidence = () => {
           onClick: async () => {
             try {
               // Construct the API endpoint URL
-              const url = `${apiURL}/deleteFile`; // Replace with your actual endpoint URL
+              const url = `https://bu6d6fsf7f.execute-api.us-east-1.amazonaws.com/deleteFile`; // Replace with your actual endpoint URL
 
               const response = await fetch(url, {
                 method: 'DELETE',
@@ -541,7 +563,7 @@ const UploadEvidence = () => {
       ],
     });
   };
-  const fileUploadUrl = `${apiURL}/uploadS3`;
+  const fileUploadUrl = `https://bu6d6fsf7f.execute-api.us-east-1.amazonaws.com/uploadS3`;
   useEffect(() => {
     fetchUploadedFiles();
   }, [activeStep, standards]); // Re-fetch when these change
@@ -556,7 +578,7 @@ const UploadEvidence = () => {
 
   const handleFinishUploading = async () => {
     try {
-      const response = await fetch(`${apiURL}/updateStatus/${currentName}`, {
+      const response = await fetch(`https://bu6d6fsf7f.execute-api.us-east-1.amazonaws.com/updateStatus/${currentName}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -616,13 +638,13 @@ const UploadEvidence = () => {
 
   return (
     <DefaultLayout>
-      {/* <Loading/> */}
+      {/*<Loading/>*/}
       <Breadcrumb pageName="Upload Evidence" />
-      {/* {universityStatus === 'completed' && (
+      {universityStatus === 'completed' && (
         <CompletionMessage>
           You have submited The final vesion to BQA
         </CompletionMessage>
-      )} */}
+      )} 
       <MainContainer>
         {universityStatus === 'in-progress' && (
           <FinishButtonContainer>

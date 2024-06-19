@@ -90,11 +90,12 @@ async function deleteOldestMessage(queueUrl: string): Promise<void> {
 export const handler = async (event: any) => {
   try {
     // Extract parameters from event headers with meaningful names
-    const bucketName = event.headers["bucket-name"];
-    const key = event.headers["file-name"] || "unnamed.pdf"; // Default filename if absent
-    const folderName = event.headers["folder-name"] || "";
-    const subfolderName = event.headers["subfolder-name"] || "";
-    const subsubfolderName = event.headers["subsubfolder-name"] || "";
+    const userEmail = event.headers['user-email'];
+    const bucketName = event.headers['bucket-name'];
+    const key = event.headers['file-name'] || 'unnamed.pdf'; // Default filename if absent
+    const folderName = event.headers['folder-name'] || '';
+    const subfolderName = event.headers['subfolder-name'] || '';
+    const subsubfolderName = event.headers['subsubfolder-name'] || '';
 
     // Validate required parameters
     if (!bucketName || !key) {
@@ -198,17 +199,48 @@ export const handler = async (event: any) => {
       console.log("Error saving status", error);
     }
 
+    // Send email confirmation when processing is complete
+
+        // Prepare email parameters
+        const sourceEmail = 'noreplyeduscribeai@gmail.com'; // sender email address
+        // const userEmail = 'maryamkameshki02@gmail.com'; // testing email
+        const subject = 'Processing Complete';
+        const body = `The processing of your file '${fileName}' is complete. You can access it at ${fileURL}.`;
+
+        // Invoke the email sending Lambda function
+        const Emailresponse = await axios.post('https://u1oaj2omi2.execute-api.us-east-1.amazonaws.com/send-email', {
+            sourceEmail,
+            userEmail, // recipient
+            subject,
+            body
+        }, {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        console.log("email sent to " + userEmail + "body:" + Emailresponse);
+
+        // check if the response is successful
+        if (Emailresponse.status !== 200) {
+          console.log('Failed to get response from lambda function');
+          throw new Error('Failed to get response from lambda function');
+        }
+
+        // return the response data
+        return Emailresponse.data;
+
     // Return the extracted text chunks as response
     return {
       statusCode: 200,
       body: JSON.stringify({ chunks: extractedSummaries }),
     };
   } catch (error) {
-    console.log("Error during processing:", error);
+    console.log('Error during processing, email not sent:', error);
     // Return error response
     return {
       statusCode: 500,
-      body: JSON.stringify({ message: "Error processing request" }),
+      body: JSON.stringify({ message: 'Error processing request, email not sent' }),
     };
   }
 };
