@@ -26,7 +26,7 @@ const SignInPage = ({
       const user = await signIn({ username: email, password });
       setUser(user);
       toast.success(t('welcomeMessage'), { position: 'top-right' });
-      navigate('/Standards'); // Redirect to dashboard after successful sign-in
+      navigate('/Dashboard'); // Redirect to dashboard after successful sign-in
     } catch (error: any) {
       console.error('Error signing in', error);
       toast.error(( "Incorrect username or password."), { position: 'top-right' });
