@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import  { useEffect, useState } from 'react';
 import { getCurrentUser, fetchUserAttributes } from 'aws-amplify/auth';
 import BqaDash1 from '../pages/BqaDash1';
 import OfficerDash from '../pages/OfficerDash';
 
 const Dashboard = () => {
-  const [user, setUser] = useState<any | null>(null);
+  const [ setUser] = useState<any | null>(null);
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
 
