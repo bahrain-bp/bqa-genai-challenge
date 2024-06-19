@@ -33,6 +33,7 @@ import SummaryPage from './pages/summaryPage';
 import RubricPage from './pages/RubricPage';
 import UploadVideo from './pages/UploadVideo';
 import Page403 from './pages/Page403';
+import Dashboard from './pages/Dashboard';
 
 import HomePagess from './pages/homePagess';
 import UserGuid from './pages/UserGuid';
@@ -277,7 +278,15 @@ function App() {
         />
     
       
-
+      <Route
+      path="/Dashboard"
+      element={
+        <>
+          <PageTitle title="Dashboard | EduScribe" />
+          <Dashboard />
+        </>
+      }
+    />
         {/*===================================================================================================================================*/}
         {/* Route Available to BQA Reviewer Only */}
 
