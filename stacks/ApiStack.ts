@@ -96,6 +96,13 @@ export function ApiStack({ stack }: StackContext) {
           timeout: "900 seconds",
         },
       },
+      "GET /videoCriteria": {
+        function: {
+          handler: "packages/functions/src/getVideoCriteria.main",
+          permissions: "*",
+          timeout: "900 seconds",
+        },
+      },
       "POST /videoPrompt": {
         function: {
           handler: "packages/functions/src/generateVideoPrompt.handler",

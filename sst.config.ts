@@ -40,7 +40,7 @@ export default {
         // .stack(StandardAPIStack)
 
         .stack(FrontendStack)
-        .stack(WebSocketStack)
+        // .stack(WebSocketStack)
     }
   },
 } satisfies SSTConfig;

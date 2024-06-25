@@ -4,6 +4,7 @@ import DefaultLayout from '../layout/DefaultLayout';
 import ConfirmationDialog from '../components/Forms/ConfirmDialog';
 import Breadcrumb from '../components/Breadcrumbs/Breadcrumb';
 import Loader from '../common/Loader';
+import { fetchUserAttributes } from '@aws-amplify/auth';
 
 const VideoAnalysis: React.FC = () => {
   const itemsPerPage = 5;
@@ -11,11 +12,13 @@ const VideoAnalysis: React.FC = () => {
   const [selectedStandard, setSelectedStandard] = useState<string>('');
   const [standards, setStandards] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const criteria: any = [];
-  const currentPage = 1;
-  const paginatedCriteria = criteria.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
-  const isConfirmationDialogOpen = false;
+  const [filesByIndicator, setFilesByIndicator] = useState<any>({});
+  const [noVideosFound, setNoVideosFound] = useState(false);
+  const [criteria, setCriteria] = useState<any[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
   const [bonusDecision, setBonusDecision] = useState<string>('');
+  const [currentName, setCurrentName] = useState('');
+  const [isConfirmationDialogOpen, setIsConfirmationDialogOpen] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -45,6 +48,103 @@ const VideoAnalysis: React.FC = () => {
   const handleBonusDecisionChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     setBonusDecision(event.target.value);
   };
+
+  useEffect(() => {
+    const fetchCurrentUserInfo = async () => {
+      try {
+        const attributes = await fetchUserAttributes();
+        const name: any = attributes.name;
+        setCurrentName(name);
+        const email: any = attributes.email;
+        console.log('Current user info:', name, email);
+      } catch (error) {
+        console.error('Error fetching current user info:', error);
+      }
+    };
+
+    fetchCurrentUserInfo();
+  }, []);
+
+  const fetchFiles = async () => {
+    const url = `https://u1oaj2omi2.execute-api.us-east-1.amazonaws.com/files`;
+
+    try {
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'bucket-name': 'uni-artifacts',
+          'folder-name': currentName,
+          'subfolder-name': `${selectedStandard}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP status ${response.status}`);
+      }
+      const data = await response.json();
+      const files = data.files; // Ensure this matches the structure you log in Lambda
+
+      // Filter out files containing "-split" in their name
+      const filteredFiles = files.filter((file: any) => !file.Key.includes('-split'));
+
+      // Check if there are any .mp4 files
+      const mp4Files = filteredFiles.filter((file: any) => file.Key.toLowerCase().endsWith('.mp4'));
+
+      if (mp4Files.length === 0) {
+        setNoVideosFound(true);
+      } else {
+        setNoVideosFound(false);
+
+        const filesByIndicator = filteredFiles.reduce((acc: any, file: any) => {
+          const parts = file.Key.split('/');
+          const indicatorId = parts[2]; // This assumes the indicator ID is the third part
+          if (!acc[indicatorId]) {
+            acc[indicatorId] = [];
+          }
+          acc[indicatorId].push({ name: file.Key });
+          return acc;
+        }, {});
+
+        setFilesByIndicator(filesByIndicator);
+      }
+
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+      console.error('Error fetching uploaded files:', errorMessage);
+    }
+  };
+
+  useEffect(() => {
+    if (selectedStandard) {
+      fetchFiles();
+    }
+  }, [selectedStandard, currentName]);
+
+  const handleAnalyze = async (indicatorId: string, filePath: string) => {
+    setIsLoading(true);
+    try {
+      const requestData = {
+        bucketName: 'uni-artifacts',
+        filePath,
+        standardId: selectedStandard,
+        indicatorId,
+      };
+
+      const response = await axios.post('https://your-api-endpoint/videoFlow', requestData);
+
+      if (response.status === 200) {
+        setCriteria(response.data.criteria); // Assuming response contains the criteria data
+      } else {
+        console.error('Error triggering videoFlow API:', response.statusText);
+      }
+    } catch (error) {
+      console.error('Error in handleAnalyze:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const paginatedCriteria = criteria.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   return (
     <DefaultLayout>
@@ -95,64 +195,79 @@ const VideoAnalysis: React.FC = () => {
           <Loader />
         ) : (
           <>
-            <div>
-              <ConfirmationDialog isOpen={isConfirmationDialogOpen} onClose={() => {}} onYes={() => {}} />
-            </div>
+            {noVideosFound ? (
+              <div className="text-center text-red-500 mb-8">No videos found</div>
+            ) : (
+              <>
+                {Object.keys(filesByIndicator).map((indicatorId) => (
+                  <div key={indicatorId}>
+                    <h3 className="text-lg text-gray-700 mb-2">Indicator: {indicatorId}</h3>
+                    <ul className="mb-4">
+                      {filesByIndicator[indicatorId].map((file: any) => (
+                        <li key={file.name}>
+                          <button
+                            onClick={() => handleAnalyze(indicatorId, file.name)}
+                            className="text-blue-500 underline"
+                          >
+                            {file.name}
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
 
-            <div className="overflow-x-auto mb-8">
-              <table className="w-full bg-white border border-gray-300 rounded-lg shadow-lg">
-                <thead>
-                  <tr className="text-white bg-gradient-to-r from-purple-500 to-pink-500 hover:bg-gradient-to-l focus:ring-4 focus:outline-none focus:ring-purple-200 dark:focus:ring-purple-800 font-regular rounded-lg text-sm px-5 py-3">
-                    <th className="py-3 px-4 text-left font-bold border-r border-gray-300">Evaluation Result</th>
-                    <th className="py-3 px-4 text-left font-bold">Criteria</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {paginatedCriteria.map((criterion: any, index: any) => (
-                    <tr key={criterion.id} className={`${index % 2 === 0 ? 'bg-gray-100' : 'bg-white'}`}>
-                      <td className="py-4 px-6 border-b border-r border-gray-300 font-medium">
-                        <div className="p-4 rounded">{criterion.comment}</div>
-                      </td>
-                      <td className="py-4 px-6 border-b border-gray-300">
-                        <span className="text-gray-800">{criterion.result ? '✔️' : '❌'}</span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                <div className="overflow-x-auto">
+                  <table className="w-full bg-white border border-gray-300 rounded-lg shadow-lg">
+                    <thead>
+                      <tr className="text-white bg-gradient-to-r from-purple-500 to-pink-500 hover:bg-gradient-to-l focus:ring-4 focus:outline-none focus:ring-purple-200 dark:focus:ring-purple-800 font-regular rounded-lg text-sm px-5 py-3">
+                        <th className="py-3 px-4 text-left font-bold border-r border-gray-300">Evaluation Result</th>
+                        <th className="py-3 px-4 text-left font-bold">Criteria</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {paginatedCriteria.map((criterion: any, index: any) => (
+                        <tr key={criterion.id} className={`${index % 2 === 0 ? 'bg-gray-100' : 'bg-white'}`}>
+                          <td className="py-4 px-6 border-b border-r border-gray-300 font-medium">
+                            <div className="p-4 rounded">
+                              <span className="text-gray-800">{criterion.result ? '✔️' : '❌'}</span>
+                            </div>
+                          </td>
+                          <td className="py-4 px-6 border-b border-gray-300">
+                            <span className="text-gray-800">{criterion.criteria}</span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                  <div className="flex justify-between mt-4">
+                    <button
+                      disabled={currentPage === 1}
+                      onClick={() => setCurrentPage(currentPage - 1)}
+                      className="px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-300"
+                    >
+                      Previous
+                    </button>
+                    <button
+                      disabled={currentPage === Math.ceil(criteria.length / itemsPerPage)}
+                      onClick={() => setCurrentPage(currentPage + 1)}
+                      className="px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-300"
+                    >
+                      Next
+                    </button>
+                  </div>
+                </div>
 
-            {criteria.length > itemsPerPage && (
-              <div className="flex justify-center space-x-4 mb-8">
-                {currentPage > 1 && (
-                  <button className="text-white bg-gradient-to-r from-purple-500 to-pink-500 hover:bg-gradient-to-l focus:ring-4 focus:outline-none focus:ring-purple-200 dark:focus:ring-purple-800 font-regular rounded-lg text-sm px-5 py-3">
-                    Previous
-                  </button>
-                )}
-                {currentPage < Math.ceil(criteria.length / itemsPerPage) && (
-                  <button className="text-white bg-gradient-to-r from-purple-500 to-pink-500 hover:bg-gradient-to-l focus:ring-4 focus:outline-none focus:ring-purple-200 dark:focus:ring-purple-800 font-regular rounded-lg text-sm px-5 py-3">
-                    Next
-                  </button>
-                )}
-              </div>
+                <div className="mt-6.5">
+                  <label className="mb-3 block text-black dark:text-white">Bonus Decision</label>
+                  <textarea
+                    value={bonusDecision}
+                    onChange={handleBonusDecisionChange}
+                    className="w-full rounded border border-stroke bg-transparent py-3 px-4 outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input"
+                  ></textarea>
+                </div>
+              </>
             )}
-
-            <div className="overflow-x-auto">
-              <table className="w-full bg-white border border-gray-300 rounded-lg shadow-lg">
-                <thead>
-                  <tr className="text-white bg-gradient-to-r from-purple-500 to-pink-500 hover:bg-gradient-to-l focus:ring-4 focus:outline-none focus:ring-purple-200 dark:focus:ring-purple-800 font-regular rounded-lg text-sm px-5 py-3">
-                    <th className="py-3 px-4 text-left font-bold border-r border-gray-300">Bonus Decision</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td className="py-4 px-6 border-r font-medium">
-                      <div className="p-4 rounded">{bonusDecision}</div>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
           </>
         )}
       </div>
