@@ -1,22 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import DefaultLayout from '../layout/DefaultLayout';
-import ConfirmationDialog from '../components/Forms/ConfirmDialog';
 import Breadcrumb from '../components/Breadcrumbs/Breadcrumb';
 import Loader from '../common/Loader';
 
 const VideoAnalysis: React.FC = () => {
-  const itemsPerPage = 5;
   const [selectedVideoPath, setSelectedVideoPath] = useState<string>('');
   const [videos, setVideos] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [criteria, setCriteria] = useState<any[]>([]);
-  const [bonusDecision, setBonusDecision] = useState<string>('');
-  const [standardId, setStandardId] = useState<string>(''); // Assume this will be set somehow
-  const [indicatorId, setIndicatorId] = useState<string>(''); // Assume this will be set somehow
+  const [result, setResult] = useState<string>('');
+  const [criteria, setCriteria] = useState<{ id: number; criteria: string; found: boolean | null }[]>([]);
+  const itemsPerPage = 5;
   const currentPage = 1;
-  const paginatedCriteria = criteria.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
-  const isConfirmationDialogOpen = false;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -41,34 +36,50 @@ const VideoAnalysis: React.FC = () => {
   const handleAnalyze = async () => {
     setIsLoading(true);
     try {
-      // Split selected video path to get bucket name and file path
       const selectedVideoParts = selectedVideoPath.split('/');
-      const bucketName = 'uni-artifacts'; // Assume fixed bucket name
-      const filePath = selectedVideoPath; // Assume full file path is provided
+      const bucketName = 'uni-artifacts';
+      const filePath = selectedVideoPath;
 
       const requestData = {
         bucketName: bucketName,
         filePath: filePath,
-        standardId: 2,
-        indicatorId: 4
+        standardId: "2",
+        indicatorId: "6"
       };
 
       const response = await axios.post('https://ake2mc5exi.execute-api.us-east-1.amazonaws.com/videoFlow', requestData);
       const result = response.data;
       console.log('Analysis result:', result);
 
-      // Assume result contains criteria to be displayed in the table
-      setCriteria(result.criteria || []);
+      // Hardcoded criteria for the table
+      const hardcodedCriteria = [
+        { id: 1, criteria: 'Video includes clean office', found: null },
+        { id: 2, criteria: 'Video includes employees', found: null }
+      ];
 
+      // Map criteria to include evaluation result
+      const criteriaWithResult = hardcodedCriteria.map(criterion => {
+        // Check if the criterion exists in the result
+        const foundYes = result.includes(`Yes`);
+        const foundNo = result.includes(`No`);
+        let found: boolean | null = null;
+
+        if (foundYes) {
+          found = true;
+        } else if (foundNo) {
+          found = false;
+        }
+
+        return { ...criterion, found };
+      });
+
+      setCriteria(criteriaWithResult);
+      setResult(result);
     } catch (error) {
       console.error('Error during video analysis:', error);
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleBonusDecisionChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setBonusDecision(event.target.value);
   };
 
   return (
@@ -126,10 +137,6 @@ const VideoAnalysis: React.FC = () => {
           <Loader />
         ) : (
           <>
-            <div>
-              <ConfirmationDialog isOpen={isConfirmationDialogOpen} onClose={() => {}} onYes={() => {}} />
-            </div>
-
             <div className="overflow-x-auto mb-8">
               <table className="w-full bg-white border border-gray-300 rounded-lg shadow-lg">
                 <thead>
@@ -139,61 +146,23 @@ const VideoAnalysis: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {paginatedCriteria.map((criterion: any, index: any) => (
-                    <tr key={criterion.id} className={`${index % 2 === 0 ? 'bg-gray-100' : 'bg-white'}`}>
+                  {criteria.map((criterion) => (
+                    <tr key={criterion.id} className="bg-gray-100">
                       <td className="py-4 px-6 border-b border-r border-gray-300 font-medium">
-                        <div className="p-4 rounded">{criterion.comment}</div>
+                        <div className="p-4 rounded">
+                          {/* Example result format: "{Yes, The office is clean and looks new., Yes, The video shows many employees working in an office.}" */}
+                          {criterion.found === true ? '✔️' : criterion.found === false ? '❌' : ''}
+                        </div>
                       </td>
                       <td className="py-4 px-6 border-b border-gray-300">
-                        <span className="text-gray-800">{criterion.result ? '✔️' : '❌'}</span>
+                        <span className="text-gray-800">{criterion.criteria}</span>
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
-
-            {criteria.length > itemsPerPage && (
-              <div className="flex justify-center space-x-4 mb-8">
-                {currentPage > 1 && (
-                  <button className="text-white bg-gradient-to-r from-purple-500 to-pink-500 hover:bg-gradient-to-l focus:ring-4 focus:outline-none focus:ring-purple-200 dark:focus:ring-purple-800 font-regular rounded-lg text-sm px-5 py-3">
-                    Previous
-                  </button>
-                )}
-                {currentPage < Math.ceil(criteria.length / itemsPerPage) && (
-                  <button className="text-white bg-gradient-to-r from-purple-500 to-pink-500 hover:bg-gradient-to-l focus:ring-4 focus:outline-none focus:ring-purple-200 dark:focus:ring-purple-800 font-regular rounded-lg text-sm px-5 py-3">
-                    Next
-                  </button>
-                )}
-              </div>
-            )}
-
-            <div className="overflow-x-auto">
-              <table className="w-full bg-white border border-gray-300 rounded-lg shadow-lg">
-                <thead>
-                  <tr className="text-white bg-gradient-to-r from-purple-500 to-pink-500 hover:bg-gradient-to-l focus:ring-4 focus:outline-none focus:ring-purple-200 dark:focus:ring-purple-800 font-regular rounded-lg text-sm px-5 py-3">
-                    <th className="py-3 px-4 text-left font-bold border-r border-gray-300">Bonus Decision</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td className="py-4 px-6 border-b border-r border-gray-300">
-                      <textarea
-                        className="w-full p-4 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                        rows={4}
-                        value={bonusDecision}
-                        onChange={handleBonusDecisionChange}
-                      />
-                    </td>
-                  </tr>
-                  <tr>
-                    <td className="py-4 px-6 border-b border-r border-gray-300">
-                      <div className="p-4 rounded">{bonusDecision}</div>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+            <div>{result}</div>
           </>
         )}
       </div>
