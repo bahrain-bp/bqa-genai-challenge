@@ -47,7 +47,7 @@ const VideoAnalysis: React.FC = () => {
         indicatorId: "6"
       };
 
-      const response = await axios.post('https://ake2mc5exi.execute-api.us-east-1.amazonaws.com/videoFlow', requestData);
+      const response = await axios.post('https://u1oaj2omi2.execute-api.us-east-1.amazonaws.com/videoFlow', requestData);
       const result = response.data;
       console.log('Analysis result:', result);
 

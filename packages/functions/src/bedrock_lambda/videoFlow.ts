@@ -41,7 +41,7 @@ export const handler: APIGatewayProxyHandler = async (event: any, _context) => {
     };
 
     // Call videoPrompt API with standardId and indicatorId in request body
-    const videoPromptResponse = await axios.post('https://ake2mc5exi.execute-api.us-east-1.amazonaws.com/videoPrompt', videoPromptData);
+    const videoPromptResponse = await axios.post('https://u1oaj2omi2.execute-api.us-east-1.amazonaws.com/videoPrompt', videoPromptData);
     
     if (videoPromptResponse.status !== 200) {
       throw new Error(`Error during videoPrompt API call: ${videoPromptResponse.statusText}`);
@@ -70,7 +70,7 @@ export const handler: APIGatewayProxyHandler = async (event: any, _context) => {
     await new Promise(resolve => setTimeout(resolve, 2000));
 
     // Call Gemini API
-    const geminiResponse = await axios.post('https://ake2mc5exi.execute-api.us-east-1.amazonaws.com/gemini', JSON.stringify(geminiData));
+    const geminiResponse = await axios.post('https://u1oaj2omi2.execute-api.us-east-1.amazonaws.com/gemini', JSON.stringify(geminiData));
 
     if (geminiResponse.status !== 200) {
       throw new Error(`Error during Gemini API call: ${geminiResponse.statusText}`);
