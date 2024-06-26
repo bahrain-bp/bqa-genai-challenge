@@ -31,8 +31,11 @@ import UploadVideo from './pages/UploadVideo';
 import Page403 from './pages/Page403';
 import VideoAnalysis from './pages/videoAnalysis';
 
-import HomePagess from './pages/homePagess';
+import Dashboard from './pages/Dashboard';
 
+
+import HomePagess from './pages/homePagess';
+import UserGuid from './pages/UserGuid';
 import AssessmentPage from './pages/AssessmentPage';
 
 
@@ -118,6 +121,7 @@ function App() {
             </>
           }
         />
+     
         <Route
           path="/SummaryPage"
           element={
@@ -270,12 +274,30 @@ function App() {
             </>
           }
         />
+           <Route
+          path="/UserGuid"
+          element={
+            <>
+              <PageTitle title="User Guide| EduScribe" />
+              <UserGuid />
+            </>
+          }
+        />
+    
       
-
+      <Route
+      path="/Dashboard"
+      element={
+        <>
+          <PageTitle title="Dashboard | EduScribe" />
+          <Dashboard />
+        </>
+      }
+    />
         {/*===================================================================================================================================*/}
         {/* Route Available to BQA Reviewer Only */}
 
-        {isAdmin ? (
+        {isAdmin && (
   <>
     <Route
       path="/BqaDash1"
@@ -296,6 +318,7 @@ function App() {
         </>
       }
     />
+    
 
     <Route
       path="/AddUni"
@@ -324,15 +347,14 @@ function App() {
         </>
       }
     />
+    
   </>
-) : (
-  <Route path="*" element={<Page403 />} />
-)}
+) }
 
 
         {/**-------------------------------------------------------------------------------------------------------------------- */}
         {/* Route Available to University Officer Only */}
-        {!isAdmin ? (
+        {!isAdmin && (
           <>
             {/* <Route
           path="/Dashboard"
@@ -364,9 +386,7 @@ function App() {
             />
           {/* Additional officer-only routes can be added here */}
   </>
-) : (
-  <Route path="*" element={<Page403 />} />
-)}
+) }
             <Route
               path="/AssessmentPage"
               element={
@@ -387,6 +407,7 @@ function App() {
             </>
           }
         />
+    
       </Routes>
     </>
 
