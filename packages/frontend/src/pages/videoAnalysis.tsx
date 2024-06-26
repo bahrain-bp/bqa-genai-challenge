@@ -10,8 +10,7 @@ const VideoAnalysis: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<string>('');
   const [criteria, setCriteria] = useState<{ id: number; criteria: string; found: boolean | null }[]>([]);
-  const itemsPerPage = 5;
-  const currentPage = 1;
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -36,7 +35,6 @@ const VideoAnalysis: React.FC = () => {
   const handleAnalyze = async () => {
     setIsLoading(true);
     try {
-      const selectedVideoParts = selectedVideoPath.split('/');
       const bucketName = 'uni-artifacts';
       const filePath = selectedVideoPath;
 
