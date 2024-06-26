@@ -96,11 +96,19 @@ export function ApiStack({ stack }: StackContext) {
           timeout: "900 seconds",
         },
       },
+      "GET /videoCriteria": {
+        function: {
+          handler: "packages/functions/src/getVideoCriteria.main",
+          permissions: "*",
+          timeout: "900 seconds",
+        },
+      },
       "POST /videoPrompt": {
         function: {
           handler: "packages/functions/src/generateVideoPrompt.handler",
           permissions: ["dynamodb"],
           timeout: "900 seconds",
+          retryAttempts: 2
         },
       },
       "GET /private": "packages/functions/src/private.main",
@@ -158,14 +166,16 @@ export function ApiStack({ stack }: StackContext) {
           handler: "packages/functions/src/bedrock_lambda/videoAnalyze.handler",
           runtime: "python3.11",
           permissions: "*",
-          timeout: "900 seconds"
+          timeout: "900 seconds",
+          retryAttempts: 2
         },
       },
       "POST /videoFlow": {
         function: {
           handler: "packages/functions/src/bedrock_lambda/videoFlow.handler",
           permissions: "*",
-          timeout: "900 seconds"
+          timeout: "900 seconds",
+          retryAttempts: 2
         },
       },
       "POST /videoUpload": {
@@ -180,7 +190,8 @@ export function ApiStack({ stack }: StackContext) {
           handler: "packages/functions/src/bedrock_lambda/transferToGoogle.handler",
           runtime: "python3.11",
           permissions: "*",
-          timeout: "900 seconds"
+          timeout: "900 seconds",
+          retryAttempts: 2
         },
       },
       

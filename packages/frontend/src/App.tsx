@@ -3,12 +3,8 @@ import { Route, Routes, useLocation } from 'react-router-dom';
 import Loader from './common/Loader';
 import PageTitle from './components/PageTitle';
 import SignInPage from './pages/Auth/SigninPage';
-
 import { Navigate } from 'react-router-dom';
-
-//import SignUp from './pages/Authentication/SignUp';
 import Chart from './pages/Chart';
-//import ECommerce from './pages/Dashboard/ECommerce';
 import FormElements from './pages/Form/FormElements';
 import FormLayout from './pages/Form/FormLayout';
 import Settings from './pages/Settings';
@@ -33,7 +29,10 @@ import SummaryPage from './pages/summaryPage';
 import RubricPage from './pages/RubricPage';
 import UploadVideo from './pages/UploadVideo';
 import Page403 from './pages/Page403';
+import VideoAnalysis from './pages/videoAnalysis';
+
 import Dashboard from './pages/Dashboard';
+
 
 import HomePagess from './pages/homePagess';
 import UserGuid from './pages/UserGuid';
@@ -257,7 +256,15 @@ function App() {
             </>
           }
         />
-
+   <Route
+          path="/VideoAnalysis"
+          element={
+            <>
+              <PageTitle title="Analyze Videos With AI | EduScribe" />
+              <VideoAnalysis />
+            </>
+          }
+        />
         <Route
           path="/homePagess"
           element={
