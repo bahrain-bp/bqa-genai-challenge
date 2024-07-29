@@ -1,4 +1,3 @@
-
 import * as AWS from "aws-sdk";
 import { Buffer } from "buffer";
 import { Queue } from "sst/node/queue";
@@ -39,9 +38,9 @@ async function createFolder(bucketName: string, folderPath: string) {
 }
 
 async function generatePresignedUrl(
-  bucketName: string, 
+  bucketName: string,
   folderPath: string,
-  fileName: string, //nfs 
+  fileName: string, //nfs
   contentType: string
 ): Promise<string> {
   try {
@@ -66,9 +65,9 @@ export async function uploadLogoToS3(event: any) {
     const fileData = event.body;
     const fileName = event.headers["file-name"]; //logo1.png
     const bucketName = event.headers["bucket-name"];
-    const folderName = event.headers["folder-name"];//uni versity
+    const folderName = event.headers["folder-name"]; //uni versity
     const subfolderName = event.headers["subfolder-name"];
-    const contentType = event.headers["content-type"];
+    const contentType = "image/*";
 
     // Check file size before upload (optional)
     const fileSize = Buffer.byteLength(fileData);
@@ -124,16 +123,11 @@ export async function uploadLogoToS3(event: any) {
 
     console.log("signedurl", signedUrl);
 
-
-    
-
     return {
       statusCode: 200,
       body: JSON.stringify({
         message: "File uploaded successfully",
         location: signedUrl,
-
-
       }),
     };
   } catch (error) {
@@ -144,4 +138,3 @@ export async function uploadLogoToS3(event: any) {
     };
   }
 }
-

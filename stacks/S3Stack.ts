@@ -2,7 +2,6 @@ import { aws_iam as iam, aws_lambda as lambda, Duration } from "aws-cdk-lib";
 import { StackContext, Queue, Function, toCdkDuration } from "sst/constructs";
 import * as AWS from "aws-sdk";
 
-
 export function S3Stack({ stack, app }: StackContext) {
   // Create the S3 bucket if it doesn't exist
   const bucketName = "uni-artifacts";
@@ -49,13 +48,13 @@ export function S3Stack({ stack, app }: StackContext) {
         // contentBasedDeduplication: true,
         queueName: stack.stage + "-documents-queue.fifo",
         contentBasedDeduplication: true,
-        visibilityTimeout: toCdkDuration('1 hour')
-        //testing timeout
+        visibilityTimeout: toCdkDuration("1 hour"),
+
       },
     },
   });
   documentsQueue.attachPermissions("*");
-  bedrock_lambda.bind([documentsQueue])
+  bedrock_lambda.bind([documentsQueue]);
 
   const textractQueue = new Queue(stack, "textract-Queue", {
     consumer: {
@@ -67,7 +66,7 @@ export function S3Stack({ stack, app }: StackContext) {
         // contentBasedDeduplication: true,
         queueName: stack.stage + "-textract-queue.fifo",
         contentBasedDeduplication: true,
-        visibilityTimeout: toCdkDuration('301 seconds'),
+        visibilityTimeout: toCdkDuration("301 seconds"),
       },
     },
   });
