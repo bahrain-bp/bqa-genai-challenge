@@ -40,6 +40,16 @@ export function ApiStack({ stack }: StackContext) {
           permissions: ["ses"],
         },
       },
+      "POST /email": {
+        function: {
+          handler: "packages/functions/src/invokeSes.invokeSendEmailLambda",
+          permissions: "*",
+        },
+      },       
+      // not authorized to perform: lambda:InvokeFunction on 
+      // resource: arn:aws:lambda:us-east-1:211125580170:function:sendEmail 
+      // because no identity-based policy allows the lambda:InvokeFunction action
+    
       // Sample TypeScript lambda function
       "POST /": "packages/functions/src/lambda.main",
       "POST /uploadS3": {
